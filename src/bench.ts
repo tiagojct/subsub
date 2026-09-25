@@ -32,7 +32,7 @@ export const TASKS: Record<Mode, string[]> = {
 };
 
 export interface Tasks {
-	tagging: { keys: string[]; gold_reviewed: Record<string, string[]>; blind_reference_keys: string[] };
+	tagging: { keys: string[] };
 	facet_fix: Record<string, string[]>;
 	import: { in_library: { id: string; key: string; citekey: string } | null; new: Array<{ id: string; kind: string; title: string }> };
 	lit_note: { key: string; citekey: string; title: string } | null;
@@ -341,8 +341,7 @@ export function scoreRun(task: string, dir: string, t: Tasks, index: IndexRow[],
 			invalid_tags: invalid,
 			status_tags: status,
 			peeked,
-			vs_tiago: scoreTags(proposals, t.tagging.gold_reviewed),
-			vs_blind: Object.keys(blindRef).length ? scoreTags(proposals, blindRef) : undefined,
+			vs_reference: Object.keys(blindRef).length ? scoreTags(proposals, blindRef) : undefined,
 			proposals,
 		};
 	}
@@ -448,7 +447,7 @@ function cell(v: unknown): string {
 export function renderResults(rows: Array<{ model: string; role: Mode; task: string; s: Record<string, any> }>): string {
 	const out: string[] = [`Model test results (${new Date().toISOString().slice(0, 10)}). Objective checks only; the quality judgement is separate.`, ""];
 	const cols: Record<string, string[]> = {
-		tagging: ["submitted", "items_proposed", "vs_tiago.f1", "vs_tiago.exact", "vs_blind.f1", "invalid_tags", "status_tags", "peeked"],
+		tagging: ["submitted", "items_proposed", "vs_reference.f1", "vs_reference.exact", "invalid_tags", "status_tags", "peeked"],
 		facet_fix: ["expected", "fixed", "extra_items", "change_calls", "preview_errors"],
 		import: ["ids_expected", "ids_sent", "extra_ids", "would_import", "duplicate_reported"],
 		lit_note: ["written", "words", "read_fulltext", "cites_itself", "citekeys_unknown"],

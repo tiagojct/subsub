@@ -297,7 +297,7 @@ test("subsub-bench: changes are recorded and blocked, writes stay in the run fol
 	const base = { ...baseEnv, ...env };
 	delete base.PI_CODING_AGENT_DIR;
 	const tasks: any = {
-		tagging: { keys: [], gold_reviewed: {}, blind_reference_keys: [] },
+		tagging: { keys: [] },
 		facet_fix: { missing_topic: ["BBBB3333"], missing_status: [] },
 		import: { in_library: null, new: [] },
 		lit_note: { key: "AAAA2222", citekey: "x2020", title: "X" },
@@ -340,4 +340,26 @@ test("subsub-bench: changes are recorded and blocked, writes stay in the run fol
 	assert.equal(sc2.path_blocked, 1);
 	assert.equal(sc2.cites_itself, true);
 	assert.deepEqual(sc2.citekeys_unknown, ["nobody1999"]);
+});
+
+test("lists sent as strings work; misnamed fields are refused with a clear error", { timeout: 180_000 }, async () => {
+	const pi = startPi(["--librarian"]);
+	try {
+		script = [
+			{ tool: { name: "zotero_find_items", args: { tags: '["status/read"]' } } },
+			{ tool: { name: "zotero_tag_items", args: { changes: [{ key: "AAAA2222", topics: ["topic/asthma"] }], dry_run: false } } },
+			{ text: "Done." },
+		];
+		requests.length = 0;
+		await pi.prompt("find and tag");
+		const tools = requests.at(-1)!.messages.filter((m: any) => m.role === "tool");
+		const found = JSON.stringify(tools[0]);
+		assert.match(found, /BBBB3333/, found.slice(0, 400));
+		assert.doesNotMatch(found, /Validation failed/);
+		const refused = JSON.stringify(tools[1]);
+		assert.match(refused, /topics/);
+		assert.equal(pi.confirms.length, 0); // refused before any preview
+	} finally {
+		pi.kill();
+	}
 });

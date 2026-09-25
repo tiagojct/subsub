@@ -66,7 +66,7 @@ The model test runs several models on the same tasks against your library and co
 
 Tasks:
 
-- Librarian: tag 20 items (10 with tags you reviewed, 10 against a blind reference); fix the items without topic or status; import 3 identifiers, one of them already in the library.
+- Librarian: tag 20 items against a blind reference (reference.md shows the items without their tags; the tags go in reference.json); fix the items without topic or status; import identifiers, one of them already in the library.
 - Researcher: a literature note on one item with full text; a synthesis on one topic; a search for recent papers that are not in the library.
 
 Procedure:

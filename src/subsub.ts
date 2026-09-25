@@ -17,6 +17,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Bridge, type ServerSpec } from "./bridge.ts";
 import { expand, loadConfig, type Mode, type SubsubConfig } from "./config.ts";
+import { coerceArgs, loosenArrays } from "./args.ts";
 import { buildPolicy, judgePath, normalizeToolPath, realish, within } from "./paths.ts";
 import { describeArgs, formatPreview } from "./preview.ts";
 import { headerLines, type LibraryState, paintPreview, QUOTES, type Scheme, schemeFromAnsi, themeName } from "./look.ts";
@@ -63,6 +64,8 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	const cfg = deps.config ?? loadConfig();
 	let bridge: Bridge | undefined = deps.bridge;
 	const toolNames = new Set<string>();
+	/** Original input schemas, to turn "[...]" strings back into lists. */
+	const schemas = new Map<string, Record<string, unknown>>();
 
 	function current(): Bridge {
 		if (!bridge) throw new Error("The Zotero servers are not running. Try /reload.");
@@ -73,15 +76,17 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		for (const t of b.tools) {
 			if (toolNames.has(t.fullName)) continue;
 			toolNames.add(t.fullName);
+			schemas.set(t.fullName, t.inputSchema as Record<string, unknown>);
 			pi.registerTool({
 				name: t.fullName,
 				label: `${t.server} ${t.name}`,
 				description: t.description,
-				parameters: t.inputSchema as never,
+				parameters: loosenArrays(t.inputSchema as Record<string, unknown>) as never,
 				// One at a time, so a preview always sees the effect of earlier calls in the same message.
 				executionMode: "sequential",
 				async execute(_id, params, signal) {
-					const res = await current().call(t.fullName, (params ?? {}) as Record<string, unknown>, signal);
+					const args = coerceArgs(t.inputSchema as Record<string, unknown>, { ...((params ?? {}) as Record<string, unknown>) });
+					const res = await current().call(t.fullName, args, signal);
 					if (res.isError) throw new Error(res.text || `${t.fullName} failed`);
 					return { content: [{ type: "text", text: res.text }], details: { tool: t.fullName } };
 				},
@@ -240,6 +245,9 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	pi.on("tool_call", async (event, ctx) => {
 		const name = event.toolName;
 		const input = (event.input ?? {}) as Record<string, unknown>;
+		// Previews and the real call must see the same, repaired arguments.
+		const schema = schemas.get(name);
+		if (schema) coerceArgs(schema, input);
 		if ((name.startsWith("zotero_") || name.startsWith("scholar_")) && !toolsFor(mode, registered()).includes(name)) {
 			if (benchOut) record({ kind: "wrong_mode", tool: name, input });
 			return {

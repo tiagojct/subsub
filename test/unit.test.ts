@@ -375,7 +375,7 @@ test("/undo previews, confirms and applies", async () => {
 test("bench: prompts, tag scoring, identifiers and citekeys", async () => {
 	const { promptFor, scoreTags, normId, citekeysIn, DOI_RE } = await import("../src/bench.ts");
 	const t: any = {
-		tagging: { keys: ["A", "B"], gold_reviewed: {}, blind_reference_keys: [] },
+		tagging: { keys: ["A", "B"] },
 		facet_fix: {},
 		import: { in_library: { id: "10.1/old", key: "K", citekey: "old2020" }, new: [{ id: "10.2/new", kind: "doi", title: "" }, { id: "PMID:123", kind: "pmid", title: "" }] },
 		lit_note: { key: "K", citekey: "smith2020", title: "" },
@@ -437,4 +437,27 @@ test("themes: all four load and name every required colour", async () => {
 			if (typeof v === "string" && !v.startsWith("#") && v !== "") assert.ok(v in t.vars, `${f}: ${c} -> ${v}`);
 		}
 	}
+});
+
+test("args: lists sent as strings are accepted and repaired", async () => {
+	const { loosenArrays, coerceArgs, toList } = await import("../src/args.ts");
+	const schema = {
+		type: "object",
+		properties: {
+			tags: { anyOf: [{ type: "array", items: { type: "string" } }, { type: "null" }], default: null },
+			keys: { type: "array", items: { type: "string" }, description: "Item keys" },
+			changes: { type: "array", items: { type: "object" } },
+			limit: { type: "integer" },
+		},
+	};
+	const loose = loosenArrays(schema);
+	assert.deepEqual(loose.properties.tags.anyOf.at(-1), { type: "string" });
+	assert.deepEqual(loose.properties.keys, { anyOf: [{ type: "array", items: { type: "string" } }, { type: "string" }], description: "Item keys" });
+	assert.deepEqual(loose.properties.changes, schema.properties.changes); // lists of objects are left alone
+	assert.deepEqual(schema.properties.keys.type, "array"); // the original is not changed
+	const input: Record<string, unknown> = { tags: '["topic/eu-regulation"]', keys: "ABCD2345, EFGH6789", limit: 5 };
+	coerceArgs(schema, input);
+	assert.deepEqual(input, { tags: ["topic/eu-regulation"], keys: ["ABCD2345", "EFGH6789"], limit: 5 });
+	assert.deepEqual(toList("topic/asthma"), ["topic/asthma"]);
+	assert.deepEqual(toList("[topic/a, 'topic/b']"), ["topic/a", "topic/b"]);
 });
