@@ -16,18 +16,26 @@ Sub-Sub is a Zotero librarian and research assistant that runs in pi. It uses th
 ## Install
 
 1. Make sure that Node is version 22.19 or later: type `node --version`.
-2. Type `npm install -g @earendil-works/pi-coding-agent`.
-3. Type `cd ~/Projects/subsub && npm install --omit=dev`.
-4. Type `pi install ~/Projects/subsub`.
-5. Type `pi`. In pi, type `/login`. Select OpenCode Zen and Go. Paste the OpenCode Go key.
-6. Type `/subsub`. Make sure that the result shows "Zotero: reachable".
+2. Type `cd ~/Projects/subsub && npm install --omit=dev`.
+3. Type `npm link`. This adds the `subsub` command.
+4. Optional: type `pi remove ~/Projects/subsub`. Then plain `pi` stays a plain coding agent without Sub-Sub.
+5. Type `subsub`. If pi already has your OpenCode Go key, Sub-Sub uses the same key. If not, type `/login`, select OpenCode Zen and Go, and paste the key.
+6. Type `/subsub`. Make sure that the result shows "Zotero: reachable" and the model mimo-v2.6-pro.
+
+If you change the Node version with fnm, do step 3 again.
 
 ## Use
 
 1. Start Zotero.
-2. Type `cd ~/Notes && pi`. Sub-Sub starts in the researcher mode. To start in the librarian mode, type `pi --librarian`.
-3. To change the mode, type `/librarian` or `/researcher`. The mode also changes the model.
-4. When a dialog shows a preview, read it. Select Yes to apply the change, or No to stop it. After No, tell Sub-Sub what to change.
+2. Type `subsub`. From the home folder, Sub-Sub starts in the vault. From a different folder (for example a manuscript folder), it starts in that folder. To stay in the home folder, type `subsub --here`.
+3. Sub-Sub starts in the researcher mode. To start in the librarian mode, type `subsub --librarian`.
+4. To change the mode, type `/librarian` or `/researcher`. The mode also changes the model.
+5. When a dialog shows a preview, read it. Select Yes to apply the change, or No to stop it. After No, tell Sub-Sub what to change.
+6. To continue the last session, type `subsub -c`. To select an older session, type `subsub -r`.
+
+Sub-Sub always replies in English and writes its notes in English. Quotations and titles of works stay in their original language.
+
+Sub-Sub keeps its pi settings, sessions and packages in ~/.subsub/agent, separate from plain pi (~/.pi/agent).
 
 Commands:
 
@@ -43,10 +51,12 @@ Templates (type the name, then the argument):
 ## Problems
 
 - "the zotero server did not start": run `cd ~/Projects/zotero-local-mcp && uv sync`. If pi does not find uv, add `"uvPath": "/path/to/uv"` to ~/.config/subsub/config.json (type `which uv` to see the path).
-- "cannot use opencode-go/...": the OpenCode Go key is missing. Type `/login` again.
+- "cannot use opencode-go/...": the OpenCode Go key is missing. In Sub-Sub, type `/login` again.
+- "command not found: subsub": type `cd ~/Projects/subsub && npm link`.
+- To update Sub-Sub after new code arrives, type `cd ~/Projects/subsub && npm install --omit=dev`. Do not use `subsub update`.
 - A tool call is refused with "not available in researcher mode": type `/librarian`.
 
 ## Tests
 
 - `cd ~/Projects/subsub && npm install && npm test`: unit tests.
-- `npm run test:e2e`: real pi with a scripted model and a fake Zotero.
+- `npm run test:e2e`: real pi and the `subsub` command with a scripted model and a fake Zotero.

@@ -66,6 +66,7 @@ export function buildPolicy(opts: { vault?: string; cwd: string; serverDir: stri
 	if (cwd !== home && within(cwd, home) && !within(home, cwd)) allowed.push(cwd);
 	const protectedPaths = [
 		join(home, ".pi"),
+		join(home, ".subsub"),
 		join(home, ".config"),
 		join(home, ".ssh"),
 		join(home, ".zshrc"),

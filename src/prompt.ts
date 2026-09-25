@@ -20,6 +20,9 @@ function readIf(path: string | undefined): string | undefined {
 	}
 }
 
+export const LANGUAGE_RULE =
+	"Always reply in English, even when Tiago writes in Portuguese or another language and even when the sources or notes you read are in another language. Write the notes you create in English too, including their titles. Keep quotations, titles of works and proper names in their original language.";
+
 export function inside(child: string, parent: string | undefined): boolean {
 	if (!parent) return false;
 	const rel = relative(resolve(parent), resolve(child));
@@ -46,5 +49,7 @@ export function systemAddition(mode: Mode, cfg: SubsubConfig, cwd: string): stri
 			if (t) parts.push(`# Vault conventions (${f})`, t);
 		}
 	}
+	// Last, so it wins over any language rule in the shared rules or the vault conventions.
+	parts.push("# Language", LANGUAGE_RULE);
 	return parts.join("\n\n");
 }

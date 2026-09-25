@@ -12,7 +12,7 @@
  */
 
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Bridge, type ServerSpec } from "./bridge.ts";
@@ -31,6 +31,25 @@ export interface SubsubDeps {
 
 const PACKAGE_DIR = join(dirname(fileURLToPath(import.meta.url)), "..");
 const MODE_ENTRY = "subsub-mode";
+
+function ownVersion(): string {
+	try {
+		return JSON.parse(readFileSync(join(PACKAGE_DIR, "package.json"), "utf8")).version ?? "";
+	} catch {
+		return "";
+	}
+}
+
+/** Header lines shown at startup when Sub-Sub runs as its own command. */
+export function headerLines(version: string, mode: Mode): string[] {
+	return [
+		"",
+		`Sub-Sub ${version}`.trim(),
+		`Zotero librarian and research assistant. Mode: ${mode}.`,
+		"/researcher  /librarian  /subsub  /history  /undo  |  / for all commands",
+		"",
+	];
+}
 
 /** uv is often missing from PATH when pi is started outside a login shell. */
 export function findUv(cfg: SubsubConfig, env: NodeJS.ProcessEnv = process.env): string {
@@ -84,12 +103,15 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	pi.registerFlag("librarian", { description: "Start Sub-Sub in librarian mode", type: "boolean", default: false });
 
 	let mode: Mode = cfg.defaultMode;
+	/** True when started with the `subsub` command (not as a package inside plain pi). */
+	const standalone = process.env.SUBSUB_CLI === "1";
 	const registered = () => pi.getAllTools().map((t) => t.name);
 
 	function status(ctx: ExtensionContext): void {
 		const model = ctx.model ? `${ctx.model.id}` : "no model";
 		const down = bridge ? Object.keys(bridge.errors) : ["zotero", "scholar"];
 		ctx.ui.setStatus("subsub", `Sub-Sub: ${mode} | ${model}${down.length ? ` | not running: ${down.join(", ")}` : ""}`);
+		if (standalone) ctx.ui.setTitle(`Sub-Sub: ${mode}`);
 	}
 
 	async function applyMode(ctx: ExtensionContext, next: Mode, remember: boolean): Promise<void> {
@@ -119,6 +141,13 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			if (m === "librarian" || m === "researcher") restored = m;
 		}
 		await applyMode(ctx, restored ?? (pi.getFlag("librarian") ? "librarian" : cfg.defaultMode), false);
+		if (standalone && ctx.mode === "tui") {
+			const version = ownVersion();
+			ctx.ui.setHeader((_tui, theme) => ({
+				render: () => headerLines(version, mode).map((l, i) => (i === 1 ? theme.fg("accent", l) : i === 0 ? l : theme.fg("muted", l))),
+				invalidate() {},
+			}));
+		}
 		for (const [name, err] of Object.entries(bridge.errors)) {
 			ctx.ui.notify(`Sub-Sub: the ${name} server did not start: ${err.split("\n")[0]}`, "error");
 		}

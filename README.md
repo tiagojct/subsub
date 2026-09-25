@@ -10,13 +10,13 @@ Sub-Sub is a pi package. It starts the two MCP servers of [zotero-local-mcp](../
 - **An approval gate in code.** When the model calls a library write with `dry_run=false`, Sub-Sub first asks the server for the preview (dry run), shows it in a dialog, and lets the call run only after you approve. Without an interactive UI, writes are blocked. The model cannot skip this.
 - **Commands.** `/subsub` (connection and library overview), `/history`, `/undo` (preview, confirm, apply).
 - **Prompt templates.** `/tag-batch`, `/clean-tags`, `/import-queue`, `/lit-note`, `/synthesis`, `/gaps`, `/manuscript`, `/alert`.
-- **A lean prompt.** pi's short base prompt, plus the role text, plus the shared rules from the vault (`Systems/Zotero agent.md`), plus the vault conventions (`.claude/CLAUDE.md`) when pi runs in the vault.
+- **A lean prompt.** pi's short base prompt, plus the role text, plus the shared rules from the vault (`Systems/Zotero agent.md`), plus the vault conventions (`.claude/CLAUDE.md`) when pi runs in the vault, plus an English-only rule at the end.
 
 All library safety (dry runs, version checks, journal and undo, vocabulary, the researcher's note-only client) stays in the Python servers.
 
 ## Requirements
 
-- pi 0.87 or later (`npm install -g @earendil-works/pi-coding-agent`), Node 22.19 or later
+- Node 22.19 or later (pi 0.87.1 is installed as a dependency)
 - zotero-local-mcp in `~/Projects/zotero-local-mcp`, with `uv sync` done
 - Zotero 10 running, with local API access enabled
 - An OpenCode Go key (pi has a built-in `opencode-go` provider)
@@ -26,10 +26,13 @@ All library safety (dry runs, version checks, journal and undo, vocabulary, the 
 ```sh
 cd ~/Projects/subsub
 npm install --omit=dev
-pi install ~/Projects/subsub
+npm link          # adds the subsub command
+subsub            # then /login, OpenCode Zen and Go, paste the key
 ```
 
-In pi, run `/login`, select OpenCode Zen and Go, and paste the key. Or set `OPENCODE_API_KEY`.
+`subsub` is pi with its own folder (`~/.subsub/agent`, or `SUBSUB_AGENT_DIR`) for settings, sessions and packages. On each start it makes sure that the folder's `settings.json` lists this package, links `auth.json` to pi's when pi has credentials and Sub-Sub has none, and starts in the vault when you start it from the home folder (`--here` keeps the folder). pi's own options work: `subsub --librarian`, `subsub -c`, `subsub -r`, `subsub "question"`. `subsub update` (pi self-update) is refused; update with `npm install` in this folder.
+
+Sub-Sub also still works as a package inside plain pi: `pi install ~/Projects/subsub`.
 
 ## Configuration
 
@@ -41,7 +44,7 @@ No file is needed. Defaults:
 | `envFile` | `$ZOTERO_MCP_ENV`, `~/.config/zotero-local-mcp/env`, or `~/.config/opencode/zotero.env` (first that exists) |
 | `vault` | `ZOTERO_VAULT` from the env file |
 | `models` | librarian `opencode-go/glm-5.3-flash`, researcher `opencode-go/mimo-v2.6-pro` |
-| `defaultMode` | `researcher` (start with `pi --librarian` for the librarian) |
+| `defaultMode` | `researcher` (start with `subsub --librarian` for the librarian) |
 
 To change them, write `~/.config/subsub/config.json` (or point `SUBSUB_CONFIG` at a file), for example:
 

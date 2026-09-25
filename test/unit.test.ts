@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, writeFileSync, mkdirSync, symlinkSync } from "node:fs";
+import { mkdtempSync, writeFileSync, mkdirSync, readFileSync, realpathSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 
 import type { Bridge, BridgeTool, CallResult } from "../src/bridge.ts";
+import { agentDirFor, chooseCwd, ensureSettings, isSelfUpdate, shareAuth } from "../src/cli.ts";
 import { loadConfig, parseEnvFile, type SubsubConfig } from "../src/config.ts";
 import { formatPreview } from "../src/preview.ts";
 import { systemAddition } from "../src/prompt.ts";
@@ -173,6 +174,54 @@ test("system prompt addition", () => {
 	assert.match(inVault, /SHARED RULES[\s\S]*Sub-Sub note/);
 	assert.match(inVault, /VAULT CONVENTIONS/);
 	assert.doesNotMatch(systemAddition("researcher", cfg, "/elsewhere"), /VAULT CONVENTIONS/);
+	// The English rule comes last, after the vault conventions.
+	assert.match(inVault, /VAULT CONVENTIONS[\s\S]*# Language\n\nAlways reply in English/);
+	assert.doesNotMatch(inVault, /in the language he uses/);
+});
+
+test("cli: settings, shared auth, start folder, self-update guard", () => {
+	const home = mkdtempSync(join(tmpdir(), "subsub-home-"));
+	const agent = join(home, ".subsub", "agent");
+	const pkg = join(home, "Projects", "subsub");
+	mkdirSync(pkg, { recursive: true });
+	assert.equal(agentDirFor({}, home), agent);
+	assert.equal(agentDirFor({ SUBSUB_AGENT_DIR: "/x/y" }, home), "/x/y");
+
+	assert.equal(ensureSettings(agent, pkg), "created");
+	assert.equal(ensureSettings(agent, pkg), "present");
+	writeFileSync(join(agent, "settings.json"), JSON.stringify({ theme: "dark", packages: ["npm:other"] }));
+	assert.equal(ensureSettings(agent, pkg), "added");
+	const st = JSON.parse(readFileSync(join(agent, "settings.json"), "utf8"));
+	assert.equal(st.theme, "dark");
+	assert.equal(st.packages.length, 2);
+	writeFileSync(join(agent, "settings.json"), "{ broken");
+	assert.equal(ensureSettings(agent, pkg), "unreadable");
+
+	const piAgent = join(home, ".pi", "agent");
+	assert.equal(shareAuth(agent, piAgent), false); // pi has no auth.json
+	mkdirSync(piAgent, { recursive: true });
+	writeFileSync(join(piAgent, "auth.json"), '{"opencode-go":{}}');
+	writeFileSync(join(agent, "auth.json"), "{ }"); // the empty file pi writes on first start
+	assert.equal(shareAuth(agent, piAgent), true);
+	assert.equal(realpathSync(join(agent, "auth.json")), realpathSync(join(piAgent, "auth.json")));
+	assert.equal(shareAuth(agent, piAgent), false); // already there
+	const own = mkdtempSync(join(tmpdir(), "subsub-own-"));
+	writeFileSync(join(own, "auth.json"), '{"x":{}}');
+	assert.equal(shareAuth(own, piAgent), false); // Sub-Sub's own credentials are kept
+
+	const vault = join(home, "Vault");
+	mkdirSync(vault);
+	assert.equal(chooseCwd(home, home, vault, false), vault);
+	assert.equal(chooseCwd(home, home, vault, true), home);
+	assert.equal(chooseCwd(pkg, home, vault, false), pkg);
+	assert.equal(chooseCwd(home, home, join(home, "missing"), false), home);
+
+	assert.ok(isSelfUpdate(["update"]));
+	assert.ok(isSelfUpdate(["update", "--all"]));
+	assert.ok(isSelfUpdate(["update", "--force"]));
+	assert.ok(!isSelfUpdate(["update", "--extensions"]));
+	assert.ok(!isSelfUpdate(["update", "npm:foo"]));
+	assert.ok(!isSelfUpdate(["hello"]));
 });
 
 // ---------------------------------------------------------------- extension wiring

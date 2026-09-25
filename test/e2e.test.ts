@@ -7,7 +7,7 @@
 
 import assert from "node:assert/strict";
 import { spawn, type ChildProcess } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { createServer, type Server } from "node:http";
 import { homedir, tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -104,8 +104,8 @@ class Pi {
 	confirms: any[] = [];
 	stderr = "";
 
-	constructor(env: NodeJS.ProcessEnv, cwd: string, args: string[]) {
-		this.proc = spawn(process.execPath, [PI_CLI, "--mode", "rpc", "--no-session", ...args], { cwd, env });
+	constructor(env: NodeJS.ProcessEnv, cwd: string, args: string[], cli: string = PI_CLI) {
+		this.proc = spawn(process.execPath, [cli, "--mode", "rpc", "--no-session", ...args], { cwd, env });
 		this.proc.stderr!.on("data", (d) => (this.stderr += d.toString()));
 		this.proc.stdout!.on("data", (d) => {
 			this.buf += d.toString();
@@ -254,6 +254,32 @@ test("researcher mode has no library write tools and reads work", { timeout: 180
 		const toolMsg = requests[1].messages.find((m: any) => m.role === "tool");
 		assert.match(JSON.stringify(toolMsg), /BBBB3333/);
 		assert.equal(pi.confirms.length, 0);
+	} finally {
+		pi.kill();
+	}
+});
+
+test("the subsub command: own agent folder, package, prompts, vault as start folder, English", { timeout: 180_000 }, async () => {
+	const home = join(work, "home");
+	const agentDir = join(home, ".subsub", "agent");
+	mkdirSync(agentDir, { recursive: true });
+	writeFileSync(join(agentDir, "models.json"), readFileSync(join(work, "agent", "models.json")));
+	const env: NodeJS.ProcessEnv = { ...baseEnv, HOME: home, SUBSUB_AGENT_DIR: agentDir };
+	delete env.PI_CODING_AGENT_DIR;
+	const pi = new Pi(env, home, ["--provider", "fake", "--model", "fake-model"], join(ROOT, "bin", "subsub.js"));
+	try {
+		script = [{ text: "Hello." }];
+		requests.length = 0;
+		await pi.prompt("/lit-note jacinto2026");
+		const settings = JSON.parse(readFileSync(join(agentDir, "settings.json"), "utf8"));
+		assert.deepEqual(settings.packages, [realpathSync(ROOT)]);
+		const sys = JSON.stringify(requests[0].messages[0]);
+		assert.match(sys, /Sub-Sub: researcher mode/);
+		assert.match(sys, /Always reply in English/);
+		assert.ok(sys.includes(realpathSync(vault)), "started in the vault");
+		const user = JSON.stringify(requests[0].messages.at(-1));
+		assert.match(user, /Make a literature note for jacinto2026/);
+		assert.doesNotMatch(user, /^"\/lit-note/);
 	} finally {
 		pi.kill();
 	}
