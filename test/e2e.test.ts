@@ -1,0 +1,260 @@
+/**
+ * End to end: real pi (RPC mode) + Sub-Sub + the real Python servers
+ * (zotero-local-mcp) + a fake Zotero + a scripted fake model.
+ *
+ * Needs ZLM_DIR (default ~/Projects/zotero-local-mcp) with a synced uv environment.
+ */
+
+import assert from "node:assert/strict";
+import { spawn, type ChildProcess } from "node:child_process";
+import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { createServer, type Server } from "node:http";
+import { homedir, tmpdir } from "node:os";
+import { dirname, join } from "node:path";
+import { after, before, test } from "node:test";
+import { fileURLToPath } from "node:url";
+
+const HERE = dirname(fileURLToPath(import.meta.url));
+const ROOT = join(HERE, "..");
+const ZLM = process.env.ZLM_DIR ?? join(homedir(), "Projects", "zotero-local-mcp");
+const PI_CLI = join(ROOT, "node_modules", "@earendil-works", "pi-coding-agent", "dist", "bundle", "cli.js");
+
+const VOCAB = `---
+required_facets: topic, status
+single_facets: status
+---
+## topic
+- \`topic/spirometry\` Spirometry.
+- \`topic/asthma\` Asthma.
+## status
+- \`status/to-read\`
+- \`status/read\`
+`;
+
+// ---------------------------------------------------------------- fake model
+
+type Turn = { tool?: { name: string; args: Record<string, unknown> }; text?: string };
+let script: Turn[] = [];
+const requests: Array<Record<string, any>> = [];
+
+function sse(res: any, chunks: unknown[]) {
+	res.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-cache" });
+	for (const c of chunks) res.write(`data: ${JSON.stringify(c)}\n\n`);
+	res.write("data: [DONE]\n\n");
+	res.end();
+}
+
+function startModel(): Promise<{ server: Server; url: string }> {
+	return new Promise((resolve) => {
+		const server = createServer((req, res) => {
+			let body = "";
+			req.on("data", (c) => (body += c));
+			req.on("end", () => {
+				const json = JSON.parse(body || "{}");
+				requests.push(json);
+				const turn = script.shift() ?? { text: "Done." };
+				const base = { id: `c${requests.length}`, object: "chat.completion.chunk", created: 0, model: "fake-model" };
+				const usage = { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15 };
+				if (turn.tool) {
+					sse(res, [
+						{ ...base, choices: [{ index: 0, delta: { role: "assistant", content: null, tool_calls: [{ index: 0, id: `call_${requests.length}`, type: "function", function: { name: turn.tool.name, arguments: JSON.stringify(turn.tool.args) } }] }, finish_reason: null }] },
+						{ ...base, choices: [{ index: 0, delta: {}, finish_reason: "tool_calls" }], usage },
+					]);
+				} else {
+					sse(res, [
+						{ ...base, choices: [{ index: 0, delta: { role: "assistant", content: turn.text ?? "Done." }, finish_reason: null }] },
+						{ ...base, choices: [{ index: 0, delta: {}, finish_reason: "stop" }], usage },
+					]);
+				}
+			});
+		});
+		server.listen(0, "127.0.0.1", () => {
+			const a = server.address() as { port: number };
+			resolve({ server, url: `http://127.0.0.1:${a.port}/v1` });
+		});
+	});
+}
+
+// ---------------------------------------------------------------- fake Zotero
+
+let zotero: ChildProcess;
+let zoteroUrl = "";
+
+function startZotero(): Promise<string> {
+	return new Promise((resolve, reject) => {
+		zotero = spawn(join(ZLM, ".venv", "bin", "python"), [join(HERE, "fixtures", "fake_zotero_server.py"), join(ZLM, "tests")]);
+		zotero.stdout!.once("data", (d) => resolve(d.toString().trim()));
+		zotero.once("error", reject);
+	});
+}
+
+async function state(): Promise<Record<string, any>> {
+	const r = await fetch(`${zoteroUrl}/__state`, { headers: { "User-Agent": "test" } });
+	return (await r.json()) as Record<string, any>;
+}
+
+// ---------------------------------------------------------------- pi in RPC mode
+
+class Pi {
+	proc: ChildProcess;
+	events: any[] = [];
+	private buf = "";
+	private waiters: Array<{ pred: (e: any) => boolean; resolve: (e: any) => void }> = [];
+	confirmAnswer = true;
+	confirms: any[] = [];
+	stderr = "";
+
+	constructor(env: NodeJS.ProcessEnv, cwd: string, args: string[]) {
+		this.proc = spawn(process.execPath, [PI_CLI, "--mode", "rpc", "--no-session", ...args], { cwd, env });
+		this.proc.stderr!.on("data", (d) => (this.stderr += d.toString()));
+		this.proc.stdout!.on("data", (d) => {
+			this.buf += d.toString();
+			let i;
+			while ((i = this.buf.indexOf("\n")) >= 0) {
+				const line = this.buf.slice(0, i).replace(/\r$/, "");
+				this.buf = this.buf.slice(i + 1);
+				if (!line.trim()) continue;
+				const ev = JSON.parse(line);
+				this.events.push(ev);
+				if (ev.type === "extension_ui_request" && ev.method === "confirm") {
+					this.confirms.push(ev);
+					this.send({ type: "extension_ui_response", id: ev.id, confirmed: this.confirmAnswer });
+				}
+				this.waiters = this.waiters.filter((w) => (w.pred(ev) ? (w.resolve(ev), false) : true));
+			}
+		});
+	}
+
+	send(obj: unknown) {
+		this.proc.stdin!.write(`${JSON.stringify(obj)}\n`);
+	}
+
+	wait(pred: (e: any) => boolean, ms = 60_000): Promise<any> {
+		const hit = this.events.find(pred);
+		if (hit) return Promise.resolve(hit);
+		return new Promise((resolve, reject) => {
+			const t = setTimeout(() => reject(new Error(`timeout; stderr:\n${this.stderr.slice(-2000)}`)), ms);
+			this.waiters.push({ pred, resolve: (e) => (clearTimeout(t), resolve(e)) });
+		});
+	}
+
+	async prompt(message: string) {
+		const start = this.events.length;
+		this.send({ id: `p${start}`, type: "prompt", message });
+		await this.wait((e) => e.type === "agent_end" && this.events.indexOf(e) >= start, 120_000);
+	}
+
+	kill() {
+		this.proc.kill();
+	}
+}
+
+let model: { server: Server; url: string };
+let work: string;
+let vault: string;
+let baseEnv: NodeJS.ProcessEnv;
+
+before(async () => {
+	assert.ok(existsSync(join(ZLM, ".venv")), `run uv sync in ${ZLM} first`);
+	model = await startModel();
+	zoteroUrl = await startZotero();
+	work = mkdtempSync(join(tmpdir(), "subsub-e2e-"));
+	vault = join(work, "vault");
+	mkdirSync(join(vault, "Systems"), { recursive: true });
+	mkdirSync(join(vault, "Inbox"));
+	writeFileSync(join(vault, "Systems", "Zotero tags.md"), VOCAB);
+	writeFileSync(join(vault, "Systems", "Zotero agent.md"), "Shared rules: use vocabulary tags only.");
+	const agentDir = join(work, "agent");
+	mkdirSync(agentDir);
+	writeFileSync(join(agentDir, "models.json"), JSON.stringify({
+		providers: { fake: { baseUrl: model.url, api: "openai-completions", apiKey: "test", models: [{ id: "fake-model" }] } },
+	}));
+	writeFileSync(join(work, "subsub.json"), JSON.stringify({ serverDir: ZLM, vault, models: {}, defaultMode: "researcher" }));
+	baseEnv = {
+		...process.env,
+		PI_CODING_AGENT_DIR: agentDir,
+		PI_OFFLINE: "1",
+		PI_SKIP_VERSION_CHECK: "1",
+		PI_TELEMETRY: "0",
+		SUBSUB_CONFIG: join(work, "subsub.json"),
+		ZOTERO_MCP_ENV: join(work, "no-such.env"),
+		ZOTERO_API_URL: zoteroUrl,
+		ZOTERO_VOCAB: join(vault, "Systems", "Zotero tags.md"),
+		ZOTERO_VAULT: vault,
+		ZOTERO_MCP_STATE: join(work, "state"),
+	};
+});
+
+after(() => {
+	model.server.close();
+	zotero?.kill();
+});
+
+function startPi(extra: string[] = []) {
+	return new Pi(baseEnv, vault, ["-e", join(ROOT, "extensions", "subsub.ts"), "--provider", "fake", "--model", "fake-model", ...extra]);
+}
+
+test("librarian change is previewed, approved and applied", { timeout: 180_000 }, async () => {
+	const pi = startPi(["--librarian"]);
+	try {
+		script = [
+			{ tool: { name: "zotero_tag_items", args: { changes: [{ key: "AAAA2222", add: ["topic/spirometry"] }], dry_run: false } } },
+			{ text: "Tagged." },
+		];
+		requests.length = 0;
+		await pi.prompt("Tag AAAA2222 with topic/spirometry");
+		// The model saw the librarian tools and the Sub-Sub prompt
+		const sys = JSON.stringify(requests[0].messages[0]);
+		assert.match(sys, /Sub-Sub: librarian mode/);
+		assert.match(sys, /Shared rules: use vocabulary tags only/);
+		const toolNames = requests[0].tools.map((t: any) => t.function.name);
+		assert.ok(toolNames.includes("zotero_tag_items"));
+		assert.ok(!toolNames.some((n: string) => n.startsWith("scholar_")));
+		assert.ok(!toolNames.includes("bash"));
+		// Tiago saw the server preview
+		assert.equal(pi.confirms.length, 1);
+		assert.match(pi.confirms[0].message, /1 item\(s\) would change[\s\S]*topic\/spirometry/);
+		const items = await state();
+		assert.ok(items.AAAA2222.tags.some((t: any) => t.tag === "topic/spirometry"));
+		assert.ok(items.AAAA2222.tags.some((t: any) => t.tag === "_agent"));
+	} finally {
+		pi.kill();
+	}
+});
+
+test("declined change is not applied and the model is told", { timeout: 180_000 }, async () => {
+	const pi = startPi(["--librarian"]);
+	pi.confirmAnswer = false;
+	try {
+		script = [
+			{ tool: { name: "zotero_tag_items", args: { changes: [{ key: "BBBB3333", add: ["topic/asthma"] }], dry_run: false } } },
+			{ text: "OK, what should I change?" },
+		];
+		requests.length = 0;
+		await pi.prompt("Tag BBBB3333");
+		assert.equal(pi.confirms.length, 1);
+		const items = await state();
+		assert.ok(!items.BBBB3333.tags.some((t: any) => t.tag === "topic/asthma"));
+		const toolMsg = requests[1].messages.find((m: any) => m.role === "tool");
+		assert.match(JSON.stringify(toolMsg), /did not approve/);
+	} finally {
+		pi.kill();
+	}
+});
+
+test("researcher mode has no library write tools and reads work", { timeout: 180_000 }, async () => {
+	const pi = startPi();
+	try {
+		script = [{ tool: { name: "zotero_find_items", args: { query: "asthma" } } }, { text: "Found one." }];
+		requests.length = 0;
+		await pi.prompt("What do I have on asthma?");
+		const toolNames = requests[0].tools.map((t: any) => t.function.name);
+		assert.ok(toolNames.includes("scholar_search_pubmed") && toolNames.includes("zotero_find_items"));
+		assert.ok(!toolNames.includes("zotero_tag_items") && !toolNames.includes("zotero_trash_items"));
+		const toolMsg = requests[1].messages.find((m: any) => m.role === "tool");
+		assert.match(JSON.stringify(toolMsg), /BBBB3333/);
+		assert.equal(pi.confirms.length, 0);
+	} finally {
+		pi.kill();
+	}
+});
