@@ -70,9 +70,12 @@ export function ensureSettings(agentDir: string, packageDir: string = PACKAGE_DI
 		const src = sourceOf(p);
 		return src !== undefined && real(resolve(agentDir, expand(src))) === want;
 	});
-	if (has) return "present";
-	packages.push(want);
+	// Sub-Sub draws its own header; pi's list of loaded resources is noise here. Set once, so it can be changed.
+	const quiet = settings.quietStartup === undefined;
+	if (has && !quiet) return "present";
+	if (!has) packages.push(want);
 	settings.packages = packages;
+	if (quiet) settings.quietStartup = true;
 	writeFileSync(file, `${JSON.stringify(settings, null, 2)}\n`);
 	return existed ? "added" : "created";
 }

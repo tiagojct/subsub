@@ -194,6 +194,9 @@ test("cli: settings, shared auth, start folder, self-update guard", () => {
 	const st = JSON.parse(readFileSync(join(agent, "settings.json"), "utf8"));
 	assert.equal(st.theme, "dark");
 	assert.equal(st.packages.length, 2);
+	assert.equal(st.quietStartup, true);
+	writeFileSync(join(agent, "settings.json"), JSON.stringify({ quietStartup: false, packages: [pkg] }));
+	assert.equal(ensureSettings(agent, pkg), "present"); // an explicit false is kept
 	writeFileSync(join(agent, "settings.json"), "{ broken");
 	assert.equal(ensureSettings(agent, pkg), "unreadable");
 
@@ -391,4 +394,47 @@ test("bench: prompts, tag scoring, identifiers and citekeys", async () => {
 	const { normDoi } = await import("../src/bench.ts");
 	const found = "(doi 10.1164/rccm.202205-0963OC). Lancet 10.1016/S0140-6736(20)30183-5.".match(DOI_RE)!.map(normDoi);
 	assert.deepEqual(found, ["10.1164/rccm.202205-0963oc", "10.1016/s0140-6736(20)30183-5"]);
+});
+
+test("look: banner, narrow terminal, scheme, theme names, coloured preview", async () => {
+	const { headerLines, schemeFromAnsi, themeName, paintPreview, BANNER, QUOTES } = await import("../src/look.ts");
+	const wide = headerLines({ version: "0.3.0", mode: "researcher", model: "mimo-v2.6-pro", library: { zotero: "reachable", items: 990, toReview: 975 }, quote: QUOTES[4], width: 100 });
+	assert.equal(wide[1], BANNER[0]);
+	assert.match(wide[3], /0\.3\.0$/);
+	assert.ok(wide.some((l) => l === "Researcher  mimo-v2.6-pro  |  Zotero: 990 items, 975 to review"));
+	assert.ok(wide.some((l) => l === '"Very like a whale." (Hamlet, in the Extracts)'));
+	const narrow = headerLines({ version: "0.3.0", mode: "librarian", model: "glm-5.3-flash", library: { zotero: "down" }, width: 18 });
+	assert.equal(narrow.length, 3);
+	assert.ok(narrow.every((l) => [...l].length <= 18));
+	const down = headerLines({ version: "0.3.0", mode: "librarian", model: "m", library: { zotero: "down" }, width: 60 });
+	assert.ok(down.some((l) => /Zotero is not running/.test(l)));
+	assert.ok(headerLines({ version: "1", mode: "librarian", model: "m", library: { zotero: "checking" }, width: 40 }).every((l) => [...l].length <= 40));
+	assert.equal(schemeFromAnsi("\x1b[38;2;232;238;242m"), "dark");
+	assert.equal(schemeFromAnsi("\x1b[38;2;22;34;42m"), "light");
+	assert.equal(schemeFromAnsi("", "subsub-glauca-light"), "light");
+	assert.equal(themeName("librarian", "dark"), "subsub-try-works-dark");
+	assert.equal(themeName("researcher", "light"), "subsub-glauca-light");
+	assert.equal(themeName("researcher", "light", { librarian: "x" }), undefined);
+	const painted = paintPreview("Smith 2020: + topic/asthma, type/cohort; - topic/copd", (x) => `<${x}>`, (x) => `[${x}]`);
+	assert.equal(painted, "Smith 2020: <+ topic/asthma, type/cohort>; [- topic/copd]");
+	const based = paintPreview("2 item(s) would change.\nSmith 2020: Title: + a; - b\n- c", (x) => `<${x}>`, (x) => `[${x}]`, (x) => `{${x}}`);
+	assert.equal(based, "{2 item(s) would change.}\n{Smith 2020: Title: }<+ a>{; }[- b]\n[- c]");
+});
+
+test("themes: all four load and name every required colour", async () => {
+	const { readdirSync, readFileSync } = await import("node:fs");
+	const dir = join(import.meta.dirname, "..", "themes");
+	const schema = JSON.parse(readFileSync(join(import.meta.dirname, "..", "node_modules", "@earendil-works", "pi-coding-agent", "dist", "modes", "interactive", "theme", "theme-schema.json"), "utf8"));
+	const required: string[] = schema.properties.colors.required;
+	const files = readdirSync(dir).filter((f) => f.endsWith(".json"));
+	assert.deepEqual(files.sort(), ["subsub-glauca-dark.json", "subsub-glauca-light.json", "subsub-try-works-dark.json", "subsub-try-works-light.json"]);
+	for (const f of files) {
+		const t = JSON.parse(readFileSync(join(dir, f), "utf8"));
+		assert.equal(`${t.name}.json`, f);
+		for (const c of required) {
+			const v = t.colors[c];
+			assert.ok(v !== undefined, `${f}: ${c}`);
+			if (typeof v === "string" && !v.startsWith("#") && v !== "") assert.ok(v in t.vars, `${f}: ${c} -> ${v}`);
+		}
+	}
 });

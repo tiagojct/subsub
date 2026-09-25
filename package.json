@@ -1,6 +1,6 @@
 {
   "name": "subsub",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Sub-Sub: a Zotero librarian and research assistant for the pi coding agent",
   "type": "module",
   "license": "MIT",
@@ -16,6 +16,9 @@
     ],
     "prompts": [
       "./prompts/*.md"
+    ],
+    "themes": [
+      "./themes"
     ]
   },
   "dependencies": {
@@ -34,13 +37,15 @@
     "subsub-bench": "bin/subsub-bench.js"
   },
   "files": [
+    "README.md",
     "bin",
-    "src",
-    "extensions",
-    "roles",
-    "prompts",
     "docs",
-    "README.md"
+    "extensions",
+    "prompts",
+    "roles",
+    "scripts",
+    "src",
+    "themes"
   ],
   "devDependencies": {
     "@types/node": "^24.19.0",

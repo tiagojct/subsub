@@ -19,6 +19,7 @@ import { Bridge, type ServerSpec } from "./bridge.ts";
 import { expand, loadConfig, type Mode, type SubsubConfig } from "./config.ts";
 import { buildPolicy, judgePath, normalizeToolPath, realish, within } from "./paths.ts";
 import { describeArgs, formatPreview } from "./preview.ts";
+import { headerLines, type LibraryState, paintPreview, QUOTES, type Scheme, schemeFromAnsi, themeName } from "./look.ts";
 import { systemAddition } from "./prompt.ts";
 import { gateKind, otherMode, toolsFor } from "./roles.ts";
 
@@ -39,17 +40,6 @@ function ownVersion(): string {
 	} catch {
 		return "";
 	}
-}
-
-/** Header lines shown at startup when Sub-Sub runs as its own command. */
-export function headerLines(version: string, mode: Mode): string[] {
-	return [
-		"",
-		`Sub-Sub ${version}`.trim(),
-		`Zotero librarian and research assistant. Mode: ${mode}.`,
-		"/researcher  /librarian  /subsub  /history  /undo  |  / for all commands",
-		"",
-	];
 }
 
 /** uv is often missing from PATH when pi is started outside a login shell. */
@@ -108,11 +98,87 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	const standalone = process.env.SUBSUB_CLI === "1";
 	const registered = () => pi.getAllTools().map((t) => t.name);
 
+	// ---- look (only for the `subsub` command in the terminal UI)
+	let scheme: Scheme | undefined;
+	let modelId = "no model";
+	let headerTui: { requestRender(force?: boolean): void } | undefined;
+	const library: LibraryState = { zotero: "checking" };
+	const quote = cfg.quotes === false ? undefined : QUOTES[Math.floor(Math.random() * QUOTES.length)];
+	const lookOn = (ctx: ExtensionContext) => standalone && cfg.look !== false && ctx.mode === "tui";
+
+	function applyTheme(ctx: ExtensionContext): void {
+		if (!lookOn(ctx) || cfg.themes === false) return;
+		scheme ??= schemeFromAnsi(ctx.ui.theme.getFgAnsi("text"), ctx.ui.theme.name);
+		const name = themeName(mode, scheme, cfg.themes);
+		const theme = name ? ctx.ui.getTheme(name) : undefined;
+		// A Theme object (not a name) changes the theme for this run only; the saved setting stays.
+		if (theme) ctx.ui.setTheme(theme);
+	}
+
+	function paintFor(ctx: ExtensionContext) {
+		return (text: string) =>
+			ctx.mode === "tui"
+				? paintPreview(
+						text,
+						(x) => ctx.ui.theme.fg("success", x),
+						(x) => ctx.ui.theme.fg("error", x),
+						(x) => ctx.ui.theme.fg("text", x),
+					)
+				: text;
+	}
+
+	async function refreshLibrary(): Promise<void> {
+		try {
+			const st = await current().call("zotero_status", {});
+			const d = (st.data ?? {}) as Record<string, unknown>;
+			if (d.zotero !== "reachable") {
+				Object.assign(library, { zotero: "down", error: String(d.error ?? "") });
+			} else {
+				const ov = await current().call("zotero_library_overview", {});
+				const o = (ov.data ?? {}) as Record<string, unknown>;
+				Object.assign(library, { zotero: "reachable", items: o.items as number, toReview: o.awaiting_review as number });
+			}
+		} catch {
+			library.zotero = "down";
+		}
+		headerTui?.requestRender();
+	}
+
+	function setHeader(ctx: ExtensionContext): void {
+		if (!lookOn(ctx)) return;
+		const version = ownVersion();
+		ctx.ui.setHeader((tui) => {
+			headerTui = tui;
+			return {
+				render: (width: number) => {
+					const th = ctx.ui.theme;
+					return headerLines({
+						version,
+						mode,
+						model: modelId,
+						library,
+						quote,
+						width,
+						paint: {
+							mark: (x) => th.fg("accent", x),
+							text: (x) => th.fg("text", x),
+							muted: (x) => th.fg("muted", x),
+							dim: (x) => th.fg("dim", x),
+							warn: (x) => th.fg("warning", x),
+						},
+					});
+				},
+				invalidate() {},
+			};
+		});
+	}
+
 	function status(ctx: ExtensionContext): void {
-		const model = ctx.model ? `${ctx.model.id}` : "no model";
+		modelId = ctx.model ? `${ctx.model.id}` : "no model";
 		const down = bridge ? Object.keys(bridge.errors) : ["zotero", "scholar"];
-		ctx.ui.setStatus("subsub", `Sub-Sub: ${mode} | ${model}${down.length ? ` | not running: ${down.join(", ")}` : ""}`);
+		ctx.ui.setStatus("subsub", `Sub-Sub: ${mode} | ${modelId}${down.length ? ` | not running: ${down.join(", ")}` : ""}`);
 		if (standalone) ctx.ui.setTitle(`Sub-Sub: ${mode}`);
+		headerTui?.requestRender();
 	}
 
 	async function applyMode(ctx: ExtensionContext, next: Mode, remember: boolean): Promise<void> {
@@ -126,6 +192,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			if (!ok) ctx.ui.notify(`Sub-Sub: cannot use ${spec} (unknown model or no key); keeping the current model.`, "warning");
 		}
 		if (remember) pi.appendEntry(MODE_ENTRY, { mode });
+		applyTheme(ctx);
 		status(ctx);
 	}
 
@@ -141,13 +208,12 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			const m = e.customType === MODE_ENTRY ? e.data?.mode : undefined;
 			if (m === "librarian" || m === "researcher") restored = m;
 		}
+		// Judge light or dark before Sub-Sub changes the theme.
+		if (lookOn(ctx)) scheme ??= schemeFromAnsi(ctx.ui.theme.getFgAnsi("text"), ctx.ui.theme.name);
 		await applyMode(ctx, restored ?? (pi.getFlag("librarian") ? "librarian" : cfg.defaultMode), false);
-		if (standalone && ctx.mode === "tui") {
-			const version = ownVersion();
-			ctx.ui.setHeader((_tui, theme) => ({
-				render: () => headerLines(version, mode).map((l, i) => (i === 1 ? theme.fg("accent", l) : i === 0 ? l : theme.fg("muted", l))),
-				invalidate() {},
-			}));
+		if (lookOn(ctx)) {
+			setHeader(ctx);
+			void refreshLibrary();
 		}
 		for (const [name, err] of Object.entries(bridge.errors)) {
 			ctx.ui.notify(`Sub-Sub: the ${name} server did not start: ${err.split("\n")[0]}`, "error");
@@ -211,7 +277,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		if (preview.isError) return { block: true, reason: preview.text };
 		const ok = await ctx.ui.confirm(
 			`Sub-Sub: apply ${name.replace(/^(zotero|scholar)_/, "")}?`,
-			formatPreview(name, preview.data ?? preview.text),
+			paintFor(ctx)(formatPreview(name, preview.data ?? preview.text)),
 		);
 		return ok ? undefined : { block: true, reason: "Tiago did not approve this change. Ask him what to change; do not retry the same call." };
 	});
@@ -272,9 +338,11 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 				const st = await bridge.call("zotero_status", {});
 				const d = (st.data ?? {}) as Record<string, unknown>;
 				lines.push(`Zotero: ${d.zotero ?? "?"}${d.error ? ` (${d.error})` : ""}. Write key remembered: ${d.write_key_remembered ?? "?"}.`);
+				library.zotero = d.zotero === "reachable" ? "reachable" : "down";
 				if (d.zotero === "reachable") {
 					const ov = await bridge.call("zotero_library_overview", {});
 					const o = (ov.data ?? {}) as Record<string, unknown>;
+					if (!ov.isError) Object.assign(library, { items: o.items as number, toReview: o.awaiting_review as number });
 					lines.push(
 						ov.isError
 							? ov.text
@@ -282,6 +350,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 					);
 				}
 			}
+			headerTui?.requestRender();
 			ctx.ui.notify(lines.join("\n"), "info");
 		},
 	});
@@ -323,7 +392,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 				ctx.ui.notify(preview.text, "warning");
 				return;
 			}
-			const ok = await ctx.ui.confirm("Sub-Sub: undo?", formatPreview("zotero_undo", preview.data));
+			const ok = await ctx.ui.confirm("Sub-Sub: undo?", paintFor(ctx)(formatPreview("zotero_undo", preview.data)));
 			if (!ok) return;
 			const res = await current().call("zotero_undo", { ...input, dry_run: false });
 			const d = (res.data ?? {}) as Record<string, unknown>;

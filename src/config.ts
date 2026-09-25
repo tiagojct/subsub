@@ -30,6 +30,12 @@ export interface SubsubConfig {
 	startTimeout: number;
 	/** Path to uv when it is not on PATH (for example when pi starts from a GUI). */
 	uvPath?: string;
+	/** Banner, status line and themes when Sub-Sub runs as its own command (default true). */
+	look?: boolean;
+	/** A line from Moby-Dick under the banner (default true). */
+	quotes?: boolean;
+	/** Theme per mode, without -dark/-light; false keeps your pi theme. */
+	themes?: Partial<Record<Mode, string>> | false;
 }
 
 export function expand(p: string): string {
@@ -91,5 +97,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): SubsubConfig {
 				: undefined,
 		startTimeout: user.startTimeout ?? 45,
 		uvPath: user.uvPath ? expand(user.uvPath) : undefined,
+		look: user.look,
+		quotes: user.quotes,
+		themes: user.themes,
 	};
 }

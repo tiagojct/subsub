@@ -48,6 +48,18 @@ Templates (type the name, then the argument):
 - Librarian: `/tag-batch [size]`, `/clean-tags`, `/import-queue [note path]`
 - Researcher: `/lit-note <citekey>`, `/synthesis <topic>`, `/gaps <topic>`, `/manuscript <path>`, `/alert`
 
+## Look
+
+When you start Sub-Sub with the `subsub` command, it shows a banner, a status line (mode, model, Zotero items, items to review) and a line from Moby-Dick. Each mode has its own theme: try-works for the librarian, Glauca for the researcher, in the dark or light version that matches your terminal. The theme changes for the session only; your pi theme setting stays.
+
+To change this, add to ~/.config/subsub/config.json:
+
+- `"quotes": false`: no Moby-Dick line.
+- `"themes": false`: keep your own pi theme.
+- `"look": false`: no banner and no themes.
+
+The themes are in ~/Projects/subsub/themes. To make them again after a change in Gam, see scripts/make-themes.py.
+
 ## Model test
 
 The model test runs several models on the same tasks against your library and compares them. Nothing in the library changes: each library change is recorded with its preview and then blocked. Notes go to ~/Projects/subsub/bench-results/<date>/, not to the vault.
