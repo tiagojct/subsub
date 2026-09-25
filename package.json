@@ -30,7 +30,8 @@
     "test:e2e": "node --test test/e2e.test.ts"
   },
   "bin": {
-    "subsub": "bin/subsub.js"
+    "subsub": "bin/subsub.js",
+    "subsub-bench": "bin/subsub-bench.js"
   },
   "files": [
     "bin",

@@ -284,3 +284,60 @@ test("the subsub command: own agent folder, package, prompts, vault as start fol
 		pi.kill();
 	}
 });
+
+test("subsub-bench: changes are recorded and blocked, writes stay in the run folder, scoring", { timeout: 240_000 }, async () => {
+	const { runOne, scoreRun } = await import("../src/bench.ts");
+	const home = join(work, "bench-home");
+	const agentDir = join(home, ".subsub", "agent");
+	mkdirSync(agentDir, { recursive: true });
+	writeFileSync(join(agentDir, "models.json"), readFileSync(join(work, "agent", "models.json")));
+	const env: NodeJS.ProcessEnv = { HOME: home, SUBSUB_AGENT_DIR: agentDir, PI_CODING_AGENT_DIR: "" };
+	const cf = join(work, "bench-config.json");
+	writeFileSync(cf, JSON.stringify({ serverDir: ZLM, vault, models: { librarian: "fake/fake-model", researcher: "fake/fake-model" } }));
+	const base = { ...baseEnv, ...env };
+	delete base.PI_CODING_AGENT_DIR;
+	const tasks: any = {
+		tagging: { keys: [], gold_reviewed: {}, blind_reference_keys: [] },
+		facet_fix: { missing_topic: ["BBBB3333"], missing_status: [] },
+		import: { in_library: null, new: [] },
+		lit_note: { key: "AAAA2222", citekey: "x2020", title: "X" },
+		synthesis: null,
+		search: { topic: null, description: "", year_from: 2024 },
+	};
+	const before = await state();
+
+	// librarian: a tag change is previewed, recorded and not applied
+	script = [
+		{ tool: { name: "zotero_tag_items", args: { changes: [{ key: "BBBB3333", add: ["topic/spirometry"] }], dry_run: false } } },
+		{ text: "Proposed topic/spirometry for BBBB3333." },
+	];
+	const out1 = join(work, "bench", "M1", "facet_fix");
+	const s1 = await runOne({ role: "librarian", task: "facet_fix", code: "M1", model: "fake-model", provider: "fake", prompt: "fix", out: out1, cwd: vault, configFile: cf, timeoutSec: 120, extraEnv: { ...base, SUBSUB_CONFIG: cf } });
+	assert.equal(s1.settled, true, JSON.stringify(s1));
+	assert.equal(s1.finalText, "Proposed topic/spirometry for BBBB3333.");
+	assert.ok(s1.stats?.tokens);
+	const after = await state();
+	assert.deepEqual(after.BBBB3333.tags, before.BBBB3333.tags);
+	const sc1 = scoreRun("facet_fix", out1, tasks, [], {});
+	assert.equal(sc1.expected, 1);
+	assert.equal(sc1.fixed, 1);
+	assert.equal(sc1.change_calls, 1);
+	assert.equal(sc1.preview_errors, 0);
+
+	// researcher: a note in the run folder is written; a write elsewhere is blocked
+	const out2 = join(work, "bench", "M1", "lit_note");
+	script = [
+		{ tool: { name: "write", args: { path: join(out2, "x2020.md"), content: "# X\n\nSee [[x2020]] and [[nobody1999]].\n" } } },
+		{ tool: { name: "write", args: { path: join(vault, "Inbox", "stray.md"), content: "no" } } },
+		{ text: "Note written." },
+	];
+	const s2 = await runOne({ role: "researcher", task: "lit_note", code: "M1", model: "fake-model", provider: "fake", prompt: "note", out: out2, cwd: vault, configFile: cf, timeoutSec: 120, extraEnv: { ...base, SUBSUB_CONFIG: cf } });
+	assert.equal(s2.settled, true, JSON.stringify(s2));
+	assert.ok(existsSync(join(out2, "x2020.md")));
+	assert.ok(!existsSync(join(vault, "Inbox", "stray.md")));
+	const sc2 = scoreRun("lit_note", out2, tasks, [{ key: "AAAA2222", citekey: "x2020", doi: null, pmid: null, title: "X", year: "2020" }], {});
+	assert.equal(sc2.written, true);
+	assert.equal(sc2.path_blocked, 1);
+	assert.equal(sc2.cites_itself, true);
+	assert.deepEqual(sc2.citekeys_unknown, ["nobody1999"]);
+});

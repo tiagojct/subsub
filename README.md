@@ -52,6 +52,10 @@ To change them, write `~/.config/subsub/config.json` (or point `SUBSUB_CONFIG` a
 { "models": { "researcher": "opencode-go/deepseek-v4-pro" }, "defaultMode": "librarian" }
 ```
 
+## Model test
+
+`subsub-bench prepare`, `subsub-bench run`, `subsub-bench score`: the same six tasks (three per mode) for several OpenCode Go models, against the real library, with every library change recorded and blocked (`SUBSUB_BENCH_OUT`) and file writes limited to the run folder. Objective checks: tag F1 against reviewed tags and a blind reference, facet coverage, identifiers passed to the import, invented or unknown citekeys, DOIs and PMIDs not found in any tool result, tokens, cost and time. See docs/Subsub.md.
+
 ## Tests
 
 ```sh

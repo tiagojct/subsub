@@ -368,3 +368,27 @@ test("/undo previews, confirms and applies", async () => {
 	assert.deepEqual(bridge.calls.map((c) => c.args.dry_run), [true, false]);
 	assert.ok(notes.at(-1)!.startsWith("Undone"));
 });
+
+test("bench: prompts, tag scoring, identifiers and citekeys", async () => {
+	const { promptFor, scoreTags, normId, citekeysIn, DOI_RE } = await import("../src/bench.ts");
+	const t: any = {
+		tagging: { keys: ["A", "B"], gold_reviewed: {}, blind_reference_keys: [] },
+		facet_fix: {},
+		import: { in_library: { id: "10.1/old", key: "K", citekey: "old2020" }, new: [{ id: "10.2/new", kind: "doi", title: "" }, { id: "PMID:123", kind: "pmid", title: "" }] },
+		lit_note: { key: "K", citekey: "smith2020", title: "" },
+		synthesis: { topic: "topic/asthma", description: "Asthma.", keys: [], citekeys: [] },
+		search: { topic: "topic/asthma", description: "Asthma.", year_from: 2024 },
+	};
+	assert.match(promptFor("tagging", t, "M123", "/o")!, /label "M123"/);
+	assert.equal(promptFor("import", t, "M1", "/o"), "Import these into Zotero: 10.2/new, 10.1/old, PMID:123.");
+	assert.match(promptFor("lit_note", t, "M1", "/o")!, /\/o\/smith2020\.md/);
+	assert.match(promptFor("search", t, "M1", "/o")!, /from 2024 onwards on Asthma \(topic\/asthma\)/);
+	const s = scoreTags({ A: ["topic/asthma", "type/cohort", "status/read"], B: ["topic/copd"] }, { A: ["topic/asthma", "type/cohort"], B: ["topic/asthma"], C: ["topic/x"] });
+	assert.deepEqual([s.exact, s.missing, s.edits], [1, 1, 3]);
+	assert.equal(normId("https://doi.org/10.1183/ABC"), "10.1183/abc");
+	assert.equal(normId("PMID: 123"), "pmid:123");
+	assert.deepEqual(citekeysIn("See [[smith2020]], [[Notes|alias]] and @jones2019a."), ["smith2020", "Notes", "jones2019a"]);
+	const { normDoi } = await import("../src/bench.ts");
+	const found = "(doi 10.1164/rccm.202205-0963OC). Lancet 10.1016/S0140-6736(20)30183-5.".match(DOI_RE)!.map(normDoi);
+	assert.deepEqual(found, ["10.1164/rccm.202205-0963oc", "10.1016/s0140-6736(20)30183-5"]);
+});

@@ -48,6 +48,26 @@ Templates (type the name, then the argument):
 - Librarian: `/tag-batch [size]`, `/clean-tags`, `/import-queue [note path]`
 - Researcher: `/lit-note <citekey>`, `/synthesis <topic>`, `/gaps <topic>`, `/manuscript <path>`, `/alert`
 
+## Model test
+
+The model test runs several models on the same tasks against your library and compares them. Nothing in the library changes: each library change is recorded with its preview and then blocked. Notes go to ~/Projects/subsub/bench-results/<date>/, not to the vault.
+
+Tasks:
+
+- Librarian: tag 20 items (10 with tags you reviewed, 10 against a blind reference); fix the items without topic or status; import 3 identifiers, one of them already in the library.
+- Researcher: a literature note on one item with full text; a synthesis on one topic; a search for recent papers that are not in the library.
+
+Procedure:
+
+1. Start Zotero.
+2. Type `subsub-bench prepare`. This picks the tasks.
+3. Type `caffeinate -i subsub-bench run`. This takes 1 to 2 hours. caffeinate keeps the Mac awake. If the run stops, type the same command again: finished runs are not repeated.
+4. Type `subsub-bench score`. The result is results.md in the results folder.
+
+Options for `run`: `--librarian a,b` and `--researcher c,d` (OpenCode Go model ids), `--only tagging,import`, `--parallel 3`, `--timeout 900`.
+
+Each model gets a code (for example M417), so the notes can be judged blind. key.json has the codes.
+
 ## Problems
 
 - "the zotero server did not start": run `cd ~/Projects/zotero-local-mcp && uv sync`. If pi does not find uv, add `"uvPath": "/path/to/uv"` to ~/.config/subsub/config.json (type `which uv` to see the path).

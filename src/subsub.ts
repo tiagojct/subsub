@@ -17,7 +17,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Bridge, type ServerSpec } from "./bridge.ts";
 import { expand, loadConfig, type Mode, type SubsubConfig } from "./config.ts";
-import { buildPolicy, judgePath, normalizeToolPath } from "./paths.ts";
+import { buildPolicy, judgePath, normalizeToolPath, realish, within } from "./paths.ts";
 import { describeArgs, formatPreview } from "./preview.ts";
 import { systemAddition } from "./prompt.ts";
 import { gateKind, otherMode, toolsFor } from "./roles.ts";
@@ -31,6 +31,7 @@ export interface SubsubDeps {
 
 const PACKAGE_DIR = join(dirname(fileURLToPath(import.meta.url)), "..");
 const MODE_ENTRY = "subsub-mode";
+const BENCH_ENTRY = "subsub-bench";
 
 function ownVersion(): string {
 	try {
@@ -166,17 +167,23 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		systemPrompt: `${event.systemPrompt}\n\n${systemAddition(mode, cfg, ctx.cwd)}`,
 	}));
 
+	/** Model test (subsub-bench): record every change instead of asking, and apply none. */
+	const benchOut = process.env.SUBSUB_BENCH_OUT ? expand(process.env.SUBSUB_BENCH_OUT) : undefined;
+	const record = (data: Record<string, unknown>) => pi.appendEntry(BENCH_ENTRY, data);
+
 	pi.on("tool_call", async (event, ctx) => {
 		const name = event.toolName;
 		const input = (event.input ?? {}) as Record<string, unknown>;
 		if ((name.startsWith("zotero_") || name.startsWith("scholar_")) && !toolsFor(mode, registered()).includes(name)) {
+			if (benchOut) record({ kind: "wrong_mode", tool: name, input });
 			return {
 				block: true,
 				reason: `${name} is not available in ${mode} mode. Ask Tiago to switch with /${otherMode(mode)}.`,
 			};
 		}
-		const kind = gateKind(name, input);
+		const kind = benchOut && name === "scholar_queue_imports" ? "confirm" : gateKind(name, input);
 		if (!kind) return undefined;
+		if (benchOut) return benchGate(name, input, kind, ctx.cwd, ctx.signal);
 		if (kind === "path") {
 			const target = normalizeToolPath(String(input.path ?? ""), ctx.cwd);
 			const verdict = judgePath(target, buildPolicy({ vault: cfg.vault, cwd: ctx.cwd, serverDir: cfg.serverDir, packageDir: PACKAGE_DIR }));
@@ -208,6 +215,33 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		);
 		return ok ? undefined : { block: true, reason: "Tiago did not approve this change. Ask him what to change; do not retry the same call." };
 	});
+
+	async function benchGate(name: string, input: Record<string, unknown>, kind: string, cwd: string, signal?: AbortSignal) {
+		if (kind === "path") {
+			const target = normalizeToolPath(String(input.path ?? ""), cwd);
+			if (within(target, realish(benchOut!))) return undefined;
+			record({ kind: "path_blocked", tool: name, path: target });
+			return { block: true, reason: `Model test: write only inside ${benchOut}.` };
+		}
+		let preview: unknown;
+		if (kind === "preview") {
+			try {
+				const p = await current().call(name, { ...input, dry_run: true }, signal);
+				preview = p.isError ? { error: p.text } : (p.data ?? p.text);
+			} catch (err) {
+				preview = { error: (err as Error).message };
+			}
+		}
+		record({ kind: "change", tool: name, input, preview });
+		const shown = preview === undefined ? "" : ` What the change would do (server preview): ${JSON.stringify(preview).slice(0, 4000)}`;
+		return {
+			block: true,
+			reason:
+				"Model test: this change was recorded and not applied. Continue as if it had been applied: make any other " +
+				"changes the task needs, do not repeat this call, do not ask for approval, and finish with a short summary " +
+				`for Tiago.${shown}`,
+		};
+	}
 
 	pi.registerCommand("librarian", {
 		description: "Sub-Sub: switch to the librarian (changes the library, no web)",
