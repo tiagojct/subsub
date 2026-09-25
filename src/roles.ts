@@ -54,8 +54,13 @@ export function toolsFor(mode: Mode, registered: string[]): string[] {
 
 export type GateKind = "preview" | "confirm" | "path" | null;
 
+/** A dry run only when dry_run is absent (server default true) or clearly true. */
+export function isDryRun(value: unknown): boolean {
+	return value === undefined || value === true || value === "true";
+}
+
 export function gateKind(toolName: string, input: Record<string, unknown>): GateKind {
-	if (PREVIEW_WRITES.has(toolName)) return input.dry_run === false ? "preview" : null;
+	if (PREVIEW_WRITES.has(toolName)) return isDryRun(input.dry_run) ? null : "preview";
 	if (CONFIRM_WRITES.has(toolName)) return "confirm";
 	if (toolName === "write" || toolName === "edit") return "path";
 	return null;

@@ -28,6 +28,8 @@ export interface SubsubConfig {
 	sharedRules?: string;
 	/** Seconds to wait for the Python servers to start. */
 	startTimeout: number;
+	/** Path to uv when it is not on PATH (for example when pi starts from a GUI). */
+	uvPath?: string;
 }
 
 export function expand(p: string): string {
@@ -88,5 +90,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): SubsubConfig {
 				? join(vault, "Systems", "Zotero agent.md")
 				: undefined,
 		startTimeout: user.startTimeout ?? 45,
+		uvPath: user.uvPath ? expand(user.uvPath) : undefined,
 	};
 }

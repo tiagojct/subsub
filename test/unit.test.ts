@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, writeFileSync, mkdirSync } from "node:fs";
+import { mkdtempSync, writeFileSync, mkdirSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -56,7 +56,7 @@ function fakePi() {
 	return { pi, handlers, tools, commands, entries, get active() { return active; } };
 }
 
-function fakeCtx(opts: { hasUI?: boolean; confirm?: boolean; cwd?: string } = {}) {
+function fakeCtx(opts: { hasUI?: boolean; confirm?: boolean; cwd?: string; branch?: unknown[] } = {}) {
 	const asked: Array<{ title: string; message: string }> = [];
 	const notes: string[] = [];
 	return {
@@ -66,7 +66,7 @@ function fakeCtx(opts: { hasUI?: boolean; confirm?: boolean; cwd?: string } = {}
 			hasUI: opts.hasUI ?? true,
 			model: { id: "glm-5.3-flash" },
 			modelRegistry: { find: (p: string, id: string) => ({ provider: p, id }) },
-			sessionManager: { getEntries: () => [] },
+			sessionManager: { getEntries: () => [], getBranch: () => (opts as any).branch ?? [] },
 			ui: {
 				confirm: async (title: string, message: string) => { asked.push({ title, message }); return opts.confirm ?? true; },
 				notify: (m: string) => notes.push(m),
@@ -112,6 +112,18 @@ test("gate kinds", () => {
 	assert.equal(gateKind("scholar_queue_imports", {}), null);
 	assert.equal(gateKind("write", { path: "x" }), "path");
 	assert.equal(gateKind("zotero_find_items", {}), null);
+	// Anything that is not clearly a dry run is gated (the server might coerce it to false)
+	for (const v of ["false", 0, "0", null, "no"]) assert.equal(gateKind("zotero_trash_items", { dry_run: v }), "preview");
+	assert.equal(gateKind("zotero_trash_items", { dry_run: "true" }), null);
+});
+
+test("gate normalises dry_run before the real call", async () => {
+	const { fp, ctx, bridge } = await setup(true);
+	await fp.commands.librarian.handler("", ctx);
+	const input: Record<string, unknown> = { keys: ["K"], dry_run: "false" };
+	assert.equal(await fp.handlers.tool_call[0]({ toolName: "zotero_trash_items", input }, ctx), undefined);
+	assert.equal(input.dry_run, false);
+	assert.equal(bridge.calls.at(-1)!.args.dry_run, true);
 });
 
 test("preview text", () => {
@@ -239,13 +251,58 @@ test("researcher: attach_note previews, export asks, queue passes", async () => 
 	assert.equal(asked.length, n);
 });
 
-test("file writes outside the vault and cwd need a yes", async () => {
-	const { toolCall, asked } = await setup(false);
-	assert.equal(await toolCall("write", { path: "/vault/Inbox/x.md" }), undefined);
-	assert.equal(await toolCall("edit", { path: "Inbox/y.md" }), undefined); // relative to cwd /vault
-	const r = await toolCall("write", { path: "/Users/t/.zshrc" });
-	assert.equal(r.block, true);
-	assert.match(asked.at(-1)!.message, /\.zshrc/);
+test("file writes outside the vault need a yes; tricks do not escape", async () => {
+	const dir = mkdtempSync(join(tmpdir(), "subsub-vault-"));
+	mkdirSync(join(dir, "Inbox"));
+	mkdirSync(join(dir, "Systems"));
+	const outside = mkdtempSync(join(tmpdir(), "subsub-out-"));
+	symlinkSync(outside, join(dir, "Inbox", "link"));
+	const fp = fakePi();
+	await createSubsub(fp.pi as any, { config: { ...CFG, vault: dir }, bridge: new FakeBridge() as unknown as Bridge });
+	const { ctx, asked } = fakeCtx({ confirm: false, cwd: dir });
+	for (const h of fp.handlers.session_start) await h({ reason: "startup" }, ctx);
+	const call = (toolName: string, path: string) => fp.handlers.tool_call[0]({ toolName, input: { path } }, ctx);
+	assert.equal(await call("write", join(dir, "Inbox", "x.md")), undefined);
+	assert.equal(await call("edit", "Inbox/y.md"), undefined);
+	assert.equal(await call("write", `@${join(dir, "Inbox", "z.md")}`), undefined);
+	const blocked = [
+		"/Users/t/.zshrc",
+		`@${join(outside, "a.txt")}`,
+		`file://${join(outside, "b.txt")}`,
+		"~/c.txt",
+		"Inbox/link/d.txt",
+		"../escape.txt",
+		"Systems/Zotero agent.md",
+		".claude/CLAUDE.md",
+	];
+	for (const p of blocked) {
+		const r = await call("write", p);
+		assert.equal(r?.block, true, `expected a question for ${p}`);
+	}
+	assert.equal(asked.length, blocked.length);
+	assert.match(asked.at(-1)!.message, /protected/);
+});
+
+test("mode is restored from the session branch", async () => {
+	const fp = fakePi();
+	await createSubsub(fp.pi as any, { config: CFG, bridge: new FakeBridge() as unknown as Bridge });
+	const { ctx } = fakeCtx({ branch: [{ customType: "subsub-mode", data: { mode: "librarian" } }, { customType: "subsub-mode", data: { mode: "bogus" } }] } as any);
+	for (const h of fp.handlers.session_start) await h({ reason: "resume" }, ctx);
+	assert.ok(fp.active.includes("zotero_tag_items"));
+});
+
+test("setModel failure is reported", async () => {
+	const fp = fakePi();
+	(fp.pi as any).setModel = async () => false;
+	await createSubsub(fp.pi as any, { config: CFG, bridge: new FakeBridge() as unknown as Bridge });
+	const { ctx, notes } = fakeCtx();
+	for (const h of fp.handlers.session_start) await h({ reason: "startup" }, ctx);
+	assert.match(notes.join("\n"), /cannot use opencode-go\/mimo-v2.6-pro/);
+});
+
+test("MCP tools run sequentially", async () => {
+	const { fp } = await setup();
+	assert.ok(fp.tools.every((t: any) => t.executionMode === "sequential"));
 });
 
 test("system prompt hook appends the Sub-Sub part", async () => {

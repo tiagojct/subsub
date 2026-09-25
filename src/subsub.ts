@@ -6,50 +6,80 @@
  * - An approval gate: every library change is previewed by the server (dry run)
  *   and shown to Tiago; nothing is applied without his yes.
  * - Commands: /librarian, /researcher, /subsub, /history, /undo.
+ *
+ * The Python servers start in session_start (not in the factory) and stop in
+ * session_shutdown. Tools are registered once and use the current bridge.
  */
 
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
-import { resolve } from "node:path";
+import { existsSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { Bridge, type ServerSpec } from "./bridge.ts";
-import { loadConfig, type Mode, type SubsubConfig } from "./config.ts";
+import { expand, loadConfig, type Mode, type SubsubConfig } from "./config.ts";
+import { buildPolicy, judgePath, normalizeToolPath } from "./paths.ts";
 import { describeArgs, formatPreview } from "./preview.ts";
-import { inside, systemAddition } from "./prompt.ts";
+import { systemAddition } from "./prompt.ts";
 import { gateKind, otherMode, toolsFor } from "./roles.ts";
 
 export interface SubsubDeps {
 	config?: SubsubConfig;
+	/** A ready bridge (tests). When given, Sub-Sub does not start or stop servers. */
 	bridge?: Bridge;
 	specs?: ServerSpec[];
 }
 
+const PACKAGE_DIR = join(dirname(fileURLToPath(import.meta.url)), "..");
+const MODE_ENTRY = "subsub-mode";
+
+/** uv is often missing from PATH when pi is started outside a login shell. */
+export function findUv(cfg: SubsubConfig, env: NodeJS.ProcessEnv = process.env): string {
+	const candidates = [cfg.uvPath, env.SUBSUB_UV, "~/.local/bin/uv", "/opt/homebrew/bin/uv", "/usr/local/bin/uv", "~/.cargo/bin/uv"]
+		.filter((x): x is string => Boolean(x))
+		.map(expand);
+	return candidates.find((p) => existsSync(p)) ?? "uv";
+}
+
 export function serverSpecs(cfg: SubsubConfig): ServerSpec[] {
 	const env: Record<string, string> = cfg.envFile ? { ZOTERO_MCP_ENV: cfg.envFile } : {};
+	const uv = findUv(cfg);
 	return [
-		{ name: "zotero", command: "uv", args: ["run", "--directory", cfg.serverDir, "zotero-local-mcp"], env },
-		{ name: "scholar", command: "uv", args: ["run", "--directory", cfg.serverDir, "zotero-scholar-mcp"], env },
+		{ name: "zotero", command: uv, args: ["run", "--directory", cfg.serverDir, "zotero-local-mcp"], env },
+		{ name: "scholar", command: uv, args: ["run", "--directory", cfg.serverDir, "zotero-scholar-mcp"], env },
 	];
 }
 
-const MODE_ENTRY = "subsub-mode";
-
 export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Promise<void> {
 	const cfg = deps.config ?? loadConfig();
-	const bridge = deps.bridge ?? new Bridge();
-	if (!deps.bridge) await bridge.start(deps.specs ?? serverSpecs(cfg), cfg.startTimeout * 1000);
+	let bridge: Bridge | undefined = deps.bridge;
+	const toolNames = new Set<string>();
 
-	for (const t of bridge.tools) {
-		pi.registerTool({
-			name: t.fullName,
-			label: `${t.server} ${t.name}`,
-			description: t.description,
-			parameters: t.inputSchema as never,
-			async execute(_id, params, signal) {
-				const res = await bridge.call(t.fullName, (params ?? {}) as Record<string, unknown>, signal);
-				if (res.isError) throw new Error(res.text || `${t.fullName} failed`);
-				return { content: [{ type: "text", text: res.text }], details: { tool: t.fullName } };
-			},
-		});
+	function current(): Bridge {
+		if (!bridge) throw new Error("The Zotero servers are not running. Try /reload.");
+		return bridge;
 	}
+
+	function registerTools(b: Bridge): void {
+		for (const t of b.tools) {
+			if (toolNames.has(t.fullName)) continue;
+			toolNames.add(t.fullName);
+			pi.registerTool({
+				name: t.fullName,
+				label: `${t.server} ${t.name}`,
+				description: t.description,
+				parameters: t.inputSchema as never,
+				// One at a time, so a preview always sees the effect of earlier calls in the same message.
+				executionMode: "sequential",
+				async execute(_id, params, signal) {
+					const res = await current().call(t.fullName, (params ?? {}) as Record<string, unknown>, signal);
+					if (res.isError) throw new Error(res.text || `${t.fullName} failed`);
+					return { content: [{ type: "text", text: res.text }], details: { tool: t.fullName } };
+				},
+			});
+		}
+	}
+
+	if (deps.bridge) registerTools(deps.bridge);
 
 	pi.registerFlag("librarian", { description: "Start Sub-Sub in librarian mode", type: "boolean", default: false });
 
@@ -58,7 +88,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 
 	function status(ctx: ExtensionContext): void {
 		const model = ctx.model ? `${ctx.model.id}` : "no model";
-		const down = Object.keys(bridge.errors);
+		const down = bridge ? Object.keys(bridge.errors) : ["zotero", "scholar"];
 		ctx.ui.setStatus("subsub", `Sub-Sub: ${mode} | ${model}${down.length ? ` | not running: ${down.join(", ")}` : ""}`);
 	}
 
@@ -69,23 +99,36 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		if (spec) {
 			const i = spec.indexOf("/");
 			const model = i > 0 ? ctx.modelRegistry.find(spec.slice(0, i), spec.slice(i + 1)) : undefined;
-			if (model) await pi.setModel(model);
-			else ctx.ui.notify(`Sub-Sub: model ${spec} not found; keeping the current model.`, "warning");
+			const ok = model ? await pi.setModel(model) : false;
+			if (!ok) ctx.ui.notify(`Sub-Sub: cannot use ${spec} (unknown model or no key); keeping the current model.`, "warning");
 		}
 		if (remember) pi.appendEntry(MODE_ENTRY, { mode });
 		status(ctx);
 	}
 
 	pi.on("session_start", async (_event, ctx) => {
-		let restored: Mode | undefined;
-		for (const e of ctx.sessionManager.getEntries() as Array<{ type?: string; customType?: string; data?: { mode?: Mode } }>) {
-			if (e.customType === MODE_ENTRY && e.data?.mode) restored = e.data.mode;
+		if (!bridge) {
+			const b = new Bridge();
+			await b.start(deps.specs ?? serverSpecs(cfg), cfg.startTimeout * 1000);
+			bridge = b;
+			registerTools(b);
 		}
-		const start = restored ?? (pi.getFlag("librarian") ? "librarian" : cfg.defaultMode);
-		await applyMode(ctx, start, false);
+		let restored: Mode | undefined;
+		for (const e of ctx.sessionManager.getBranch() as Array<{ customType?: string; data?: { mode?: unknown } }>) {
+			const m = e.customType === MODE_ENTRY ? e.data?.mode : undefined;
+			if (m === "librarian" || m === "researcher") restored = m;
+		}
+		await applyMode(ctx, restored ?? (pi.getFlag("librarian") ? "librarian" : cfg.defaultMode), false);
 		for (const [name, err] of Object.entries(bridge.errors)) {
 			ctx.ui.notify(`Sub-Sub: the ${name} server did not start: ${err.split("\n")[0]}`, "error");
 		}
+	});
+
+	pi.on("session_shutdown", async () => {
+		if (deps.bridge) return;
+		const b = bridge;
+		bridge = undefined;
+		await b?.close();
 	});
 
 	pi.on("model_select", async (_event, ctx) => status(ctx));
@@ -106,10 +149,11 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		const kind = gateKind(name, input);
 		if (!kind) return undefined;
 		if (kind === "path") {
-			const target = resolve(ctx.cwd, String(input.path ?? ""));
-			if (inside(target, cfg.vault) || inside(target, ctx.cwd)) return undefined;
-			if (!ctx.hasUI) return { block: true, reason: `Writing outside the vault and the working folder needs Tiago's approval: ${target}` };
-			const ok = await ctx.ui.confirm("Sub-Sub: write outside the vault?", target);
+			const target = normalizeToolPath(String(input.path ?? ""), ctx.cwd);
+			const verdict = judgePath(target, buildPolicy({ vault: cfg.vault, cwd: ctx.cwd, serverDir: cfg.serverDir, packageDir: PACKAGE_DIR }));
+			if (verdict.ok) return undefined;
+			if (!ctx.hasUI) return { block: true, reason: `Writing ${target} needs Tiago's approval: ${verdict.why}.` };
+			const ok = await ctx.ui.confirm(`Sub-Sub: ${name} ${target}?`, `Asking because ${verdict.why}.`);
 			return ok ? undefined : { block: true, reason: "Tiago did not allow writing to that file." };
 		}
 		if (!ctx.hasUI) {
@@ -119,20 +163,21 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			const ok = await ctx.ui.confirm(`Sub-Sub: run ${name}?`, describeArgs(input));
 			return ok ? undefined : { block: true, reason: "Tiago did not approve. Ask him what to change." };
 		}
-		// kind === "preview": let the server compute the change first, then ask.
+		// kind === "preview": the server computes the change first, then Tiago decides.
+		// Normalise dry_run so that what runs is exactly what was previewed and approved.
+		input.dry_run = false;
 		let preview;
 		try {
-			preview = await bridge.call(name, { ...input, dry_run: true }, ctx.signal);
+			preview = await current().call(name, { ...input, dry_run: true }, ctx.signal);
 		} catch (err) {
 			return { block: true, reason: `Preview failed: ${(err as Error).message}` };
 		}
 		if (preview.isError) return { block: true, reason: preview.text };
-		const ok = await ctx.ui.confirm(`Sub-Sub: apply ${name.replace(/^(zotero|scholar)_/, "")}?`, formatPreview(name, preview.data ?? preview.text));
+		const ok = await ctx.ui.confirm(
+			`Sub-Sub: apply ${name.replace(/^(zotero|scholar)_/, "")}?`,
+			formatPreview(name, preview.data ?? preview.text),
+		);
 		return ok ? undefined : { block: true, reason: "Tiago did not approve this change. Ask him what to change; do not retry the same call." };
-	});
-
-	pi.on("session_shutdown", async (event) => {
-		if ((event as { reason?: string }).reason !== "reload") await bridge.close();
 	});
 
 	pi.registerCommand("librarian", {
@@ -155,15 +200,22 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		description: "Sub-Sub: Zotero connection and library overview",
 		handler: async (_args, ctx) => {
 			const lines = [`Mode: ${mode}. Model: ${ctx.model?.id ?? "none"}.`];
+			if (!bridge) {
+				ctx.ui.notify(`${lines[0]}\nThe Zotero servers are not running. Try /reload.`, "warning");
+				return;
+			}
 			for (const [name, err] of Object.entries(bridge.errors)) lines.push(`${name} server not running: ${err.split("\n")[0]}`);
 			if (bridge.has("zotero_status")) {
 				const st = await bridge.call("zotero_status", {});
 				const d = (st.data ?? {}) as Record<string, unknown>;
 				lines.push(`Zotero: ${d.zotero ?? "?"}${d.error ? ` (${d.error})` : ""}. Write key remembered: ${d.write_key_remembered ?? "?"}.`);
 				if (d.zotero === "reachable") {
-					const ov = (await bridge.call("zotero_library_overview", {})).data as Record<string, unknown>;
+					const ov = await bridge.call("zotero_library_overview", {});
+					const o = (ov.data ?? {}) as Record<string, unknown>;
 					lines.push(
-						`Items: ${ov.items}. Without tags: ${ov.without_manual_tags}. Missing facets: ${JSON.stringify(ov.missing_facet)}. Awaiting review (_agent): ${ov.awaiting_review}.`,
+						ov.isError
+							? ov.text
+							: `Items: ${o.items}. Without tags: ${o.without_manual_tags}. Missing facets: ${JSON.stringify(o.missing_facet)}. Awaiting review (_agent): ${o.awaiting_review}.`,
 					);
 				}
 			}
@@ -174,7 +226,17 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	pi.registerCommand("history", {
 		description: "Sub-Sub: recent library changes",
 		handler: async (_args, ctx) => {
-			const res = await bridge.call("zotero_history", { limit: 10 });
+			let res;
+			try {
+				res = await current().call("zotero_history", { limit: 10 });
+			} catch (err) {
+				ctx.ui.notify((err as Error).message, "warning");
+				return;
+			}
+			if (res.isError) {
+				ctx.ui.notify(res.text, "warning");
+				return;
+			}
 			const rows = (res.data as Array<Record<string, unknown>>) ?? [];
 			const text = rows.length
 				? rows.map((r) => `${r.id}  ${r.op}  ${r.items} item(s)${r.fully_undone ? "  (undone)" : ""}`).join("\n")
@@ -187,16 +249,23 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		description: "Sub-Sub: revert the last library change (asks first)",
 		handler: async (args, ctx) => {
 			const input: Record<string, unknown> = args.trim() ? { journal_id: args.trim() } : {};
-			const preview = await bridge.call("zotero_undo", { ...input, dry_run: true });
+			let preview;
+			try {
+				preview = await current().call("zotero_undo", { ...input, dry_run: true });
+			} catch (err) {
+				ctx.ui.notify((err as Error).message, "warning");
+				return;
+			}
 			if (preview.isError) {
 				ctx.ui.notify(preview.text, "warning");
 				return;
 			}
 			const ok = await ctx.ui.confirm("Sub-Sub: undo?", formatPreview("zotero_undo", preview.data));
 			if (!ok) return;
-			const res = await bridge.call("zotero_undo", { ...input, dry_run: false });
+			const res = await current().call("zotero_undo", { ...input, dry_run: false });
 			const d = (res.data ?? {}) as Record<string, unknown>;
 			ctx.ui.notify(res.isError ? res.text : `Undone: ${d.applied} item(s).`, res.isError ? "error" : "info");
 		},
 	});
 }
+
