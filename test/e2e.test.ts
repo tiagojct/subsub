@@ -277,8 +277,12 @@ test("the subsub command: own agent folder, package, prompts, vault as start fol
 		const sys = JSON.stringify(requests[0].messages[0]);
 		assert.match(sys, /Sub-Sub: researcher mode/);
 		assert.match(sys, /Always reply in English/);
-		// the prompt is JSON here, so Windows backslashes appear doubled
-		assert.ok(sys.includes(JSON.stringify(realpathSync(vault)).slice(1, -1)), "started in the vault");
+		// The prompt is JSON here, so Windows backslashes appear doubled. Windows may also name
+		// the same temporary folder in its short 8.3 form (RUNNER~1) or in full, in any case.
+		const esc = (p: string) => JSON.stringify(p).slice(1, -1).toLowerCase();
+		const forms = [vault, realpathSync(vault), realpathSync.native(vault)].map(esc);
+		const cwdLine = sys.match(/working directory[^\\n]{0,300}/i)?.[0] ?? sys.slice(0, 300);
+		assert.ok(forms.some((f) => sys.toLowerCase().includes(f)), `started in the vault; prompt says: ${cwdLine}; vault: ${forms.join(" | ")}`);
 		const user = JSON.stringify(requests[0].messages.at(-1));
 		assert.match(user, /Make a literature note for jacinto2026/);
 		assert.doesNotMatch(user, /^"\/lit-note/);
