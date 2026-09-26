@@ -2,3 +2,4 @@ node_modules/
 *.log
 bench-results/
 dist/
+.DS_Store
