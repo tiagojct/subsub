@@ -265,7 +265,7 @@ test("the subsub command: own agent folder, package, prompts, vault as start fol
 	const agentDir = join(home, ".subsub", "agent");
 	mkdirSync(agentDir, { recursive: true });
 	writeFileSync(join(agentDir, "models.json"), readFileSync(join(work, "agent", "models.json")));
-	const env: NodeJS.ProcessEnv = { ...baseEnv, HOME: home, SUBSUB_AGENT_DIR: agentDir };
+	const env: NodeJS.ProcessEnv = { ...baseEnv, HOME: home, USERPROFILE: home, SUBSUB_AGENT_DIR: agentDir };
 	delete env.PI_CODING_AGENT_DIR;
 	const pi = new Pi(env, home, ["--provider", "fake", "--model", "fake-model"], join(ROOT, "bin", "subsub.js"));
 	try {
@@ -277,7 +277,8 @@ test("the subsub command: own agent folder, package, prompts, vault as start fol
 		const sys = JSON.stringify(requests[0].messages[0]);
 		assert.match(sys, /Sub-Sub: researcher mode/);
 		assert.match(sys, /Always reply in English/);
-		assert.ok(sys.includes(realpathSync(vault)), "started in the vault");
+		// the prompt is JSON here, so Windows backslashes appear doubled
+		assert.ok(sys.includes(JSON.stringify(realpathSync(vault)).slice(1, -1)), "started in the vault");
 		const user = JSON.stringify(requests[0].messages.at(-1));
 		assert.match(user, /Make a literature note for jacinto2026/);
 		assert.doesNotMatch(user, /^"\/lit-note/);
@@ -292,7 +293,7 @@ test("subsub-bench: changes are recorded and blocked, writes stay in the run fol
 	const agentDir = join(home, ".subsub", "agent");
 	mkdirSync(agentDir, { recursive: true });
 	writeFileSync(join(agentDir, "models.json"), readFileSync(join(work, "agent", "models.json")));
-	const env: NodeJS.ProcessEnv = { HOME: home, SUBSUB_AGENT_DIR: agentDir, PI_CODING_AGENT_DIR: "" };
+	const env: NodeJS.ProcessEnv = { HOME: home, USERPROFILE: home, SUBSUB_AGENT_DIR: agentDir, PI_CODING_AGENT_DIR: "" };
 	const cf = join(work, "bench-config.json");
 	writeFileSync(cf, JSON.stringify({ serverDir: ZLM, vault, models: { librarian: "fake/fake-model", researcher: "fake/fake-model" } }));
 	const base = { ...baseEnv, ...env };
@@ -403,7 +404,7 @@ test("the npm package: installed with npm install -g, it starts pi with Sub-Sub"
 	const agentDir = join(home, ".subsub", "agent");
 	mkdirSync(agentDir, { recursive: true });
 	writeFileSync(join(agentDir, "models.json"), readFileSync(join(work, "agent", "models.json")));
-	const env: NodeJS.ProcessEnv = { ...baseEnv, HOME: home, SUBSUB_AGENT_DIR: agentDir };
+	const env: NodeJS.ProcessEnv = { ...baseEnv, HOME: home, USERPROFILE: home, SUBSUB_AGENT_DIR: agentDir };
 	delete env.PI_CODING_AGENT_DIR;
 	const pi = new Pi(env, home, ["--provider", "fake", "--model", "fake-model"], bin);
 	try {

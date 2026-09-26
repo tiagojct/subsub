@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { existsSync, mkdtempSync, writeFileSync, mkdirSync, readFileSync, realpathSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { test } from "node:test";
 
 import type { Bridge, BridgeTool, CallResult } from "../src/bridge.ts";
@@ -159,8 +159,8 @@ test("config defaults and env file", () => {
 	assert.equal(parseEnvFile(env).ZOTERO_VOCAB, "/Users/t/Notes/Systems/Zotero tags.md");
 	const cfg = loadConfig({ SUBSUB_CONFIG: join(dir, "none.json"), ZOTERO_MCP_ENV: env } as any);
 	assert.equal(cfg.envFile, env);
-	assert.equal(cfg.vault, "/Users/t/Notes");
-	assert.equal(cfg.sharedRules, "/Users/t/Notes/Systems/Zotero agent.md");
+	assert.equal(cfg.vault, resolve("/Users/t/Notes"));
+	assert.equal(cfg.sharedRules, join(resolve("/Users/t/Notes"), "Systems", "Zotero agent.md"));
 	assert.equal(cfg.models.researcher, "opencode-go/mimo-v2.6-pro");
 	writeFileSync(join(dir, "c.json"), JSON.stringify({ defaultMode: "librarian", models: {} }));
 	const c2 = loadConfig({ SUBSUB_CONFIG: join(dir, "c.json"), ZOTERO_MCP_ENV: env } as any);
@@ -192,7 +192,7 @@ test("cli: settings, shared auth, start folder, self-update guard", () => {
 	const pkg = join(home, "Projects", "subsub");
 	mkdirSync(pkg, { recursive: true });
 	assert.equal(agentDirFor({}, home), agent);
-	assert.equal(agentDirFor({ SUBSUB_AGENT_DIR: "/x/y" }, home), "/x/y");
+	assert.equal(agentDirFor({ SUBSUB_AGENT_DIR: "/x/y" }, home), resolve("/x/y"));
 
 	assert.equal(ensureSettings(agent, pkg), "created");
 	assert.equal(ensureSettings(agent, pkg), "present");
@@ -391,7 +391,7 @@ test("bench: prompts, tag scoring, identifiers and citekeys", async () => {
 	};
 	assert.match(promptFor("tagging", t, "M123", "/o")!, /label "M123"/);
 	assert.equal(promptFor("import", t, "M1", "/o"), "Import these into Zotero: 10.2/new, 10.1/old, PMID:123.");
-	assert.match(promptFor("lit_note", t, "M1", "/o")!, /\/o\/smith2020\.md/);
+	assert.match(promptFor("lit_note", t, "M1", "/o")!, /[\\/]o[\\/]smith2020\.md/);
 	assert.match(promptFor("search", t, "M1", "/o")!, /from 2024 onwards on Asthma \(topic\/asthma\)/);
 	const s = scoreTags({ A: ["topic/asthma", "type/cohort", "status/read"], B: ["topic/copd"] }, { A: ["topic/asthma", "type/cohort"], B: ["topic/asthma"], C: ["topic/x"] });
 	assert.deepEqual([s.exact, s.missing, s.edits], [1, 1, 3]);

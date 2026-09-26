@@ -23,7 +23,7 @@ export type Profile = "reader" | "scholar" | "author" | "editor";
 export const PROFILES: Profile[] = ["reader", "scholar", "author", "editor"];
 
 /** The Zotero server release that this Sub-Sub version runs when there is no local server folder. */
-export const SERVER_VERSION = "0.4.0";
+export const SERVER_VERSION = "0.4.1";
 
 export interface SubsubConfig {
 	/** The settings file (written by `subsub init` and `/profile`). */

@@ -1,14 +1,18 @@
-# Publishes to npm when a tag like v0.5.0 is pushed. Needs npm trusted publishing
-# for this repository (npmjs.com > package settings > Trusted publisher).
+# Publishes to npm when the version in package.json is not on npm yet, then tags the
+# commit (vX.Y.Z). Runs on pushes to main that change package.json, and by hand.
+# The first version is published by hand (npm publish); after that, set up npm trusted
+# publishing for this repository and workflow (npmjs.com > subsub > Settings).
 name: release
 on:
   push:
-    tags: ["v*"]
+    branches: [main]
+    paths: [package.json]
+  workflow_dispatch:
 jobs:
   npm:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       id-token: write
     steps:
       - uses: actions/checkout@v4
@@ -16,6 +20,20 @@ jobs:
         with:
           node-version: "22"
           registry-url: https://registry.npmjs.org
-      - run: npm install -g npm@latest
-      - run: npm ci
-      - run: npm publish --provenance --access public
+      - id: version
+        run: |
+          v=$(node -p "require('./package.json').version")
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          if ! npm view subsub version > /dev/null 2>&1; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "subsub is not on npm yet: publish the first version by hand."
+          elif npm view "subsub@$v" version > /dev/null 2>&1; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "subsub $v is already on npm; nothing to publish."
+          fi
+      - if: steps.version.outputs.skip != 'true'
+        run: npm install -g npm@latest && npm ci && npm publish --provenance --access public
+      - if: steps.version.outputs.skip != 'true'
+        run: |
+          v=${{ steps.version.outputs.version }}
+          git ls-remote --exit-code --tags origin "refs/tags/v$v" > /dev/null || (git tag "v$v" && git push origin "v$v")
