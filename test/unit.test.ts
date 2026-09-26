@@ -584,6 +584,13 @@ test("init: new user with defaults, then again without replacing files", async (
 	assert.equal(cfg2.models.librarian, "opencode-go/glm-5.3-flash");
 	assert.equal(r2.created.length, 0);
 	assert.equal(upsertEnv("# c\nA=1\n", { A: "2", B: "3", C: "" }), "# c\nA=2\nB=3\n");
+	// someone who already logged in to OpenCode Go gets the tested models by default
+	const home3 = mkdtempSync(join(tmpdir(), "subsub-init3-"));
+	mkdirSync(join(home3, "agent"));
+	writeFileSync(join(home3, "agent", "auth.json"), JSON.stringify({ "opencode-go": { type: "api_key", key: "x" } }));
+	const env3 = { SUBSUB_CONFIG: join(home3, "c.json"), ZOTERO_MCP_ENV: join(home3, "env"), SUBSUB_AGENT_DIR: join(home3, "agent") } as any;
+	await runInit(io, {}, env3, { home: home3, fetch: notFound });
+	assert.equal(JSON.parse(readFileSync(join(home3, "c.json"), "utf8")).models.researcher, "opencode-go/mimo-v2.6-pro");
 });
 
 test("doctor: checks and fixes", () => {

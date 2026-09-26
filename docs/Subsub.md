@@ -22,7 +22,7 @@ Sub-Sub is a Zotero librarian and research assistant that runs in pi. It uses th
 4. Optional: type `pi remove ~/Projects/subsub`. Then plain `pi` stays a plain coding agent without Sub-Sub.
 5. Type `subsub`. If pi already has your OpenCode Go key, Sub-Sub uses the same key. If not, type `/login`, select OpenCode Zen and Go, and paste the key.
 6. Type `/subsub`. Make sure that the result shows "Zotero: reachable" and the model mimo-v2.6-pro.
-7. Type `subsub init` once. Keep the notes folder (the vault), the tag list and the email. For the profile, select Editor. For the models, select OpenCode Go.
+7. Type `subsub init` once. Keep the notes folder (the vault), the tag list, the email and the models. For the profile, select Editor.
 8. Type `subsub doctor`. Make sure that no line shows FIX.
 
 If you change the Node version with fnm, do step 3 again.

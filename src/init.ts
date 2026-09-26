@@ -60,6 +60,16 @@ export function upsertEnv(text: string, values: Record<string, string | undefine
 	return `${lines.join("\n")}\n`;
 }
 
+/** True when pi's credentials (auth.json in the agent folder) name a provider that starts with prefix. */
+export function hasProvider(agentDir: string, prefix: string): boolean {
+	try {
+		const data = JSON.parse(readFileSync(join(agentDir, "auth.json"), "utf8"));
+		return Object.keys(data ?? {}).some((k) => k.startsWith(prefix));
+	} catch {
+		return false;
+	}
+}
+
 export async function zoteroReachable(fetchFn: typeof fetch = fetch): Promise<boolean> {
 	try {
 		const res = await fetchFn("http://127.0.0.1:23119/api/", { signal: AbortSignal.timeout(2000) });
@@ -126,7 +136,9 @@ export async function runInit(
 		{ value: "later", label: "Choose later in Sub-Sub (/login, then /model)" },
 		{ value: "opencode-go", label: `OpenCode Go, tested: ${TESTED_MODELS.librarian} for the librarian, ${TESTED_MODELS.researcher} for the researcher` },
 	];
-	const models = await io.choose("Models", modelOptions, flags.models ?? (existing.models ? "keep" : "later"));
+	const agentDir = env.SUBSUB_AGENT_DIR ? expand(env.SUBSUB_AGENT_DIR) : join(home, ".subsub", "agent");
+	const modelDefault = existing.models ? "keep" : hasProvider(agentDir, "opencode") ? "opencode-go" : "later";
+	const models = await io.choose("Models", modelOptions, flags.models ?? modelDefault);
 
 	// ---- write
 	for (const dir of [notes, join(notes, "Inbox"), join(notes, "Systems")]) {
