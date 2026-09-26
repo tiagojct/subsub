@@ -33,6 +33,8 @@ export default function (eleventyConfig) {
 
 	const md = markdownIt({ html: true, typographer: false }).use(markdownItAnchor, {
 		level: [2, 3],
+		// Plain ASCII ids: "Formulário" gets #formulario, not #formul%C3%A1rio.
+		slugify: (s) => eleventyConfig.getFilter("slugify")(s),
 		permalink: markdownItAnchor.permalink.headerLink({ safariReaderFix: true }),
 	});
 	eleventyConfig.setLibrary("md", md);

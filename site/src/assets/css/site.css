@@ -108,6 +108,13 @@ blockquote { margin: var(--gl-space-8) 0; padding-left: var(--gl-space-5); borde
 .note > :first-child { margin-top: 0; }
 .note > :last-child { margin-bottom: 0; }
 
+a.button {
+	display: inline-block; background: var(--gl-accent); color: var(--gl-on-accent); text-decoration: none;
+	font-family: var(--gl-font-sans); font-weight: 600; padding: 0.6rem 1.1rem; border-radius: var(--gl-radius-md);
+}
+a.button:hover { background: var(--gl-accent-deep); color: var(--gl-on-accent); }
+iframe.form-embed { display: block; width: 100%; height: min(90vh, 60rem); min-height: 36rem; border: 1px solid var(--gl-border); border-radius: var(--gl-radius-lg); background: #fff; }
+
 /* ---- command boxes (copyable) */
 pre.cmd {
 	position: relative; margin: var(--gl-space-3) 0 var(--gl-space-5);

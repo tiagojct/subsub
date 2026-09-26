@@ -6,7 +6,11 @@ noindex: true
 eleventyExcludeFromCollections: true
 eyebrow: Para quem participa no piloto
 description: Como instalar e experimentar o Sub-Sub no piloto.
-lead: Obrigado por participar. Esta página explica como instalar o Sub-Sub, o que experimentar e o que nos enviar no fim. Reserve cerca de uma hora.
+lead: Obrigado por participar. Esta página explica como instalar o Sub-Sub, o que experimentar e como responder ao formulário no fim. Reserve cerca de uma hora.
+# Microsoft Forms: link = the share link; embed = the src of the embed code (Collect responses > Embed).
+form:
+  link: ""
+  embed: ""
 ---
 
 ## O que é o Sub-Sub
@@ -79,7 +83,7 @@ A página [Help](/help/) explica cada linha, em inglês.
 
 ## O que experimentar
 
-Faça as tarefas por esta ordem. Durante as tarefas, anote o que correu mal e o que foi útil.
+Faça as tarefas por esta ordem. Durante as tarefas, anote o que correu mal e o que foi útil. No fim, vai responder a um [formulário](#formulario).
 
 ### 1. Perguntar à biblioteca
 
@@ -113,17 +117,28 @@ Faça as tarefas por esta ordem. Durante as tarefas, anote o que correu mal e o 
 1. Escreva `/history`. Aparecem as alterações recentes.
 2. Escreva `/undo` e selecione Yes. A última alteração é revertida.
 
-## O que enviar no fim
+## Formulário
 
-Envie um email para [tiagojacinto@med.up.pt](mailto:tiagojacinto@med.up.pt) com:
+No fim das tarefas, responda ao formulário. Demora cerca de 10 minutos. Responda mesmo que não tenha conseguido instalar: essa é a informação mais útil. O formulário pede a sua conta da U.Porto.
 
-- o sistema operativo e a versão (por exemplo, macOS 26 ou Windows 11);
-- quanto tempo demorou a instalação;
-- onde ficou bloqueado, com o texto exato das mensagens de erro;
-- respostas erradas: referências que não estão na biblioteca, citações que não estão no PDF, etiquetas que não se aplicam;
-- o que foi útil e o que faltou.
+Tenha à mão:
 
-Se alguma coisa falhou, junte o resultado de `subsub doctor` e de `subsub --version`. Não envie chaves de API nem palavras-passe.
+- as notas que tirou durante as tarefas;
+- o texto exato das mensagens de erro;
+- o resultado de `subsub doctor`, se houve linhas FIX.
+
+Não escreva chaves de API, palavras-passe nem dados de doentes no formulário.
+
+{% if form.link or form.embed %}
+<p><a class="button" href="{{ form.link or form.embed }}" target="_blank" rel="noopener">Abrir o formulário numa janela nova</a></p>
+{% if form.embed %}
+<iframe class="form-embed" src="{{ form.embed }}" title="Formulário do piloto do Sub-Sub" loading="lazy" allowfullscreen></iframe>
+{% endif %}
+{% else %}
+<p class="note">O formulário fica disponível aqui antes do início do piloto.</p>
+{% endif %}
+
+Se ficar bloqueado e precisar de ajuda durante o piloto, envie um email para [tiagojacinto@med.up.pt](mailto:tiagojacinto@med.up.pt).
 
 ## Cuidados
 
