@@ -1,5 +1,5 @@
 {
-  "name": "subsub",
+  "name": "@tiagojct/subsub",
   "version": "0.5.0",
   "description": "Sub-Sub: a Zotero librarian and research assistant in the terminal, built on pi",
   "type": "module",
@@ -66,5 +66,8 @@
   },
   "bugs": {
     "url": "https://github.com/tiagojct/subsub/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

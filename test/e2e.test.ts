@@ -397,9 +397,12 @@ test("the npm package: installed with npm install -g, it starts pi with Sub-Sub"
 	const tmp = mkdtempSync(join(tmpdir(), "subsub-pack-"));
 	const npm = process.platform === "win32" ? "npm.cmd" : "npm";
 	execFileSync(npm, ["pack", "--pack-destination", tmp], { cwd: ROOT, stdio: "ignore" });
-	const tgz = join(tmp, JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")).name + "-" + JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")).version + ".tgz");
+	const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
+	// npm pack names a scoped package "scope-name-version.tgz"
+	const tgz = join(tmp, `${pkg.name.replace(/^@/, "").replace("/", "-")}-${pkg.version}.tgz`);
 	execFileSync(npm, ["install", "-g", "--prefix", join(tmp, "prefix"), tgz], { stdio: "ignore" });
-	const bin = process.platform === "win32" ? join(tmp, "prefix", "node_modules", "subsub", "bin", "subsub.js") : join(tmp, "prefix", "lib", "node_modules", "subsub", "bin", "subsub.js");
+	const pkgDir = process.platform === "win32" ? join(tmp, "prefix", "node_modules", ...pkg.name.split("/")) : join(tmp, "prefix", "lib", "node_modules", ...pkg.name.split("/"));
+	const bin = join(pkgDir, "bin", "subsub.js");
 	const home = join(work, "pack-home");
 	const agentDir = join(home, ".subsub", "agent");
 	mkdirSync(agentDir, { recursive: true });

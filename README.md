@@ -34,12 +34,14 @@ A profile is your own choice, not a lock.
 
 ## Install
 
-1. Type `npm install -g subsub`.
+1. Type `npm install -g @tiagojct/subsub`. The command is `subsub`.
 2. Type `subsub init`. Answer the questions. Press Enter to keep a default.
 3. Type `subsub doctor`. Fix each line marked FIX.
 4. Type `subsub`. Then type `/login` and choose your model provider.
 
 `subsub init` creates a notes folder with Inbox/ and Systems/, a starter tag list (health sciences, health informatics, or any field) and a file with the note formats (Systems/Zotero agent.md). You can edit both files. It never replaces a file that exists.
+
+If you already use pi, you can also add Sub-Sub to plain pi: `pi install npm:@tiagojct/subsub`.
 
 The Zotero servers (zotero-local-mcp) run from PyPI through uv. To run them from a copy of the repository, add `"serverDir": "/path/to/zotero-local-mcp"` to the settings file.
 
