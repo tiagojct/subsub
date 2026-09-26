@@ -57,9 +57,11 @@ To apply one note, in the librarian mode, type: apply the tag review Inbox/Zoter
 To apply many notes:
 
 1. Start Zotero.
-2. Type `subsub review preview "Inbox/Zotero tag review *.md"`. This shows what each note will change. Nothing changes.
-3. Type `subsub review apply "Inbox/Zotero tag review *.md"`. Read the preview, then type y.
+2. Type `subsub review preview 13-31` (the numbers of the notes). This shows what each note will change. Nothing changes.
+3. Type `subsub review apply 13-31`. Read the preview, then type y.
 4. If Zotero asks for permission, select Always Allow.
+
+Use note numbers, not a pattern such as "*.md": a pattern also takes older notes that have no Applied line, and applying an old note again replaces later tag changes.
 
 Notes that were already applied are left out. Each applied note gets an "Applied" line with the journal ID. To revert a note, type `/undo <journal ID>` in Sub-Sub. If a note shows "changed since the note was written", the tags of those items changed in Zotero after the note was made; applying the note replaces those changes.
 
@@ -102,7 +104,7 @@ Each model gets a code (for example M417), so the notes can be judged blind. key
 - "command not found: subsub": type `cd ~/Projects/subsub && npm link`.
 - To update Sub-Sub after new code arrives, type `cd ~/Projects/subsub && npm install --omit=dev`. Do not use `subsub update`.
 - A tool call is refused with "not available in researcher mode": type `/librarian`.
-- `subsub review` says "No note matches": put the pattern in quotes, and write the path from the vault folder (for example "Inbox/Zotero tag review *.md").
+- `subsub review` says "No note matches": check the note numbers in Inbox/. A path is written from the vault folder, in quotes (for example "Inbox/Zotero tag review 13.md").
 
 ## Tests
 

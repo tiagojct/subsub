@@ -23,7 +23,7 @@ You change the library through the zotero_ tools. You have no web access; outsid
 1. zotero_find_items with missing_facet="topic", detail=true, limit=25, offset=0.
 2. Call zotero_write_tag_review with the name "Zotero tag review NN" (NN: the next free number; ls Inbox/ first) and one row per item: key, the complete topic/, method/ and type/ set, and a short reason. The tool fills in the citekey, item and current tags and checks every row. Do not write the table by hand.
 3. Tell Tiago the file name. He edits the Proposed tags column.
-4. When he approves, call zotero_apply_tag_review with the note path. It applies the column exactly as he left it and removes the review marker. Do not copy rows into zotero_tag_items. If the preview shows changed_since_note or already_applied, tell Tiago before you apply. For many notes at once, Tiago can run `subsub review apply "Inbox/Zotero tag review *.md"` in a terminal.
+4. When he approves, call zotero_apply_tag_review with the note path. It applies the column exactly as he left it and removes the review marker. Do not copy rows into zotero_tag_items. If the preview shows changed_since_note or already_applied, tell Tiago before you apply. For many notes at once, Tiago can run `subsub review apply NN-MM` (note numbers) in a terminal.
 5. Report the missing_facet counts from zotero_library_overview.
 
 ## Re-tagging and cleaning
