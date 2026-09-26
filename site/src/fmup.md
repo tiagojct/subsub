@@ -17,8 +17,10 @@ This gives you:
 
 ## The FMUP model service
 
-Soon, Sub-Sub will use the FMUP model service. It will cost you nothing, and your text will stay in the faculty. Until then, connect your own provider with `/login` (see [Models](/models/)).
+Soon, the FMUP set-up will include a model service at no cost to you. Until then, connect your own provider with `/login` (see [Models](/models/)).
 
 ## Rules for the use of AI
 
 Sub-Sub helps you find, organise and read the literature. The rules of your course and of the faculty about AI apply to what you hand in, whatever the profile.
+
+[FMUP · IA](https://tiagojacinto.eu/fmup-ia/) is a proposed reference framework for the use of generative AI at FMUP, with Themis, a tool that helps you write a declaration of AI use. It is a proposal for institutional review, not approved faculty policy.
