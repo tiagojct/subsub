@@ -277,12 +277,13 @@ test("the subsub command: own agent folder, package, prompts, vault as start fol
 		const sys = JSON.stringify(requests[0].messages[0]);
 		assert.match(sys, /Sub-Sub: researcher mode/);
 		assert.match(sys, /Always reply in English/);
-		// The prompt is JSON here, so Windows backslashes appear doubled. Windows may also name
-		// the same temporary folder in its short 8.3 form (RUNNER~1) or in full, in any case.
-		const esc = (p: string) => JSON.stringify(p).slice(1, -1).toLowerCase();
-		const forms = [vault, realpathSync(vault), realpathSync.native(vault)].map(esc);
-		const cwdLine = sys.match(/working directory[^\\n]{0,300}/i)?.[0] ?? sys.slice(0, 300);
-		assert.ok(forms.some((f) => sys.toLowerCase().includes(f)), `started in the vault; prompt says: ${cwdLine}; vault: ${forms.join(" | ")}`);
+		// Compare paths with / and in lower case: the prompt is JSON (backslashes doubled), and on
+		// Windows the folder may appear with / or \\, in its short 8.3 form (RUNNER~1) or in full.
+		const norm = (s: string) => s.toLowerCase().replace(/\\\\/g, "/").replace(/\\/g, "/");
+		const forms = [vault, realpathSync(vault), realpathSync.native(vault)].map(norm);
+		const text = norm(sys);
+		const at = text.indexOf("working directory");
+		assert.ok(forms.some((f) => text.includes(f)), `started in the vault; prompt: ${at >= 0 ? text.slice(at, at + 200) : text.slice(0, 200)}; vault: ${forms.join(" | ")}`);
 		const user = JSON.stringify(requests[0].messages.at(-1));
 		assert.match(user, /Make a literature note for jacinto2026/);
 		assert.doesNotMatch(user, /^"\/lit-note/);
