@@ -21,8 +21,10 @@ fi
 npm run build
 
 SHA=$(git rev-parse --short HEAD)
-N=$(ssh "$HOST" "mkdir -p $DIR/releases && ls $DIR/releases | wc -l")
-REL="$((N + 1))-$SHA"
+# The next number is one more than the highest number in use, so deleting old
+# releases never makes a number repeat.
+N=$(ssh "$HOST" "mkdir -p $DIR/releases && ls $DIR/releases" | sed -n 's/^\([0-9][0-9]*\)-.*/\1/p' | sort -n | tail -1)
+REL="$((${N:-0} + 1))-$SHA"
 
 rsync -az --chmod=Du=rwx,Dgo=rx,Fu=rw,Fgo=r _site/ "$HOST:$DIR/releases/$REL/"
 ssh "$HOST" "cd $DIR && ln -sfn releases/$REL current && echo \"current -> \$(readlink current)\""
