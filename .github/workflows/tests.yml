@@ -1,0 +1,29 @@
+name: tests
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: tiagojct/zotero-local-mcp
+          path: zotero-local-mcp
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: astral-sh/setup-uv@v6
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+      - run: uv sync
+        working-directory: zotero-local-mcp
+      - run: npm run test:e2e
+        env:
+          ZLM_DIR: ${{ github.workspace }}/zotero-local-mcp

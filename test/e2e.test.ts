@@ -82,7 +82,8 @@ let zoteroUrl = "";
 
 function startZotero(): Promise<string> {
 	return new Promise((resolve, reject) => {
-		zotero = spawn(join(ZLM, ".venv", "bin", "python"), [join(HERE, "fixtures", "fake_zotero_server.py"), join(ZLM, "tests")]);
+		const python = process.platform === "win32" ? join(ZLM, ".venv", "Scripts", "python.exe") : join(ZLM, ".venv", "bin", "python");
+		zotero = spawn(python, [join(HERE, "fixtures", "fake_zotero_server.py"), join(ZLM, "tests")]);
 		zotero.stdout!.once("data", (d) => resolve(d.toString().trim()));
 		zotero.once("error", reject);
 	});
