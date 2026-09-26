@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>{% if title and title != site.title %}{{ title }} · {% endif %}{{ site.title }}</title>
+	<meta name="description" content="{{ description or site.description }}">
+	<link rel="canonical" href="{{ site.url }}{{ page.url }}">
+	<meta name="color-scheme" content="light dark">
+	<meta property="og:title" content="{{ title or site.title }}">
+	<meta property="og:description" content="{{ description or site.description }}">
+	<meta property="og:url" content="{{ site.url }}{{ page.url }}">
+	<link rel="icon" href="/assets/favicon.svg?v={{ assetVersion }}" type="image/svg+xml">
+	<link rel="preload" href="/assets/fonts/IBMPlexSans.woff2" as="font" type="font/woff2" crossorigin>
+	<link rel="stylesheet" href="/assets/css/glauca.css?v={{ assetVersion }}">
+	<link rel="stylesheet" href="/assets/css/typography.css?v={{ assetVersion }}">
+	<link rel="stylesheet" href="/assets/css/fallbacks.css?v={{ assetVersion }}">
+	<link rel="stylesheet" href="/assets/css/a11y.css?v={{ assetVersion }}">
+	<link rel="stylesheet" href="/assets/css/motion.css?v={{ assetVersion }}">
+	<link rel="stylesheet" href="/assets/css/try-works.css?v={{ assetVersion }}">
+	<link rel="stylesheet" href="/assets/css/site.css?v={{ assetVersion }}">
+	<script src="/assets/js/copy.js?v={{ assetVersion }}" defer></script>
+</head>
+<body class="{{ bodyClass or 'page' }}">
+	<a class="skip" href="#main">Skip to content</a>
+	<header class="site-header">
+		<a class="wordmark" href="/" aria-label="Sub-Sub, home"><span class="wordmark-mark" aria-hidden="true">SS</span> Sub-Sub</a>
+		<nav aria-label="Main">
+			<ul>
+			{%- for item in nav %}
+				<li><a href="{{ item.url }}"{% if page.url == item.url %} aria-current="page"{% endif %}>{{ item.label }}</a></li>
+			{%- endfor %}
+				<li><a href="{{ site.repo }}" class="external">GitHub</a></li>
+			</ul>
+		</nav>
+	</header>
+	<main id="main">
+		{%- if title and not hideTitle %}
+		<header class="page-header">
+			{% if eyebrow %}<p class="gl-eyebrow eyebrow">{{ eyebrow }}</p>{% endif %}
+			<h1 class="gl-headline">{{ title }}</h1>
+			{% if lead %}<p class="lead gl-body-lg">{{ lead }}</p>{% endif %}
+		</header>
+		{%- endif %}
+		<div class="prose">
+		{{ content | safe }}
+		</div>
+	</main>
+	<footer class="site-footer">
+		<p>Sub-Sub {{ release.version }} · server {{ release.server }} · built on <a href="https://pi.dev">pi</a> {{ release.pi }}</p>
+		<p><a href="{{ site.repo }}">Source</a> · <a href="{{ site.npm }}">npm</a> · <a href="{{ site.pypi }}">PyPI</a> · MIT licence · by <a href="/about/">Tiago Jacinto</a></p>
+		<p class="footer-quote">"Give it up, Sub-Subs!" (Moby-Dick, Extracts)</p>
+	</footer>
+</body>
+</html>

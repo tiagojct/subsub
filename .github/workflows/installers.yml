@@ -1,0 +1,49 @@
+# Runs the website's installers (site/src/install.sh and install.ps1) on a clean
+# runner: they install uv, their own Node.js 22 and the published npm package.
+name: installers
+on:
+  push:
+    paths: ["site/src/install.sh", "site/src/install.ps1", ".github/workflows/installers.yml"]
+  workflow_dispatch:
+  schedule:
+    - cron: "41 5 * * 1"   # Mondays: the published package still installs
+jobs:
+  unix:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install with the website's script
+        run: sh site/src/install.sh
+        env:
+          SUBSUB_OWN_NODE: "1"
+          SUBSUB_SKIP_INIT: "1"
+      - name: The command works from a new shell
+        run: |
+          [ -f ~/.zshrc ] && . ~/.zshrc 2>/dev/null || true
+          [ -f ~/.bashrc ] && . ~/.bashrc || true
+          export PATH="$HOME/.subsub/bin:$HOME/.subsub/node/bin:$PATH"
+          subsub --version
+          subsub init --yes --notes "$RUNNER_TEMP/Notes" --tags health-sciences
+          test -f "$RUNNER_TEMP/Notes/Systems/Zotero tags.md"
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install with the website's script
+        shell: powershell
+        run: powershell -NoProfile -ExecutionPolicy ByPass -File site/src/install.ps1
+        env:
+          SUBSUB_OWN_NODE: "1"
+          SUBSUB_SKIP_INIT: "1"
+      - name: The command works from a new shell
+        shell: powershell
+        run: |
+          $env:Path = [Environment]::GetEnvironmentVariable('Path', 'User') + ';' + $env:Path
+          subsub --version
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          subsub init --yes --notes "$env:RUNNER_TEMP\Notes" --tags health-sciences
+          if (-not (Test-Path "$env:RUNNER_TEMP\Notes\Systems\Zotero tags.md")) { exit 1 }

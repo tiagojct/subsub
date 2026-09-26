@@ -1,0 +1,10 @@
+[
+  { "url": "/install/", "label": "Install" },
+  { "url": "/guide/", "label": "Guide" },
+  { "url": "/profiles/", "label": "Profiles" },
+  { "url": "/privacy/", "label": "Privacy" },
+  { "url": "/models/", "label": "Models" },
+  { "url": "/fmup/", "label": "FMUP" },
+  { "url": "/help/", "label": "Help" },
+  { "url": "/about/", "label": "About" }
+]

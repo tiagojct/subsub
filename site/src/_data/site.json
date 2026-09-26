@@ -1,0 +1,9 @@
+{
+  "url": "https://subsub.tiagojacinto.eu",
+  "title": "Sub-Sub",
+  "description": "A Zotero librarian and research assistant that runs in your terminal.",
+  "repo": "https://github.com/tiagojct/subsub",
+  "serverRepo": "https://github.com/tiagojct/zotero-local-mcp",
+  "npm": "https://www.npmjs.com/package/@tiagojct/subsub",
+  "pypi": "https://pypi.org/project/zotero-local-mcp/"
+}

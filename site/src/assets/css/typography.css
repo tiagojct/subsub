@@ -1,0 +1,100 @@
+/* Generated typographic roles from glauca.json. Use as .gl-<role>. */
+:root {
+  --gl-measure-body: 68ch;
+  --gl-measure-narrow: 54ch;
+  --gl-measure-wide: 74ch;
+}
+.gl-display {
+  font-family: var(--gl-font-serif);
+  font-size: clamp(2.75rem, 2.1810rem + 2.5862vw, 4.25rem);
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  font-variation-settings: "wght" 600;
+  font-variant-ligatures: common-ligatures discretionary-ligatures;
+  text-wrap: balance;
+  max-inline-size: var(--gl-measure-narrow);
+}
+.gl-headline {
+  font-family: var(--gl-font-serif);
+  font-size: clamp(2rem, 1.6207rem + 1.7241vw, 3rem);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.014em;
+  font-variation-settings: "wght" 600;
+  font-variant-ligatures: common-ligatures discretionary-ligatures;
+  text-wrap: balance;
+}
+.gl-title {
+  font-family: var(--gl-font-serif);
+  font-size: 1.602rem;
+  font-weight: 600;
+  line-height: 1.14;
+  letter-spacing: -0.008em;
+  font-variation-settings: "wght" 600;
+  text-wrap: balance;
+}
+.gl-subhead {
+  font-family: var(--gl-font-serif);
+  font-size: 1.281rem;
+  font-weight: 600;
+  line-height: 1.22;
+  font-variation-settings: "wght" 600;
+  text-wrap: balance;
+}
+.gl-body-lg {
+  font-family: var(--gl-font-reading);
+  font-size: 1.125rem;
+  font-weight: 400;
+  line-height: 1.6;
+  font-variation-settings: "wght" 400;
+  font-variant-numeric: oldstyle-nums proportional-nums;
+  font-variant-ligatures: common-ligatures;
+  text-wrap: pretty;
+  max-inline-size: var(--gl-measure-body);
+}
+.gl-body {
+  font-family: var(--gl-font-reading);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.62;
+  font-variation-settings: "wght" 400;
+  font-variant-numeric: oldstyle-nums proportional-nums;
+  font-variant-ligatures: common-ligatures;
+  text-wrap: pretty;
+  max-inline-size: var(--gl-measure-body);
+}
+.gl-caption {
+  font-family: var(--gl-font-sans);
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1.45;
+  letter-spacing: 0.005em;
+  font-variation-settings: "wght" 400;
+  font-variant-numeric: oldstyle-nums proportional-nums;
+  font-variant-ligatures: common-ligatures;
+  max-inline-size: var(--gl-measure-narrow);
+}
+.gl-eyebrow {
+  font-family: var(--gl-font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.gl-data {
+  font-family: var(--gl-font-sans);
+  font-size: 0.95rem;
+  font-weight: 450;
+  line-height: 1.5;
+  font-variation-settings: "wght" 450;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.gl-code {
+  font-family: var(--gl-font-mono);
+  font-size: 0.9rem;
+  font-weight: 400;
+  line-height: 1.55;
+  font-feature-settings: "liga" 1, "calt" 1;
+}

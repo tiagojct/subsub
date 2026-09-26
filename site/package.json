@@ -1,0 +1,17 @@
+{
+  "name": "subsub-site",
+  "private": true,
+  "description": "Website for Sub-Sub: subsub.tiagojacinto.eu",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "build": "rm -rf _site && eleventy",
+    "serve": "eleventy --serve",
+    "deploy": "sh scripts/deploy.sh"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^3.0.0",
+    "markdown-it": "^14.1.0",
+    "markdown-it-anchor": "^9.2.0"
+  }
+}

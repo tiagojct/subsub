@@ -1,0 +1,122 @@
+---
+layout: base.njk
+title: Sub-Sub
+hideTitle: true
+bodyClass: home
+description: A Zotero librarian and research assistant that runs in your terminal. You approve every change to your library.
+---
+<section class="hero">
+	<div>
+		<pre class="banner" aria-hidden="true">╔═╗╦ ╦╔╗    ╔═╗╦ ╦╔╗
+╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗
+╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝</pre>
+		<h1 class="gl-display">A librarian for your Zotero library</h1>
+		<p class="lead">Sub-Sub tags, imports, repairs and reads your references, and helps you search the literature. It runs in your terminal, on your computer, with the AI model you choose. Nothing in your library changes until you say yes.</p>
+		<div class="install-box">
+			<p class="cmd-label">macOS and Linux</p>
+			<pre class="cmd"><code>curl -fsSL https://subsub.tiagojacinto.eu/install.sh | sh</code></pre>
+			<p class="cmd-label">Windows (PowerShell)</p>
+			<pre class="cmd ps"><code>powershell -ExecutionPolicy ByPass -c "irm https://subsub.tiagojacinto.eu/install.ps1 | iex"</code></pre>
+			<p class="small">Needs Zotero 10 and an account with an AI model provider. <a href="/install/">What the installer does, and other ways to install</a>.</p>
+		</div>
+	</div>
+	<figure>
+<pre class="term" role="img" aria-label="The Sub-Sub terminal header: banner, mode, profile, model and library status">
+<span class="a">╔═╗╦ ╦╔╗    ╔═╗╦ ╦╔╗</span>
+<span class="a">╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗</span>
+<span class="a">╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝</span>  <span class="m">{{ release.version }}</span>
+
+Librarian, Scholar  glm-5.3-flash  <span class="m">|  Zotero: 1024 items</span>
+<span class="m">"Very like a whale." (Hamlet, in the Extracts)</span>
+<span class="m">/researcher  /librarian  /profile  /history  /undo</span>
+
+<span class="a">&gt;</span> Tag the next 10 items without a topic.
+
+<span class="box">┌ Sub-Sub: apply tag_items? ──────────────────────────────┐</span>
+  2 item(s) would change.
+  Smith 2021: Home spirometry in children with asthma:
+    <span class="add">+ topic/respiratory, topic/pediatrics, type/cohort</span>
+  Costa 2019: A decision aid for inhaler choice:
+    <span class="add">+ topic/clinical-decision-support</span>; <span class="rem">- type/rct</span>
+                                            <span class="a">[ Yes ]</span>  No
+<span class="box">└─────────────────────────────────────────────────────────┘</span></pre>
+		<figcaption>An example session. The items are invented.</figcaption>
+	</figure>
+</section>
+
+<section class="section">
+	<h2>Two modes</h2>
+	<p>Switch with <code>/librarian</code> and <code>/researcher</code>. Each mode has its own tools and its own model.</p>
+	<div class="cards">
+		<div class="card">
+			<p class="tag">Librarian</p>
+			<h3>Keeps the library in order</h3>
+			<ul>
+				<li>Tags from your own tag list, proposed in review notes that you edit</li>
+				<li>Imports by DOI, PMID or ISBN, with abstracts and citekeys</li>
+				<li>Metadata repair, duplicates, retractions, open-access PDFs</li>
+				<li>No web access: outside data comes only through its import and repair tools</li>
+			</ul>
+		</div>
+		<div class="card">
+			<p class="tag">Researcher</p>
+			<h3>Reads and searches</h3>
+			<ul>
+				<li>"What do I have on …?" answered from your library</li>
+				<li>PubMed and OpenAlex searches that show what you already have</li>
+				<li>Literature notes and syntheses in your notes folder, with a source for every claim</li>
+				<li>Cannot change the library, except to add a short linked note</li>
+			</ul>
+		</div>
+	</div>
+</section>
+
+<section class="section split">
+	<div>
+		<h2>You approve every change</h2>
+		<p>Before any change to your library, Sub-Sub asks the Zotero server for a preview and shows it to you. The change runs only after you select Yes. This check is in the program, not in the instructions to the model, so the model cannot skip it.</p>
+		<p>Every change is recorded in a journal. <code>/history</code> lists recent changes and <code>/undo</code> reverts one. Nothing is deleted: items go to the Zotero trash, tags are removed from items.</p>
+		<p><a href="/privacy/">Privacy and safety</a></p>
+	</div>
+	<div>
+		<h2>A profile for how you work</h2>
+		<div class="table-wrap">
+		<table>
+			<thead><tr><th>Profile</th><th>What Sub-Sub does</th></tr></thead>
+			<tbody>
+				<tr><td>Reader</td><td>Explains each step. Reading notes are quotes with page numbers and questions for you. No summaries.</td></tr>
+				<tr><td>Scholar</td><td>Literature notes, syntheses, searches and alerts. The full librarian.</td></tr>
+				<tr><td>Author</td><td>Scholar, plus manuscripts: citation check, bibliography, comments on the argument.</td></tr>
+				<tr><td>Editor</td><td>Everything, including drafted manuscript text when you ask.</td></tr>
+			</tbody>
+		</table>
+		</div>
+		<p><a href="/profiles/">About profiles</a></p>
+	</div>
+</section>
+
+<section class="section">
+	<h2>Researcher mode</h2>
+<pre class="term researcher" role="img" aria-label="An example of the researcher mode answering a question from the library">
+<span class="a">&gt;</span> What do I have on home spirometry?
+
+  4 items in your library have topic/respiratory and mention home spirometry:
+  [@smith2021]   2021  Home spirometry in children with asthma    cohort
+  [@okafor2023]  2023  Remote monitoring after lung transplant    cohort
+  [@lind2020]    2020  Agreement of home and clinic FEV1          cross-sectional
+  [@reyes2024]   2024  Home spirometry: a systematic review       systematic review
+
+  PubMed has 38 works since 2024; 3 look relevant and are not in your library.
+  Queue them for import? The librarian imports the lines you tick.</pre>
+	<p class="caption">An example session. The items are invented.</p>
+</section>
+
+<section class="section">
+	<h2>What you need</h2>
+	<div class="cards three">
+		<div class="card"><h3>Zotero 10</h3><p>Running on the same computer, with the local API turned on. Your library stays in Zotero; Sub-Sub reaches it only on your computer.</p></div>
+		<div class="card"><h3>An AI model</h3><p>Any provider that <a href="https://pi.dev">pi</a> supports, with your own account. <a href="/models/">Tested models</a>.</p></div>
+		<div class="card"><h3>A notes folder</h3><p>Plain Markdown files. An Obsidian vault works. Sub-Sub writes review notes and literature notes there.</p></div>
+	</div>
+	<blockquote>"This mere painstaking burrower and grub-worm of a poor devil of a Sub-Sub appears to have gone through the long Vaticans and street-stalls of the earth, picking up whatever random allusions to whales he could anyways find in any book whatsoever." (Moby-Dick, Extracts)</blockquote>
+</section>
