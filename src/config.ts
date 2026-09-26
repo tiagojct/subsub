@@ -102,3 +102,11 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): SubsubConfig {
 		themes: user.themes,
 	};
 }
+
+/** uv is often missing from PATH when pi is started outside a login shell. */
+export function findUv(cfg: SubsubConfig, env: NodeJS.ProcessEnv = process.env): string {
+	const candidates = [cfg.uvPath, env.SUBSUB_UV, "~/.local/bin/uv", "/opt/homebrew/bin/uv", "/usr/local/bin/uv", "~/.cargo/bin/uv"]
+		.filter((x): x is string => Boolean(x))
+		.map(expand);
+	return candidates.find((p) => existsSync(p)) ?? "uv";
+}

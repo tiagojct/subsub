@@ -9,13 +9,16 @@
  *   links to it, so one /login serves both.
  * - Folder: started from the home folder, Sub-Sub moves to the vault.
  *   `--here` keeps the current folder.
+ * - `subsub review preview|apply NOTE...` runs zotero-review (tag review notes,
+ *   several at a time) with Sub-Sub's server folder and settings.
  */
 
+import { spawnSync } from "node:child_process";
 import { existsSync, lstatSync, mkdirSync, readFileSync, realpathSync, renameSync, symlinkSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { expand, loadConfig } from "./config.ts";
+import { expand, findUv, loadConfig, type SubsubConfig } from "./config.ts";
 
 export const PACKAGE_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -120,6 +123,15 @@ export function isSelfUpdate(args: string[]): boolean {
 	return rest.length === 0 || rest.some((a) => ["--self", "self", "pi", "--all"].includes(a));
 }
 
+/** The command line for `subsub review ...`: zotero-review in the server folder, with the same settings file. */
+export function reviewCommand(args: string[], cfg: SubsubConfig, env: NodeJS.ProcessEnv = process.env) {
+	return {
+		command: findUv(cfg, env),
+		args: ["run", "--quiet", "--directory", cfg.serverDir, "zotero-review", ...args],
+		env: { ...env, ...(cfg.envFile ? { ZOTERO_MCP_ENV: cfg.envFile } : {}) },
+	};
+}
+
 export async function run(argv: string[] = process.argv.slice(2)): Promise<void> {
 	const env = process.env;
 	const home = homedir();
@@ -129,6 +141,13 @@ export async function run(argv: string[] = process.argv.slice(2)): Promise<void>
 	if (args[0] === "--version" || args[0] === "-v") {
 		const piPkg = join(dirname(fileURLToPath(import.meta.resolve("@earendil-works/pi-coding-agent"))), "..");
 		console.log(`subsub ${packageVersion()} (pi ${packageVersion(piPkg)})`);
+		return;
+	}
+	if (args[0] === "review") {
+		const r = reviewCommand(args.slice(1), loadConfig(env), env);
+		const res = spawnSync(r.command, r.args, { env: r.env, stdio: "inherit" });
+		if (res.error) console.error(`Sub-Sub: cannot run ${r.command}: ${res.error.message}`);
+		process.exitCode = res.status ?? 1;
 		return;
 	}
 	if (isSelfUpdate(args)) {

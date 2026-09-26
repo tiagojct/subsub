@@ -48,6 +48,21 @@ Templates (type the name, then the argument):
 - Librarian: `/tag-batch [size]`, `/clean-tags`, `/import-queue [note path]`
 - Researcher: `/lit-note <citekey>`, `/synthesis <topic>`, `/gaps <topic>`, `/manuscript <path>`, `/alert`
 
+## Tag review notes
+
+The librarian writes proposed tags in review notes in Inbox/ ("Zotero tag review NN.md"). Edit the Proposed tags column. Write skip to leave an item as it is.
+
+To apply one note, in the librarian mode, type: apply the tag review Inbox/Zotero tag review NN.md.
+
+To apply many notes:
+
+1. Start Zotero.
+2. Type `subsub review preview "Inbox/Zotero tag review *.md"`. This shows what each note will change. Nothing changes.
+3. Type `subsub review apply "Inbox/Zotero tag review *.md"`. Read the preview, then type y.
+4. If Zotero asks for permission, select Always Allow.
+
+Notes that were already applied are left out. Each applied note gets an "Applied" line with the journal ID. To revert a note, type `/undo <journal ID>` in Sub-Sub. If a note shows "changed since the note was written", the tags of those items changed in Zotero after the note was made; applying the note replaces those changes.
+
 ## Look
 
 When you start Sub-Sub with the `subsub` command, it shows a banner, a status line (mode, model, Zotero items, items to review) and a line from Moby-Dick. Each mode has its own theme: try-works for the librarian, Glauca for the researcher, in the dark or light version that matches your terminal. The theme changes for the session only; your pi theme setting stays.
@@ -87,6 +102,7 @@ Each model gets a code (for example M417), so the notes can be judged blind. key
 - "command not found: subsub": type `cd ~/Projects/subsub && npm link`.
 - To update Sub-Sub after new code arrives, type `cd ~/Projects/subsub && npm install --omit=dev`. Do not use `subsub update`.
 - A tool call is refused with "not available in researcher mode": type `/librarian`.
+- `subsub review` says "No note matches": put the pattern in quotes, and write the path from the vault folder (for example "Inbox/Zotero tag review *.md").
 
 ## Tests
 

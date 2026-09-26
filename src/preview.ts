@@ -41,6 +41,17 @@ export function formatPreview(tool: string, preview: unknown): string {
 		const u = p.undoing as Obj;
 		lines.push(`Undo ${u.op}: ${s(u.summary, 80)}`);
 	}
+	if (Array.isArray(p.already_applied) && p.already_applied.length) {
+		lines.push(`ALREADY APPLIED: ${p.already_applied.join(", ")}`);
+	}
+	const drift = p.changed_since_note as Obj | undefined;
+	if (drift && typeof drift === "object" && typeof drift.count === "number") {
+		lines.push(`${drift.count} item(s) changed after the note was written; the note overwrites them:`);
+		const items = Object.entries((drift.items as Obj) ?? {}).map(
+			([k, v]) => `  ${k} now: ${((v as Obj).now as string[] | undefined)?.join(", ") || "(none)"}`,
+		);
+		lines.push(...items.slice(0, 4));
+	}
 	if (typeof p.would_change === "number") {
 		lines.push(`${p.would_change} item(s) would change.`);
 		const changes = (p.changes as Obj[]) ?? [];

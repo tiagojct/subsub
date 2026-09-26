@@ -12,11 +12,11 @@
  */
 
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Bridge, type ServerSpec } from "./bridge.ts";
-import { expand, loadConfig, type Mode, type SubsubConfig } from "./config.ts";
+import { expand, findUv, loadConfig, type Mode, type SubsubConfig } from "./config.ts";
 import { coerceArgs, loosenArrays } from "./args.ts";
 import { buildPolicy, judgePath, normalizeToolPath, realish, within } from "./paths.ts";
 import { describeArgs, formatPreview } from "./preview.ts";
@@ -43,13 +43,7 @@ function ownVersion(): string {
 	}
 }
 
-/** uv is often missing from PATH when pi is started outside a login shell. */
-export function findUv(cfg: SubsubConfig, env: NodeJS.ProcessEnv = process.env): string {
-	const candidates = [cfg.uvPath, env.SUBSUB_UV, "~/.local/bin/uv", "/opt/homebrew/bin/uv", "/usr/local/bin/uv", "~/.cargo/bin/uv"]
-		.filter((x): x is string => Boolean(x))
-		.map(expand);
-	return candidates.find((p) => existsSync(p)) ?? "uv";
-}
+export { findUv };
 
 export function serverSpecs(cfg: SubsubConfig): ServerSpec[] {
 	const env: Record<string, string> = cfg.envFile ? { ZOTERO_MCP_ENV: cfg.envFile } : {};

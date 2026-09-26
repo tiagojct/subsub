@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 
 import type { Bridge, BridgeTool, CallResult } from "../src/bridge.ts";
-import { agentDirFor, chooseCwd, ensureSettings, isSelfUpdate, shareAuth } from "../src/cli.ts";
+import { agentDirFor, chooseCwd, ensureSettings, isSelfUpdate, reviewCommand, shareAuth } from "../src/cli.ts";
 import { loadConfig, parseEnvFile, type SubsubConfig } from "../src/config.ts";
 import { formatPreview } from "../src/preview.ts";
 import { systemAddition } from "../src/prompt.ts";
@@ -460,4 +460,23 @@ test("args: lists sent as strings are accepted and repaired", async () => {
 	assert.deepEqual(input, { tags: ["topic/eu-regulation"], keys: ["ABCD2345", "EFGH6789"], limit: 5 });
 	assert.deepEqual(toList("topic/asthma"), ["topic/asthma"]);
 	assert.deepEqual(toList("[topic/a, 'topic/b']"), ["topic/a", "topic/b"]);
+});
+
+test("cli: subsub review runs zotero-review with Sub-Sub's server folder and settings", () => {
+	const cfg = { serverDir: "/srv/zlm", envFile: "/cfg/zotero.env", uvPath: "/nonexistent/uv" } as any;
+	const r = reviewCommand(["apply", "Inbox/Zotero tag review *.md"], cfg, { PATH: "/bin" });
+	assert.deepEqual(r.args, ["run", "--quiet", "--directory", "/srv/zlm", "zotero-review", "apply", "Inbox/Zotero tag review *.md"]);
+	assert.equal(r.env.ZOTERO_MCP_ENV, "/cfg/zotero.env");
+	assert.equal(r.env.PATH, "/bin");
+});
+
+test("preview: already applied notes and tags changed since the note", () => {
+	const t = formatPreview("zotero_apply_tag_review", {
+		would_change: 1,
+		changes: [{ key: "K", item: "Smith 2020: T", added: ["topic/asthma"], removed: [] }],
+		already_applied: ["2026-09-26 (23 items)"],
+		changed_since_note: { count: 1, items: { K: { item: "Smith 2020: T", in_note: ["topic/copd"], now: ["topic/copd", "topic/asthma"] } } },
+	});
+	assert.match(t, /^ALREADY APPLIED: 2026-09-26 \(23 items\)/);
+	assert.match(t, /1 item\(s\) changed after the note was written[\s\S]*K now: topic\/copd, topic\/asthma/);
 });

@@ -1,6 +1,6 @@
 {
   "name": "subsub",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Sub-Sub: a Zotero librarian and research assistant for the pi coding agent",
   "type": "module",
   "license": "MIT",
