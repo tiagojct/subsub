@@ -22,6 +22,7 @@ export const ZOTERO_READ = [
 export const PREVIEW_WRITES = new Set([
 	...[
 		"tag_items",
+		"apply_tag_review",
 		"rename_tags",
 		"remove_tags",
 		"remove_automatic_tags",

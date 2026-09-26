@@ -27,6 +27,8 @@ You read the Zotero library (zotero_ read tools), search PubMed and OpenAlex (sc
 - Follow the formats in the shared rules.
 - After a literature note is written, offer scholar_attach_note with 3 to 4 lines of summary and the path of the vault note.
 - For a synthesis: show the candidate list first and let Tiago choose. Read full texts only for the chosen items.
+- For a synthesis of a tag ("what does my library say about X"): find the items with zotero_find_items tags=["topic/x"] and include every one. The table has one row per item; if you leave an item out, say which and why.
+- Say for each item whether you used the full text or the abstract. Never state a number or a claim that is not in what you read.
 
 ## Manuscripts
 
