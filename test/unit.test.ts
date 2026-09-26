@@ -1,11 +1,17 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, writeFileSync, mkdirSync, readFileSync, realpathSync, symlinkSync } from "node:fs";
+import { existsSync, mkdtempSync, writeFileSync, mkdirSync, readFileSync, realpathSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 
 import type { Bridge, BridgeTool, CallResult } from "../src/bridge.ts";
 import { agentDirFor, chooseCwd, ensureSettings, isSelfUpdate, reviewCommand, shareAuth } from "../src/cli.ts";
+import { findUv, loadConfig as loadCfg, SERVER_VERSION } from "../src/config.ts";
+import { profileSpec } from "../src/profiles.ts";
+import { fill, languageRule } from "../src/prompt.ts";
+import { unavailableReason } from "../src/roles.ts";
+import { runInit, upsertEnv } from "../src/init.ts";
+import { formatChecks, runChecks } from "../src/doctor.ts";
 import { loadConfig, parseEnvFile, type SubsubConfig } from "../src/config.ts";
 import { formatPreview } from "../src/preview.ts";
 import { systemAddition } from "../src/prompt.ts";
@@ -78,6 +84,7 @@ function fakeCtx(opts: { hasUI?: boolean; confirm?: boolean; cwd?: string; branc
 }
 
 const CFG: SubsubConfig = {
+	configFile: "/nonexistent/subsub.json", profile: "editor", language: "English",
 	serverDir: "/x", vault: "/vault", models: { librarian: "opencode-go/glm-5.3-flash", researcher: "opencode-go/mimo-v2.6-pro" },
 	defaultMode: "researcher", vaultContext: [], startTimeout: 5,
 };
@@ -463,11 +470,17 @@ test("args: lists sent as strings are accepted and repaired", async () => {
 });
 
 test("cli: subsub review runs zotero-review with Sub-Sub's server folder and settings", () => {
-	const cfg = { serverDir: "/srv/zlm", envFile: "/cfg/zotero.env", uvPath: "/nonexistent/uv" } as any;
-	const r = reviewCommand(["apply", "Inbox/Zotero tag review *.md"], cfg, { PATH: "/bin" });
-	assert.deepEqual(r.args, ["run", "--quiet", "--directory", "/srv/zlm", "zotero-review", "apply", "Inbox/Zotero tag review *.md"]);
+	const srv = mkdtempSync(join(tmpdir(), "zlm-"));
+	writeFileSync(join(srv, "pyproject.toml"), "");
+	const cfg = { serverDir: srv, envFile: "/cfg/zotero.env", uvPath: "/nonexistent/uv" } as any;
+	const r = reviewCommand(["apply", "13-31"], cfg, { PATH: "/bin" });
+	assert.deepEqual(r.args, ["run", "--quiet", "--directory", srv, "zotero-review", "apply", "13-31"]);
 	assert.equal(r.env.ZOTERO_MCP_ENV, "/cfg/zotero.env");
 	assert.equal(r.env.PATH, "/bin");
+	// without a server folder: the pinned release from PyPI
+	const r2 = reviewCommand(["preview", "13"], { ...cfg, serverDir: "/nonexistent" }, {});
+	assert.deepEqual(r2.args.slice(0, 5), ["tool", "run", "--quiet", "--from", `zotero-local-mcp==${SERVER_VERSION}`]);
+	assert.deepEqual(r2.args.slice(5), ["zotero-review", "preview", "13"]);
 });
 
 test("preview: already applied notes and tags changed since the note", () => {
@@ -479,4 +492,125 @@ test("preview: already applied notes and tags changed since the note", () => {
 	});
 	assert.match(t, /^ALREADY APPLIED: 2026-09-26 \(23 items\)/);
 	assert.match(t, /1 item\(s\) changed after the note was written[\s\S]*K now: topic\/copd, topic\/asthma/);
+});
+
+
+// ---------------------------------------------------------------- profiles, init, doctor
+
+test("profiles: tools, reasons and prompt text", () => {
+	const all = [...TOOL_NAMES, "read", "edit", "write"];
+	const readerLib = toolsFor("librarian", all, "reader");
+	assert.ok(readerLib.includes("zotero_tag_items") && readerLib.includes("zotero_undo"));
+	assert.ok(!readerLib.includes("zotero_trash_items"));
+	assert.ok(!toolsFor("researcher", all, "scholar").includes("scholar_export_bibliography"));
+	assert.ok(toolsFor("researcher", all, "author").includes("scholar_export_bibliography"));
+	assert.match(unavailableReason("zotero_trash_items", "librarian", all, "reader")!, /not part of the Reader profile.*\/profile/);
+	assert.match(unavailableReason("zotero_tag_items", "researcher", all, "editor")!, /not available in researcher mode.*\/librarian/);
+	assert.equal(unavailableReason("zotero_tag_items", "librarian", all, "reader"), undefined);
+	assert.equal(profileSpec("reader").batch, 10);
+	const t = fill("{{User}} edits; tell {{user}}. {{about}} limit={{batch}}", { userName: "Ana", about: "a master's student", profile: "reader" });
+	assert.equal(t, "Ana edits; tell Ana. Ana is a master's student. limit=10");
+	assert.equal(fill("{{User}} can undo. {{about}}", { profile: "scholar" }), "The user can undo. ");
+	assert.match(languageRule("auto"), /language the user writes in/);
+	assert.match(languageRule("Portuguese", "Ana"), /Always reply in Portuguese, even when Ana writes/);
+	const sys = systemAddition("researcher", { ...CFG, profile: "reader", userName: "Ana", language: "auto" }, "/elsewhere");
+	assert.match(sys, /research assistant for Ana/);
+	assert.match(sys, /# Profile\n\nProfile: Reader[\s\S]*# Language\n\nReply in the language Ana writes in/);
+	assert.doesNotMatch(sys, /Tiago|\{\{/);
+});
+
+test("profile command: changes tools and saves the setting", async () => {
+	const dir = mkdtempSync(join(tmpdir(), "subsub-cfg-"));
+	const file = join(dir, "config.json");
+	writeFileSync(file, JSON.stringify({ language: "English", models: {} }));
+	const old = process.env.SUBSUB_CONFIG;
+	process.env.SUBSUB_CONFIG = file;
+	try {
+		const { fp, ctx, notes, toolCall } = await setup();
+		assert.ok(fp.active.includes("scholar_export_bibliography"));
+		await fp.commands.profile.handler("reader", ctx);
+		assert.equal(JSON.parse(readFileSync(file, "utf8")).profile, "reader");
+		assert.equal(JSON.parse(readFileSync(file, "utf8")).language, "English");
+		assert.ok(!fp.active.includes("scholar_export_bibliography"));
+		const r = await toolCall("scholar_export_bibliography", { manuscript: "/vault/x.qmd" });
+		assert.match(r.reason, /Reader profile/);
+		await fp.commands.profile.handler("nonsense", ctx);
+		assert.match(notes.at(-1)!, /Unknown profile/);
+		await fp.commands.profile.handler("", ctx);
+		assert.match(notes.at(-1)!, /Profile: Reader[\s\S]*\* Reader/);
+	} finally {
+		if (old === undefined) delete process.env.SUBSUB_CONFIG;
+		else process.env.SUBSUB_CONFIG = old;
+	}
+});
+
+test("uv on Windows and the server command", () => {
+	assert.equal(findUv({}, {}, "win32"), "uv");
+	const home = mkdtempSync(join(tmpdir(), "uvhome-"));
+	mkdirSync(join(home, "uv"), { recursive: true });
+	writeFileSync(join(home, "uv", "uv.exe"), "");
+	assert.equal(findUv({}, { LOCALAPPDATA: home }, "win32"), join(home, "uv", "uv.exe"));
+});
+
+test("init: new user with defaults, then again without replacing files", async () => {
+	const home = mkdtempSync(join(tmpdir(), "subsub-init-"));
+	const env = { SUBSUB_CONFIG: join(home, ".config", "subsub", "config.json"), ZOTERO_MCP_ENV: join(home, ".config", "zotero-local-mcp", "env") } as any;
+	const said: string[] = [];
+	const io = { ask: async (_q: string, d: string) => d, choose: async (_q: string, _o: unknown, d: string) => d, say: (l: string) => said.push(l) };
+	const notFound = (async () => { throw new Error("no zotero"); }) as unknown as typeof fetch;
+	const r = await runInit(io, { setup: "fmup", name: "Ana", email: "ana@example.org" }, env, { home, fetch: notFound });
+	const cfg = JSON.parse(readFileSync(r.configFile, "utf8"));
+	assert.equal(cfg.profile, "reader");
+	assert.equal(cfg.userName, "Ana");
+	assert.equal(cfg.setup, "fmup");
+	assert.deepEqual(cfg.models, {});
+	assert.equal(r.notes, join(home, "Documents", "Sub-Sub"));
+	const vocab = join(r.notes, "Systems", "Zotero tags.md");
+	assert.match(readFileSync(vocab, "utf8"), /topic\/cardiovascular/);
+	assert.ok(existsSync(join(r.notes, "Inbox")) && existsSync(join(r.notes, "Systems", "Zotero agent.md")));
+	const envText = readFileSync(r.envFile, "utf8");
+	assert.match(envText, /ZOTERO_VAULT=.*Sub-Sub\nZOTERO_VOCAB=.*Zotero tags\.md\nZOTERO_CONTACT_EMAIL=ana@example\.org/);
+	assert.ok(said.some((l) => /Zotero: not reachable/.test(l)) && said.some((l) => /FMUP model service/.test(l)));
+	assert.equal(loadCfg(env).profile, "reader");
+	// again: the tag list the user edited stays, other env lines stay, the profile changes
+	writeFileSync(vocab, "MY TAGS");
+	writeFileSync(r.envFile, `${envText}NCBI_API_KEY=abc\n`);
+	const r2 = await runInit(io, { profile: "author", models: "opencode-go" }, env, { home, fetch: notFound });
+	assert.equal(readFileSync(vocab, "utf8"), "MY TAGS");
+	assert.match(readFileSync(r2.envFile, "utf8"), /NCBI_API_KEY=abc/);
+	const cfg2 = JSON.parse(readFileSync(r2.configFile, "utf8"));
+	assert.equal(cfg2.profile, "author");
+	assert.equal(cfg2.userName, "Ana");
+	assert.equal(cfg2.models.librarian, "opencode-go/glm-5.3-flash");
+	assert.equal(r2.created.length, 0);
+	assert.equal(upsertEnv("# c\nA=1\n", { A: "2", B: "3", C: "" }), "# c\nA=2\nB=3\n");
+});
+
+test("doctor: checks and fixes", () => {
+	const home = mkdtempSync(join(tmpdir(), "subsub-doc-"));
+	const agent = join(home, "agent");
+	mkdirSync(agent);
+	const cfgFile = join(home, "config.json");
+	writeFileSync(cfgFile, "{}");
+	const cfg = { ...CFG, configFile: cfgFile, vault: home, serverDir: "/nonexistent", profile: "scholar" as const };
+	const status = { zotero: "reachable", write_key_remembered: false, vocabulary: { path: "/v.md", tags: 26, facets: ["method", "type", "status"], problems: [] }, contact_email_set: false };
+	const run = (cmd: string, args: string[]) =>
+		args[0] === "--version" ? { status: 0, stdout: "uv 0.9.0", stderr: "" } : { status: 0, stdout: JSON.stringify(status), stderr: "" };
+	const checks = runChecks(cfg, {}, { run, nodeVersion: "22.20.0", agentDir: agent });
+	const by = Object.fromEntries(checks.map((c) => [c.name, c]));
+	assert.ok(by.Node.ok && by.uv.ok && by.Zotero.ok && by["Zotero server"].ok);
+	assert.match(by["Zotero server"].detail, new RegExp(`zotero-local-mcp ${SERVER_VERSION.replaceAll(".", "\\.")}`));
+	assert.ok(by["Tag list"].warn && /propose topics/.test(by["Tag list"].fix!));
+	assert.ok(by["Contact email"].warn);
+	assert.equal(by["Model login"].ok, false);
+	writeFileSync(join(agent, "auth.json"), JSON.stringify({ "opencode-go": { key: "x" } }));
+	const down = { ...status, zotero: "unreachable", error: "connection refused" };
+	const checks2 = runChecks(cfg, {}, { run: (c, a) => (a[0] === "--version" ? run(c, a) : { status: 0, stdout: JSON.stringify(down), stderr: "" }), nodeVersion: "20.1.0", agentDir: agent });
+	const text = formatChecks(checks2);
+	assert.match(text, /FIX +Node/);
+	assert.match(text, /FIX +Zotero +connection refused\n +Start Zotero 10/);
+	assert.match(text, /ok +Model login/);
+	const noUv = runChecks(cfg, {}, { run: () => ({ status: null, stdout: "", stderr: "", error: "ENOENT" }), nodeVersion: "22.20.0", agentDir: agent });
+	assert.equal(noUv.at(-1)!.name, "uv");
+	assert.equal(noUv.at(-1)!.ok, false);
 });

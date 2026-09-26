@@ -363,3 +363,58 @@ test("lists sent as strings work; misnamed fields are refused with a clear error
 		pi.kill();
 	}
 });
+
+test("subsub init and subsub doctor from the command line", { timeout: 180_000 }, async () => {
+	const { spawnSync } = await import("node:child_process");
+	const home = mkdtempSync(join(tmpdir(), "subsub-init-e2e-"));
+	const env: NodeJS.ProcessEnv = {
+		...baseEnv,
+		SUBSUB_CONFIG: join(home, "config.json"),
+		ZOTERO_MCP_ENV: join(home, "zotero.env"),
+		SUBSUB_AGENT_DIR: join(home, "agent"),
+	};
+	const cli = join(ROOT, "bin", "subsub.js");
+	const init = spawnSync(process.execPath, [cli, "init", "--yes", "--notes", join(home, "Notes"), "--tags", "health-informatics", "--name", "Ana"], { env, encoding: "utf8" });
+	assert.equal(init.status, 0, init.stderr);
+	assert.match(init.stdout, /Created: .*Zotero tags\.md/);
+	assert.ok(existsSync(join(home, "Notes", "Systems", "Zotero agent.md")));
+	const cfg = JSON.parse(readFileSync(join(home, "config.json"), "utf8"));
+	assert.equal(cfg.userName, "Ana");
+	assert.equal(cfg.profile, "scholar");
+	// run the server from this checkout, not from PyPI
+	writeFileSync(join(home, "config.json"), JSON.stringify({ ...cfg, serverDir: ZLM }));
+	const doc = spawnSync(process.execPath, [cli, "doctor"], { env, encoding: "utf8", timeout: 120_000 });
+	assert.match(doc.stdout, /ok +Zotero server +from /);
+	assert.match(doc.stdout, /ok +Zotero +reachable/);
+	assert.match(doc.stdout, /FIX +Model login[\s\S]*\/login/);
+	assert.equal(doc.status, 1);
+});
+
+test("the npm package: installed with npm install -g, it starts pi with Sub-Sub", { timeout: 600_000, skip: process.env.SUBSUB_TEST_PACK !== "1" && "set SUBSUB_TEST_PACK=1 (packs and installs, needs the npm registry)" }, async () => {
+	const { execFileSync } = await import("node:child_process");
+	const tmp = mkdtempSync(join(tmpdir(), "subsub-pack-"));
+	const npm = process.platform === "win32" ? "npm.cmd" : "npm";
+	execFileSync(npm, ["pack", "--pack-destination", tmp], { cwd: ROOT, stdio: "ignore" });
+	const tgz = join(tmp, JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")).name + "-" + JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")).version + ".tgz");
+	execFileSync(npm, ["install", "-g", "--prefix", join(tmp, "prefix"), tgz], { stdio: "ignore" });
+	const bin = process.platform === "win32" ? join(tmp, "prefix", "node_modules", "subsub", "bin", "subsub.js") : join(tmp, "prefix", "lib", "node_modules", "subsub", "bin", "subsub.js");
+	const home = join(work, "pack-home");
+	const agentDir = join(home, ".subsub", "agent");
+	mkdirSync(agentDir, { recursive: true });
+	writeFileSync(join(agentDir, "models.json"), readFileSync(join(work, "agent", "models.json")));
+	const env: NodeJS.ProcessEnv = { ...baseEnv, HOME: home, SUBSUB_AGENT_DIR: agentDir };
+	delete env.PI_CODING_AGENT_DIR;
+	const pi = new Pi(env, home, ["--provider", "fake", "--model", "fake-model"], bin);
+	try {
+		script = [{ text: "Hello." }];
+		requests.length = 0;
+		await pi.prompt("/lit-note jacinto2026");
+		const settings = JSON.parse(readFileSync(join(agentDir, "settings.json"), "utf8"));
+		assert.ok(String(settings.packages[0]).includes("node_modules"), "the installed copy is the package");
+		const sys = JSON.stringify(requests[0].messages[0]);
+		assert.match(sys, /Sub-Sub: researcher mode/);
+		assert.match(sys, /# Profile/);
+	} finally {
+		pi.kill();
+	}
+});

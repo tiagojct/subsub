@@ -8,7 +8,7 @@
 
 import { existsSync, realpathSync } from "node:fs";
 import { homedir } from "node:os";
-import { basename, dirname, join, relative, resolve, sep } from "node:path";
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export function normalizeToolPath(raw: string, cwd: string): string {
@@ -47,7 +47,7 @@ export function realish(abs: string): string {
 export function within(child: string, parent: string | undefined): boolean {
 	if (!parent) return false;
 	const rel = relative(parent, child);
-	return rel === "" || (!rel.startsWith(`..${sep}`) && rel !== ".." && !rel.startsWith(sep));
+	return rel === "" || (!rel.startsWith(`..${sep}`) && rel !== ".." && !isAbsolute(rel));
 }
 
 export interface PathPolicy {

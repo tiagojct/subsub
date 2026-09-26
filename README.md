@@ -1,67 +1,88 @@
 # Sub-Sub
 
-A Zotero librarian and research assistant for the [pi](https://pi.dev) coding agent.
+A Zotero librarian and research assistant that runs in your terminal. It is built on the [pi](https://pi.dev) agent and works with your own Zotero library through Zotero's local API.
 
 > "This mere painstaking burrower and grub-worm of a poor devil of a Sub-Sub appears to have gone through the long Vaticans and street-stalls of the earth, picking up whatever random allusions to whales he could anyways find in any book whatsoever." (Moby-Dick, Extracts)
 
-Sub-Sub is a pi package. It starts the two MCP servers of [zotero-local-mcp](../zotero-local-mcp) and adds:
+Sub-Sub has two modes:
 
-- **Two modes.** `/librarian` changes the library (tags, imports, metadata, PDFs, notes) and has no web access. `/researcher` reads the library, searches PubMed and OpenAlex, writes notes in the vault, and can only add short linked notes to Zotero. Each mode has its own tool set and model. `bash` is off in both.
-- **An approval gate in code.** When the model calls a library write with `dry_run=false`, Sub-Sub first asks the server for the preview (dry run), shows it in a dialog, and lets the call run only after you approve. Without an interactive UI, writes are blocked. The model cannot skip this.
-- **Commands.** `/subsub` (connection and library overview), `/history`, `/undo` (preview, confirm, apply).
-- **Prompt templates.** `/tag-batch`, `/clean-tags`, `/import-queue`, `/lit-note`, `/synthesis`, `/gaps`, `/manuscript`, `/alert`.
-- **A lean prompt.** pi's short base prompt, plus the role text, plus the shared rules from the vault (`Systems/Zotero agent.md`), plus the vault conventions (`.claude/CLAUDE.md`) when pi runs in the vault, plus an English-only rule at the end.
+- The librarian changes the library: tags from your own tag list, imports by DOI, PMID or ISBN, metadata repair, duplicates, retractions, open-access PDFs, notes and collections. It has no web access.
+- The researcher reads the library, searches PubMed and OpenAlex, and writes notes in your notes folder. It cannot change the library, except to add a short linked note to an item.
 
-All library safety (dry runs, version checks, journal and undo, vocabulary, the researcher's note-only client) stays in the Python servers.
+Every library change is shown as a preview and runs only after you approve it. The model cannot skip this: the check is in the code, not in the prompt. Every change is journaled and can be undone with `/undo`.
+
+## Profiles
+
+A profile sets how much Sub-Sub does for you. Choose it in `subsub init` and change it with `/profile`.
+
+| Profile | What it does |
+|---|---|
+| Reader | Explains each step. Reading notes are quotes with page numbers, plus questions for you to answer. No summaries or syntheses. No bulk library changes. |
+| Scholar | Literature notes, syntheses, searches and alerts. The full librarian. |
+| Author | Scholar, plus manuscripts: citation check against the library, bibliography for Quarto or Pandoc, comments on the argument. It does not write your paragraphs. |
+| Editor | Everything, including drafting manuscript text when you ask. |
+
+A profile is your own choice, not a lock.
 
 ## Requirements
 
-- Node 22.19 or later (pi 0.87.1 is installed as a dependency)
-- zotero-local-mcp in `~/Projects/zotero-local-mcp`, with `uv sync` done
-- Zotero 10 running, with local API access enabled
-- An OpenCode Go key (pi has a built-in `opencode-go` provider)
+- Zotero 10 or later, running. In Zotero, open Settings > Advanced and turn on "Allow other applications on this computer to communicate with Zotero".
+- Node.js 22.19 or later.
+- uv (https://docs.astral.sh/uv/).
+- An account with a model provider that pi supports (for example OpenCode Go, OpenRouter, Anthropic, OpenAI, or a local Ollama).
+- macOS, Windows or Linux.
 
 ## Install
 
-```sh
-cd ~/Projects/subsub
-npm install --omit=dev
-npm link          # adds the subsub command
-subsub            # then /login, OpenCode Zen and Go, paste the key
-```
+1. Type `npm install -g subsub`.
+2. Type `subsub init`. Answer the questions. Press Enter to keep a default.
+3. Type `subsub doctor`. Fix each line marked FIX.
+4. Type `subsub`. Then type `/login` and choose your model provider.
 
-`subsub` is pi with its own folder (`~/.subsub/agent`, or `SUBSUB_AGENT_DIR`) for settings, sessions and packages. On each start it makes sure that the folder's `settings.json` lists this package, links `auth.json` to pi's when pi has credentials and Sub-Sub has none, and starts in the vault when you start it from the home folder (`--here` keeps the folder). pi's own options work: `subsub --librarian`, `subsub -c`, `subsub -r`, `subsub "question"`. `subsub update` (pi self-update) is refused; update with `npm install` in this folder.
+`subsub init` creates a notes folder with Inbox/ and Systems/, a starter tag list (health sciences, health informatics, or any field) and a file with the note formats (Systems/Zotero agent.md). You can edit both files. It never replaces a file that exists.
 
-Sub-Sub also still works as a package inside plain pi: `pi install ~/Projects/subsub`.
+The Zotero servers (zotero-local-mcp) run from PyPI through uv. To run them from a copy of the repository, add `"serverDir": "/path/to/zotero-local-mcp"` to the settings file.
 
-## Configuration
+## Use
 
-No file is needed. Defaults:
+- `subsub` starts in the researcher mode. `subsub --librarian` starts in the librarian mode. `/librarian` and `/researcher` change the mode.
+- `/profile` shows or changes the profile. `/subsub` shows the Zotero connection. `/history` lists recent library changes. `/undo` reverts one.
+- Templates: `/tag-batch`, `/clean-tags`, `/import-queue` (librarian); `/lit-note <citekey>`, `/synthesis <topic>`, `/gaps <topic>`, `/manuscript <file>`, `/alert` (researcher).
+- `subsub review preview 13-31` and `subsub review apply 13-31` preview or apply tag review notes by number.
+- `subsub -c` continues the last session. `subsub -r` selects an older one.
 
-| Setting | Default |
-|---|---|
-| `serverDir` | `~/Projects/zotero-local-mcp` |
-| `envFile` | `$ZOTERO_MCP_ENV`, `~/.config/zotero-local-mcp/env`, or `~/.config/opencode/zotero.env` (first that exists) |
-| `vault` | `ZOTERO_VAULT` from the env file |
-| `models` | librarian `opencode-go/glm-5.3-flash`, researcher `opencode-go/mimo-v2.6-pro` |
-| `defaultMode` | `researcher` (start with `subsub --librarian` for the librarian) |
+## Settings
 
-To change them, write `~/.config/subsub/config.json` (or point `SUBSUB_CONFIG` at a file), for example:
+`subsub init` writes `~/.config/subsub/config.json` (or the file in `SUBSUB_CONFIG`):
 
-```json
-{ "models": { "researcher": "opencode-go/deepseek-v4-pro" }, "defaultMode": "librarian" }
-```
+| Setting | Meaning | Default |
+|---|---|---|
+| `profile` | reader, scholar, author or editor | scholar |
+| `userName` | how Sub-Sub names you | "the user" |
+| `about` | one line about you | none |
+| `language` | language of replies and notes, or `auto` | English |
+| `vault` | notes folder | `ZOTERO_VAULT` from the server settings |
+| `models` | model per mode, e.g. `{ "librarian": "opencode-go/glm-5.3-flash" }` | pi's current model |
+| `defaultMode` | librarian or researcher | researcher |
+| `serverDir` | a local copy of zotero-local-mcp | the PyPI release |
+| `look`, `quotes`, `themes` | banner, Moby-Dick line, themes per mode | on |
+
+The server settings (notes folder, tag list, contact email for Unpaywall) are in `~/.config/zotero-local-mcp/env`.
 
 ## Model test
 
-`subsub-bench prepare`, `subsub-bench run`, `subsub-bench score`: the same six tasks (three per mode) for several OpenCode Go models, against the real library, with every library change recorded and blocked (`SUBSUB_BENCH_OUT`) and file writes limited to the run folder. Objective checks: tag F1 against reviewed tags and a blind reference, facet coverage, identifiers passed to the import, invented or unknown citekeys, DOIs and PMIDs not found in any tool result, tokens, cost and time. See docs/Subsub.md.
+`subsub-bench prepare`, `subsub-bench run` and `subsub-bench score` run the same tasks for several models against your library. Every library change is recorded and blocked, and files are written only in the run folder. The results show tag accuracy, invented references, tokens, cost and time.
 
 ## Tests
 
 ```sh
 npm install
-npm test                                   # unit tests with a mock pi
-ZLM_DIR=~/Projects/zotero-local-mcp npm run test:e2e
+npm test
+ZLM_DIR=/path/to/zotero-local-mcp npm run test:e2e
 ```
 
-The end-to-end test runs the real pi in RPC mode with Sub-Sub, the real Python servers, a fake Zotero and a scripted fake model. It checks the tool sets per mode, the system prompt, the preview dialog, an approved change and a declined change.
+The end-to-end tests run the real pi with Sub-Sub, the real Python servers, a fake Zotero and a scripted model.
+
+## Licence
+
+MIT.

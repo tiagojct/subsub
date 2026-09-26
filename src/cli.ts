@@ -11,6 +11,7 @@
  *   `--here` keeps the current folder.
  * - `subsub review preview|apply NOTE...` runs zotero-review (tag review notes,
  *   several at a time) with Sub-Sub's server folder and settings.
+ * - `subsub init` sets Sub-Sub up; `subsub doctor` checks the setup.
  */
 
 import { spawnSync } from "node:child_process";
@@ -18,7 +19,7 @@ import { existsSync, lstatSync, mkdirSync, readFileSync, realpathSync, renameSyn
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { expand, findUv, loadConfig, type SubsubConfig } from "./config.ts";
+import { expand, loadConfig, serverCommand, type SubsubConfig } from "./config.ts";
 
 export const PACKAGE_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -124,10 +125,9 @@ export function isSelfUpdate(args: string[]): boolean {
 }
 
 /** The command line for `subsub review ...`: zotero-review in the server folder, with the same settings file. */
-export function reviewCommand(args: string[], cfg: SubsubConfig, env: NodeJS.ProcessEnv = process.env) {
+export function reviewCommand(args: string[], cfg: SubsubConfig, env: NodeJS.ProcessEnv = process.env): { command: string; args: string[]; env: NodeJS.ProcessEnv } {
 	return {
-		command: findUv(cfg, env),
-		args: ["run", "--quiet", "--directory", cfg.serverDir, "zotero-review", ...args],
+		...serverCommand(cfg, "zotero-review", args, env),
 		env: { ...env, ...(cfg.envFile ? { ZOTERO_MCP_ENV: cfg.envFile } : {}) },
 	};
 }
@@ -141,6 +141,16 @@ export async function run(argv: string[] = process.argv.slice(2)): Promise<void>
 	if (args[0] === "--version" || args[0] === "-v") {
 		const piPkg = join(dirname(fileURLToPath(import.meta.resolve("@earendil-works/pi-coding-agent"))), "..");
 		console.log(`subsub ${packageVersion()} (pi ${packageVersion(piPkg)})`);
+		return;
+	}
+	if (args[0] === "init") {
+		const { initMain } = await import("./init.ts");
+		process.exitCode = await initMain(args.slice(1), env);
+		return;
+	}
+	if (args[0] === "doctor") {
+		const { doctorMain } = await import("./doctor.ts");
+		process.exitCode = await doctorMain(env);
 		return;
 	}
 	if (args[0] === "review") {

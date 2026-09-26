@@ -1,5 +1,5 @@
 /**
- * Turn a dry-run result from the Zotero servers into a short text that Tiago
+ * Turn a dry-run result from the Zotero servers into a short text that the user
  * reads in the approval dialog. Plain ASCII, at most about 20 lines.
  */
 

@@ -4,8 +4,10 @@
  * - Two modes with different tool sets: librarian (changes the library, no web)
  *   and researcher (reads the library, searches PubMed/OpenAlex, writes vault notes).
  * - An approval gate: every library change is previewed by the server (dry run)
- *   and shown to Tiago; nothing is applied without his yes.
- * - Commands: /librarian, /researcher, /subsub, /history, /undo.
+ *   and shown to the user; nothing is applied without a yes.
+ * - Profiles (reader, scholar, author, editor) set what Sub-Sub writes and which
+ *   tools it offers; /profile changes it.
+ * - Commands: /librarian, /researcher, /profile, /subsub, /history, /undo.
  *
  * The Python servers start in session_start (not in the factory) and stop in
  * session_shutdown. Tools are registered once and use the current bridge.
@@ -16,13 +18,14 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Bridge, type ServerSpec } from "./bridge.ts";
-import { expand, findUv, loadConfig, type Mode, type SubsubConfig } from "./config.ts";
+import { expand, findUv, isProfile, loadConfig, type Mode, type Profile, saveConfig, serverCommand, type SubsubConfig, who } from "./config.ts";
+import { profileList, profileSpec } from "./profiles.ts";
 import { coerceArgs, loosenArrays } from "./args.ts";
 import { buildPolicy, judgePath, normalizeToolPath, realish, within } from "./paths.ts";
 import { describeArgs, formatPreview } from "./preview.ts";
 import { headerLines, type LibraryState, paintPreview, QUOTES, type Scheme, schemeFromAnsi, themeName } from "./look.ts";
 import { systemAddition } from "./prompt.ts";
-import { gateKind, otherMode, toolsFor } from "./roles.ts";
+import { gateKind, toolsFor, unavailableReason } from "./roles.ts";
 
 export interface SubsubDeps {
 	config?: SubsubConfig;
@@ -47,10 +50,9 @@ export { findUv };
 
 export function serverSpecs(cfg: SubsubConfig): ServerSpec[] {
 	const env: Record<string, string> = cfg.envFile ? { ZOTERO_MCP_ENV: cfg.envFile } : {};
-	const uv = findUv(cfg);
 	return [
-		{ name: "zotero", command: uv, args: ["run", "--directory", cfg.serverDir, "zotero-local-mcp"], env },
-		{ name: "scholar", command: uv, args: ["run", "--directory", cfg.serverDir, "zotero-scholar-mcp"], env },
+		{ name: "zotero", ...serverCommand(cfg, "zotero-local-mcp"), env },
+		{ name: "scholar", ...serverCommand(cfg, "zotero-scholar-mcp"), env },
 	];
 }
 
@@ -93,6 +95,8 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	pi.registerFlag("librarian", { description: "Start Sub-Sub in librarian mode", type: "boolean", default: false });
 
 	let mode: Mode = cfg.defaultMode;
+	let profile: Profile = cfg.profile;
+	const user = who(cfg);
 	/** True when started with the `subsub` command (not as a package inside plain pi). */
 	const standalone = process.env.SUBSUB_CLI === "1";
 	const registered = () => pi.getAllTools().map((t) => t.name);
@@ -154,6 +158,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 					return headerLines({
 						version,
 						mode,
+						profile: profileSpec(profile).label,
 						model: modelId,
 						library,
 						quote,
@@ -175,14 +180,14 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	function status(ctx: ExtensionContext): void {
 		modelId = ctx.model ? `${ctx.model.id}` : "no model";
 		const down = bridge ? Object.keys(bridge.errors) : ["zotero", "scholar"];
-		ctx.ui.setStatus("subsub", `Sub-Sub: ${mode} | ${modelId}${down.length ? ` | not running: ${down.join(", ")}` : ""}`);
+		ctx.ui.setStatus("subsub", `Sub-Sub: ${mode} | ${profileSpec(profile).label} | ${modelId}${down.length ? ` | not running: ${down.join(", ")}` : ""}`);
 		if (standalone) ctx.ui.setTitle(`Sub-Sub: ${mode}`);
 		headerTui?.requestRender();
 	}
 
 	async function applyMode(ctx: ExtensionContext, next: Mode, remember: boolean): Promise<void> {
 		mode = next;
-		pi.setActiveTools(toolsFor(mode, registered()));
+		pi.setActiveTools(toolsFor(mode, registered(), profile));
 		const spec = cfg.models[mode];
 		if (spec) {
 			const i = spec.indexOf("/");
@@ -229,7 +234,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	pi.on("model_select", async (_event, ctx) => status(ctx));
 
 	pi.on("before_agent_start", async (event, ctx) => ({
-		systemPrompt: `${event.systemPrompt}\n\n${systemAddition(mode, cfg, ctx.cwd)}`,
+		systemPrompt: `${event.systemPrompt}\n\n${systemAddition(mode, { ...cfg, profile }, ctx.cwd)}`,
 	}));
 
 	/** Model test (subsub-bench): record every change instead of asking, and apply none. */
@@ -242,12 +247,12 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		// Previews and the real call must see the same, repaired arguments.
 		const schema = schemas.get(name);
 		if (schema) coerceArgs(schema, input);
-		if ((name.startsWith("zotero_") || name.startsWith("scholar_")) && !toolsFor(mode, registered()).includes(name)) {
-			if (benchOut) record({ kind: "wrong_mode", tool: name, input });
-			return {
-				block: true,
-				reason: `${name} is not available in ${mode} mode. Ask Tiago to switch with /${otherMode(mode)}.`,
-			};
+		if (name.startsWith("zotero_") || name.startsWith("scholar_")) {
+			const why = unavailableReason(name, mode, registered(), profile);
+			if (why) {
+				if (benchOut) record({ kind: "wrong_mode", tool: name, input });
+				return { block: true, reason: why };
+			}
 		}
 		const kind = benchOut && name === "scholar_queue_imports" ? "confirm" : gateKind(name, input);
 		if (!kind) return undefined;
@@ -256,18 +261,18 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			const target = normalizeToolPath(String(input.path ?? ""), ctx.cwd);
 			const verdict = judgePath(target, buildPolicy({ vault: cfg.vault, cwd: ctx.cwd, serverDir: cfg.serverDir, packageDir: PACKAGE_DIR }));
 			if (verdict.ok) return undefined;
-			if (!ctx.hasUI) return { block: true, reason: `Writing ${target} needs Tiago's approval: ${verdict.why}.` };
+			if (!ctx.hasUI) return { block: true, reason: `Writing ${target} needs ${user}'s approval: ${verdict.why}.` };
 			const ok = await ctx.ui.confirm(`Sub-Sub: ${name} ${target}?`, `Asking because ${verdict.why}.`);
-			return ok ? undefined : { block: true, reason: "Tiago did not allow writing to that file." };
+			return ok ? undefined : { block: true, reason: `${user} did not allow writing to that file.` };
 		}
 		if (!ctx.hasUI) {
-			return { block: true, reason: "Library changes need Tiago's approval, which needs an interactive session." };
+			return { block: true, reason: `Library changes need ${user}'s approval, which needs an interactive session.` };
 		}
 		if (kind === "confirm") {
 			const ok = await ctx.ui.confirm(`Sub-Sub: run ${name}?`, describeArgs(input));
-			return ok ? undefined : { block: true, reason: "Tiago did not approve. Ask him what to change." };
+			return ok ? undefined : { block: true, reason: `${user} did not approve. Ask what to change.` };
 		}
-		// kind === "preview": the server computes the change first, then Tiago decides.
+		// kind === "preview": the server computes the change first, then the user decides.
 		// Normalise dry_run so that what runs is exactly what was previewed and approved.
 		input.dry_run = false;
 		let preview;
@@ -281,7 +286,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			`Sub-Sub: apply ${name.replace(/^(zotero|scholar)_/, "")}?`,
 			paintFor(ctx)(formatPreview(name, preview.data ?? preview.text)),
 		);
-		return ok ? undefined : { block: true, reason: "Tiago did not approve this change. Ask him what to change; do not retry the same call." };
+		return ok ? undefined : { block: true, reason: `${user} did not approve this change. Ask what to change; do not retry the same call.` };
 	});
 
 	async function benchGate(name: string, input: Record<string, unknown>, kind: string, cwd: string, signal?: AbortSignal) {
@@ -307,7 +312,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			reason:
 				"Model test: this change was recorded and not applied. Continue as if it had been applied: make any other " +
 				"changes the task needs, do not repeat this call, do not ask for approval, and finish with a short summary " +
-				`for Tiago.${shown}`,
+				`for ${user}.${shown}`,
 		};
 	}
 
@@ -327,10 +332,34 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		},
 	});
 
+	pi.registerCommand("profile", {
+		description: "Sub-Sub: show or change the profile (reader, scholar, author, editor)",
+		handler: async (args, ctx) => {
+			const want = args.trim().toLowerCase();
+			if (!want) {
+				ctx.ui.notify(`Profile: ${profileSpec(profile).label}. To change it, type /profile <name>.\n${profileList(profile)}`, "info");
+				return;
+			}
+			if (!isProfile(want)) {
+				ctx.ui.notify(`Unknown profile "${want}". Choose one of:\n${profileList(profile)}`, "warning");
+				return;
+			}
+			profile = want;
+			let saved = "";
+			try {
+				saved = ` Saved in ${saveConfig({ profile })}.`;
+			} catch (err) {
+				saved = ` Not saved: ${(err as Error).message}`;
+			}
+			await applyMode(ctx, mode, false);
+			ctx.ui.notify(`Sub-Sub: ${profileSpec(profile).label} profile (${profileSpec(profile).summary}).${saved}`, "info");
+		},
+	});
+
 	pi.registerCommand("subsub", {
 		description: "Sub-Sub: Zotero connection and library overview",
 		handler: async (_args, ctx) => {
-			const lines = [`Mode: ${mode}. Model: ${ctx.model?.id ?? "none"}.`];
+			const lines = [`Mode: ${mode}. Profile: ${profileSpec(profile).label}. Model: ${ctx.model?.id ?? "none"}.`];
 			if (!bridge) {
 				ctx.ui.notify(`${lines[0]}\nThe Zotero servers are not running. Try /reload.`, "warning");
 				return;

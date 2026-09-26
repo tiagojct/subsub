@@ -2,8 +2,9 @@ Sub-Sub is a Zotero librarian and research assistant that runs in pi. It uses th
 
 - Code: ~/Projects/subsub (git). Servers: ~/Projects/zotero-local-mcp
 - Shared rules: [[Zotero agent]]. Tag vocabulary: [[Zotero tags]]
-- Settings: ~/.config/opencode/zotero.env (same file as OpenCode). Optional overrides: ~/.config/subsub/config.json
+- Settings: ~/.config/subsub/config.json (written by `subsub init`) and ~/.config/opencode/zotero.env (same file as OpenCode)
 - Models: librarian opencode-go/glm-5.3-flash, researcher opencode-go/mimo-v2.6-pro
+- Public docs: the README in ~/Projects/subsub (source for subsub.tiagojacinto.eu)
 
 ## Differences from the OpenCode setup
 
@@ -21,6 +22,8 @@ Sub-Sub is a Zotero librarian and research assistant that runs in pi. It uses th
 4. Optional: type `pi remove ~/Projects/subsub`. Then plain `pi` stays a plain coding agent without Sub-Sub.
 5. Type `subsub`. If pi already has your OpenCode Go key, Sub-Sub uses the same key. If not, type `/login`, select OpenCode Zen and Go, and paste the key.
 6. Type `/subsub`. Make sure that the result shows "Zotero: reachable" and the model mimo-v2.6-pro.
+7. Type `subsub init` once. Keep the notes folder (the vault), the tag list and the email. For the profile, select Editor. For the models, select OpenCode Go.
+8. Type `subsub doctor`. Make sure that no line shows FIX.
 
 If you change the Node version with fnm, do step 3 again.
 
@@ -40,6 +43,7 @@ Sub-Sub keeps its pi settings, sessions and packages in ~/.subsub/agent, separat
 Commands:
 
 - `/subsub`: Zotero connection and library overview
+- `/profile`: shows or changes the profile
 - `/history`: recent library changes
 - `/undo`: shows the last change, asks, and reverts it. `/undo <id>` reverts a specific change from `/history`.
 
@@ -47,6 +51,15 @@ Templates (type the name, then the argument):
 
 - Librarian: `/tag-batch [size]`, `/clean-tags`, `/import-queue [note path]`
 - Researcher: `/lit-note <citekey>`, `/synthesis <topic>`, `/gaps <topic>`, `/manuscript <path>`, `/alert`
+
+## Profiles
+
+The profile sets how much Sub-Sub does. To see the profile, type `/profile`. To change it, type `/profile reader` (or scholar, author, editor). The change is saved.
+
+- Reader: explains each step. Reading notes are quotes with page numbers, plus questions. No summaries or syntheses. No bulk library changes.
+- Scholar: literature notes, syntheses, searches and alerts. The full librarian.
+- Author: Scholar plus manuscripts: citation check, bibliography, comments on the argument. It does not write the paragraphs.
+- Editor: everything, including drafted manuscript text when you ask.
 
 ## Tag review notes
 
@@ -99,6 +112,7 @@ Each model gets a code (for example M417), so the notes can be judged blind. key
 
 ## Problems
 
+- To find a setup problem, type `subsub doctor`. Each line marked FIX says what to do.
 - "the zotero server did not start": run `cd ~/Projects/zotero-local-mcp && uv sync`. If pi does not find uv, add `"uvPath": "/path/to/uv"` to ~/.config/subsub/config.json (type `which uv` to see the path).
 - "cannot use opencode-go/...": the OpenCode Go key is missing. In Sub-Sub, type `/login` again.
 - "command not found: subsub": type `cd ~/Projects/subsub && npm link`.

@@ -1,13 +1,17 @@
 /**
  * The Sub-Sub part of the system prompt: role text for the current mode, the
- * shared Zotero rules from the vault, and the vault conventions when pi runs
- * inside the vault.
+ * profile rules, the shared Zotero rules from the notes folder, the vault
+ * conventions when pi runs inside the notes folder, and the language rule.
+ *
+ * Role and profile texts use placeholders: {{user}} / {{User}} (the user's name,
+ * or "the user"), {{about}} (one line about the user) and {{batch}}.
  */
 
 import { existsSync, readFileSync } from "node:fs";
-import { dirname, join, relative, resolve } from "node:path";
+import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { Mode, SubsubConfig } from "./config.ts";
+import { type Mode, type SubsubConfig, who } from "./config.ts";
+import { profileSpec } from "./profiles.ts";
 
 const ROLE_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "roles");
 
@@ -20,27 +24,48 @@ function readIf(path: string | undefined): string | undefined {
 	}
 }
 
-export const LANGUAGE_RULE =
-	"Always reply in English, even when Tiago writes in Portuguese or another language and even when the sources or notes you read are in another language. Write the notes you create in English too, including their titles. Keep quotations, titles of works and proper names in their original language.";
+export function languageRule(language: string, user = "the user"): string {
+	if (language.toLowerCase() === "auto") {
+		return `Reply in the language ${user} writes in. Write notes in the language of ${user}'s other notes; if unsure, ask once. Keep quotations, titles of works and proper names in their original language.`;
+	}
+	return `Always reply in ${language}, even when ${user} writes in another language and even when the sources or notes you read are in another language. Write the notes you create in ${language} too, including their titles. Keep quotations, titles of works and proper names in their original language.`;
+}
 
 export function inside(child: string, parent: string | undefined): boolean {
 	if (!parent) return false;
 	const rel = relative(resolve(parent), resolve(child));
-	return rel === "" || (!rel.startsWith("..") && !rel.startsWith("/"));
+	return rel === "" || (!rel.startsWith("..") && !isAbsolute(rel));
 }
 
-export function roleText(mode: Mode): string {
-	return readIf(join(ROLE_DIR, `${mode}.md`)) ?? `You are the ${mode}.`;
+function capital(s: string): string {
+	return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+export function fill(text: string, cfg: Pick<SubsubConfig, "userName" | "about" | "profile">): string {
+	const user = who(cfg);
+	const about = cfg.about ? `${capital(user)} is ${cfg.about}.` : "";
+	return text
+		.replaceAll("{{User}}", capital(user))
+		.replaceAll("{{user}}", user)
+		.replaceAll("{{about}}", about)
+		.replaceAll("{{batch}}", String(profileSpec(cfg.profile).batch))
+		.replace(/[ \t]+\n/g, "\n");
+}
+
+export function roleText(mode: Mode, cfg?: Pick<SubsubConfig, "userName" | "about" | "profile">): string {
+	const raw = readIf(join(ROLE_DIR, `${mode}.md`)) ?? `You are the ${mode}.`;
+	return cfg ? fill(raw, cfg) : raw;
 }
 
 export function systemAddition(mode: Mode, cfg: SubsubConfig, cwd: string): string {
-	const parts = [`# Sub-Sub: ${mode} mode`, roleText(mode)];
+	const user = who(cfg);
+	const parts = [`# Sub-Sub: ${mode} mode`, roleText(mode, cfg)];
 	const shared = readIf(cfg.sharedRules);
 	if (shared) {
 		parts.push(
-			"# Shared Zotero rules (from the vault)",
+			"# Shared Zotero rules (from the notes folder)",
 			shared,
-			"Sub-Sub note: in Sub-Sub you do not need a separate dry run before a change. Call the write tool with dry_run=false; Sub-Sub shows Tiago the server's preview and applies it only if he approves. This replaces the dry-run steps above.",
+			`Sub-Sub note: in Sub-Sub you do not need a separate dry run before a change. Call the write tool with dry_run=false; Sub-Sub shows ${user} the server's preview and applies it only on approval. This replaces the dry-run steps above.`,
 		);
 	}
 	if (inside(cwd, cfg.vault)) {
@@ -49,7 +74,8 @@ export function systemAddition(mode: Mode, cfg: SubsubConfig, cwd: string): stri
 			if (t) parts.push(`# Vault conventions (${f})`, t);
 		}
 	}
-	// Last, so it wins over any language rule in the shared rules or the vault conventions.
-	parts.push("# Language", LANGUAGE_RULE);
+	// The profile and the language rule come last, so they win over the shared rules and the vault conventions.
+	parts.push("# Profile", fill(profileSpec(cfg.profile).rules, cfg));
+	parts.push("# Language", languageRule(cfg.language, user));
 	return parts.join("\n\n");
 }

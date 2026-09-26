@@ -548,7 +548,7 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
 			const prompt = promptFor(j.task, t, j.code, out);
 			if (!prompt) return;
 			const cf = join(cfgDir, `${j.code}.json`);
-			writeFileSync(cf, JSON.stringify({ ...userCfg, models: { librarian: `opencode-go/${j.model}`, researcher: `opencode-go/${j.model}` } }));
+			writeFileSync(cf, JSON.stringify({ ...userCfg, profile: "editor", models: { librarian: `opencode-go/${j.model}`, researcher: `opencode-go/${j.model}` } }));
 			const s = await runOne({ ...j, prompt, out, cwd: cfg.vault!, configFile: cf, timeoutSec });
 			n++;
 			console.log(`${n}/${jobs.length}  ${j.code}  ${j.task}  ${s.seconds}s  ${s.error ?? (s.settled ? "done" : "?")}`);
