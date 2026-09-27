@@ -3,7 +3,7 @@ layout: base.njk
 title: Sub-Sub
 hideTitle: true
 bodyClass: home
-description: A Zotero librarian and research assistant that runs in your terminal. You approve every change to your library.
+description: A Zotero librarian and research assistant that runs on your computer, in your browser or in the terminal. You approve every change to your library.
 ---
 <section class="hero">
 	<div>
@@ -11,13 +11,13 @@ description: A Zotero librarian and research assistant that runs in your termina
 ╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗
 ╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝</pre>
 		<h1 class="gl-display">A librarian for your Zotero library</h1>
-		<p class="lead">Sub-Sub tags, imports, repairs and reads your references, and helps you search the literature. It runs in your terminal, on your computer, with the AI model you choose. Nothing in your library changes until you say yes.</p>
+		<p class="lead">Sub-Sub tags, imports, repairs and reads your references, and helps you search the literature. It runs on your computer, in your browser or in the terminal, with the AI model you choose. Nothing in your library changes until you say yes.</p>
 		<div class="install-box">
 			<p class="cmd-label">macOS and Linux</p>
 			<pre class="cmd"><code>curl -fsSL https://subsub.tiagojacinto.eu/install.sh | sh</code></pre>
 			<p class="cmd-label">Windows (PowerShell)</p>
 			<pre class="cmd ps"><code>powershell -ExecutionPolicy ByPass -c "irm https://subsub.tiagojacinto.eu/install.ps1 | iex"</code></pre>
-			<p class="small">Needs Zotero 10 and an account with an AI model provider. <a href="/install/">What the installer does, and other ways to install</a>.</p>
+			<p class="small">Needs Zotero 10 and an account with an AI model provider. After the install, open Sub-Sub from Applications or the Start menu. <a href="/install/">What the installer does, and other ways to install</a>.</p>
 		</div>
 	</div>
 	<figure>
@@ -45,8 +45,17 @@ Librarian, Scholar  glm-5.3-flash  <span class="m">|  Zotero: 1024 items</span>
 </section>
 
 <section class="section">
+	<h2>In your browser</h2>
+	<p>Open Sub-Sub from Applications or the Start menu. It runs on your computer and opens in your browser, with the same modes, profiles and approvals as in the terminal. Buttons and labels are in English or in European Portuguese.</p>
+	<figure class="shot">
+		<img src="/assets/img/web-approval.webp?v={{ assetVersion }}" width="1600" height="1013" loading="lazy" alt="The Sub-Sub web view asks for approval: two items would get new tags, and one tag would be removed.">
+		<figcaption>An example session. The items are invented.</figcaption>
+	</figure>
+</section>
+
+<section class="section">
 	<h2>Two modes</h2>
-	<p>Switch with <code>/librarian</code> and <code>/researcher</code>. Each mode has its own tools and its own model.</p>
+	<p>Switch with the buttons at the top of the page, or with <code>/librarian</code> and <code>/researcher</code>. Each mode has its own tools and its own model.</p>
 	<div class="cards">
 		<div class="card">
 			<p class="tag">Librarian</p>

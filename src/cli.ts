@@ -12,6 +12,8 @@
  * - `subsub review preview|apply NOTE...` runs zotero-review (tag review notes,
  *   several at a time) with Sub-Sub's server folder and settings.
  * - `subsub init` sets Sub-Sub up; `subsub doctor` checks the setup.
+ * - `subsub web` (or `subsub serve`) opens Sub-Sub in the browser;
+ *   `subsub shortcut` adds a Sub-Sub shortcut that does the same.
  */
 
 import { spawnSync } from "node:child_process";
@@ -146,6 +148,16 @@ export async function run(argv: string[] = process.argv.slice(2)): Promise<void>
 	if (args[0] === "init") {
 		const { initMain } = await import("./init.ts");
 		process.exitCode = await initMain(args.slice(1), env);
+		return;
+	}
+	if (args[0] === "web" || args[0] === "serve") {
+		const { webMain } = await import("./web.ts");
+		process.exitCode = await webMain([...args.slice(1), ...(here ? ["--here"] : [])], env);
+		return;
+	}
+	if (args[0] === "shortcut") {
+		const { shortcutMain } = await import("./shortcut.ts");
+		process.exitCode = shortcutMain(args.slice(1), env);
 		return;
 	}
 	if (args[0] === "doctor") {

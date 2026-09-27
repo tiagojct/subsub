@@ -149,6 +149,9 @@ pre.cmd .copy:hover { border-color: var(--tw-accent); }
 .term.researcher { background: #10161c; border-color: #2a3540; }
 .term.researcher .a { color: #6cb2ff; }
 figure { margin: var(--gl-space-6) 0; }
+.shot { max-width: 60rem; }
+.shot img { display: block; width: 100%; height: auto; border: 1px solid var(--gl-border); border-radius: var(--gl-radius-lg); box-shadow: 0 1px 0 rgba(0,0,0,0.04), 0 12px 32px -18px rgba(16,22,28,0.45); }
+.shot figcaption { margin-top: var(--gl-space-3); }
 figcaption, .caption { color: var(--gl-text-muted); font-size: 0.85rem; margin-top: calc(-1 * var(--gl-space-3)); }
 
 /* ---- home */

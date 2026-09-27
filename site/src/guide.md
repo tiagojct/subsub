@@ -7,11 +7,17 @@ lead: Tag your first items, import a paper, write a literature note and undo a c
 
 ## Start
 
-1. Type `subsub`. Sub-Sub starts in the researcher mode. To start in the librarian mode, type `subsub --librarian`.
-2. Type `/subsub`. The result shows the Zotero connection and your library: items, items without tags, items that wait for review.
-3. Talk to Sub-Sub in plain language. Type `/` to see all commands.
+1. Open Sub-Sub from its shortcut (or type `subsub web`). It opens in your browser, in the researcher mode.
+2. Select Library overview. The result shows the Zotero connection and your library: items, items without tags, items that wait for review.
+3. Talk to Sub-Sub in plain language. Type `/` in the message box to see all commands.
 
-When you start Sub-Sub from your home folder, it works in your notes folder. From another folder (for example a manuscript folder), it works in that folder. To stay in the home folder, type `subsub --here`.
+The buttons at the top change the mode (Researcher, Librarian) and the profile. The model button changes the model. The panel on the left has the most used commands and your earlier conversations.
+
+This guide gives the commands that you type. In the browser, most of them are also buttons.
+
+### In the terminal
+
+Type `subsub`. To start in the librarian mode, type `subsub --librarian`. When you start Sub-Sub from your home folder, it works in your notes folder. From another folder (for example a manuscript folder), it works in that folder. To stay in the home folder, type `subsub --here`.
 
 ## Tag your first items
 
@@ -59,7 +65,9 @@ What the researcher writes depends on your [profile](/profiles/). The note forma
 | `/history`, `/undo` | Recent changes; revert one |
 | `/tag-batch [size]`, `/clean-tags`, `/import-queue` | Librarian templates |
 | `/lit-note <citekey>`, `/synthesis <topic>`, `/gaps <topic>`, `/manuscript <file>`, `/alert` | Researcher templates |
-| `subsub -c`, `subsub -r` | Continue the last session; select an older one |
+| `subsub -c`, `subsub -r` | Continue the last session; select an older one (terminal) |
+| `subsub web` | Open Sub-Sub in the browser |
+| `subsub shortcut` | Add the Sub-Sub shortcut again, for example after a move |
 
 ## Your notes folder
 

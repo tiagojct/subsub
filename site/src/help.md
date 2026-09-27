@@ -19,11 +19,15 @@ Type `subsub doctor`. Each line starts with `ok`, `NOTE` or `FIX`. Do the fix th
 | FIX Tag list | Type `subsub init`. It creates a starter tag list. |
 | NOTE Tag list: no topic/ tags | In the librarian mode, ask: `propose topics for my tag list`. |
 | NOTE Contact email | Type `subsub init` and give an email address. Without it, Sub-Sub cannot find open-access PDFs. |
-| FIX Model login | Type `subsub`, then `/login`. |
+| FIX Model login | Open Sub-Sub, select the model button and save an API key. Or type `subsub`, then `/login`. |
 
 ## Other problems
 
 - "command not found: subsub": open a new terminal window. If the problem continues, type the install command again.
+- The shortcut does nothing, or the page says "Open Sub-Sub with its shortcut": open Sub-Sub from the shortcut again (the page address changes each time Sub-Sub starts). If the problem continues, type `subsub web` in a terminal and read the message. The browser view writes a log to `~/.subsub/web.log`.
+- The shortcut stopped working after an update or a move: type `subsub shortcut`.
+- On Windows, the shortcut also opens a minimised window in the taskbar. That window is Sub-Sub itself: closing it stops Sub-Sub.
+- The page says "Sub-Sub stopped": select Start again. If it stops again, type `subsub doctor`.
 - Zotero asks for permission when Sub-Sub first changes something: select Always Allow.
 - "cannot use opencode-go/…": you are not logged in to that provider, or the model name is wrong. Type `/login`, or change `models` in the settings file.
 - A tool is "not part of the Reader profile": type `/profile` to see the profile, and `/profile scholar` to change it.

@@ -1,9 +1,13 @@
 # Runs the website's installers (site/src/install.sh and install.ps1) on a clean
-# runner: they install uv, their own Node.js 22 and the published npm package.
+# runner: they install uv, their own Node.js 22 and the published npm package,
+# add the Sub-Sub shortcut, and the web view starts from the installed package.
 name: installers
 on:
   push:
     paths: ["site/src/install.sh", "site/src/install.ps1", ".github/workflows/installers.yml"]
+  workflow_run:
+    workflows: [release]
+    types: [completed]
   workflow_dispatch:
   schedule:
     - cron: "41 5 * * 1"   # Mondays: the published package still installs
@@ -23,12 +27,23 @@ jobs:
           SUBSUB_SKIP_INIT: "1"
       - name: The command works from a new shell
         run: |
-          [ -f ~/.zshrc ] && . ~/.zshrc 2>/dev/null || true
-          [ -f ~/.bashrc ] && . ~/.bashrc || true
           export PATH="$HOME/.subsub/bin:$HOME/.subsub/node/bin:$PATH"
           subsub --version
           subsub init --yes --notes "$RUNNER_TEMP/Notes" --tags health-sciences
           test -f "$RUNNER_TEMP/Notes/Systems/Zotero tags.md"
+      - name: Shortcut and web view (Sub-Sub 0.6 and later)
+        run: |
+          export PATH="$HOME/.subsub/bin:$HOME/.subsub/node/bin:$PATH"
+          if ! subsub --version | grep -Eq '^subsub (0\.([6-9]|[1-9][0-9])|[1-9])'; then echo "older than 0.6: skipped"; exit 0; fi
+          if [ "$RUNNER_OS" = macOS ]; then test -x "$HOME/Applications/Sub-Sub.app/Contents/MacOS/Sub-Sub"; else test -f "$HOME/.local/share/applications/sub-sub.desktop"; fi
+          subsub web --no-open --idle 2 > web.out 2>&1 &
+          for i in $(seq 1 60); do grep -q 't=' web.out && break; sleep 1; done
+          URL=$(grep -o 'http://127.0.0.1:[0-9]*/?t=[A-Za-z0-9_-]*' web.out)
+          BASE=${URL%%/?t=*}
+          curl -fsS -c jar -o /dev/null "$URL"
+          curl -fsS -b jar "$BASE/api/ping"
+          curl -fsS -b jar "$BASE/" | grep -q '<title>Sub-Sub</title>'
+          test "$(curl -s -o /dev/null -w '%{http_code}' "$BASE/api/ping")" = 403
   windows:
     runs-on: windows-latest
     steps:
@@ -47,3 +62,27 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit 1 }
           subsub init --yes --notes "$env:RUNNER_TEMP\Notes" --tags health-sciences
           if (-not (Test-Path "$env:RUNNER_TEMP\Notes\Systems\Zotero tags.md")) { exit 1 }
+      - name: Shortcut and web view (Sub-Sub 0.6 and later)
+        shell: powershell
+        run: |
+          $env:Path = [Environment]::GetEnvironmentVariable('Path', 'User') + ';' + $env:Path
+          $v = "$(subsub --version)"
+          if (-not ($v -match '^subsub (\d+)\.(\d+)') -or ([int]$Matches[1] -eq 0 -and [int]$Matches[2] -lt 6)) { Write-Output "older than 0.6: skipped"; exit 0 }
+          $lnk = Join-Path ([Environment]::GetFolderPath('Programs')) 'Sub-Sub.lnk'
+          if (-not (Test-Path $lnk)) { Write-Output "no shortcut at $lnk"; exit 1 }
+          $out = Join-Path $env:RUNNER_TEMP 'web.out'
+          $cmd = (Get-Command subsub.cmd).Source
+          Start-Process -FilePath $cmd -ArgumentList 'web','--no-open','--idle','2' -RedirectStandardOutput $out -WindowStyle Hidden
+          $url = $null
+          for ($i = 0; $i -lt 90 -and -not $url; $i++) {
+            Start-Sleep -Seconds 1
+            if (Test-Path $out) { $m = Select-String -Path $out -Pattern 'http://127\.0\.0\.1:\d+/\?t=[A-Za-z0-9_-]+'; if ($m) { $url = $m.Matches[0].Value } }
+          }
+          if (-not $url) { Get-Content $out -ErrorAction SilentlyContinue; exit 1 }
+          $base = $url.Substring(0, $url.IndexOf('/?t='))
+          $s = $null
+          Invoke-WebRequest -UseBasicParsing $url -SessionVariable s | Out-Null
+          $ping = Invoke-WebRequest -UseBasicParsing "$base/api/ping" -WebSession $s
+          if ($ping.StatusCode -ne 200) { exit 1 }
+          $page = Invoke-WebRequest -UseBasicParsing "$base/" -WebSession $s
+          if ($page.Content -notmatch '<title>Sub-Sub</title>') { exit 1 }

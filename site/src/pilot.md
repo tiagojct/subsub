@@ -15,12 +15,12 @@ form:
 
 ## O que é o Sub-Sub
 
-O Sub-Sub é um bibliotecário e assistente de investigação para o Zotero. Funciona no terminal do seu computador, com um modelo de IA. Tem dois modos:
+O Sub-Sub é um bibliotecário e assistente de investigação para o Zotero. Funciona no seu computador e abre no seu navegador, com um modelo de IA. Tem dois modos:
 
 - O bibliotecário organiza a biblioteca: etiquetas, importações por DOI ou PMID, correção de metadados.
 - O investigador lê a biblioteca, pesquisa na PubMed e na OpenAlex e escreve notas na sua pasta de notas.
 
-Nenhuma alteração à biblioteca acontece sem a sua aprovação. A interface do Sub-Sub está em inglês, mas as respostas e as notas podem ser em português.
+Nenhuma alteração à biblioteca acontece sem a sua aprovação. Com a língua definida para português europeu, os botões, as respostas e as notas ficam em português. As pré-visualizações das alterações e algumas mensagens técnicas ficam em inglês.
 
 ## Antes de começar
 
@@ -63,16 +63,27 @@ O instalador instala o uv, o Node.js (se for preciso) e o Sub-Sub na sua pasta p
 
 </div>
 
-No fim, feche a janela e abra uma nova. O comando `subsub` só fica disponível numa janela nova.
+No fim, o Sub-Sub abre no seu navegador. Depois, abra-o pelo atalho Sub-Sub:
+
+- em macOS, nas Aplicações, no Launchpad ou com o Spotlight;
+- em Windows, no menu Iniciar ou no ambiente de trabalho.
+
+Em Windows, o atalho abre também uma janela minimizada na barra de tarefas. Não a feche enquanto usa o Sub-Sub. O Sub-Sub para sozinho 10 minutos depois de fechar a página.
 
 ## Ligar o modelo de IA
 
-1. Escreva `subsub` e prima Enter.
-2. Escreva `/login` e prima Enter.
-3. Selecione o fornecedor indicado para o piloto. Siga as instruções no ecrã.
-4. Escreva `/model` e selecione o modelo indicado para o piloto.
+1. No Sub-Sub, selecione o botão do modelo, no canto superior direito. Antes da primeira ligação, mostra "Sem modelo".
+2. Em Fornecedor, selecione o fornecedor indicado para o piloto.
+3. Cole a chave de API e selecione Guardar.
+4. Na lista de modelos, selecione o modelo indicado para o piloto.
+
+A chave fica guardada no seu computador e só é enviada a esse fornecedor.
 
 ## Verificar a instalação
+
+No topo da página, confirme que aparece o número de itens da sua biblioteca, por exemplo "Zotero: 250 itens". Se aparecer "O Zotero não está aberto", abra o Zotero.
+
+Se alguma coisa falhar:
 
 1. Abra uma janela nova do terminal.
 2. Escreva `subsub doctor` e prima Enter.
@@ -87,35 +98,37 @@ Faça as tarefas por esta ordem. Durante as tarefas, anote o que correu mal e o 
 
 ### 1. Perguntar à biblioteca
 
-1. Escreva `subsub`. O Sub-Sub começa no modo investigador.
-2. Pergunte: `O que tenho sobre` e um tema da sua biblioteca.
+1. Abra o Sub-Sub. Começa no modo Investigador.
+2. Na caixa de mensagem, escreva `O que tenho sobre` e um tema da sua biblioteca. Prima Enter.
 3. No Zotero, confirme que as referências da resposta existem.
 
 ### 2. Etiquetar dez itens
 
-1. Escreva `/librarian`.
-2. Escreva `/tag-batch 10`. O Sub-Sub escreve uma nota de revisão na pasta Inbox, dentro da sua pasta de notas.
-3. Abra a nota. Cada linha tem o item, as etiquetas atuais, as etiquetas propostas e o motivo.
+1. No topo da página, selecione Bibliotecário.
+2. No painel da esquerda, selecione Etiquetar 10 itens. O Sub-Sub escreve uma nota de revisão na pasta Inbox, dentro da sua pasta de notas.
+3. Abra a nota, por exemplo com o Obsidian ou com um editor de texto. Cada linha tem o item, as etiquetas atuais, as etiquetas propostas e o motivo.
 4. Corrija a coluna das etiquetas propostas. Para deixar um item como está, escreva `skip`.
 5. No Sub-Sub, escreva: `aplica a revisão Inbox/Zotero tag review 01.md`.
-6. Leia a pré-visualização. Para aplicar, selecione Yes. Para cancelar, selecione No.
+6. Leia a pré-visualização. As etiquetas a acrescentar aparecem a verde e as etiquetas a retirar aparecem a vermelho.
+7. Para aplicar, selecione Sim. Para cancelar, selecione Não.
 
 ### 3. Importar um artigo
 
-1. No modo bibliotecário, escreva `import` e um DOI. Por exemplo, a declaração PRISMA 2020: `import 10.1136/bmj.n71`.
-2. Leia a pré-visualização. Selecione Yes.
+1. No modo Bibliotecário, escreva `import` e um DOI. Por exemplo, a declaração PRISMA 2020: `import 10.1136/bmj.n71`.
+2. Leia a pré-visualização. Selecione Sim.
 
 ### 4. Escrever uma nota de leitura
 
-1. Escreva `/researcher`.
-2. Escreva `/lit-note` e a citekey de um item com PDF. As respostas do Sub-Sub mostram as citekeys entre `[@` e `]`.
-3. Abra a nota na pasta Literature. Com o perfil Reader, a nota tem citações com a página e perguntas para si.
-4. Confirme duas citações no PDF.
+1. No topo da página, selecione Investigador.
+2. No painel da esquerda, selecione Nota de leitura. A caixa de mensagem fica com `/lit-note`.
+3. Acrescente a citekey de um item com PDF e prima Enter. As respostas do Sub-Sub mostram as citekeys entre `[@` e `]`.
+4. Quando a nota estiver escrita, selecione Abrir na linha "escrever um ficheiro". Com o perfil Reader, a nota tem citações com a página e perguntas para si.
+5. Confirme duas citações no PDF.
 
 ### 5. Desfazer uma alteração
 
-1. Escreva `/history`. Aparecem as alterações recentes.
-2. Escreva `/undo` e selecione Yes. A última alteração é revertida.
+1. No painel da esquerda, selecione Alterações recentes.
+2. Selecione Desfazer a última alteração. Leia a pré-visualização e selecione Sim.
 
 ## Formulário
 
@@ -148,8 +161,9 @@ Se ficar bloqueado e precisar de ajuda durante o piloto, envie um email para [ti
 
 ## Desinstalar
 
-1. Na sua pasta pessoal, apague a pasta `.subsub`.
-2. Para apagar também as definições, apague as pastas `.config/subsub` e `.config/zotero-local-mcp`.
-3. Para apagar o histórico de alterações que `/undo` usa, apague a pasta `.local/share/zotero-local-mcp`.
+1. Num terminal, escreva `subsub shortcut --remove`. Isto retira o atalho.
+2. Na sua pasta pessoal, apague a pasta `.subsub`.
+3. Para apagar também as definições, apague as pastas `.config/subsub` e `.config/zotero-local-mcp`.
+4. Para apagar o histórico de alterações que `/undo` usa, apague a pasta `.local/share/zotero-local-mcp`.
 
 A biblioteca do Zotero e a pasta de notas não mudam.

@@ -1,7 +1,7 @@
 {
   "name": "@tiagojct/subsub",
-  "version": "0.5.0",
-  "description": "Sub-Sub: a Zotero librarian and research assistant in the terminal, built on pi",
+  "version": "0.6.0",
+  "description": "Sub-Sub: a Zotero librarian and research assistant in the browser or the terminal, built on pi",
   "type": "module",
   "license": "MIT",
   "author": "Tiago Jacinto",
@@ -44,6 +44,7 @@
   },
   "files": [
     "README.md",
+    "assets",
     "bin",
     "dist",
     "docs",
@@ -53,7 +54,8 @@
     "scripts",
     "src",
     "templates",
-    "themes"
+    "themes",
+    "web"
   ],
   "devDependencies": {
     "@types/node": "^24.19.0",

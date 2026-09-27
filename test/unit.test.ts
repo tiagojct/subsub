@@ -621,3 +621,46 @@ test("doctor: checks and fixes", () => {
 	assert.equal(noUv.at(-1)!.name, "uv");
 	assert.equal(noUv.at(-1)!.ok, false);
 });
+
+// ---------------------------------------------------------------- web view and shortcut
+
+test("web: options, interface language, API keys", async () => {
+	const { parseWebArgs, saveApiKey, uiLanguage } = await import("../src/web.ts");
+	const o = parseWebArgs(["--no-open", "--port", "8123", "--librarian", "--provider", "fake", "--model", "m"]);
+	assert.equal(o.open, false);
+	assert.equal(o.port, 8123);
+	assert.equal(o.librarian, true);
+	assert.equal(o.idleMinutes, 10);
+	assert.deepEqual(o.piArgs, ["--provider", "fake", "--model", "m"]);
+	assert.equal(parseWebArgs(["--stay"]).idleMinutes, 0);
+	assert.equal(uiLanguage("European Portuguese"), "pt");
+	assert.equal(uiLanguage("português europeu"), "pt");
+	assert.equal(uiLanguage("pt-PT"), "pt");
+	assert.equal(uiLanguage("English"), "en");
+	assert.equal(uiLanguage("auto"), "en");
+	const dir = mkdtempSync(join(tmpdir(), "subsub-key-"));
+	writeFileSync(join(dir, "auth.json"), JSON.stringify({ anthropic: { type: "oauth", access: "a" } }));
+	saveApiKey(dir, "opencode-go", "  sk-test-123 ");
+	const auth = JSON.parse(readFileSync(join(dir, "auth.json"), "utf8"));
+	assert.deepEqual(auth["opencode-go"], { type: "api_key", key: "sk-test-123" });
+	assert.equal(auth.anthropic.type, "oauth", "other credentials stay");
+	assert.throws(() => saveApiKey(dir, "evil", "k"), /Unknown provider/);
+	assert.throws(() => saveApiKey(dir, "openai", "two words"), /API key/);
+});
+
+test("shortcut: macOS app, Linux .desktop and Windows script quote paths safely", async () => {
+	const { desktopEntry, macPlist, macScript, planFor, windowsScript } = await import("../src/shortcut.ts");
+	const p = { ...planFor({ HOME: "/Users/ana" }, "darwin"), node: "/Users/ana/.subsub/node/bin/node", bin: "/Users/ana/it's here/bin/subsub.js" };
+	const sh = macScript(p);
+	assert.match(sh, /^#!\/bin\/sh/);
+	assert.match(sh, /cd "\$HOME"/);
+	assert.ok(sh.includes(`'/Users/ana/it'\\''s here/bin/subsub.js' web`));
+	assert.match(macPlist("0.6.0"), /<key>LSUIElement<\/key><true\/>/);
+	const lin = desktopEntry({ ...p, platform: "linux", node: "/usr/bin/node", bin: '/home/a "b"/bin/subsub.js', home: "/home/a" });
+	assert.ok(lin.includes('Exec="/usr/bin/node" "/home/a \\"b\\"/bin/subsub.js" web'));
+	assert.match(lin, /Terminal=false/);
+	const win = windowsScript({ ...p, platform: "win32", node: "C:\\Users\\O'Neil\\node.exe", bin: "C:\\Users\\O'Neil\\subsub.js", home: "C:\\Users\\O'Neil", desktop: false });
+	assert.ok(win.includes("$s.TargetPath = 'C:\\Users\\O''Neil\\node.exe'"));
+	assert.ok(win.includes(`$s.Arguments = '"C:\\Users\\O''Neil\\subsub.js" web'`));
+	assert.ok(!win.includes("Desktop"));
+});

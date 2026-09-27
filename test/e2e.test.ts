@@ -8,7 +8,7 @@
 import assert from "node:assert/strict";
 import { spawn, type ChildProcess } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
-import { createServer, type Server } from "node:http";
+import { createServer, request as httpRequest, type Server } from "node:http";
 import { homedir, tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { after, before, test } from "node:test";
@@ -395,6 +395,149 @@ test("subsub init and subsub doctor from the command line", { timeout: 180_000 }
 	assert.match(doc.stdout, /ok +Zotero +reachable/);
 	assert.match(doc.stdout, /FIX +Model login[\s\S]*\/login/);
 	assert.equal(doc.status, 1);
+});
+
+// ---------------------------------------------------------------- the web view
+
+type Reply = { status: number; headers: Record<string, any>; body: string };
+
+function call(port: number, method: string, path: string, opts: { headers?: Record<string, string>; body?: unknown } = {}): Promise<Reply> {
+	return new Promise((resolve, reject) => {
+		const data = opts.body === undefined ? undefined : typeof opts.body === "string" ? opts.body : JSON.stringify(opts.body);
+		const r = httpRequest({ host: "127.0.0.1", port, method, path, headers: { Host: `127.0.0.1:${port}`, ...(data ? { "Content-Type": "application/json" } : {}), ...opts.headers } }, (res) => {
+			let body = "";
+			res.on("data", (c) => (body += c));
+			res.on("end", () => resolve({ status: res.statusCode ?? 0, headers: res.headers, body }));
+		});
+		r.on("error", reject);
+		if (data) r.write(data);
+		r.end();
+	});
+}
+
+class Stream {
+	events: any[] = [];
+	private waiters: Array<{ pred: (e: any) => boolean; resolve: (e: any) => void }> = [];
+	private req: ReturnType<typeof httpRequest>;
+	constructor(port: number, cookie: string) {
+		let buf = "";
+		this.req = httpRequest({ host: "127.0.0.1", port, path: "/api/events", headers: { Host: `127.0.0.1:${port}`, Cookie: cookie } }, (res) => {
+			res.setEncoding("utf8");
+			res.on("data", (c: string) => {
+				buf += c;
+				let i;
+				while ((i = buf.indexOf("\n\n")) >= 0) {
+					const chunk = buf.slice(0, i);
+					buf = buf.slice(i + 2);
+					const line = chunk.split("\n").find((l) => l.startsWith("data: "));
+					if (!line) continue;
+					const ev = JSON.parse(line.slice(6));
+					this.events.push(ev);
+					this.waiters = this.waiters.filter((w) => (w.pred(ev) ? (w.resolve(ev), false) : true));
+				}
+			});
+		});
+		this.req.end();
+	}
+	wait(pred: (e: any) => boolean, ms = 90_000, from = 0): Promise<any> {
+		const hit = this.events.slice(from).find(pred);
+		if (hit) return Promise.resolve(hit);
+		return new Promise((resolve, reject) => {
+			const t = setTimeout(() => reject(new Error(`timeout; events: ${this.events.map((e) => e.type).join(",")}`)), ms);
+			this.waiters.push({ pred, resolve: (e) => (clearTimeout(t), resolve(e)) });
+		});
+	}
+	close() {
+		this.req.destroy();
+	}
+}
+
+test("the web view: the page answers Sub-Sub's approval; other sites and hosts are refused", { timeout: 240_000 }, async () => {
+	const home = join(work, "web-home");
+	const agentDir = join(home, ".subsub", "agent");
+	mkdirSync(agentDir, { recursive: true });
+	writeFileSync(join(agentDir, "models.json"), readFileSync(join(work, "agent", "models.json")));
+	const env: NodeJS.ProcessEnv = { ...baseEnv, HOME: home, USERPROFILE: home, SUBSUB_AGENT_DIR: agentDir };
+	delete env.PI_CODING_AGENT_DIR;
+	const proc = spawn(process.execPath, [join(ROOT, "bin", "subsub.js"), "web", "--no-open", "--idle", "0", "--librarian", "--provider", "fake", "--model", "fake-model"], { cwd: vault, env });
+	let out = "";
+	let err = "";
+	proc.stderr!.on("data", (d) => (err += d.toString()));
+	const url: string = await new Promise((resolve, reject) => {
+		const t = setTimeout(() => reject(new Error(`no URL; stderr: ${err}`)), 60_000);
+		proc.stdout!.on("data", (d) => {
+			out += d.toString();
+			const m = out.match(/http:\/\/127\.0\.0\.1:\d+\/\?t=[\w-]+/);
+			if (m) {
+				clearTimeout(t);
+				resolve(m[0]);
+			}
+		});
+	});
+	const port = Number(new URL(url).port);
+	const token = new URL(url).searchParams.get("t")!;
+	let stream: Stream | undefined;
+	try {
+		// Without the key, or with a wrong one, nothing is served.
+		assert.equal((await call(port, "GET", "/")).status, 403);
+		assert.equal((await call(port, "GET", "/api/ping")).status, 403);
+		assert.equal((await call(port, "GET", "/?t=wrong")).status, 403);
+		const first = await call(port, "GET", `/?t=${token}`);
+		assert.equal(first.status, 303);
+		const cookie = String(first.headers["set-cookie"][0]).split(";")[0];
+		assert.match(String(first.headers["set-cookie"][0]), /HttpOnly; SameSite=Strict/);
+		const ok = { Cookie: cookie };
+		// The page, with a strict content policy; no files outside the web folder.
+		const page = await call(port, "GET", "/", { headers: ok });
+		assert.equal(page.status, 200);
+		assert.match(page.headers["content-security-policy"], /script-src 'self'/);
+		assert.equal((await call(port, "GET", "/..%2F..%2Fpackage.json", { headers: ok })).status, 404);
+		// Another host name (DNS rebinding), another site, or a form post: refused.
+		assert.equal((await call(port, "GET", "/api/ping", { headers: { ...ok, Host: "evil.example" } })).status, 403);
+		assert.equal((await call(port, "POST", "/api/prompt", { headers: { ...ok, Origin: "http://evil.example" }, body: { message: "hi" } })).status, 403);
+		assert.equal((await call(port, "POST", "/api/prompt", { headers: { ...ok, "Content-Type": "text/plain" }, body: "message=hi" })).status, 415);
+		assert.equal((await call(port, "POST", "/api/prompt", { headers: { ...ok, "Sec-Fetch-Site": "cross-site" }, body: { message: "hi" } })).status, 403);
+
+		// The Open button opens notes and documents in the notes folder, never programs.
+		writeFileSync(join(vault, "run-me.command"), "#!/bin/sh\necho hi\n");
+		assert.equal((await call(port, "POST", "/api/open", { headers: ok, body: { path: "run-me.command" } })).status, 403);
+		assert.equal((await call(port, "POST", "/api/open", { headers: ok, body: { path: join(home, "..", "subsub.json") } })).status, 404);
+
+		stream = new Stream(port, cookie);
+		const hello = await stream.wait((e) => e.type === "hello");
+		assert.equal(hello.lang, "en");
+		assert.ok(Array.isArray(hello.commands) && hello.commands.some((c: any) => c.name === "tag-batch"));
+		const st = await stream.wait((e) => e.type === "subsub_state" && e.state?.mode === "librarian");
+		assert.equal(st.state.profile, "scholar");
+
+		// A library change: Sub-Sub asks, the page answers, the change is made.
+		script = [
+			{ tool: { name: "zotero_tag_items", args: { changes: [{ key: "BBBB3333", add: ["topic/asthma"] }], dry_run: false } } },
+			{ text: "Tagged." },
+		];
+		requests.length = 0;
+		const mark = stream.events.length;
+		assert.equal((await call(port, "POST", "/api/prompt", { headers: ok, body: { message: "Tag BBBB3333 with topic/asthma" } })).status, 200);
+		const ask = await stream.wait((e) => e.type === "extension_ui_request" && e.method === "confirm", 90_000, mark);
+		assert.match(ask.message, /1 item\(s\) would change[\s\S]*topic\/asthma/);
+		assert.ok(!(await state()).BBBB3333.tags.some((t: any) => t.tag === "topic/asthma"), "nothing changes before the answer");
+		assert.equal((await call(port, "POST", "/api/dialog", { headers: ok, body: { id: "not-a-dialog", confirmed: true } })).status, 404);
+		assert.equal((await call(port, "POST", "/api/dialog", { headers: ok, body: { id: ask.id, confirmed: true } })).status, 200);
+		await stream.wait((e) => e.type === "agent_settled", 90_000, mark);
+		assert.ok((await state()).BBBB3333.tags.some((t: any) => t.tag === "topic/asthma"));
+		const texts = stream.events.slice(mark).filter((e) => e.type === "message_end" && e.message.role === "assistant").map((e) => JSON.stringify(e.message.content));
+		assert.ok(texts.some((x) => x.includes("Tagged.")));
+
+		// Mode switch through the page, and the conversation list.
+		await call(port, "POST", "/api/prompt", { headers: ok, body: { message: "/researcher" } });
+		await stream.wait((e) => e.type === "subsub_state" && e.state?.mode === "researcher", 30_000, mark);
+		const sessions = JSON.parse((await call(port, "GET", "/api/sessions", { headers: ok })).body).sessions;
+		assert.ok(sessions.length >= 1);
+		assert.match(sessions[0].first, /Tag BBBB3333/);
+	} finally {
+		stream?.close();
+		proc.kill();
+	}
 });
 
 test("the npm package: installed with npm install -g, it starts pi with Sub-Sub", { timeout: 600_000, skip: process.env.SUBSUB_TEST_PACK !== "1" && "set SUBSUB_TEST_PACK=1 (packs and installs, needs the npm registry)" }, async () => {

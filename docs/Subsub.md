@@ -52,6 +52,17 @@ Templates (type the name, then the argument):
 - Librarian: `/tag-batch [size]`, `/clean-tags`, `/import-queue [note path]`
 - Researcher: `/lit-note <citekey>`, `/synthesis <topic>`, `/gaps <topic>`, `/manuscript <path>`, `/alert`
 
+## Web view
+
+1. Type `subsub web`. Sub-Sub opens in the browser, with the same modes, profiles, tools and approvals. The approval dialog shows the server preview; the change runs only after Yes.
+2. To add a shortcut (Applications on macOS), type `subsub shortcut`. To remove it, type `subsub shortcut --remove`.
+3. The server listens only on 127.0.0.1 and needs the random key in the address that `subsub web` opens. A second `subsub web` opens the running one.
+4. The server stops 10 minutes after the last page closes. `subsub web --stay` keeps it running.
+5. The labels are in European Portuguese when the language setting is Portuguese.
+6. The model button lists the models and saves an API key for a provider (the same auth.json as `/login`).
+
+The log is in ~/.subsub/web.log.
+
 ## Profiles
 
 The profile sets how much Sub-Sub does. To see the profile, type `/profile`. To change it, type `/profile reader` (or scholar, author, editor). The change is saved.

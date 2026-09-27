@@ -10,10 +10,12 @@
 #  3. Sub-Sub (@tiagojct/subsub from npm), in ~/.subsub.
 #  4. A line in your shell start file that puts ~/.subsub/bin on the PATH.
 #  5. subsub init, which asks a few questions.
+#  6. A Sub-Sub shortcut that opens Sub-Sub in the browser (subsub shortcut).
 #
 # Settings (environment variables): SUBSUB_HOME (default ~/.subsub),
 # SUBSUB_VERSION (default latest), SUBSUB_NO_MODIFY_PATH=1, SUBSUB_SKIP_INIT=1,
-# SUBSUB_OWN_NODE=1 (always use ~/.subsub/node).
+# SUBSUB_OWN_NODE=1 (always use ~/.subsub/node), SUBSUB_NO_SHORTCUT=1,
+# SUBSUB_NO_OPEN=1 (do not open Sub-Sub at the end).
 set -eu
 
 SUBSUB_HOME="${SUBSUB_HOME:-$HOME/.subsub}"
@@ -114,15 +116,41 @@ if [ "${SUBSUB_NO_MODIFY_PATH:-0}" != 1 ]; then
 fi
 
 # 5. Settings
+ASKED=0
 if [ "${SUBSUB_SKIP_INIT:-0}" = 1 ]; then
 	say "Skipped subsub init (SUBSUB_SKIP_INIT=1)."
 elif [ -r /dev/tty ] && (exec </dev/tty) 2>/dev/null; then
 	say ""
-	"$SUBSUB_HOME/bin/subsub" init </dev/tty || say "subsub init did not finish. Type subsub init later."
+	if "$SUBSUB_HOME/bin/subsub" init </dev/tty; then ASKED=1; else say "subsub init did not finish. Type subsub init later."; fi
 else
 	say "No terminal for questions: type subsub init after the installer."
 fi
 
+# The web view and the shortcut came with Sub-Sub 0.6.
+WEB=0
+VER=$("$SUBSUB_HOME/bin/subsub" --version 2>/dev/null | sed -n 's/^subsub \([0-9][0-9]*\)\.\([0-9][0-9]*\).*/\1 \2/p')
+if [ -n "$VER" ]; then
+	set -- $VER
+	if [ "$1" -gt 0 ] || [ "$2" -ge 6 ]; then WEB=1; fi
+fi
+
+# 6. Shortcut: Sub-Sub in Applications (macOS) or in the applications menu (Linux)
+if [ "$WEB" != 1 ]; then
+	:
+elif [ "${SUBSUB_NO_SHORTCUT:-0}" = 1 ]; then
+	say "Skipped the shortcut (SUBSUB_NO_SHORTCUT=1)."
+else
+	say ""
+	"$SUBSUB_HOME/bin/subsub" shortcut || say "Could not add the shortcut. Type subsub shortcut later."
+fi
+
 say ""
-say "Done. Open a new terminal window, then type: subsub doctor"
+say "Done. To open Sub-Sub in your browser, open Sub-Sub from Applications or your applications menu, or type: subsub web"
+say "To check the set-up, open a new terminal window and type: subsub doctor"
 say "Docs: https://subsub.tiagojacinto.eu"
+
+# 7. After an interactive set-up, open Sub-Sub now.
+if [ "$WEB" = 1 ] && [ "$ASKED" = 1 ] && [ "${SUBSUB_NO_OPEN:-0}" != 1 ]; then
+	nohup "$SUBSUB_HOME/bin/subsub" web >/dev/null 2>&1 &
+	say "Sub-Sub is opening in your browser."
+fi

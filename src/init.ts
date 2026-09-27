@@ -184,8 +184,8 @@ export async function runInit(
 			? "Zotero: reachable."
 			: "Zotero: not reachable. Start Zotero 10, then in Zotero open Settings > Advanced and turn on \"Allow other applications on this computer to communicate with Zotero\".",
 	);
-	if (fmup) io.say("FMUP / U.Porto: the FMUP model service will come in a later version. Until then, choose a model provider with /login.");
-	io.say("Next: type subsub. In Sub-Sub, type /login to connect a model provider. To check the setup, type subsub doctor.");
+	if (fmup) io.say("FMUP / U.Porto: the FMUP model service will come in a later version. Until then, connect a model provider yourself.");
+	io.say("Next: type subsub web to open Sub-Sub in your browser (or subsub for the terminal). Connect a model provider with the model button (or /login in the terminal). To check the setup, type subsub doctor.");
 	return { configFile, envFile, notes, created, zotero };
 }
 

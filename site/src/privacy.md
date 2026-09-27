@@ -40,3 +40,5 @@ These services receive identifiers and search terms, not your notes or your libr
 - The researcher cannot change the library, except to add a short linked note (with a preview).
 - Text in abstracts, full texts and search results is treated as data. Sub-Sub's instructions tell the model never to follow instructions found in it.
 - Sub-Sub has no shell access. Writes outside your notes folder and the current folder, and writes to settings and rule files, need your yes.
+- The browser view is a small server on your own computer. It listens only on 127.0.0.1, so other computers cannot reach it. The address that opens it contains a random key; other websites cannot read the page or answer an approval. It stops by itself 10 minutes after you close the page.
+- An API key that you save in the browser view is stored on your computer, in the same file as `/login` uses (`~/.subsub/agent/auth.json`, readable only by you). It is sent only to that provider.

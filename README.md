@@ -1,6 +1,6 @@
 # Sub-Sub
 
-A Zotero librarian and research assistant that runs in your terminal. It is built on the [pi](https://pi.dev) agent and works with your own Zotero library through Zotero's local API.
+A Zotero librarian and research assistant that runs on your computer, in your browser or in your terminal. It is built on the [pi](https://pi.dev) agent and works with your own Zotero library through Zotero's local API.
 
 > "This mere painstaking burrower and grub-worm of a poor devil of a Sub-Sub appears to have gone through the long Vaticans and street-stalls of the earth, picking up whatever random allusions to whales he could anyways find in any book whatsoever." (Moby-Dick, Extracts)
 
@@ -34,16 +34,30 @@ A profile is your own choice, not a lock.
 
 ## Install
 
+The installers on [subsub.tiagojacinto.eu](https://subsub.tiagojacinto.eu/install/) do all of this, including Node.js and uv. By hand:
+
 1. Type `npm install -g @tiagojct/subsub`. The command is `subsub`.
 2. Type `subsub init`. Answer the questions. Press Enter to keep a default.
 3. Type `subsub doctor`. Fix each line marked FIX.
-4. Type `subsub`. Then type `/login` and choose your model provider.
+4. Type `subsub shortcut` to add a Sub-Sub shortcut (Applications on macOS, the Start menu and the desktop on Windows, the applications menu on Linux).
+5. Open Sub-Sub with the shortcut, or type `subsub web`. Select the model button and connect a provider with an API key (or, in the terminal, type `subsub`, then `/login`).
 
 `subsub init` creates a notes folder with Inbox/ and Systems/, a starter tag list (health sciences, health informatics, or any field) and a file with the note formats (Systems/Zotero agent.md). You can edit both files. It never replaces a file that exists.
 
 If you already use pi, you can also add Sub-Sub to plain pi: `pi install npm:@tiagojct/subsub`.
 
 The Zotero servers (zotero-local-mcp) run from PyPI through uv. To run them from a copy of the repository, add `"serverDir": "/path/to/zotero-local-mcp"` to the settings file.
+
+## Web view
+
+`subsub web` (or `subsub serve`) opens Sub-Sub in your browser. It has the same modes, profiles, tools and approvals as the terminal:
+
+- pi runs in RPC mode with the Sub-Sub extension. Sub-Sub's approval dialog (the server preview) appears in the page, and the change runs only after you select Yes.
+- The server listens only on 127.0.0.1. The address that opens the page carries a random key, which becomes an HttpOnly, SameSite=Strict cookie; other requests need that cookie, the right Host header and a same-origin JSON request. The page has a strict content security policy and shows model output without raw HTML.
+- One server per user: a second `subsub web` opens the running one. Without an open page for 10 minutes (and with nothing waiting for approval), the server stops. `--stay` keeps it running; `--idle N` sets the minutes; `--no-open` does not open a browser; `--librarian` starts in the librarian mode.
+- Labels are in European Portuguese when the language setting is Portuguese, otherwise in English.
+- The model button lists the models you can use and saves an API key for a provider in the same file as `/login`. Sign-ins through a provider's website stay in the terminal (`/login`).
+- A log is kept in `~/.subsub/web.log`.
 
 ## Use
 

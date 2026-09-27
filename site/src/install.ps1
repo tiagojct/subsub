@@ -9,9 +9,11 @@
 #  3. Sub-Sub (@tiagojct/subsub from npm), in ~\.subsub.
 #  4. ~\.subsub and ~\.subsub\node on your user PATH.
 #  5. subsub init, which asks a few questions.
+#  6. A Sub-Sub shortcut in the Start menu and on the desktop (subsub shortcut).
 #
 # Settings (environment variables): SUBSUB_HOME, SUBSUB_VERSION (default latest),
-# SUBSUB_NO_MODIFY_PATH=1, SUBSUB_SKIP_INIT=1, SUBSUB_OWN_NODE=1 (always use ~\.subsub\node).
+# SUBSUB_NO_MODIFY_PATH=1, SUBSUB_SKIP_INIT=1, SUBSUB_OWN_NODE=1 (always use ~\.subsub\node),
+# SUBSUB_NO_SHORTCUT=1, SUBSUB_NO_OPEN=1 (do not open Sub-Sub at the end).
 
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
@@ -108,17 +110,40 @@ try {
     }
 
     # 5. Settings
+    $Asked = $false
     if ((EnvOr 'SUBSUB_SKIP_INIT' '0') -eq '1') {
         Say 'Skipped subsub init (SUBSUB_SKIP_INIT=1).'
     } else {
         Say ''
         & $Subsub init
-        if ($LASTEXITCODE -ne 0) { Say 'subsub init did not finish. Type subsub init later.' }
+        if ($LASTEXITCODE -ne 0) { Say 'subsub init did not finish. Type subsub init later.' } else { $Asked = $true }
+    }
+
+    # The web view and the shortcut came with Sub-Sub 0.6.
+    $Web = $false
+    $verText = "$(& $Subsub --version)"
+    if ($verText -match '^subsub (\d+)\.(\d+)') { $Web = ([int]$Matches[1] -gt 0) -or ([int]$Matches[2] -ge 6) }
+
+    # 6. Shortcut: Sub-Sub in the Start menu and on the desktop
+    if (-not $Web) {
+    } elseif ((EnvOr 'SUBSUB_NO_SHORTCUT' '0') -eq '1') {
+        Say 'Skipped the shortcut (SUBSUB_NO_SHORTCUT=1).'
+    } else {
+        Say ''
+        & $Subsub shortcut
+        if ($LASTEXITCODE -ne 0) { Say 'Could not add the shortcut. Type subsub shortcut later.' }
     }
 
     Say ''
-    Say 'Done. Open a new terminal window, then type: subsub doctor'
+    Say 'Done. To open Sub-Sub in your browser, open Sub-Sub from the Start menu or the desktop, or type: subsub web'
+    Say 'To check the set-up, open a new terminal window and type: subsub doctor'
     Say 'Docs: https://subsub.tiagojacinto.eu'
+
+    # 7. After an interactive set-up, open Sub-Sub now.
+    if ($Web -and $Asked -and (EnvOr 'SUBSUB_NO_OPEN' '0') -ne '1') {
+        Start-Process -FilePath $Subsub -ArgumentList 'web' -WindowStyle Minimized
+        Say 'Sub-Sub is opening in your browser.'
+    }
 } finally {
     Remove-Item -Recurse -Force $Tmp -ErrorAction SilentlyContinue
 }

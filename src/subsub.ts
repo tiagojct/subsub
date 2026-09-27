@@ -108,6 +108,30 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	const library: LibraryState = { zotero: "checking" };
 	const quote = cfg.quotes === false ? undefined : QUOTES[Math.floor(Math.random() * QUOTES.length)];
 	const lookOn = (ctx: ExtensionContext) => standalone && cfg.look !== false && ctx.mode === "tui";
+	/** True under `subsub web`: pi runs in RPC mode and the web view shows the state that the terminal header shows. */
+	const webView = process.env.SUBSUB_WEB === "1";
+	let webCtx: ExtensionContext | undefined;
+	function emitWeb(): void {
+		const ctx = webCtx;
+		if (!webView || !ctx || ctx.mode !== "rpc") return;
+		const down = bridge ? Object.keys(bridge.errors) : ["zotero", "scholar"];
+		const state = {
+			mode,
+			profile,
+			profileLabel: profileSpec(profile).label,
+			model: ctx.model ? { provider: ctx.model.provider, id: ctx.model.id } : null,
+			down,
+			library,
+			language: cfg.language,
+			userName: cfg.userName ?? null,
+			vault: cfg.vault ?? null,
+		};
+		try {
+			ctx.ui.setStatus("subsub.web", JSON.stringify(state));
+		} catch {
+			/* the context is gone after shutdown */
+		}
+	}
 
 	function applyTheme(ctx: ExtensionContext): void {
 		if (!lookOn(ctx) || cfg.themes === false) return;
@@ -145,6 +169,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			library.zotero = "down";
 		}
 		headerTui?.requestRender();
+		emitWeb();
 	}
 
 	function setHeader(ctx: ExtensionContext): void {
@@ -183,6 +208,8 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		ctx.ui.setStatus("subsub", `Sub-Sub: ${mode} | ${profileSpec(profile).label} | ${modelId}${down.length ? ` | not running: ${down.join(", ")}` : ""}`);
 		if (standalone) ctx.ui.setTitle(`Sub-Sub: ${mode}`);
 		headerTui?.requestRender();
+		webCtx = ctx;
+		emitWeb();
 	}
 
 	async function applyMode(ctx: ExtensionContext, next: Mode, remember: boolean): Promise<void> {
@@ -217,6 +244,8 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		await applyMode(ctx, restored ?? (pi.getFlag("librarian") ? "librarian" : cfg.defaultMode), false);
 		if (lookOn(ctx)) {
 			setHeader(ctx);
+			void refreshLibrary();
+		} else if (webView) {
 			void refreshLibrary();
 		}
 		for (const [name, err] of Object.entries(bridge.errors)) {
@@ -382,7 +411,16 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 				}
 			}
 			headerTui?.requestRender();
+			emitWeb();
 			ctx.ui.notify(lines.join("\n"), "info");
+		},
+	});
+
+	pi.registerCommand("subsub-refresh", {
+		description: "Sub-Sub: refresh the library counts shown in the web view",
+		handler: async (_args, ctx) => {
+			webCtx = ctx;
+			await refreshLibrary();
 		},
 	});
 
