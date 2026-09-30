@@ -1,56 +1,157 @@
 <!doctype html>
-<html lang="{{ lang or 'en' }}">
+<html lang="{{ lang or 'en' }}" data-theme="dark">
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>{% if title and title != site.title %}{{ title }} · {% endif %}{{ site.title }}</title>
+	<title>{% if title and title != site.title %}{{ title }} · {% endif %}{{ site.title }} — A Librarian & Research Assistant for Zotero</title>
 	<meta name="description" content="{{ description or site.description }}">
 	{% if noindex %}<meta name="robots" content="noindex">
 	{% endif %}<link rel="canonical" href="{{ site.url }}{{ page.url }}">
-	<meta name="color-scheme" content="light dark">
+	<meta name="color-scheme" content="dark light">
 	<meta property="og:title" content="{{ title or site.title }}">
 	<meta property="og:description" content="{{ description or site.description }}">
 	<meta property="og:url" content="{{ site.url }}{{ page.url }}">
+	<meta property="og:type" content="website">
 	<link rel="icon" href="/assets/favicon.svg?v={{ assetVersion }}" type="image/svg+xml">
-	<link rel="preload" href="/assets/fonts/IBMPlexSans.woff2" as="font" type="font/woff2" crossorigin>
-	<link rel="stylesheet" href="/assets/css/glauca.css?v={{ assetVersion }}">
-	<link rel="stylesheet" href="/assets/css/typography.css?v={{ assetVersion }}">
-	<link rel="stylesheet" href="/assets/css/fallbacks.css?v={{ assetVersion }}">
-	<link rel="stylesheet" href="/assets/css/a11y.css?v={{ assetVersion }}">
-	<link rel="stylesheet" href="/assets/css/motion.css?v={{ assetVersion }}">
-	<link rel="stylesheet" href="/assets/css/try-works.css?v={{ assetVersion }}">
+
+	<!-- Preconnect Google Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,300..800&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
 	<link rel="stylesheet" href="/assets/css/site.css?v={{ assetVersion }}">
-	<script src="/assets/js/copy.js?v={{ assetVersion }}" defer></script>
+	<script>
+		// Immediate theme initialization to prevent Flash of Unstyled Content
+		(function () {
+			try {
+				var saved = localStorage.getItem("subsub-theme");
+				var theme = saved || (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+				document.documentElement.setAttribute("data-theme", theme);
+			} catch (e) {}
+		})();
+	</script>
+	<script src="/assets/js/site.js?v={{ assetVersion }}" defer></script>
 </head>
 <body class="{{ bodyClass or 'page' }}">
 	<a class="skip" href="#main">{{ "Saltar para o conteúdo" if lang == "pt-PT" else "Skip to content" }}</a>
+	
 	<header class="site-header">
-		<a class="wordmark" href="/" aria-label="Sub-Sub, home"><span class="wordmark-mark" aria-hidden="true">SS</span> Sub-Sub</a>
-		<nav aria-label="Main">
-			<ul>
-			{%- for item in nav %}
-				<li><a href="{{ item.url }}"{% if page.url == item.url %} aria-current="page"{% endif %}>{{ item.label }}</a></li>
-			{%- endfor %}
-				<li><a href="{{ site.repo }}" class="external">GitHub</a></li>
-			</ul>
-		</nav>
-	</header>
-	<main id="main">
-		{%- if title and not hideTitle %}
-		<header class="page-header">
-			{% if eyebrow %}<p class="gl-eyebrow eyebrow">{{ eyebrow }}</p>{% endif %}
-			<h1 class="gl-headline">{{ title }}</h1>
-			{% if lead %}<p class="lead gl-body-lg">{{ lead }}</p>{% endif %}
-		</header>
-		{%- endif %}
-		<div class="prose">
-		{{ content | safe }}
+		<div class="header-inner">
+			<a class="brand-wrap" href="/" aria-label="Sub-Sub Home">
+				<div class="brand-icon" aria-hidden="true">
+					<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+						<path d="M6 6h10"/>
+						<path d="M6 10h10"/>
+						<path d="M6 14h6"/>
+					</svg>
+				</div>
+				<span class="brand-title">
+					Sub-Sub
+					<span class="brand-tag">v{{ release.version }}</span>
+				</span>
+			</a>
+
+			<nav aria-label="Main Navigation">
+				<ul class="nav-links">
+				{%- for item in nav %}
+					<li><a href="{{ item.url }}"{% if page.url == item.url %} aria-current="page"{% endif %}>{{ item.label }}</a></li>
+				{%- endfor %}
+				</ul>
+			</nav>
+
+			<div class="header-actions">
+				<a href="{{ site.repo }}" class="github-btn" target="_blank" rel="noopener noreferrer" aria-label="View on GitHub">
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 6px;">
+						<path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+					</svg>
+					GitHub
+				</a>
+				<button type="button" class="theme-btn" id="theme-toggle" aria-label="Toggle theme">
+					<svg class="theme-icon-light" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<circle cx="12" cy="12" r="5"/>
+						<line x1="12" y1="1" x2="12" y2="3"/>
+						<line x1="12" y1="21" x2="12" y2="23"/>
+						<line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+						<line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+						<line x1="1" y1="12" x2="3" y2="12"/>
+						<line x1="21" y1="12" x2="23" y2="12"/>
+						<line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+						<line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+					</svg>
+					<svg class="theme-icon-dark" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+						<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+					</svg>
+				</button>
+			</div>
 		</div>
-	</main>
+	</header>
+
+	{% if bodyClass == "home" %}
+		<main id="main">
+			{{ content | safe }}
+		</main>
+	{% else %}
+		<main id="main" class="page-container">
+			{%- if title and not hideTitle %}
+			<header class="page-header">
+				{% if eyebrow %}<p class="page-eyebrow">{{ eyebrow }}</p>{% endif %}
+				<h1 class="page-title">{{ title }}</h1>
+				{% if lead %}<p class="page-lead">{{ lead }}</p>{% endif %}
+			</header>
+			{%- endif %}
+			<article class="prose">
+				{{ content | safe }}
+			</article>
+		</main>
+	{% endif %}
+
 	<footer class="site-footer">
-		<p>Sub-Sub {{ release.version }} · server {{ release.server }} · built on <a href="https://pi.dev">pi</a> {{ release.pi }}</p>
-		<p><a href="{{ site.repo }}">Source</a> · <a href="{{ site.npm }}">npm</a> · <a href="{{ site.pypi }}">PyPI</a> · MIT licence · by <a href="/about/">Tiago Jacinto</a></p>
-		<p class="footer-quote">"Give it up, Sub-Subs!" (Moby-Dick, Extracts)</p>
+		<div class="footer-inner">
+			<div class="footer-brand">
+				<a class="brand-wrap" href="/" aria-label="Sub-Sub Home">
+					<div class="brand-icon" aria-hidden="true">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+							<path d="M6 6h10"/>
+							<path d="M6 10h10"/>
+							<path d="M6 14h6"/>
+						</svg>
+					</div>
+					<span class="brand-title">Sub-Sub</span>
+				</a>
+				<p>A Zotero librarian and research assistant in your browser or terminal. Previews every library modification, journals edits with full undo, and writes literature notes in Markdown.</p>
+				<p class="footer-quote">"Give it up, Sub-Subs! For by how much more pains ye take to please the world, by so much the more will the world please to find fault with you." — Moby-Dick, Extracts</p>
+			</div>
+
+			<div class="footer-col">
+				<h4>Documentation</h4>
+				<ul class="footer-links">
+					<li><a href="/install/">Installation</a></li>
+					<li><a href="/guide/">User Guide</a></li>
+					<li><a href="/profiles/">Profiles</a></li>
+					<li><a href="/privacy/">Privacy & Safety</a></li>
+					<li><a href="/models/">AI Models</a></li>
+					<li><a href="/help/">Troubleshooting</a></li>
+				</ul>
+			</div>
+
+			<div class="footer-col">
+				<h4>Ecosystem</h4>
+				<ul class="footer-links">
+					<li><a href="{{ site.repo }}" target="_blank" rel="noopener">GitHub Repository</a></li>
+					<li><a href="{{ site.npm }}" target="_blank" rel="noopener">npm Package (@tiagojct/subsub)</a></li>
+					<li><a href="{{ site.pypi }}" target="_blank" rel="noopener">PyPI Server (zotero-local-mcp)</a></li>
+					<li><a href="https://pi.dev" target="_blank" rel="noopener">Built on pi</a></li>
+					<li><a href="/about/">About & Licence (MIT)</a></li>
+				</ul>
+				<div class="version-pills">
+					<span class="v-pill">subsub v{{ release.version }}</span>
+					<span class="v-pill">server v{{ release.server }}</span>
+					<span class="v-pill">pi {{ release.pi }}</span>
+				</div>
+			</div>
+		</div>
 	</footer>
 </body>
 </html>
