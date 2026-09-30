@@ -1,105 +1,218 @@
 # Sub-Sub
 
-A Zotero librarian and research assistant that runs on your computer, in your browser or in your terminal. It is built on the [pi](https://pi.dev) agent and works with your own Zotero library through Zotero's local API.
+[![npm version](https://img.shields.io/npm/v/@tiagojct/subsub.svg?style=flat-square&color=0b62cf)](https://www.npmjs.com/package/@tiagojct/subsub)
+[![Website](https://img.shields.io/badge/website-subsub.tiagojacinto.eu-e0832a.svg?style=flat-square)](https://subsub.tiagojacinto.eu)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![Node Version](https://img.shields.io/badge/node-%3E%3D22.19.0-339933.svg?style=flat-square)](https://nodejs.org)
+[![Platform: macOS | Linux | Windows](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey.svg?style=flat-square)](#requirements)
 
-> "This mere painstaking burrower and grub-worm of a poor devil of a Sub-Sub appears to have gone through the long Vaticans and street-stalls of the earth, picking up whatever random allusions to whales he could anyways find in any book whatsoever." (Moby-Dick, Extracts)
+A Zotero librarian and research assistant that runs on your computer, in your browser or in your terminal. It is built on the [pi](https://pi.dev) agent and connects directly to your local Zotero library through Zotero's local API.
 
-Sub-Sub has two modes:
+> *"This mere painstaking burrower and grub-worm of a poor devil of a Sub-Sub appears to have gone through the long Vaticans and street-stalls of the earth, picking up whatever random allusions to whales he could anyways find in any book whatsoever."*  
+> — Herman Melville, *Moby-Dick* (Extracts)
 
-- The librarian changes the library: tags from your own tag list, imports by DOI, PMID or ISBN, metadata repair, duplicates, retractions, open-access PDFs, notes and collections. It has no web access.
-- The researcher reads the library, searches PubMed and OpenAlex, and writes notes in your notes folder. It cannot change the library, except to add a short linked note to an item.
+---
 
-Every library change is shown as a preview and runs only after you approve it. The model cannot skip this: the check is in the code, not in the prompt. Every change is journaled and can be undone with `/undo`.
+## Highlights
+
+* **Code-Enforced Safety Gate**: The model **cannot** modify your library without your explicit approval. Every change is calculated first as a dry-run preview (+added in green, -removed in red) and executed only when you confirm.
+* **Full Journal & Reversible Edits**: Every library modification is recorded with a unique journal ID and can be reverted anytime using `/undo`.
+* **Two Dedicated Roles**:
+  * 📚 **The Librarian**: Cleans tags, imports references (DOI, PMID, ISBN), deduplicates, fixes metadata, retrieves open-access PDFs, creates collections, and checks retractions. *Runs completely offline with no web search access.*
+  * 🔬 **The Researcher**: Reads items, searches PubMed and OpenAlex, finds gaps, checks citations in manuscripts, and writes structured Markdown notes in your notes vault (e.g. Obsidian). *Cannot modify library records.*
+* **Local & Private**: Listens strictly on `127.0.0.1` protected by an authenticated single-origin session cookie. Your library contents remain on your computer.
+* **Modern Web Interface & Terminal UI**: Use Sub-Sub in your browser with desktop shortcuts (`~/Applications/Sub-Sub.app`, Start menu, or `.desktop`), or launch it right in your terminal with adaptive color themes.
+
+---
 
 ## Profiles
 
-A profile sets how much Sub-Sub does for you. Choose it in `subsub init` and change it with `/profile`.
+Profiles calibrate how much Sub-Sub drafts and executes for you. Choose your profile during `subsub init` or change it on the fly with `/profile <name>`.
 
-| Profile | What it does |
+| Profile | Description |
 |---|---|
-| Reader | Explains each step. Reading notes are quotes with page numbers, plus questions for you to answer. No summaries or syntheses. No bulk library changes. |
-| Scholar | Literature notes, syntheses, searches and alerts. The full librarian. |
-| Author | Scholar, plus manuscripts: citation check against the library, bibliography for Quarto or Pandoc, comments on the argument. It does not write your paragraphs. |
-| Editor | Everything, including drafting manuscript text when you ask. |
+| **Reader** | Guided and instructional. Reading notes are quotes with page numbers and reflective questions. Never generates unrequested summaries or syntheses. No bulk library edits. |
+| **Scholar** | Full research workflow: literature notes, conceptual syntheses, database searches, alerts, and the full librarian toolkit. |
+| **Author** | Scholar capabilities plus manuscript workflows: citation auditing against your library, automated Pandoc/Quarto bibliographies, and argument analysis. It critiques but does not write your paragraphs. |
+| **Editor** | Everything unlocked, including drafting full manuscript sections and abstracts upon request. |
 
-A profile is your own choice, not a lock.
+> [!NOTE]
+> A profile is your own operational baseline, not a rigid constraint. You can switch between profiles whenever your research focus shifts.
+
+---
 
 ## Requirements
 
-- Zotero 10 or later, running. In Zotero, open Settings > Advanced and turn on "Allow other applications on this computer to communicate with Zotero".
-- Node.js 22.19 or later.
-- uv (https://docs.astral.sh/uv/).
-- An account with a model provider that pi supports (for example OpenCode Go, OpenRouter, Anthropic, OpenAI, or a local Ollama).
-- macOS, Windows or Linux.
+* **Zotero 10 or later** running locally. In Zotero, enable:  
+  *Settings > Advanced > "Allow other applications on this computer to communicate with Zotero"*.
+* **Node.js 22.19** or later.
+* **[uv](https://docs.astral.sh/uv/)** fast Python package manager.
+* **Model Provider Account**: Any provider supported by pi (e.g., OpenCode Go, OpenRouter, Anthropic, OpenAI, Mistral, DeepSeek, Google Gemini, or local Ollama).
+* **OS**: macOS, Linux, or Windows.
+
+---
 
 ## Install
 
-The installers on [subsub.tiagojacinto.eu](https://subsub.tiagojacinto.eu/install/) do all of this, including Node.js and uv. By hand:
+### Quick Installers
 
-1. Type `npm install -g @tiagojct/subsub`. The command is `subsub`.
-2. Type `subsub init`. Answer the questions. Press Enter to keep a default.
-3. Type `subsub doctor`. Fix each line marked FIX.
-4. Type `subsub shortcut` to add a Sub-Sub shortcut (Applications on macOS, the Start menu and the desktop on Windows, the applications menu on Linux).
-5. Open Sub-Sub with the shortcut, or type `subsub web`. Select the model button and connect a provider with an API key (or, in the terminal, type `subsub`, then `/login`).
+Automated installers handle Node.js, uv, and desktop shortcuts:
 
-`subsub init` creates a notes folder with Inbox/ and Systems/, a starter tag list (health sciences, health informatics, or any field) and a file with the note formats (Systems/Zotero agent.md). You can edit both files. It never replaces a file that exists.
+* **macOS & Linux**:
+  ```sh
+  curl -fsSL https://subsub.tiagojacinto.eu/install.sh | sh
+  ```
+* **Windows (PowerShell)**:
+  ```powershell
+  powershell -ExecutionPolicy ByPass -c "irm https://subsub.tiagojacinto.eu/install.ps1 | iex"
+  ```
 
-If you already use pi, you can also add Sub-Sub to plain pi: `pi install npm:@tiagojct/subsub`.
+### Manual Installation
 
-The Zotero servers (zotero-local-mcp) run from PyPI through uv. To run them from a copy of the repository, add `"serverDir": "/path/to/zotero-local-mcp"` to the settings file.
+1. Install the global package:
+   ```sh
+   npm install -g @tiagojct/subsub
+   ```
+2. Run setup:
+   ```sh
+   subsub init
+   ```
+   Answer the interactive prompts (press <kbd>Enter</kbd> to accept defaults). This creates your notes folder (`Inbox/` and `Systems/`), sets up starter tag vocabularies, and writes note templates (`Systems/Zotero agent.md`).
+3. Verify your environment:
+   ```sh
+   subsub doctor
+   ```
+   Resolve any items marked with `FIX`.
+4. Install system shortcuts:
+   ```sh
+   subsub shortcut
+   ```
+   Creates `~/Applications/Sub-Sub.app` on macOS, Start menu & desktop shortcuts on Windows, or an application launcher on Linux.
+5. Launch Sub-Sub:
+   Open the shortcut or run `subsub web`. Connect your model provider via the **Model** dialog with an API key (or in the terminal via `subsub`, then `/login`).
 
-## Web view
+If you already use [pi](https://pi.dev), you can add Sub-Sub as an extension:
+```sh
+pi install npm:@tiagojct/subsub
+```
 
-`subsub web` (or `subsub serve`) opens Sub-Sub in your browser. It has the same modes, profiles, tools and approvals as the terminal:
+The underlying Python servers ([zotero-local-mcp](https://github.com/tiagojct/zotero-local-mcp)) run via `uv` from PyPI. To run from a local checkout, specify `"serverDir": "/path/to/zotero-local-mcp"` in your configuration.
 
-- pi runs in RPC mode with the Sub-Sub extension. Sub-Sub's approval dialog (the server preview) appears in the page, and the change runs only after you select Yes.
-- The server listens only on 127.0.0.1. The address that opens the page carries a random key, which becomes an HttpOnly, SameSite=Strict cookie; other requests need that cookie, the right Host header and a same-origin JSON request. The page has a strict content security policy and shows model output without raw HTML.
-- One server per user: a second `subsub web` opens the running one. Without an open page for 10 minutes (and with nothing waiting for approval), the server stops. `--stay` keeps it running; `--idle N` sets the minutes; `--no-open` does not open a browser; `--librarian` starts in the librarian mode.
-- Labels are in European Portuguese when the language setting is Portuguese, otherwise in English. A theme button in the header toggles light, dark, and system themes.
-- Fast approval shortcuts (`y` to apply, `n` to decline), one-click copy buttons on code blocks and notes, conversation search, and export to Markdown.
-- The model button lists the models you can use and saves an API key for a provider in the same file as `/login`. Sign-ins through a provider's website stay in the terminal (`/login`).
-- A log is kept in `~/.subsub/web.log`.
+---
 
-## Use
+## Web View
 
-- `subsub` starts in the researcher mode. `subsub --librarian` starts in the librarian mode. `/librarian` and `/researcher` change the mode.
-- `/profile` shows or changes the profile. `/subsub` shows the Zotero connection. `/history` lists recent library changes. `/undo` reverts one.
-- Templates: `/tag-batch`, `/clean-tags`, `/import-queue` (librarian); `/lit-note <citekey>`, `/synthesis <topic>`, `/gaps <topic>`, `/manuscript <file>`, `/alert` (researcher).
-- `subsub review preview 13-31` and `subsub review apply 13-31` preview or apply tag review notes by number.
-- `subsub -c` continues the last session. `subsub -r` selects an older one.
+Starting Sub-Sub with `subsub web` (or `subsub serve`) launches the browser application:
 
-## Settings
+* **Approval Previews**: Shows server-computed dry-run diffs directly in the UI. Changes are applied only after clicking **Yes** or pressing <kbd>Y</kbd>.
+* **Keyboard-First Review**: In approval dialogs, press <kbd>Y</kbd> or <kbd>Cmd</kbd>/<kbd>Ctrl</kbd>+<kbd>Enter</kbd> to approve, or <kbd>N</kbd>/<kbd>Esc</kbd> to decline.
+* **Theme Switcher**: Header toggle between **Light**, **Dark**, and **System** themes, with tailored styling for each mode (Try-Works amber for Librarian, Glauca blue for Researcher).
+* **One-Click Copy**: Built-in copy buttons on all code snippets, BibTeX records, and assistant literature notes.
+* **Session Search & Markdown Export**: Filter conversation history in real time and download full discussions as Markdown notes.
+* **Local Security**: Binds strictly to `127.0.0.1`. The initial link carries a random token that converts into an `HttpOnly`, `SameSite=Strict` cookie. Protected with strict Content Security Policy (CSP), origin validation, and sanitized output.
+* **Auto-Idle Management**: A single daemon serves requests and stops automatically after 10 minutes of inactivity when no pages remain open. Use `--stay` to keep running indefinitely, or `--idle N` to change the timeout.
 
-`subsub init` writes `~/.config/subsub/config.json` (or the file in `SUBSUB_CONFIG`):
+---
 
-| Setting | Meaning | Default |
-|---|---|---|
-| `profile` | reader, scholar, author or editor | scholar |
-| `userName` | how Sub-Sub names you | "the user" |
-| `about` | one line about you | none |
-| `language` | language of replies and notes, or `auto` | English |
-| `vault` | notes folder | `ZOTERO_VAULT` from the server settings |
-| `models` | model per mode, e.g. `{ "librarian": "opencode-go/glm-5.3-flash" }` | pi's current model |
-| `defaultMode` | librarian or researcher | researcher |
-| `serverDir` | a local copy of zotero-local-mcp | the PyPI release |
-| `look`, `quotes`, `themes` | banner, Moby-Dick line, themes per mode | on |
+## Usage
 
-The server settings (notes folder, tag list, contact email for Unpaywall) are in `~/.config/zotero-local-mcp/env`.
-
-## Model test
-
-`subsub-bench prepare`, `subsub-bench run` and `subsub-bench score` run the same tasks for several models against your library. Every library change is recorded and blocked, and files are written only in the run folder. The results show tag accuracy, invented references, tokens, cost and time.
-
-## Tests
+### Interactive Modes & Commands
 
 ```sh
+subsub             # Start in researcher mode
+subsub --librarian # Start in librarian mode
+subsub web         # Start browser view
+subsub -c          # Continue the previous session
+subsub -r          # Resume an older session
+```
+
+Commands available within Sub-Sub:
+
+* `/librarian`: Switch to the librarian (modify library, tag, import; offline).
+* `/researcher`: Switch to the researcher (read library, search literature, write notes).
+* `/profile [name]`: View or change active profile (`reader`, `scholar`, `author`, `editor`).
+* `/subsub`: Display Zotero connection health and library statistics.
+* `/history`: List recent library changes with journal IDs.
+* `/undo [id]`: Revert the last change (or a specific journal ID).
+
+### Built-in Prompt Templates
+
+Type the command followed by arguments:
+
+* **Librarian**:
+  * `/tag-batch [size]`: Tag untagged items using your tag vocabulary.
+  * `/clean-tags`: Find irregular tags and reconcile with your vocabulary.
+  * `/import-queue [path]`: Import pending references from an inbox note.
+* **Researcher**:
+  * `/lit-note <citekey>`: Generate an in-depth literature note from item fulltext.
+  * `/synthesis <topic>`: Synthesize library findings on a specific topic.
+  * `/gaps <topic>`: Identify unanswered questions and literature gaps.
+  * `/manuscript <path>`: Cross-check manuscript citations against your library.
+  * `/alert`: Check PubMed and OpenAlex for new publications matching research topics.
+
+### Batch Tag Review
+
+To preview or apply batch tag reviews generated in your `Inbox/`:
+```sh
+subsub review preview 13-31
+subsub review apply 13-31
+```
+
+---
+
+## Configuration
+
+`subsub init` writes settings to `~/.config/subsub/config.json` (or `$SUBSUB_CONFIG`):
+
+| Setting | Type | Description | Default |
+|---|---|---|---|
+| `profile` | string | `reader`, `scholar`, `author`, or `editor` | `"scholar"` |
+| `userName` | string | Name used by the agent in replies | `"the user"` |
+| `about` | string | Brief background context about your research domain | `null` |
+| `language` | string | Response language, or `"auto"` to match your input | `"English"` |
+| `vault` | string | Path to your Markdown notes folder / Obsidian vault | `$ZOTERO_VAULT` |
+| `models` | object | Model overrides per mode (e.g. `{"librarian": "opencode-go/glm-5.3-flash"}`) | Current model |
+| `defaultMode`| string | Default launch mode (`"researcher"` or `"librarian"`) | `"researcher"` |
+| `serverDir` | string | Local development path for `zotero-local-mcp` | PyPI package |
+| `look` | boolean| Show header banners and status lines in terminal | `true` |
+| `quotes` | boolean| Display quotes from *Moby-Dick* in terminal banner | `true` |
+| `themes` | object | Mode-specific terminal themes | `true` |
+
+Server-level configurations (notes folder path, tag vocabulary path, Unpaywall email) reside in `~/.config/zotero-local-mcp/env`.
+
+---
+
+## Model Evaluation (`subsub-bench`)
+
+Evaluate how accurately different LLMs tag, import, and synthesize literature against your own library without applying changes:
+
+```sh
+subsub-bench prepare    # Sample realistic test tasks from your library
+subsub-bench run        # Run models in parallel against safety-isolated sandbox
+subsub-bench score      # Generate objective evaluation scorecard (results.md)
+```
+
+Measures tag accuracy, adherence to vocabulary, hallucinated citations, token usage, cost, and latency.
+
+---
+
+## Development & Testing
+
+```sh
+git clone https://github.com/tiagojct/subsub.git
+cd subsub
 npm install
 npm test
+npm run build
+```
+
+Run end-to-end integration tests (real agent, Python MCP servers, fake Zotero, scripted LLM):
+```sh
 ZLM_DIR=/path/to/zotero-local-mcp npm run test:e2e
 ```
 
-The end-to-end tests run the real pi with Sub-Sub, the real Python servers, a fake Zotero and a scripted model.
+---
 
-## Licence
+## License
 
-MIT.
+[MIT](LICENSE) © Tiago Jacinto
