@@ -6,248 +6,184 @@ bodyClass: home
 description: A Zotero librarian and research assistant that runs on your computer, in your browser or in the terminal. Previews every library change, journals all edits, and writes literature notes in Markdown.
 ---
 
-<!-- Frontispiece Title Section -->
-<div class="hero-container">
-	<div class="frontispiece-eyebrow">A Bibliographic Assistant for Zotero</div>
-	
-	<h1 class="frontispiece-title">
-		Sub-Sub
-		<span class="italic-sub">Librarian &amp; Research Assistant</span>
-	</h1>
-
-	<div class="divider-ornament">❦</div>
-
-	<p class="frontispiece-lead">
-		Sub-Sub tags, imports, repairs, and reads your references, and helps you search the literature. It connects directly to your local Zotero library, in your browser or in your terminal. Nothing in your library changes until you say yes.
-	</p>
-
-	<!-- Minimal Installation Box -->
-	<div class="install-section">
-		<div class="install-heading">
-			<span>Installation</span>
-			<span>v{{ release.version }}</span>
-		</div>
-
-		<div class="installer-vintage-box">
-			<div class="install-os-nav" role="tablist">
-				<button type="button" class="install-os-btn active" data-os="unix">macOS &amp; Linux</button>
-				<button type="button" class="install-os-btn" data-os="windows">Windows (PowerShell)</button>
-				<button type="button" class="install-os-btn" data-os="npm">npm Global</button>
-				<button type="button" class="install-os-btn" data-os="pi">pi Extension</button>
-			</div>
-
-			<div class="vintage-cmd-wrap">
-				<code id="install-code-text"><span class="cmd-prefix">$ </span>curl -fsSL https://subsub.tiagojacinto.eu/install.sh | sh</code>
-			</div>
-
-			<p class="install-subnote" id="install-note-text">
-				Requires macOS or Linux. Installs uv and Node 22 automatically if missing. <a href="/install/">Installation instructions →</a>
-			</p>
-		</div>
-	</div>
-
-	<!-- Plate I: The Sub-Sub-Librarian Woodcut -->
-	<figure class="plate-frame">
-		<div class="plate-inner">
-			<img src="/assets/img/subsub-librarian-woodcut.jpg?v={{ assetVersion }}" width="1792" height="1024" loading="eager" alt="Woodcut engraving of a scholar in an ancient library examining folios with a magnifying glass.">
-		</div>
-		<figcaption class="plate-caption">Plate I. — The Sub-Sub-Librarian at his desk. (After Herman Melville)</figcaption>
-	</figure>
-</div>
-
-<!-- Section: The Desk Demonstration -->
-<section class="desk-demo">
-	<div class="desk-header">
-		<span class="desk-title">The Desk</span>
-		<div class="desk-nav">
-			<button type="button" class="desk-toggle active" id="desk-tab-librarian">Librarian</button>
-			<button type="button" class="desk-toggle" id="desk-tab-researcher">Researcher</button>
-		</div>
-	</div>
-
-	<div class="desk-content">
-		<!-- Librarian Desk View -->
-		<div id="desk-view-librarian">
-			<div>╔═╗╦ ╦╔╗    ╔═╗╦ ╦╔╗</div>
-			<div>╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗</div>
-			<div>╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  {{ release.version }}</div>
-			<div style="color: var(--text-dim); margin-top: 0.5rem;">Librarian, Scholar  |  Zotero: 1,024 items (Local API)</div>
-			<div style="color: var(--text-dim);">/researcher  /librarian  /profile  /history  /undo</div>
-
-			<div class="desk-prompt-line">
-				<span class="desk-prompt-symbol">&gt;</span> Tag the next 10 items without a topic.
-			</div>
-
-			<div class="desk-diff-box">
-				<div class="desk-diff-header">┌ Sub-Sub: preview tag_items (2 items would change)</div>
-				<div>Smith 2021: Home spirometry in children with asthma:</div>
-				<div>  <span class="diff-add">+ topic/respiratory</span>, <span class="diff-add">+ topic/pediatrics</span>, <span class="diff-add">+ type/cohort</span></div>
-				<div style="margin-top: 4px;">Costa 2019: A decision aid for inhaler choice:</div>
-				<div>  <span class="diff-add">+ topic/clinical-decision-support</span>; <span class="diff-rem">- type/rct</span></div>
-				
-				<div class="desk-actions">
-					<button type="button" class="btn-approve" id="demo-approve-btn">Approve (Y)</button>
-					<span class="btn-decline">Decline (N)</span>
-					<span class="demo-approved-badge" id="demo-approve-result">✓ Approved. 2 items updated. Journal #4928 written. Use /undo to revert.</span>
-				</div>
-			</div>
-		</div>
-
-		<!-- Researcher Desk View (Hidden by default) -->
-		<div id="desk-view-researcher" style="display: none;">
-			<div>╔═╗╦ ╦╔╗    ╔═╗╦ ╦╔╗</div>
-			<div>╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗</div>
-			<div>╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  {{ release.version }}</div>
-			<div style="color: var(--text-dim); margin-top: 0.5rem;">Researcher, Scholar  |  PubMed &amp; OpenAlex Active</div>
-			<div style="color: var(--text-dim);">/researcher  /librarian  /lit-note  /synthesis  /gaps</div>
-
-			<div class="desk-prompt-line">
-				<span class="desk-prompt-symbol">&gt;</span> What do I have on home spirometry?
-			</div>
-
-			<div style="margin: 0.5rem 0; color: var(--text-muted);">
-				4 items in your library have topic/respiratory and mention home spirometry:
-			</div>
-			<div>
-				[@smith2021]   2021  Home spirometry in children with asthma    (cohort)<br>
-				[@okafor2023]  2023  Remote monitoring after lung transplant    (cohort)<br>
-				[@lind2020]    2020  Agreement of home and clinic FEV1          (cross-sectional)<br>
-				[@reyes2024]   2024  Home spirometry: a systematic review       (systematic review)
-			</div>
-			<div style="margin-top: 0.75rem; color: var(--accent);">
-				PubMed has 38 works since 2024; 3 relevant works are not in your library.
-			</div>
-			<div style="color: var(--text-dim); font-size: 0.85rem; margin-top: 0.25rem;">
-				Queue them for import? The librarian imports the lines you confirm.
-			</div>
-		</div>
-	</div>
-</section>
-
-<!-- Section: The Three Principles -->
-<section class="vintage-section">
-	<div class="section-head">
-		<div class="section-numeral">I. The Principles</div>
-		<h2 class="section-heading">Safety by Design</h2>
-		<p class="section-sublead">
-			Most assistants run unmonitored scripts. Sub-Sub operates under strict, code-enforced boundaries.
+<div class="vintage-container">
+	<!-- Title Header -->
+	<header class="frontispiece-header">
+		<p class="frontispiece-series">A BIBLIOGRAPHIC ASSISTANT FOR ZOTERO</p>
+		<h1 class="frontispiece-main-title">Sub-Sub</h1>
+		<p class="frontispiece-subtitle">The Librarian &amp; Research Assistant</p>
+		<div class="ornament-rule">— ❦ —</div>
+		<p class="frontispiece-summary">
+			Sub-Sub tags, imports, repairs, and reads your references, and helps you search the literature. It connects directly to your local Zotero library, in your browser or in your terminal. Nothing in your library changes until you say yes.
 		</p>
-	</div>
+	</header>
 
-	<div class="principles-list">
-		<div class="principle-item">
-			<div class="principle-num">1.</div>
-			<div class="principle-body">
-				<h3>The Code-Enforced Gate</h3>
+	<!-- Minimal Installer Box -->
+	<section class="minimal-install">
+		<div class="install-header-line">
+			<span class="install-label">INSTALLATION · v{{ release.version }}</span>
+			<div class="install-platform-nav" role="tablist">
+				<button type="button" class="install-os-btn active" data-os="unix">macOS &amp; Linux</button>
+				<button type="button" class="install-os-btn" data-os="windows">Windows</button>
+				<button type="button" class="install-os-btn" data-os="npm">npm</button>
+				<button type="button" class="install-os-btn" data-os="pi">pi</button>
+			</div>
+		</div>
+
+		<div class="vintage-cmd-wrap">
+			<code id="install-code-text"><span class="cmd-prefix">$ </span>curl -fsSL https://subsub.tiagojacinto.eu/install.sh | sh</code>
+		</div>
+
+		<p class="install-subnote" id="install-note-text">
+			Installs uv and Node 22 automatically if missing. <a href="/install/">Full install guide →</a>
+		</p>
+	</section>
+
+	<!-- Plate I: The Authentic 1851 Steel Engraving -->
+	<figure class="plate-1851">
+		<div class="plate-1851-frame">
+			<img src="/assets/img/subsub-1851-plate.jpg?v={{ assetVersion }}" width="1792" height="1195" loading="eager" alt="Authentic 1851 Victorian steel-plate engraving of the Sub-Sub-Librarian examining tomes on whales at his archival desk.">
+		</div>
+		<figcaption class="plate-1851-caption">
+			<span class="plate-1851-title">THE SUB-SUB-LIBRARIAN.</span>
+			<span class="plate-1851-sub">"This mere painstaking burrower and grub-worm of a poor devil of a Sub-Sub appears to have gone through the long Vaticans and street-stalls of the earth..."</span>
+			<span class="plate-1851-pub">EXTRACTS · MDCCCLI (1851)</span>
+		</figcaption>
+	</figure>
+
+	<!-- The Desk (TUI Presentation: Minimal, Tight, Mathematical Alignment) -->
+	<section class="tui-showcase">
+		<div class="tui-header">
+			<span class="tui-title">THE DESK</span>
+			<div class="tui-mode-toggle">
+				<button type="button" class="tui-tab active" id="desk-tab-librarian">Librarian</button>
+				<span class="tui-sep">·</span>
+				<button type="button" class="tui-tab" id="desk-tab-researcher">Researcher</button>
+			</div>
+		</div>
+
+		<div class="tui-body">
+			<!-- Librarian TUI Screen -->
+			<div id="desk-view-librarian">
+<pre class="tui-screen"><code><span class="tui-banner">╔═╗╦ ╦╔╗    ╔═╗╦ ╦╔╗</span>
+<span class="tui-banner">╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗</span>
+<span class="tui-banner">╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝</span>  <span class="tui-dim">{{ release.version }}</span>
+
+<span class="tui-dim">Librarian, Scholar  |  Zotero: 1,024 items (Local API)</span>
+<span class="tui-dim">"Very like a whale." (Hamlet, in the Extracts)</span>
+<span class="tui-dim">/researcher  /librarian  /profile  /history  /undo</span>
+
+<span class="tui-prompt">&gt;</span> Tag the next 10 items without a topic.
+
+<span class="tui-box-border">┌ Sub-Sub: preview tag_items ──────────────────────────────┐</span>
+  2 item(s) would change.
+  Smith 2021: Home spirometry in children with asthma:
+    <span class="tui-add">+ topic/respiratory, topic/pediatrics, type/cohort</span>
+  Costa 2019: A decision aid for inhaler choice:
+    <span class="tui-add">+ topic/clinical-decision-support</span>; <span class="tui-rem">- type/rct</span>
+                                            <button type="button" class="tui-btn-approve" id="demo-approve-btn">[ Yes ]</button> <span class="tui-btn-decline">No</span><span class="tui-approved-msg" id="demo-approve-result">✓ Applied (#4928)</span>
+<span class="tui-box-border">└─────────────────────────────────────────────────────────┘</span></code></pre>
+			</div>
+
+			<!-- Researcher TUI Screen -->
+			<div id="desk-view-researcher" style="display: none;">
+<pre class="tui-screen"><code><span class="tui-banner-researcher">╔═╗╦ ╦╔╗    ╔═╗╦ ╦╔╗</span>
+<span class="tui-banner-researcher">╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗</span>
+<span class="tui-banner-researcher">╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝</span>  <span class="tui-dim">{{ release.version }}</span>
+
+<span class="tui-dim">Researcher, Scholar  |  PubMed &amp; OpenAlex Active</span>
+<span class="tui-dim">/researcher  /librarian  /lit-note  /synthesis  /gaps</span>
+
+<span class="tui-prompt">&gt;</span> What do I have on home spirometry?
+
+  4 items in your library have topic/respiratory:
+  [@smith2021]   2021  Home spirometry in children with asthma    cohort
+  [@okafor2023]  2023  Remote monitoring after lung transplant    cohort
+  [@lind2020]    2020  Agreement of home and clinic FEV1          cross-sectional
+  [@reyes2024]   2024  Home spirometry: a systematic review       systematic review
+
+  PubMed has 38 works since 2024; 3 look relevant and are not in your library.
+  Queue them for import? The librarian imports the lines you confirm.</code></pre>
+			</div>
+		</div>
+	</section>
+
+	<!-- I. The Principles -->
+	<section class="minimal-section">
+		<h2 class="minimal-section-title">I. The Principles</h2>
+		<div class="principles-grid">
+			<div class="principle-entry">
+				<h3>1. The Code-Enforced Gate</h3>
 				<p>
-					The model cannot modify your library on its own. Every alteration is calculated first as a dry-run preview (+added, -removed) and executed only after your explicit confirmation.
+					The model cannot modify your library on its own. Every alteration is calculated as a server-side dry run with a clear diff (+added in green, -removed in red) and runs only after your explicit confirmation.
 				</p>
 			</div>
-		</div>
 
-		<div class="principle-item">
-			<div class="principle-num">2.</div>
-			<div class="principle-body">
-				<h3>Universal Journal &amp; Rollback</h3>
+			<div class="principle-entry">
+				<h3>2. Universal Journal &amp; Rollback</h3>
 				<p>
 					Every change is recorded in a local SQLite journal with a unique identifier. Type <code>/undo</code> at any time to restore previous metadata, tags, or items.
 				</p>
 			</div>
-		</div>
 
-		<div class="principle-item">
-			<div class="principle-num">3.</div>
-			<div class="principle-body">
-				<h3>Air-Gapped Local Privacy</h3>
+			<div class="principle-entry">
+				<h3>3. Air-Gapped Local Privacy</h3>
 				<p>
 					Listens strictly on <code>127.0.0.1</code> protected by an authenticated single-origin session cookie. The Librarian operates entirely offline. Your library, notes, and citations remain on your machine.
 				</p>
 			</div>
 		</div>
-	</div>
-</section>
+	</section>
 
-<!-- Section: The Two Offices -->
-<section class="vintage-section" style="padding-top: 1rem;">
-	<div class="section-head">
-		<div class="section-numeral">II. The Two Offices</div>
-		<h2 class="section-heading">Librarian &amp; Researcher</h2>
-		<p class="section-sublead">
-			Two distinct modes, each with its own tools, boundaries, and model.
-		</p>
-	</div>
-
-	<div class="offices-wrap">
-		<!-- Librarian Office -->
-		<div class="office-box">
-			<div class="office-head">
-				<div class="office-role">The First Office</div>
+	<!-- II. The Two Offices -->
+	<section class="minimal-section">
+		<h2 class="minimal-section-title">II. The Two Offices</h2>
+		<div class="offices-grid">
+			<div class="office-column">
 				<h3>The Librarian</h3>
+				<p class="office-lead">Keeps your library in order.</p>
+				<ul class="office-list">
+					<li>Tags references from your custom vocabulary in <code>Systems/Zotero tags.md</code></li>
+					<li>Imports citations by DOI, PMID, or ISBN with full abstracts and citekeys</li>
+					<li>Repairs metadata, flags retractions, eliminates duplicates, and fetches open-access PDFs</li>
+					<li>Operates completely offline with zero unsolicited network traffic</li>
+				</ul>
 			</div>
-			<p class="office-desc">
-				Keeps your library in order. Works from controlled vocabularies and imports verified metadata.
-			</p>
-			<ul class="office-duties">
-				<li>Tags references from your custom vocabulary in <code>Systems/Zotero tags.md</code></li>
-				<li>Imports citations by DOI, PMID, or ISBN with full abstracts and citekeys</li>
-				<li>Repairs metadata, flags retractions, eliminates duplicates, and fetches open-access PDFs</li>
-				<li>Operates completely offline with zero unsolicited network traffic</li>
-			</ul>
-		</div>
 
-		<!-- Researcher Office -->
-		<div class="office-box">
-			<div class="office-head">
-				<div class="office-role">The Second Office</div>
+			<div class="office-column">
 				<h3>The Researcher</h3>
+				<p class="office-lead">Reads and surveys the wider literature.</p>
+				<ul class="office-list">
+					<li>Answers "What do I have on...?" directly from your local references with citekeys</li>
+					<li>Searches PubMed and OpenAlex for critical works missing from your collection</li>
+					<li>Writes structured literature notes and syntheses in plain Markdown</li>
+					<li>Read-only safety: cannot alter library records or delete items</li>
+				</ul>
 			</div>
-			<p class="office-desc">
-				Reads your library and surveys the wider literature without altering your collection.
-			</p>
-			<ul class="office-duties">
-				<li>Answers "What do I have on...?" directly from your local references with citekeys</li>
-				<li>Searches PubMed and OpenAlex for critical works missing from your collection</li>
-				<li>Writes structured literature notes and syntheses in plain Markdown</li>
-				<li>Read-only safety: cannot alter library records or delete items</li>
-			</ul>
 		</div>
-	</div>
-</section>
+	</section>
 
-<!-- Section: The Browser View -->
-<section class="vintage-section" style="padding-top: 1rem;">
-	<div class="section-head">
-		<div class="section-numeral">III. The Interface</div>
-		<h2 class="section-heading">In Your Browser</h2>
-		<p class="section-sublead">
+	<!-- III. In Your Browser -->
+	<section class="minimal-section">
+		<h2 class="minimal-section-title">III. In Your Browser</h2>
+		<p class="section-prose">
 			Open Sub-Sub from Applications or the Start menu, or run <code>subsub web</code>. It opens in your browser with the same modes, profiles, and dry-run approvals as the terminal.
 		</p>
-	</div>
 
-	<figure class="plate-frame" style="max-width: 48rem;">
-		<div class="plate-inner">
-			<img src="/assets/img/web-approval.webp?v={{ assetVersion }}" width="1600" height="1013" loading="lazy" alt="The Sub-Sub web view asks for approval before updating tags in Zotero.">
-		</div>
-		<figcaption class="plate-caption">Plate II. — The web approval view. Changes are applied only after selecting Yes.</figcaption>
-	</figure>
+		<figure class="plate-small">
+			<img src="/assets/img/web-approval.webp?v={{ assetVersion }}" width="1600" height="1013" loading="lazy" alt="Sub-Sub web approval view.">
+			<figcaption class="plate-caption-sub">Plate II. — The web approval view. Changes run only after you select Yes.</figcaption>
+		</figure>
+	</section>
 
-	<p style="text-align: center; color: var(--text-muted); font-size: 1rem; margin-top: 1.5rem;">
-		Features fast keyboard review (<kbd>Y</kbd> to apply, <kbd>N</kbd> to decline), one-click copy on notes, conversation search, and Markdown export.
-	</p>
-</section>
-
-<!-- Section: Profiles for How You Work -->
-<section class="vintage-section" style="padding-top: 1rem;">
-	<div class="section-head">
-		<div class="section-numeral">IV. Calibrated Autonomy</div>
-		<h2 class="section-heading">Profiles</h2>
-		<p class="section-sublead">
+	<!-- IV. Profiles -->
+	<section class="minimal-section">
+		<h2 class="minimal-section-title">IV. Calibrated Profiles</h2>
+		<p class="section-prose">
 			A profile sets how much Sub-Sub does for you. Switch anytime with <code>/profile &lt;name&gt;</code>.
 		</p>
-	</div>
 
-	<div class="profiles-table-wrap">
-		<table>
+		<table class="vintage-table">
 			<thead>
 				<tr>
 					<th>Profile</th>
@@ -256,65 +192,54 @@ description: A Zotero librarian and research assistant that runs on your compute
 			</thead>
 			<tbody>
 				<tr>
-					<td class="col-profile">Reader</td>
+					<td class="col-name">Reader</td>
 					<td>Guided and pedagogical. Reading notes are quotes with page numbers and questions for you. Never generates unrequested summaries.</td>
 				</tr>
 				<tr>
-					<td class="col-profile">Scholar</td>
+					<td class="col-name">Scholar</td>
 					<td>Literature notes, conceptual syntheses, gap searches, alerts, and the full librarian toolkit.</td>
 				</tr>
 				<tr>
-					<td class="col-profile">Author</td>
+					<td class="col-name">Author</td>
 					<td>Scholar, plus manuscript auditing: citation verification against your library, automated bibliographies, and argument analysis.</td>
 				</tr>
 				<tr>
-					<td class="col-profile">Editor</td>
+					<td class="col-name">Editor</td>
 					<td>Everything unlocked, including drafting manuscript text and abstracts upon request.</td>
 				</tr>
 			</tbody>
 		</table>
+
+		<p class="table-footnote"><a href="/profiles/">About profiles →</a></p>
+	</section>
+
+	<!-- Melville Ex-Libris Bookplate -->
+	<div class="melville-vignette">
+		<div class="vignette-image">
+			<img src="/assets/img/subsub-bookplate.jpg?v={{ assetVersion }}" width="1200" height="800" loading="lazy" alt="Antique woodcut bookplate featuring an open folio and hourglass.">
+		</div>
+		<blockquote class="vignette-quote">
+			"This mere painstaking burrower and grub-worm of a poor devil of a Sub-Sub appears to have gone through the long Vaticans and street-stalls of the earth, picking up whatever random allusions to whales he could anyways find in any book whatsoever."
+		</blockquote>
+		<div class="vignette-author">— Herman Melville, <em>Moby-Dick</em> (Extracts, 1851)</div>
 	</div>
 
-	<p style="text-align: center;">
-		<a href="/profiles/">About profiles →</a>
-	</p>
-</section>
-
-<!-- Section: Melville Bookplate & Extracts Quotation -->
-<div class="bookplate-block">
-	<div class="bookplate-img-wrap">
-		<img src="/assets/img/subsub-bookplate.jpg?v={{ assetVersion }}" width="1200" height="800" loading="lazy" alt="Vintage engraving of an open folio, hourglass, and quill pen framed in classical flourishes.">
-	</div>
-
-	<blockquote class="melville-quote">
-		"This mere painstaking burrower and grub-worm of a poor devil of a Sub-Sub appears to have gone through the long Vaticans and street-stalls of the earth, picking up whatever random allusions to whales he could anyways find in any book whatsoever."
-	</blockquote>
-	<div class="melville-attribution">
-		— Herman Melville, <em>Moby-Dick</em> (Extracts, 1851)
-	</div>
+	<!-- V. Essentials -->
+	<section class="minimal-section" style="margin-bottom: 4rem;">
+		<h2 class="minimal-section-title">V. Essentials</h2>
+		<div class="essentials-row">
+			<div class="essential-block">
+				<h4>Zotero 10+</h4>
+				<p>Running locally with local API communication turned on.</p>
+			</div>
+			<div class="essential-block">
+				<h4>AI Model Account</h4>
+				<p>Any provider supported by pi. <a href="/models/">Tested models</a>.</p>
+			</div>
+			<div class="essential-block">
+				<h4>Notes Folder</h4>
+				<p>Plain Markdown files (e.g. an Obsidian vault).</p>
+			</div>
+		</div>
+	</section>
 </div>
-
-<!-- Section: Requirements -->
-<section class="vintage-section" style="padding-top: 1rem; padding-bottom: 4rem;">
-	<div class="section-head">
-		<div class="section-numeral">V. Essentials</div>
-		<h2 class="section-heading">What You Need</h2>
-	</div>
-
-	<div class="essentials-grid">
-		<div class="essential-card">
-			<h4>Zotero 10 or Later</h4>
-			<p>Running locally with local API communication enabled (<em>Settings &gt; Advanced &gt; "Allow other applications on this computer to communicate with Zotero"</em>).</p>
-		</div>
-
-		<div class="essential-card">
-			<h4>An AI Model Account</h4>
-			<p>Any provider supported by pi (OpenCode Go, OpenRouter, Anthropic, OpenAI, DeepSeek, or local Ollama). <a href="/models/">Tested models</a>.</p>
-		</div>
-
-		<div class="essential-card">
-			<h4>A Notes Folder</h4>
-			<p>Plain Markdown files (an Obsidian vault works well). Sub-Sub creates an <code>Inbox/</code> and <code>Systems/</code> directory.</p>
-		</div>
-	</div>
-</section>

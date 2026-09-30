@@ -1,72 +1,77 @@
 /* ==========================================================================
-   Sub-Sub Vintage & Minimal Design System
-   Classical Bookmaking • Letterpress Typographic Precision • Antique Scholar
+   Sub-Sub: 1851 Antique & Minimal Design System
+   Historical Bookmaking • Steel-Plate Engraving • Letterpress Precision
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&display=swap');
 
 :root,
 [data-theme="light"] {
-  --font-serif: "EB Garamond", Garamond, Baskerville, "Times New Roman", serif;
+  --font-serif: "EB Garamond", Garamond, Baskerville, Georgia, serif;
   --font-display: "Newsreader", "EB Garamond", serif;
-  --font-mono: "Courier Prime", "JetBrains Mono", Courier, monospace;
+  --font-mono: "JetBrains Mono", "Courier Prime", monospace;
 
-  /* Archival Paper & Ink Palette */
-  --bg: #f9f7f1;
+  /* 1851 Rag Paper & Printer's Inks */
+  --bg: #f8f6f0;
   --bg-paper: #ffffff;
-  --bg-subtle: #f2ece0;
-  --bg-inset: #ede6d8;
-  
-  --text: #24211e;
-  --text-muted: #5e574c;
-  --text-dim: #8a7f70;
-  
-  --border: #dfd7c6;
-  --border-rule: #c8bdab;
-  --border-dark: #24211e;
+  --bg-subtle: #f0ebe0;
+  --bg-tui: #181614;
 
-  /* Traditional Pigments */
-  --accent: #8b2500; /* Venetian vermilion / letterpress red */
+  --text: #211e1b;
+  --text-muted: #574f45;
+  --text-dim: #827768;
+
+  --border: #ddd5c4;
+  --border-rule: #c2b6a0;
+  --border-dark: #211e1b;
+
+  --accent: #8b2500; /* Cinnabar / Vermilion */
   --accent-hover: #5c1800;
-  --accent-blue: #244662; /* Library Prussian blue */
-  
-  --diff-add: #205438; /* Forest ink green */
-  --diff-rem: #8b2500; /* Vermilion */
-  --diff-add-bg: #eaf3ed;
-  --diff-rem-bg: #faece8;
+  --accent-blue: #234b6e;
 
-  --shadow-subtle: 0 1px 3px rgba(36, 33, 30, 0.05), 0 4px 12px rgba(36, 33, 30, 0.03);
+  --diff-add: #205c38;
+  --diff-rem: #8b2500;
+  --diff-add-bg: #eaf3ed;
+  --diff-rem-bg: #fbede9;
+
+  --tui-text: #eae4d5;
+  --tui-dim: #8a8273;
+  --tui-border: #423b32;
+  --tui-mark: #d6683b;
 }
 
 [data-theme="dark"] {
-  --font-serif: "EB Garamond", Garamond, Baskerville, "Times New Roman", serif;
+  --font-serif: "EB Garamond", Garamond, Baskerville, Georgia, serif;
   --font-display: "Newsreader", "EB Garamond", serif;
-  --font-mono: "Courier Prime", "JetBrains Mono", Courier, monospace;
+  --font-mono: "JetBrains Mono", "Courier Prime", monospace;
 
-  /* Antique Study at Night / Leather-bound Folio */
-  --bg: #151311;
-  --bg-paper: #1c1916;
-  --bg-subtle: #23201c;
-  --bg-inset: #0e0d0b;
+  /* 1851 Antique Night Study */
+  --bg: #141210;
+  --bg-paper: #1b1916;
+  --bg-subtle: #221f1c;
+  --bg-tui: #0d0c0a;
 
-  --text: #ece6d8;
-  --text-muted: #aaa18f;
-  --text-dim: #776f60;
+  --text: #eae4d5;
+  --text-muted: #a69d8d;
+  --text-dim: #736b5e;
 
-  --border: #2d2822;
-  --border-rule: #3d362e;
-  --border-dark: #ece6d8;
+  --border: #2a2520;
+  --border-rule: #3a332c;
+  --border-dark: #eae4d5;
 
-  --accent: #cf663d; /* Warm terracotta / sealing wax */
-  --accent-hover: #e88258;
+  --accent: #cf663d;
+  --accent-hover: #eb7c52;
   --accent-blue: #7ca5c4;
 
-  --diff-add: #62a378;
+  --diff-add: #68aa80;
   --diff-rem: #cf663d;
   --diff-add-bg: #16241a;
   --diff-rem-bg: #271712;
 
-  --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --tui-text: #eae4d5;
+  --tui-dim: #7a7264;
+  --tui-border: #332d25;
+  --tui-mark: #cf663d;
 }
 
 /* --- Base & Reset --- */
@@ -78,7 +83,6 @@ html {
   font-size: 17px;
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -88,11 +92,10 @@ body {
   color: var(--text);
   font-family: var(--font-serif);
   font-size: 1.15rem;
-  line-height: 1.7;
+  line-height: 1.65;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 a {
@@ -100,7 +103,6 @@ a {
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
-  transition: color 0.15s ease;
 }
 a:hover {
   color: var(--accent-hover);
@@ -109,66 +111,51 @@ a:hover {
 .skip {
   position: absolute;
   top: -100px;
-  left: 2rem;
+  left: 1.5rem;
   background: var(--bg-paper);
   color: var(--text);
   padding: 0.5rem 1rem;
   border: 1px solid var(--border-dark);
   z-index: 1000;
-  font-size: 0.9rem;
 }
 .skip:focus {
   top: 1rem;
 }
 
-/* --- Classic Header --- */
+/* --- Header --- */
 .site-header {
-  width: 100%;
+  border-bottom: 1px solid var(--border);
+  padding: 1.1rem 1.5rem;
   background: var(--bg);
-  border-bottom: 1px solid var(--border);
-  padding: 1.25rem 2rem;
-  position: relative;
-}
-
-.site-header::after {
-  content: "";
-  position: absolute;
-  bottom: 2px;
-  left: 0;
-  right: 0;
-  border-bottom: 1px solid var(--border);
-  pointer-events: none;
 }
 
 .header-inner {
-  max-width: 62rem;
+  max-width: 48rem;
   margin: 0 auto;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 1rem 2rem;
+  gap: 0.75rem 1.5rem;
 }
 
 .brand-wrap {
   display: inline-flex;
   align-items: baseline;
-  gap: 0.5rem;
+  gap: 0.4rem;
   text-decoration: none !important;
   color: var(--text);
 }
 
 .brand-title {
   font-family: var(--font-display);
-  font-size: 1.65rem;
+  font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: -0.01em;
-  color: var(--text);
 }
 
 .brand-tag {
-  font-family: var(--font-serif);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-style: italic;
   color: var(--text-dim);
 }
@@ -179,16 +166,15 @@ a:hover {
   list-style: none;
   margin: 0;
   padding: 0;
-  gap: 1.25rem;
+  gap: 1.1rem;
 }
 
 .nav-links a {
-  font-family: var(--font-serif);
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: var(--text-muted);
   text-decoration: none;
   border-bottom: 1px solid transparent;
-  padding-bottom: 2px;
+  padding-bottom: 1px;
 }
 
 .nav-links a:hover,
@@ -203,20 +189,19 @@ a:hover {
 
 .header-actions {
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  align-items: baseline;
+  gap: 0.75rem;
 }
 
 .theme-btn, .github-btn {
-  background: transparent;
+  background: none;
   border: 1px solid var(--border);
   color: var(--text-muted);
-  padding: 0.25rem 0.65rem;
+  padding: 0.2rem 0.55rem;
   font-family: var(--font-serif);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   cursor: pointer;
   text-decoration: none !important;
-  transition: all 0.15s ease;
 }
 
 .theme-btn:hover, .github-btn:hover {
@@ -224,139 +209,99 @@ a:hover {
   color: var(--text);
 }
 
-/* --- Frontispiece & Hero --- */
-.hero-container {
-  max-width: 58rem;
+/* --- Container --- */
+.vintage-container {
+  max-width: 46rem;
   margin: 0 auto;
-  padding: 4rem 1.5rem 3rem;
+  padding: 3rem 1.5rem 4rem;
+}
+
+/* --- Frontispiece Title --- */
+.frontispiece-header {
   text-align: center;
+  margin-bottom: 2.5rem;
 }
 
-.frontispiece-eyebrow {
-  font-family: var(--font-serif);
-  font-size: 0.9rem;
-  font-style: italic;
-  letter-spacing: 0.05em;
+.frontispiece-series {
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
   color: var(--text-dim);
-  margin-bottom: 1rem;
+  margin: 0 0 0.75rem;
 }
 
-.frontispiece-title {
+.frontispiece-main-title {
   font-family: var(--font-display);
-  font-size: clamp(2.5rem, 5.5vw, 3.8rem);
+  font-size: clamp(2.6rem, 6vw, 3.6rem);
   font-weight: 700;
-  line-height: 1.15;
   letter-spacing: -0.02em;
+  margin: 0;
+  line-height: 1.1;
   color: var(--text);
-  margin: 0 0 1.25rem;
 }
 
-.frontispiece-title .italic-sub {
-  display: block;
-  font-size: clamp(1.3rem, 2.8vw, 1.85rem);
+.frontispiece-subtitle {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-style: italic;
   font-weight: 400;
-  font-style: italic;
   color: var(--text-muted);
-  margin-top: 0.35rem;
+  margin: 0.4rem 0 1rem;
 }
 
-.divider-ornament {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  margin: 2rem auto;
-  max-width: 18rem;
+.ornament-rule {
   color: var(--text-dim);
-}
-.divider-ornament::before,
-.divider-ornament::after {
-  content: "";
-  flex: 1;
-  border-bottom: 1px solid var(--border);
-}
-
-.frontispiece-lead {
-  font-size: 1.25rem;
-  line-height: 1.7;
-  color: var(--text-muted);
-  max-width: 44rem;
-  margin: 0 auto 2.5rem;
-}
-
-/* --- Vintage Woodcut Plate --- */
-.plate-frame {
-  margin: 2.5rem auto;
-  max-width: 54rem;
-  padding: 0.5rem;
-  background: var(--bg-paper);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-subtle);
-}
-
-.plate-inner {
-  border: 1px solid var(--border);
-  padding: 0.4rem;
-}
-
-.plate-frame img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.plate-caption {
-  font-family: var(--font-serif);
-  font-size: 0.9rem;
-  font-style: italic;
-  color: var(--text-muted);
-  text-align: center;
-  padding: 0.75rem 0 0.25rem;
-}
-
-/* --- Minimal Installation Card --- */
-.install-section {
-  max-width: 44rem;
-  margin: 3rem auto;
-  text-align: left;
-}
-
-.install-heading {
   font-size: 0.95rem;
-  font-family: var(--font-serif);
-  font-style: italic;
-  color: var(--text-dim);
-  margin-bottom: 0.5rem;
+  margin: 1.25rem 0;
+}
+
+.frontispiece-summary {
+  font-size: 1.15rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+/* --- Minimal Installer --- */
+.minimal-install {
+  border: 1px solid var(--border);
+  background: var(--bg-paper);
+  padding: 1.25rem 1.5rem;
+  margin: 2.5rem 0;
+}
+
+.install-header-line {
   display: flex;
   justify-content: space-between;
-}
-
-.installer-vintage-box {
-  background: var(--bg-paper);
-  border: 1px solid var(--border-dark);
-  padding: 1.5rem;
-  box-shadow: var(--shadow-subtle);
-}
-
-.install-os-nav {
-  display: flex;
-  gap: 1rem;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 0.75rem;
-  margin-bottom: 1rem;
+  align-items: baseline;
   flex-wrap: wrap;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.6rem;
+  margin-bottom: 0.85rem;
+}
+
+.install-label {
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.install-platform-nav {
+  display: flex;
+  gap: 0.85rem;
 }
 
 .install-os-btn {
   background: none;
   border: none;
   font-family: var(--font-serif);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: var(--text-muted);
-  padding: 0.2rem 0;
+  padding: 0 0 2px;
   cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all 0.15s ease;
+  border-bottom: 1px solid transparent;
 }
 
 .install-os-btn:hover {
@@ -373,10 +318,10 @@ a:hover {
   position: relative;
   background: var(--bg-subtle);
   border: 1px solid var(--border);
-  padding: 0.85rem 5rem 0.85rem 1rem;
+  padding: 0.65rem 4.5rem 0.65rem 0.85rem;
   font-family: var(--font-mono);
-  font-size: 0.92rem;
-  line-height: 1.5;
+  font-size: 0.85rem;
+  line-height: 1.4;
   color: var(--text);
   overflow-x: auto;
 }
@@ -389,17 +334,16 @@ a:hover {
 
 .copy-btn {
   position: absolute;
-  right: 0.5rem;
+  right: 0.4rem;
   top: 50%;
   transform: translateY(-50%);
   background: var(--bg-paper);
   border: 1px solid var(--border);
   color: var(--text);
-  padding: 0.25rem 0.65rem;
+  padding: 0.2rem 0.55rem;
   font-family: var(--font-serif);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   cursor: pointer;
-  transition: all 0.15s ease;
 }
 
 .copy-btn:hover {
@@ -407,537 +351,554 @@ a:hover {
 }
 
 .copy-btn.copied {
-  background: var(--diff-add-bg);
   color: var(--diff-add);
   border-color: var(--diff-add);
 }
 
 .install-subnote {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-style: italic;
   color: var(--text-dim);
-  margin-top: 0.85rem;
-  margin-bottom: 0;
+  margin: 0.75rem 0 0;
 }
 
-/* --- Clean Desk Demonstration (Terminal & Diff) --- */
-.desk-demo {
-  max-width: 48rem;
-  margin: 4rem auto;
-  border: 1px solid var(--border);
+/* --- 1851 Plate --- */
+.plate-1851 {
+  margin: 3rem 0;
+  text-align: center;
+}
+
+.plate-1851-frame {
+  display: inline-block;
+  padding: 0.5rem;
   background: var(--bg-paper);
-  padding: 2rem;
-  box-shadow: var(--shadow-subtle);
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-.desk-header {
+.plate-1851-frame img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+}
+
+.plate-1851-caption {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-align: center;
+}
+
+.plate-1851-title {
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  letter-spacing: 0.15em;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.plate-1851-sub {
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--text-muted);
+  max-width: 34rem;
+  margin: 0 auto;
+}
+
+.plate-1851-pub {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  color: var(--text-dim);
+  margin-top: 0.2rem;
+}
+
+/* --- The Desk / TUI Showcase --- */
+.tui-showcase {
+  border: 1px solid var(--border-rule);
+  background: var(--bg-tui);
+  color: var(--tui-text);
+  margin: 3rem 0;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+}
+
+.tui-header {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 0.75rem;
-  margin-bottom: 1.5rem;
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid var(--tui-border);
+  background: rgba(255, 255, 255, 0.03);
 }
 
-.desk-title {
+.tui-title {
   font-family: var(--font-serif);
+  font-size: 0.85rem;
   font-weight: 700;
-  font-size: 1.1rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--text);
+  letter-spacing: 0.1em;
+  color: var(--tui-dim);
 }
 
-.desk-nav {
+.tui-mode-toggle {
   display: flex;
-  gap: 1rem;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 0.88rem;
 }
 
-.desk-toggle {
+.tui-tab {
   background: none;
   border: none;
   font-family: var(--font-serif);
-  font-size: 0.95rem;
-  color: var(--text-muted);
+  font-size: 0.9rem;
+  color: var(--tui-dim);
   cursor: pointer;
   padding: 0;
-  border-bottom: 1px solid transparent;
-}
-.desk-toggle.active {
-  color: var(--text);
-  font-weight: 700;
-  border-bottom-color: var(--border-dark);
 }
 
-.desk-content {
+.tui-tab:hover {
+  color: var(--tui-text);
+}
+
+.tui-tab.active {
+  color: var(--tui-text);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.tui-sep {
+  color: var(--tui-dim);
+}
+
+.tui-body {
+  padding: 1.1rem 1.25rem;
+  margin: 0;
+}
+
+.tui-screen {
   font-family: var(--font-mono);
-  font-size: 0.9rem;
-  line-height: 1.6;
-  color: var(--text);
-  white-space: pre-wrap;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  white-space: pre;
+  overflow-x: auto;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--tui-text);
 }
 
-.desk-prompt-line {
-  margin: 1rem 0;
-}
-.desk-prompt-symbol {
-  color: var(--accent);
+.tui-banner {
+  color: var(--tui-mark);
   font-weight: 700;
 }
 
-.desk-diff-box {
-  background: var(--bg-subtle);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--accent);
-  padding: 1rem;
-  margin: 1rem 0;
-}
-
-.desk-diff-header {
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  color: var(--accent);
-}
-
-.diff-add {
-  color: var(--diff-add);
+.tui-banner-researcher {
+  color: #6da4c7;
   font-weight: 700;
 }
 
-.diff-rem {
-  color: var(--diff-rem);
+.tui-dim {
+  color: var(--tui-dim);
+}
+
+.tui-prompt {
+  color: var(--tui-mark);
   font-weight: 700;
 }
 
-.desk-actions {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-top: 1rem;
+.tui-box-border {
+  color: var(--tui-border);
 }
 
-.btn-approve {
-  background: var(--text);
-  color: var(--bg);
-  border: 1px solid var(--text);
-  font-family: var(--font-serif);
-  font-size: 0.85rem;
-  padding: 0.35rem 0.9rem;
+.tui-add {
+  color: #78b88e;
+  font-weight: 600;
+}
+
+.tui-rem {
+  color: #d6683b;
+  font-weight: 600;
+}
+
+.tui-btn-approve {
+  background: var(--tui-text);
+  color: var(--bg-tui);
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.1rem 0.45rem;
   cursor: pointer;
-  transition: opacity 0.15s ease;
 }
-.btn-approve:hover {
+
+.tui-btn-approve:hover {
   opacity: 0.85;
 }
 
-.btn-decline {
-  font-family: var(--font-serif);
-  font-size: 0.85rem;
-  color: var(--text-dim);
+.tui-btn-decline {
+  color: var(--tui-dim);
+  margin-left: 0.35rem;
 }
 
-.demo-approved-badge {
+.tui-approved-msg {
   display: none;
-  color: var(--diff-add);
-  font-family: var(--font-serif);
-  font-size: 0.9rem;
-  font-style: italic;
+  color: #78b88e;
+  font-weight: 600;
+  margin-left: 0.5rem;
 }
 
-/* --- Section Layouts --- */
-.vintage-section {
-  max-width: 50rem;
-  margin: 0 auto;
-  padding: 4rem 1.5rem;
+/* --- Minimal Sections --- */
+.minimal-section {
+  border-top: 1px solid var(--border);
+  margin: 3rem 0;
+  padding-top: 2rem;
 }
 
-.section-head {
-  text-align: center;
-  margin-bottom: 2.5rem;
-}
-
-.section-numeral {
-  font-family: var(--font-serif);
-  font-size: 0.85rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  margin-bottom: 0.25rem;
-}
-
-.section-heading {
+.minimal-section-title {
   font-family: var(--font-display);
-  font-size: 2.2rem;
+  font-size: 1.6rem;
   font-weight: 700;
-  margin: 0 0 0.75rem;
-  color: var(--text);
   letter-spacing: -0.01em;
+  color: var(--text);
+  margin: 0 0 1.25rem;
 }
 
-.section-sublead {
-  font-size: 1.15rem;
+.section-prose {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  line-height: 1.65;
+  margin: 0 0 1.5rem;
+}
+
+/* --- Principles Grid --- */
+.principles-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.principle-entry h3 {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0 0 0.35rem;
+  color: var(--text);
+}
+
+.principle-entry p {
+  font-size: 1.05rem;
   color: var(--text-muted);
   line-height: 1.6;
   margin: 0;
 }
 
-/* --- The Principles / Three Guarantees --- */
-.principles-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  margin: 2.5rem 0;
-}
-
-.principle-item {
-  display: grid;
-  grid-template-columns: 2.5rem 1fr;
-  gap: 1.25rem;
-  align-items: baseline;
-}
-
-.principle-num {
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-  font-style: italic;
-  color: var(--accent);
-  text-align: right;
-}
-
-.principle-body h3 {
-  font-family: var(--font-serif);
-  font-size: 1.35rem;
-  font-weight: 700;
-  margin: 0 0 0.5rem;
-  color: var(--text);
-}
-
-.principle-body p {
-  margin: 0;
-  color: var(--text-muted);
-  line-height: 1.65;
-}
-
-/* --- Two Offices: Librarian & Researcher --- */
-.offices-wrap {
+/* --- Offices Grid --- */
+.offices-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 2.5rem;
-  margin: 2.5rem 0;
+  gap: 2rem;
 }
 
-@media (min-width: 48rem) {
-  .offices-wrap {
+@media (min-width: 44rem) {
+  .offices-grid {
     grid-template-columns: 1fr 1fr;
   }
 }
 
-.office-box {
-  background: var(--bg-paper);
-  border: 1px solid var(--border);
-  padding: 2rem;
-  box-shadow: var(--shadow-subtle);
-}
-
-.office-head {
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 0.75rem;
-  margin-bottom: 1.25rem;
-}
-
-.office-role {
-  font-family: var(--font-serif);
-  font-size: 0.85rem;
-  font-style: italic;
-  color: var(--accent);
-  margin-bottom: 0.2rem;
-}
-
-.office-head h3 {
+.office-column h3 {
   font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   font-weight: 700;
-  margin: 0;
+  margin: 0 0 0.25rem;
   color: var(--text);
 }
 
-.office-desc {
-  font-size: 1rem;
-  color: var(--text-muted);
-  margin-bottom: 1.25rem;
-  line-height: 1.55;
+.office-lead {
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--text-dim);
+  margin: 0 0 1rem;
 }
 
-.office-duties {
+.office-list {
   list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
+  gap: 0.5rem;
   font-size: 0.98rem;
-  color: var(--text);
+  color: var(--text-muted);
 }
 
-.office-duties li {
+.office-list li {
   position: relative;
-  padding-left: 1.25rem;
+  padding-left: 1.1rem;
+  line-height: 1.55;
 }
 
-.office-duties li::before {
+.office-list li::before {
   content: "—";
   position: absolute;
   left: 0;
   color: var(--text-dim);
 }
 
-/* --- Classical Bookplate & Melville Quote --- */
-.bookplate-block {
-  max-width: 46rem;
-  margin: 4.5rem auto 3rem;
-  text-align: center;
-}
-
-.bookplate-img-wrap {
-  max-width: 22rem;
-  margin: 0 auto 1.5rem;
-  padding: 0.4rem;
-  background: var(--bg-paper);
+/* --- Plate Small (Web Approval) --- */
+.plate-small {
+  margin: 1.5rem 0;
   border: 1px solid var(--border);
-  box-shadow: var(--shadow-subtle);
+  padding: 0.35rem;
+  background: var(--bg-paper);
 }
 
-.bookplate-img-wrap img {
+.plate-small img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+}
+
+.plate-caption-sub {
+  font-size: 0.88rem;
+  font-style: italic;
+  color: var(--text-dim);
+  text-align: center;
+  padding-top: 0.5rem;
+}
+
+/* --- Vintage Table --- */
+.vintage-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-top: 1px solid var(--border-dark);
+  border-bottom: 1px solid var(--border-dark);
+  margin: 1.25rem 0;
+}
+
+.vintage-table th,
+.vintage-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.vintage-table th {
+  font-family: var(--font-serif);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.vintage-table td {
+  font-size: 0.98rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.vintage-table tr:last-child td {
+  border-bottom: none;
+}
+
+.vintage-table td.col-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text);
+  width: 25%;
+  vertical-align: top;
+}
+
+.table-footnote {
+  text-align: right;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+/* --- Melville Bookplate Vignette --- */
+.melville-vignette {
+  text-align: center;
+  margin: 4rem auto 2.5rem;
+  max-width: 36rem;
+}
+
+.vignette-image {
+  max-width: 16rem;
+  margin: 0 auto 1.25rem;
+  border: 1px solid var(--border);
+  padding: 0.35rem;
+  background: var(--bg-paper);
+}
+
+.vignette-image img {
   display: block;
   width: 100%;
   height: auto;
 }
 
-.melville-quote {
+.vignette-quote {
   font-family: var(--font-display);
-  font-size: 1.35rem;
+  font-size: 1.2rem;
   font-style: italic;
   line-height: 1.6;
   color: var(--text);
-  margin: 0 0 1rem;
+  margin: 0 0 0.85rem;
 }
 
-.melville-attribution {
-  font-family: var(--font-serif);
-  font-size: 0.95rem;
+.vignette-author {
+  font-size: 0.88rem;
   letter-spacing: 0.05em;
   color: var(--text-dim);
 }
 
-/* --- Profiles Table --- */
-.profiles-table-wrap {
-  border-top: 1px solid var(--border-dark);
-  border-bottom: 1px solid var(--border-dark);
-  margin: 2.5rem 0;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th, td {
-  padding: 1rem 1.2rem;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-  font-size: 1rem;
-}
-
-th {
-  font-family: var(--font-serif);
-  font-weight: 700;
-  font-size: 0.9rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-}
-
-tr:last-child td {
-  border-bottom: none;
-}
-
-td.col-profile {
-  font-weight: 700;
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  vertical-align: top;
-  width: 25%;
-}
-
-/* --- Prerequisites / Three Essentials --- */
-.essentials-grid {
+/* --- Essentials Row --- */
+.essentials-row {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.5rem;
-  margin: 2rem 0;
+  gap: 1.25rem;
+  margin-top: 1rem;
 }
 
-@media (min-width: 48rem) {
-  .essentials-grid {
+@media (min-width: 44rem) {
+  .essentials-row {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-.essential-card {
-  background: var(--bg-paper);
+.essential-block {
   border: 1px solid var(--border);
-  padding: 1.5rem;
-  box-shadow: var(--shadow-subtle);
+  background: var(--bg-paper);
+  padding: 1rem 1.15rem;
 }
 
-.essential-card h4 {
-  font-family: var(--font-display);
-  font-size: 1.2rem;
+.essential-block h4 {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
   font-weight: 700;
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.35rem;
   color: var(--text);
 }
 
-.essential-card p {
-  font-size: 0.95rem;
+.essential-block p {
+  font-size: 0.92rem;
   color: var(--text-muted);
-  line-height: 1.55;
+  line-height: 1.5;
   margin: 0;
 }
 
-/* --- Prose & Interior Pages --- */
+/* --- Prose Subpages --- */
 .page-container {
-  max-width: 44rem;
+  max-width: 42rem;
   margin: 0 auto;
-  padding: 3.5rem 1.5rem 5rem;
+  padding: 3rem 1.5rem 4rem;
 }
 
 .page-header {
-  margin-bottom: 2.5rem;
   border-bottom: 1px solid var(--border);
-  padding-bottom: 1.5rem;
+  padding-bottom: 1.25rem;
+  margin-bottom: 2rem;
 }
 
 .page-eyebrow {
-  font-family: var(--font-serif);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-style: italic;
   color: var(--text-dim);
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.35rem;
 }
 
 .page-title {
   font-family: var(--font-display);
-  font-size: 2.6rem;
+  font-size: 2.3rem;
   font-weight: 700;
-  margin: 0 0 0.75rem;
-  color: var(--text);
   line-height: 1.15;
+  margin: 0 0 0.5rem;
+  color: var(--text);
 }
 
 .page-lead {
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   color: var(--text-muted);
   line-height: 1.6;
   margin: 0;
 }
 
 .prose {
-  font-size: 1.15rem;
-  line-height: 1.75;
+  font-size: 1.1rem;
+  line-height: 1.7;
 }
 
 .prose h2 {
   font-family: var(--font-display);
-  font-size: 1.85rem;
+  font-size: 1.65rem;
   font-weight: 700;
-  margin: 2.75rem 0 1rem;
   border-bottom: 1px solid var(--border);
-  padding-bottom: 0.35rem;
+  padding-bottom: 0.3rem;
+  margin: 2.5rem 0 0.85rem;
 }
 
 .prose h3 {
   font-family: var(--font-serif);
-  font-size: 1.35rem;
+  font-size: 1.25rem;
   font-weight: 700;
-  margin: 2rem 0 0.75rem;
+  margin: 1.75rem 0 0.5rem;
 }
 
 .prose code {
   font-family: var(--font-mono);
-  font-size: 0.9em;
+  font-size: 0.88em;
   background: var(--bg-subtle);
   border: 1px solid var(--border);
-  padding: 0.1em 0.35em;
+  padding: 0.1em 0.3em;
 }
 
 .prose pre {
   background: var(--bg-subtle);
   border: 1px solid var(--border);
-  padding: 1rem 1.25rem;
+  padding: 0.85rem 1rem;
   overflow-x: auto;
   font-family: var(--font-mono);
-  font-size: 0.9rem;
-  line-height: 1.55;
-  margin: 1.5rem 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 1.25rem 0;
 }
 
-.prose .note {
-  background: var(--bg-paper);
-  border-left: 3px solid var(--accent);
-  border: 1px solid var(--border);
-  border-left-width: 3px;
-  padding: 1rem 1.25rem;
-  margin: 1.5rem 0;
-  font-size: 1.05rem;
-}
-
-/* --- Colophon & Footer --- */
+/* --- Footer Colophon --- */
 .site-footer {
-  margin-top: auto;
   border-top: 1px solid var(--border);
   background: var(--bg);
-  padding: 3.5rem 2rem 2.5rem;
+  padding: 3rem 1.5rem 2.5rem;
   color: var(--text-muted);
-  position: relative;
-}
-
-.site-footer::before {
-  content: "";
-  position: absolute;
-  top: 2px;
-  left: 0;
-  right: 0;
-  border-top: 1px solid var(--border);
-  pointer-events: none;
 }
 
 .footer-inner {
-  max-width: 62rem;
+  max-width: 48rem;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
 .colophon-top {
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 2rem;
+  gap: 1.5rem;
   border-bottom: 1px solid var(--border);
-  padding-bottom: 1.5rem;
+  padding-bottom: 1.25rem;
 }
 
 .colophon-desc {
-  max-width: 28rem;
-  font-size: 1rem;
+  max-width: 24rem;
+  font-size: 0.95rem;
   line-height: 1.6;
 }
 
 .colophon-links {
   display: flex;
-  gap: 1.5rem;
+  gap: 1.25rem;
   list-style: none;
   padding: 0;
   margin: 0;
@@ -945,7 +906,7 @@ td.col-profile {
 }
 
 .colophon-links a {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: var(--text-muted);
   text-decoration: none;
 }
@@ -957,14 +918,13 @@ td.col-profile {
 .colophon-bottom {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
   flex-wrap: wrap;
-  gap: 1rem;
-  font-size: 0.9rem;
+  gap: 0.75rem;
+  font-size: 0.85rem;
   color: var(--text-dim);
 }
 
 .version-note {
   font-family: var(--font-mono);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
 }
