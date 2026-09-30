@@ -58,8 +58,10 @@ Templates (type the name, then the argument):
 2. To add a shortcut (Applications on macOS), type `subsub shortcut`. To remove it, type `subsub shortcut --remove`.
 3. The server listens only on 127.0.0.1 and needs the random key in the address that `subsub web` opens. A second `subsub web` opens the running one.
 4. The server stops 10 minutes after the last page closes. `subsub web --stay` keeps it running.
-5. The labels are in European Portuguese when the language setting is Portuguese.
-6. The model button lists the models and saves an API key for a provider (the same auth.json as `/login`).
+5. The labels are in European Portuguese when the language setting is Portuguese. A theme toggle button in the header switches between light, dark and system themes.
+6. Faster review: in approval dialogs, press `y` to apply or `n` to cancel without using the mouse.
+7. One-click copy buttons appear on every code block and assistant note. The sidebar includes real-time conversation search and an Export button to download the discussion as Markdown.
+8. The model button lists the models and saves an API key for a provider (the same auth.json as `/login`).
 
 The log is in ~/.subsub/web.log.
 

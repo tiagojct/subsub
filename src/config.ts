@@ -59,8 +59,9 @@ export interface SubsubConfig {
 	themes?: Partial<Record<Mode, string>> | false;
 }
 
-export function expand(p: string): string {
-	return resolve(p.replace(/^~(?=$|\/)/, homedir()));
+export function expand(p: string, home?: string): string {
+	const base = home ?? process.env.HOME ?? homedir();
+	return resolve(p.replace(/^~(?=$|\/)/, base));
 }
 
 export function parseEnvFile(path: string): Record<string, string> {
@@ -81,7 +82,7 @@ export function parseEnvFile(path: string): Record<string, string> {
 }
 
 export function configPath(env: NodeJS.ProcessEnv = process.env): string {
-	return expand(env.SUBSUB_CONFIG ?? "~/.config/subsub/config.json");
+	return expand(env.SUBSUB_CONFIG ?? "~/.config/subsub/config.json", env.HOME);
 }
 
 export function readConfigFile(file: string): Record<string, unknown> {
@@ -108,6 +109,7 @@ export function isProfile(x: unknown): x is Profile {
 }
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): SubsubConfig {
+	const home = env.HOME;
 	const file = configPath(env);
 	let user: Partial<SubsubConfig> = {};
 	if (existsSync(file)) {
@@ -117,16 +119,18 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): SubsubConfig {
 			throw new Error(`Sub-Sub: cannot read ${file}: ${(err as Error).message}`);
 		}
 	}
-	const envCandidates = [
-		user.envFile,
-		env.ZOTERO_MCP_ENV,
-		"~/.config/zotero-local-mcp/env",
-		"~/.config/opencode/zotero.env",
-	].filter((x): x is string => Boolean(x));
-	const envFile = envCandidates.map(expand).find((p) => existsSync(p));
-	const envValues = envFile ? parseEnvFile(envFile) : {};
+	const explicitEnv = user.envFile ?? env.ZOTERO_MCP_ENV;
+	const envFile = explicitEnv
+		? expand(explicitEnv, home)
+		: [
+				"~/.config/zotero-local-mcp/env",
+				"~/.config/opencode/zotero.env",
+		  ]
+				.map((p) => expand(p, home))
+				.find((p) => existsSync(p));
+	const envValues = envFile && existsSync(envFile) ? parseEnvFile(envFile) : {};
 	const vaultRaw = user.vault ?? env.ZOTERO_VAULT ?? envValues.ZOTERO_VAULT;
-	const vault = vaultRaw ? expand(vaultRaw) : undefined;
+	const vault = vaultRaw ? expand(vaultRaw, home) : undefined;
 	const mode = user.defaultMode === "librarian" ? "librarian" : "researcher";
 	return {
 		configFile: file,
@@ -135,7 +139,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): SubsubConfig {
 		about: typeof user.about === "string" && user.about.trim() ? user.about.trim() : undefined,
 		language: typeof user.language === "string" && user.language.trim() ? user.language.trim() : "English",
 		setup: user.setup,
-		serverDir: expand(user.serverDir ?? "~/Projects/zotero-local-mcp"),
+		serverDir: expand(user.serverDir ?? "~/Projects/zotero-local-mcp", home),
 		envFile,
 		vault,
 		models: user.models ?? {
@@ -143,14 +147,14 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): SubsubConfig {
 			researcher: "opencode-go/mimo-v2.6-pro",
 		},
 		defaultMode: mode,
-		vaultContext: (user.vaultContext ?? (vault ? [join(vault, ".claude", "CLAUDE.md")] : [])).map(expand),
+		vaultContext: (user.vaultContext ?? (vault ? [join(vault, ".claude", "CLAUDE.md")] : [])).map((p) => expand(p, home)),
 		sharedRules: user.sharedRules
-			? expand(user.sharedRules)
+			? expand(user.sharedRules, home)
 			: vault
 				? join(vault, "Systems", "Zotero agent.md")
 				: undefined,
 		startTimeout: user.startTimeout ?? 45,
-		uvPath: user.uvPath ? expand(user.uvPath) : undefined,
+		uvPath: user.uvPath ? expand(user.uvPath, home) : undefined,
 		look: user.look,
 		quotes: user.quotes,
 		themes: user.themes,
@@ -159,11 +163,12 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): SubsubConfig {
 
 /** uv is often missing from PATH when pi is started outside a login shell. */
 export function findUv(cfg: Pick<SubsubConfig, "uvPath">, env: NodeJS.ProcessEnv = process.env, platform: string = process.platform): string {
+	const home = env.HOME;
 	const unix = ["~/.local/bin/uv", "/opt/homebrew/bin/uv", "/usr/local/bin/uv", "~/.cargo/bin/uv"];
 	const windows = ["~/.local/bin/uv.exe", "~/.cargo/bin/uv.exe", env.LOCALAPPDATA ? join(env.LOCALAPPDATA, "uv", "uv.exe") : ""];
 	const candidates = [cfg.uvPath, env.SUBSUB_UV, ...(platform === "win32" ? windows : unix)]
 		.filter((x): x is string => Boolean(x))
-		.map(expand);
+		.map((p) => expand(p, home));
 	return candidates.find((p) => existsSync(p)) ?? "uv";
 }
 

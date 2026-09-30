@@ -12,7 +12,7 @@ import { fill, languageRule } from "../src/prompt.ts";
 import { unavailableReason } from "../src/roles.ts";
 import { runInit, upsertEnv } from "../src/init.ts";
 import { formatChecks, runChecks } from "../src/doctor.ts";
-import { loadConfig, parseEnvFile, type SubsubConfig } from "../src/config.ts";
+import { expand, loadConfig, parseEnvFile, type SubsubConfig } from "../src/config.ts";
 import { formatPreview } from "../src/preview.ts";
 import { systemAddition } from "../src/prompt.ts";
 import { gateKind, toolsFor } from "../src/roles.ts";
@@ -162,6 +162,9 @@ test("config defaults and env file", () => {
 	assert.equal(cfg.vault, resolve("/Users/t/Notes"));
 	assert.equal(cfg.sharedRules, join(resolve("/Users/t/Notes"), "Systems", "Zotero agent.md"));
 	assert.equal(cfg.models.researcher, "opencode-go/mimo-v2.6-pro");
+	assert.equal(expand("~/test", "/custom/home"), resolve("/custom/home/test"));
+	const isolated = loadConfig({ HOME: dir, SUBSUB_CONFIG: join(dir, "none.json"), ZOTERO_MCP_ENV: join(dir, "no-such-env") } as any);
+	assert.equal(isolated.vault, undefined);
 	writeFileSync(join(dir, "c.json"), JSON.stringify({ defaultMode: "librarian", models: {} }));
 	const c2 = loadConfig({ SUBSUB_CONFIG: join(dir, "c.json"), ZOTERO_MCP_ENV: env } as any);
 	assert.equal(c2.defaultMode, "librarian");
@@ -646,6 +649,10 @@ test("web: options, interface language, API keys", async () => {
 	assert.equal(auth.anthropic.type, "oauth", "other credentials stay");
 	assert.throws(() => saveApiKey(dir, "evil", "k"), /Unknown provider/);
 	assert.throws(() => saveApiKey(dir, "openai", "two words"), /API key/);
+	const { STRINGS } = await import("../web/i18n.js");
+	assert.ok(STRINGS.en.theme && STRINGS.pt.theme);
+	assert.ok(STRINGS.en.export && STRINGS.pt.export);
+	assert.ok(STRINGS.en.confirmShortcutHint && STRINGS.pt.confirmShortcutHint);
 });
 
 test("shortcut: macOS app, Linux .desktop and Windows script quote paths safely", async () => {

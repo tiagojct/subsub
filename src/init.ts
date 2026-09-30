@@ -85,11 +85,12 @@ export async function runInit(
 	env: NodeJS.ProcessEnv = process.env,
 	deps: { fetch?: typeof fetch; home?: string } = {},
 ): Promise<InitResult> {
-	const home = deps.home ?? homedir();
-	const configFile = configPath(env);
+	const home = deps.home ?? env.HOME ?? homedir();
+	const initEnv: NodeJS.ProcessEnv = { ...env, HOME: home };
+	const configFile = configPath(initEnv);
 	const existing = readConfigFile(configFile) as Record<string, any>;
-	const current = loadConfig(env);
-	const envFile = current.envFile ?? expand(env.ZOTERO_MCP_ENV ?? join(home, ".config", "zotero-local-mcp", "env"));
+	const current = loadConfig(initEnv);
+	const envFile = current.envFile ?? expand(initEnv.ZOTERO_MCP_ENV ?? join(home, ".config", "zotero-local-mcp", "env"), home);
 	const envValues = existsSync(envFile) ? parseEnvFile(envFile) : {};
 	const created: string[] = [];
 
@@ -109,6 +110,7 @@ export async function runInit(
 	const language = (await io.ask("Language for replies and notes (a language, or auto for the language you write in)", flags.language ?? existing.language ?? "English")).trim() || "English";
 	const notes = expand(
 		(await io.ask("Notes folder (Markdown files; an Obsidian vault works)", flags.notes ?? current.vault ?? envValues.ZOTERO_VAULT ?? join(home, "Documents", "Sub-Sub"))).trim(),
+		home,
 	);
 	const profileDefault = flags.profile ?? existing.profile ?? (fmup ? "reader" : "scholar");
 	const profile = await io.choose(
@@ -117,7 +119,7 @@ export async function runInit(
 		isProfile(profileDefault) ? profileDefault : "scholar",
 	);
 
-	const vocab = envValues.ZOTERO_VOCAB ? expand(envValues.ZOTERO_VOCAB) : join(notes, "Systems", "Zotero tags.md");
+	const vocab = envValues.ZOTERO_VOCAB ? expand(envValues.ZOTERO_VOCAB, home) : join(notes, "Systems", "Zotero tags.md");
 	let tags = "keep";
 	if (existsSync(vocab)) {
 		io.say(`Tag list: keeping ${vocab}.`);
@@ -136,7 +138,7 @@ export async function runInit(
 		{ value: "later", label: "Choose later in Sub-Sub (/login, then /model)" },
 		{ value: "opencode-go", label: `OpenCode Go, tested: ${TESTED_MODELS.librarian} for the librarian, ${TESTED_MODELS.researcher} for the researcher` },
 	];
-	const agentDir = env.SUBSUB_AGENT_DIR ? expand(env.SUBSUB_AGENT_DIR) : join(home, ".subsub", "agent");
+	const agentDir = initEnv.SUBSUB_AGENT_DIR ? expand(initEnv.SUBSUB_AGENT_DIR, home) : join(home, ".subsub", "agent");
 	const modelDefault = existing.models ? "keep" : hasProvider(agentDir, "opencode") ? "opencode-go" : "later";
 	const models = await io.choose("Models", modelOptions, flags.models ?? modelDefault);
 
@@ -172,7 +174,7 @@ export async function runInit(
 	};
 	if (models === "later") patch.models = {};
 	if (models === "opencode-go") patch.models = TESTED_MODELS;
-	saveConfig(patch, env);
+	saveConfig(patch, initEnv);
 
 	const zotero = await zoteroReachable(deps.fetch);
 	io.say("");

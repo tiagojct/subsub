@@ -55,7 +55,8 @@ The Zotero servers (zotero-local-mcp) run from PyPI through uv. To run them from
 - pi runs in RPC mode with the Sub-Sub extension. Sub-Sub's approval dialog (the server preview) appears in the page, and the change runs only after you select Yes.
 - The server listens only on 127.0.0.1. The address that opens the page carries a random key, which becomes an HttpOnly, SameSite=Strict cookie; other requests need that cookie, the right Host header and a same-origin JSON request. The page has a strict content security policy and shows model output without raw HTML.
 - One server per user: a second `subsub web` opens the running one. Without an open page for 10 minutes (and with nothing waiting for approval), the server stops. `--stay` keeps it running; `--idle N` sets the minutes; `--no-open` does not open a browser; `--librarian` starts in the librarian mode.
-- Labels are in European Portuguese when the language setting is Portuguese, otherwise in English.
+- Labels are in European Portuguese when the language setting is Portuguese, otherwise in English. A theme button in the header toggles light, dark, and system themes.
+- Fast approval shortcuts (`y` to apply, `n` to decline), one-click copy buttons on code blocks and notes, conversation search, and export to Markdown.
 - The model button lists the models you can use and saves an API key for a provider in the same file as `/login`. Sign-ins through a provider's website stay in the terminal (`/login`).
 - A log is kept in `~/.subsub/web.log`.
 

@@ -77,11 +77,49 @@ function md(text) {
 	}
 }
 
-// ---------------------------------------------------------------- header, side panel
+// ---------------------------------------------------------------- theme & language
+
+let currentTheme = localStorage.getItem("subsub-theme") || "auto";
+
+function themeLabel(theme) {
+	if (theme === "light") return t("themeLight");
+	if (theme === "dark") return t("themeDark");
+	return t("themeAuto");
+}
+
+function updateThemeUI() {
+	const icon = currentTheme === "light" ? "☀️" : currentTheme === "dark" ? "🌙" : "💻";
+	const label = `${icon} ${themeLabel(currentTheme)}`;
+	const btn = $("theme-btn");
+	if (btn) {
+		btn.textContent = label;
+		btn.title = t("themeToggle");
+	}
+	const sideBtn = $("theme-btn-side");
+	if (sideBtn) sideBtn.textContent = label;
+}
+
+function setTheme(theme) {
+	currentTheme = theme;
+	localStorage.setItem("subsub-theme", theme);
+	if (theme === "auto") {
+		delete document.documentElement.dataset.theme;
+	} else {
+		document.documentElement.dataset.theme = theme;
+	}
+	updateThemeUI();
+}
+
+function toggleTheme() {
+	if (currentTheme === "auto") setTheme("light");
+	else if (currentTheme === "light") setTheme("dark");
+	else setTheme("auto");
+}
 
 function applyLang() {
 	document.documentElement.lang = lang === "pt" ? "pt-PT" : "en";
 	for (const e of document.querySelectorAll("[data-i18n]")) e.textContent = t(e.dataset.i18n);
+	updateThemeUI();
 }
 
 function mode() {
@@ -95,24 +133,29 @@ function renderHeader() {
 	const m = state?.model ?? session?.model;
 	$("model-btn").textContent = $("model-btn-side").textContent = m ? m.id : t("noModel");
 	const lib = $("library");
+	const txt = lib.querySelector(".library-text") ?? lib;
 	const L = state?.library;
-	lib.classList.remove("down");
-	if (!L || L.zotero === "checking") lib.textContent = t("zoteroChecking");
-	else if (L.zotero === "down") {
-		lib.textContent = t("zoteroDown");
+	lib.classList.remove("down", "reachable", "checking");
+	if (!L || L.zotero === "checking") {
+		txt.textContent = t("zoteroChecking");
+		lib.classList.add("checking");
+	} else if (L.zotero === "down") {
+		txt.textContent = t("zoteroDown");
 		lib.classList.add("down");
 	} else {
 		const parts = [t("items", { n: L.items ?? "?" })];
 		if (L.toReview) parts.push(t("toReview", { n: L.toReview }));
-		lib.textContent = `Zotero: ${parts.join(", ")}`;
+		txt.textContent = `Zotero: ${parts.join(", ")}`;
+		lib.classList.add("reachable");
 	}
 	if (state?.down?.length) {
-		lib.textContent += ` | ${t("serversDown", { x: state.down.join(", ") })}`;
+		txt.textContent += ` | ${t("serversDown", { x: state.down.join(", ") })}`;
 		lib.classList.add("down");
 	}
 	$("input").placeholder = mode() === "librarian" ? t("placeholderLibrarian") : t("placeholderResearcher");
 	renderActions();
 	renderBanner();
+	updateThemeUI();
 }
 
 function hasCommand(name) {
@@ -156,21 +199,21 @@ function renderBanner() {
 	} else b.hidden = true;
 }
 
-async function loadSessions() {
-	let list = [];
-	try {
-		list = (await api("/api/sessions")).sessions ?? [];
-	} catch {
-		return;
-	}
+let loadedSessions = [];
+
+function renderSessionsList(filterText = "") {
 	const ul = $("sessions");
 	ul.replaceChildren();
-	if (!list.length) {
+	const q = filterText.trim().toLowerCase();
+	const filtered = q
+		? loadedSessions.filter((s) => (s.name || s.first || "").toLowerCase().includes(q))
+		: loadedSessions;
+	if (!filtered.length) {
 		ul.append(el("li", { class: "muted small", text: t("noConversations") }));
 		return;
 	}
 	const fmt = new Intl.DateTimeFormat(lang === "pt" ? "pt-PT" : "en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
-	for (const s of list) {
+	for (const s of filtered) {
 		const current = session?.sessionFile === s.path;
 		ul.append(
 			el(
@@ -192,11 +235,55 @@ async function loadSessions() {
 						},
 					},
 					el("span", { class: "what", text: s.name || s.first || "…" }),
-					el("span", { class: "when", text: fmt.format(new Date(s.modified)) }),
+					el(
+						"span",
+						{ class: "when" },
+						el("span", { text: fmt.format(new Date(s.modified)) }),
+						s.messages ? el("span", { class: "badge", text: `${s.messages}` }) : null,
+					),
 				),
 			),
 		);
 	}
+}
+
+async function loadSessions() {
+	try {
+		loadedSessions = (await api("/api/sessions")).sessions ?? [];
+	} catch {
+		return;
+	}
+	renderSessionsList($("session-search")?.value ?? "");
+}
+
+function exportConversation() {
+	const msgs = [];
+	const items = log.querySelectorAll(".msg");
+	if (!items.length) {
+		note(t("noConversations"), "warning");
+		return;
+	}
+	for (const m of items) {
+		if (m.classList.contains("user")) {
+			const text = m.querySelector(".bubble")?.innerText ?? "";
+			if (text && text !== "/subsub-refresh") msgs.push(`### User\n\n${text}\n`);
+		} else if (m.classList.contains("assistant")) {
+			const text = Array.from(m.querySelectorAll(".md")).map((d) => d.innerText).join("\n\n");
+			if (text) msgs.push(`### Sub-Sub (${mode()})\n\n${text}\n`);
+		}
+	}
+	if (!msgs.length) return;
+	const date = new Date().toISOString().slice(0, 10);
+	const content = `# Sub-Sub Research Session (${date})\n\n**Mode**: ${mode()}  \n**Profile**: ${state?.profile ?? "scholar"}  \n\n---\n\n${msgs.join("\n---\n\n")}`;
+	const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
+	const url = URL.createObjectURL(blob);
+	const a = document.createElement("a");
+	a.href = url;
+	a.download = `Sub-Sub-${mode()}-${date}.md`;
+	document.body.append(a);
+	a.click();
+	a.remove();
+	URL.revokeObjectURL(url);
 }
 
 function closeSide() {
@@ -261,6 +348,7 @@ function textOf(content) {
 const sentTemplates = [];
 
 function userMessage(text) {
+	if (String(text).trim() === "/subsub-refresh") return;
 	clearEmpty();
 	let bubble;
 	if (text.length > 700) {
@@ -332,6 +420,35 @@ function finishTool(id, result, isError) {
 	if (isError) row.querySelector(".label").textContent = `${toolLabel(row.dataset.name)} (${t("failed")})`;
 }
 
+function attachCopyButtons(root) {
+	for (const pre of root.querySelectorAll("pre")) {
+		if (pre.parentElement?.classList.contains("pre-wrap")) continue;
+		const wrap = el("div", { class: "pre-wrap" });
+		pre.parentNode.insertBefore(wrap, pre);
+		wrap.append(pre);
+		const btn = el("button", {
+			type: "button",
+			class: "copy-btn",
+			text: t("copy"),
+			onclick: async () => {
+				const code = pre.querySelector("code")?.innerText ?? pre.innerText;
+				try {
+					await navigator.clipboard.writeText(code);
+					btn.textContent = t("copied");
+					btn.classList.add("copied");
+					setTimeout(() => {
+						btn.textContent = t("copy");
+						btn.classList.remove("copied");
+					}, 2000);
+				} catch {
+					btn.textContent = t("error");
+				}
+			},
+		});
+		wrap.append(btn);
+	}
+}
+
 /** A container for one assistant message; blocks are keyed by content index. */
 function startAssistant() {
 	clearEmpty();
@@ -357,6 +474,7 @@ function paint(msg) {
 		msg.raf = 0;
 		for (const b of msg.blocks.values()) if (b.kind === "text" && b.dirty) {
 			b.node.innerHTML = md(b.text);
+			attachCopyButtons(b.node);
 			b.dirty = false;
 		}
 		scrollDown();
@@ -366,16 +484,45 @@ function paint(msg) {
 function renderAssistantFinal(message, msg = startAssistant()) {
 	msg.box.replaceChildren();
 	msg.blocks.clear();
+	let fullText = "";
 	for (const c of message.content ?? []) {
 		if (c.type === "text" && c.text?.trim()) {
+			fullText += (fullText ? "\n\n" : "") + c.text;
 			const node = el("div", { class: "md" });
 			node.innerHTML = md(c.text);
+			attachCopyButtons(node);
 			msg.box.append(node);
 		} else if (c.type === "toolCall") {
 			const row = toolRow(c.id, c.name, c.arguments);
 			updateTool(row, c.name, c.arguments);
 			msg.box.append(row);
 		}
+	}
+	if (fullText.trim()) {
+		const actions = el(
+			"div",
+			{ class: "msg-actions" },
+			el("button", {
+				type: "button",
+				class: "msg-action-btn",
+				text: t("copyNote"),
+				onclick: async (e) => {
+					const btn = e.currentTarget;
+					try {
+						await navigator.clipboard.writeText(fullText);
+						btn.textContent = t("copied");
+						btn.classList.add("copied");
+						setTimeout(() => {
+							btn.textContent = t("copyNote");
+							btn.classList.remove("copied");
+						}, 2000);
+					} catch {
+						btn.textContent = t("error");
+					}
+				},
+			}),
+		);
+		msg.box.append(actions);
 	}
 	if (message.stopReason === "error" && message.errorMessage) msg.box.append(el("div", { class: "note error", text: message.errorMessage }));
 	if (message.stopReason === "aborted") msg.box.append(el("div", { class: "note", text: t("stopped") }));
@@ -388,7 +535,11 @@ function renderHistory(messages) {
 	toolRows.clear();
 	currentMsg = null;
 	for (const m of messages ?? []) {
-		if (m.role === "user") userMessage(textOf(m.content));
+		if (m.role === "user") {
+			const txt = textOf(m.content).trim();
+			if (txt === "/subsub-refresh") continue;
+			userMessage(txt);
+		}
 		else if (m.role === "assistant") renderAssistantFinal(m);
 		else if (m.role === "toolResult") finishTool(m.toolCallId, m, m.isError);
 		else if (m.role === "custom" && m.display) note(textOf(m.content));
@@ -447,7 +598,10 @@ function onEvent(ev) {
 			refreshSession();
 			break;
 		case "message_start":
-			if (ev.message?.role === "user") userMessage(sentTemplates.shift() ?? textOf(ev.message.content));
+			if (ev.message?.role === "user") {
+				const txt = (sentTemplates.shift() ?? textOf(ev.message.content)).trim();
+				if (txt !== "/subsub-refresh") userMessage(txt);
+			}
 			else if (ev.message?.role === "assistant") startAssistant();
 			else if (ev.message?.role === "custom" && ev.message.display) note(textOf(ev.message.content));
 			if (working) log.append(working);
@@ -599,6 +753,7 @@ function nextDialog() {
 	};
 	if (d.method === "confirm") {
 		buttons.append(
+			el("span", { class: "modal-shortcut-hint", text: t("confirmShortcutHint") }),
 			el("button", { type: "button", class: "secondary", text: t("no"), onclick: () => answer({ confirmed: false }) }),
 			el("button", { type: "button", class: "primary", text: t("yes"), onclick: () => answer({ confirmed: true }) }),
 		);
@@ -614,6 +769,17 @@ function nextDialog() {
 			el("button", { type: "button", class: "primary", text: t("ok"), onclick: () => answer({ value: field.value }) }),
 		);
 	}
+	dlg.onkeydown = (e) => {
+		if (d.method === "confirm") {
+			if (e.key === "y" || e.key === "Y" || (e.key === "Enter" && (e.metaKey || e.ctrlKey))) {
+				e.preventDefault();
+				answer({ confirmed: true });
+			} else if (e.key === "n" || e.key === "N") {
+				e.preventDefault();
+				answer({ confirmed: false });
+			}
+		}
+	};
 	dlg.oncancel = (e) => {
 		e.preventDefault();
 		answer(d.method === "confirm" ? { confirmed: false } : { cancelled: true });
@@ -823,6 +989,13 @@ $("menu-btn").addEventListener("click", (e) => {
 	side.classList.toggle("open");
 	$("menu-btn").setAttribute("aria-expanded", String(side.classList.contains("open")));
 });
+$("theme-btn")?.addEventListener("click", toggleTheme);
+$("theme-btn-side")?.addEventListener("click", () => {
+	closeSide();
+	toggleTheme();
+});
+$("session-search")?.addEventListener("input", (e) => renderSessionsList(e.target.value));
+$("export-btn")?.addEventListener("click", exportConversation);
 $("quit-btn").addEventListener("click", async () => {
 	try {
 		await api("/api/quit", {});
@@ -855,5 +1028,6 @@ function connect() {
 	};
 }
 
+setTheme(currentTheme);
 applyLang();
 connect();

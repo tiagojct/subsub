@@ -20,7 +20,7 @@
 				<button type="button" data-mode="librarian" aria-pressed="false" data-i18n="librarian">Librarian</button>
 			</div>
 			<div class="status">
-				<span class="library" id="library"></span>
+				<span class="library" id="library"><span class="library-dot" aria-hidden="true"></span><span class="library-text"></span></span>
 				<label class="profile"><span class="visually-hidden" data-i18n="profile">Profile</span>
 					<select id="profile">
 						<option value="reader">Reader</option>
@@ -30,6 +30,7 @@
 					</select>
 				</label>
 				<button type="button" class="ghost model-btn" id="model-btn"></button>
+				<button type="button" class="ghost theme-btn" id="theme-btn" aria-label="Toggle theme" title="Toggle theme"></button>
 			</div>
 		</header>
 
@@ -47,13 +48,22 @@
 				<label><span data-i18n="model">Model</span>
 					<button type="button" class="secondary model-btn" id="model-btn-side"></button>
 				</label>
+				<label><span data-i18n="theme">Theme</span>
+					<button type="button" class="secondary theme-btn" id="theme-btn-side"></button>
+				</label>
 			</section>
 			<section>
 				<h2 data-i18n="actions">Actions</h2>
 				<div class="actions" id="actions"></div>
 			</section>
 			<section class="grow">
-				<h2 data-i18n="conversations">Conversations</h2>
+				<div class="side-subhead">
+					<h2 data-i18n="conversations">Conversations</h2>
+					<button type="button" class="ghost small" id="export-btn" title="Export conversation as Markdown" data-i18n="export">Export</button>
+				</div>
+				<div class="search-wrap">
+					<input type="search" id="session-search" placeholder="Search conversations..." autocomplete="off">
+				</div>
 				<ul class="sessions" id="sessions"></ul>
 			</section>
 			<footer class="side-foot">

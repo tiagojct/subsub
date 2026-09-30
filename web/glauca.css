@@ -45,7 +45,9 @@
 
 /* Pruina is the light default; Profundum is dark. */
 :root,
-[data-mode="light"] {
+[data-mode="light"],
+[data-theme="light"],
+html[data-theme="light"] {
   --gl-bg: #f0f4f6;
   --gl-surface: #f7fafb;
   --gl-surface-raised: #ffffff;
@@ -63,7 +65,9 @@
   --gl-on-tint: #f2f7fb;
 }
 
-[data-mode="dark"] {
+[data-mode="dark"],
+[data-theme="dark"],
+html[data-theme="dark"] {
   --gl-bg: #10161c;
   --gl-surface: #171f26;
   --gl-surface-raised: #1f2932;
@@ -79,4 +83,24 @@
   --gl-tint-bright: #4d7391;
   --gl-tint-pale: #93b7c9;
   --gl-on-tint: #0d1720;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --gl-bg: #10161c;
+    --gl-surface: #171f26;
+    --gl-surface-raised: #1f2932;
+    --gl-text: #e8eef2;
+    --gl-text-muted: #8c8c8c;
+    --gl-border: #2a3540;
+    --gl-accent: #3d97ff;
+    --gl-accent-bright: #6cb2ff;
+    --gl-accent-deep: #007aff;
+    --gl-on-accent: #0b1218;
+    --gl-tint-deep: #142430;
+    --gl-tint: #2b4356;
+    --gl-tint-bright: #4d7391;
+    --gl-tint-pale: #93b7c9;
+    --gl-on-tint: #0d1720;
+  }
 }
