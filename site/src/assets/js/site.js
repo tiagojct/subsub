@@ -1,182 +1,157 @@
-// Sub-Sub modern interactive scripts: theme toggle, installer tabs, terminal simulator, copy feedback
+// Sub-Sub: Vintage & Minimal interactive behaviors (theme, installation tabs, desk preview, copy)
 
 (function () {
   "use strict";
 
-  // --- Theme Controller ---
+  // --- Theme Toggle ---
   const THEME_KEY = "subsub-theme";
 
-  function getPreferredTheme() {
+  function getTheme() {
     const saved = localStorage.getItem(THEME_KEY);
     if (saved) return saved;
-    return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   }
 
   function applyTheme(theme) {
     document.documentElement.setAttribute("data-theme", theme);
     const btn = document.getElementById("theme-toggle");
     if (btn) {
-      btn.setAttribute("aria-label", `Current theme: ${theme}. Click to switch.`);
-      const iconLight = btn.querySelector(".theme-icon-light");
-      const iconDark = btn.querySelector(".theme-icon-dark");
-      if (iconLight && iconDark) {
-        if (theme === "light") {
-          iconLight.style.display = "none";
-          iconDark.style.display = "block";
-        } else {
-          iconLight.style.display = "block";
-          iconDark.style.display = "none";
-        }
-      }
+      btn.textContent = theme === "dark" ? "Light theme" : "Dark theme";
     }
   }
 
-  // Set initial theme immediately
-  const initialTheme = getPreferredTheme();
-  applyTheme(initialTheme);
+  // Initial theme
+  applyTheme(getTheme());
 
   window.addEventListener("DOMContentLoaded", () => {
-    // Theme toggle button
     const themeBtn = document.getElementById("theme-toggle");
     if (themeBtn) {
-      applyTheme(getPreferredTheme());
+      applyTheme(getTheme());
       themeBtn.addEventListener("click", () => {
-        const current = document.documentElement.getAttribute("data-theme") || "dark";
-        const next = current === "dark" ? "light" : "dark";
+        const cur = document.documentElement.getAttribute("data-theme") || "light";
+        const next = cur === "dark" ? "light" : "dark";
         localStorage.setItem(THEME_KEY, next);
         applyTheme(next);
       });
     }
 
-    // --- Interactive Installer Tabs ---
-    const installTabs = document.querySelectorAll(".install-tab");
-    const installCode = document.getElementById("install-code");
-    const installLabel = document.getElementById("install-requirements");
+    // --- Installer Platform Switcher ---
+    const installBtns = document.querySelectorAll(".install-os-btn");
+    const cmdEl = document.getElementById("install-code-text");
+    const noteEl = document.getElementById("install-note-text");
 
-    const installCommands = {
+    const commands = {
       unix: {
         cmd: "curl -fsSL https://subsub.tiagojacinto.eu/install.sh | sh",
         prefix: "$ ",
-        req: "Requires macOS or Linux. Installs uv and Node 22 automatically if missing.",
+        note: "Requires macOS or Linux. Installs uv and Node 22 automatically if missing.",
       },
       windows: {
         cmd: "powershell -ExecutionPolicy ByPass -c \"irm https://subsub.tiagojacinto.eu/install.ps1 | iex\"",
         prefix: "> ",
-        req: "Requires Windows 10/11 with PowerShell. Sets up desktop and Start menu shortcuts.",
+        note: "Requires Windows with PowerShell. Adds desktop and Start menu shortcuts.",
       },
       npm: {
         cmd: "npm install -g @tiagojct/subsub && subsub init",
         prefix: "$ ",
-        req: "Requires Node.js 22.19+ and Zotero 10+ with local API enabled.",
+        note: "Requires Node.js 22.19+ and Zotero 10+ with local API communication enabled.",
       },
       pi: {
         cmd: "pi install npm:@tiagojct/subsub",
         prefix: "$ ",
-        req: "Installs Sub-Sub as an extension into your existing pi assistant environment.",
+        note: "Installs Sub-Sub as an extension into your existing pi assistant environment.",
       },
     };
 
-    if (installTabs.length && installCode) {
-      installTabs.forEach((tab) => {
-        tab.addEventListener("click", () => {
-          const key = tab.dataset.os;
-          const conf = installCommands[key];
+    if (installBtns.length && cmdEl) {
+      installBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const os = btn.dataset.os;
+          const conf = commands[os];
           if (!conf) return;
 
-          installTabs.forEach((t) => {
-            t.classList.remove("active");
-            t.setAttribute("aria-selected", "false");
-          });
-          tab.classList.add("active");
-          tab.setAttribute("aria-selected", "true");
+          installBtns.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
 
-          installCode.innerHTML = `<span class="cmd-prefix">${conf.prefix}</span><span class="cmd-text">${conf.cmd}</span>`;
-          if (installLabel && conf.req) {
-            installLabel.textContent = conf.req;
-          }
+          cmdEl.innerHTML = `<span class="cmd-prefix">${conf.prefix}</span>${conf.cmd}`;
+          if (noteEl && conf.note) noteEl.textContent = conf.note;
         });
       });
     }
 
-    // --- Universal Copy Buttons ---
-    const isPt = document.documentElement.lang && document.documentElement.lang.startsWith("pt");
-    const copyText = isPt ? "Copiar" : "Copy";
-    const copiedText = isPt ? "✓ Copiado" : "✓ Copied";
+    // --- Desk Demonstration (Librarian vs Researcher) ---
+    const toggleLibrarian = document.getElementById("desk-tab-librarian");
+    const toggleResearcher = document.getElementById("desk-tab-researcher");
+    const viewLibrarian = document.getElementById("desk-view-librarian");
+    const viewResearcher = document.getElementById("desk-view-researcher");
 
-    document.querySelectorAll("pre.cmd, .code-snippet").forEach((pre) => {
-      // Don't add duplicate buttons
-      if (pre.querySelector(".copy-btn")) return;
-
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "copy-btn";
-      btn.setAttribute("aria-label", "Copy command to clipboard");
-      btn.innerHTML = `<span class="copy-label">${copyText}</span>`;
-
-      btn.addEventListener("click", async () => {
-        let textToCopy = "";
-        const codeEl = pre.querySelector(".cmd-text") || pre.querySelector("code") || pre;
-        textToCopy = codeEl.innerText.replace(/^\$\s+|^>\s+/, "").trim();
-
-        try {
-          await navigator.clipboard.writeText(textToCopy);
-          btn.classList.add("copied");
-          btn.innerHTML = `<span class="copy-label">${copiedText}</span>`;
-          setTimeout(() => {
-            btn.classList.remove("copied");
-            btn.innerHTML = `<span class="copy-label">${copyText}</span>`;
-          }, 2000);
-        } catch {
-          // fallback
-          const tempInput = document.createElement("textarea");
-          tempInput.value = textToCopy;
-          document.body.appendChild(tempInput);
-          tempInput.select();
-          document.execCommand("copy");
-          document.body.removeChild(tempInput);
-          btn.classList.add("copied");
-          btn.innerHTML = `<span class="copy-label">${copiedText}</span>`;
-          setTimeout(() => {
-            btn.classList.remove("copied");
-            btn.innerHTML = `<span class="copy-label">${copyText}</span>`;
-          }, 2000);
-        }
+    if (toggleLibrarian && toggleResearcher && viewLibrarian && viewResearcher) {
+      toggleLibrarian.addEventListener("click", () => {
+        toggleLibrarian.classList.add("active");
+        toggleResearcher.classList.remove("active");
+        viewLibrarian.style.display = "block";
+        viewResearcher.style.display = "none";
       });
 
-      pre.appendChild(btn);
-    });
-
-    // --- Interactive Terminal Showcase (Librarian vs Researcher) ---
-    const termLibrarianTab = document.getElementById("term-tab-librarian");
-    const termResearcherTab = document.getElementById("term-tab-researcher");
-    const termLibrarianView = document.getElementById("term-view-librarian");
-    const termResearcherView = document.getElementById("term-view-researcher");
-
-    if (termLibrarianTab && termResearcherTab && termLibrarianView && termResearcherView) {
-      termLibrarianTab.addEventListener("click", () => {
-        termLibrarianTab.classList.add("active");
-        termResearcherTab.classList.remove("active");
-        termLibrarianView.style.display = "block";
-        termResearcherView.style.display = "none";
+      toggleResearcher.addEventListener("click", () => {
+        toggleResearcher.classList.add("active");
+        toggleLibrarian.classList.remove("active");
+        viewLibrarian.style.display = "none";
+        viewResearcher.style.display = "block";
       });
 
-      termResearcherTab.addEventListener("click", () => {
-        termResearcherTab.classList.add("active");
-        termLibrarianTab.classList.remove("active");
-        termLibrarianView.style.display = "none";
-        termResearcherView.style.display = "block";
-      });
-
-      // Interactive Approve Button in Terminal Simulation
       const approveBtn = document.getElementById("demo-approve-btn");
       const approveResult = document.getElementById("demo-approve-result");
       if (approveBtn && approveResult) {
         approveBtn.addEventListener("click", (e) => {
           e.preventDefault();
           approveBtn.style.display = "none";
-          approveResult.style.display = "block";
+          approveResult.style.display = "inline";
         });
       }
     }
+
+    // --- Universal Copy Buttons ---
+    const isPt = document.documentElement.lang && document.documentElement.lang.startsWith("pt");
+    const copyLabel = isPt ? "Copiar" : "Copy";
+    const copiedLabel = isPt ? "Copiado" : "Copied";
+
+    document.querySelectorAll(".vintage-cmd-wrap, pre.cmd").forEach((wrap) => {
+      if (wrap.querySelector(".copy-btn")) return;
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "copy-btn";
+      btn.textContent = copyLabel;
+
+      btn.addEventListener("click", async () => {
+        const text = wrap.innerText.replace(/^\$\s+|^>\s+/, "").replace(/Copy$|Copied$/, "").trim();
+        try {
+          await navigator.clipboard.writeText(text);
+          btn.textContent = copiedLabel;
+          btn.classList.add("copied");
+          setTimeout(() => {
+            btn.textContent = copyLabel;
+            btn.classList.remove("copied");
+          }, 1800);
+        } catch {
+          // fallback
+          const t = document.createElement("textarea");
+          t.value = text;
+          document.body.appendChild(t);
+          t.select();
+          document.execCommand("copy");
+          document.body.removeChild(t);
+          btn.textContent = copiedLabel;
+          btn.classList.add("copied");
+          setTimeout(() => {
+            btn.textContent = copyLabel;
+            btn.classList.remove("copied");
+          }, 1800);
+        }
+      });
+
+      wrap.appendChild(btn);
+    });
   });
 })();
