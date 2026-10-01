@@ -1,23 +1,23 @@
-/* Generated from glauca.json. Edit the json, then `make generate`. */
+/* Sub-Sub Glauca tokens: Vintage & Minimal Bookmaking System */
 :root {
-  --gl-font-serif: "IBM Plex Serif", "IBM Plex Serif fallback", Georgia, serif;
-  --gl-font-sans: "IBM Plex Sans", "IBM Plex Sans fallback", system-ui, sans-serif;
-  --gl-font-mono: "IBM Plex Mono", "IBM Plex Mono fallback", ui-monospace, monospace;
-  --gl-font-reading: "IBM Plex Sans", "IBM Plex Sans fallback", system-ui, sans-serif;
-  --gl-text-xs: 0.64rem;
-  --gl-text-sm: 0.8rem;
-  --gl-text-base: 1rem;
+  --gl-font-serif: "EB Garamond", "Newsreader", "IBM Plex Serif", Georgia, serif;
+  --gl-font-sans: "EB Garamond", "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --gl-font-mono: "JetBrains Mono", "Courier Prime", "IBM Plex Mono", ui-monospace, monospace;
+  --gl-font-reading: "EB Garamond", Garamond, Georgia, serif;
+  --gl-text-xs: 0.72rem;
+  --gl-text-sm: 0.88rem;
+  --gl-text-base: 1.05rem;
   --gl-text-lg: 1.25rem;
-  --gl-text-xl: 1.563rem;
-  --gl-text-2xl: 1.953rem;
-  --gl-text-3xl: 2.441rem;
-  --gl-text-4xl: 3.052rem;
-  --gl-text-display: clamp(2.5rem, 6vw, 4rem);
-  --gl-text-poster: clamp(3rem, 10vw, 6.5rem);
-  --gl-leading-tight: 1.08;
-  --gl-leading-snug: 1.3;
-  --gl-leading-normal: 1.55;
-  --gl-leading-relaxed: 1.7;
+  --gl-text-xl: 1.55rem;
+  --gl-text-2xl: 1.95rem;
+  --gl-text-3xl: 2.45rem;
+  --gl-text-4xl: 3.05rem;
+  --gl-text-display: clamp(2.4rem, 5vw, 3.6rem);
+  --gl-text-poster: clamp(3rem, 8vw, 5.5rem);
+  --gl-leading-tight: 1.15;
+  --gl-leading-snug: 1.35;
+  --gl-leading-normal: 1.65;
+  --gl-leading-relaxed: 1.8;
   --gl-weight-regular: 400;
   --gl-weight-medium: 500;
   --gl-weight-semibold: 600;
@@ -43,64 +43,45 @@
   --gl-border-width: 1px;
 }
 
-/* Pruina is the light default; Profundum is dark. */
+/* Light Default: Warm Archival Paper & Printer's Inks */
 :root,
 [data-mode="light"],
 [data-theme="light"],
 html[data-theme="light"] {
-  --gl-bg: #f0f4f6;
-  --gl-surface: #f7fafb;
+  --gl-bg: #f8f6f0;
+  --gl-surface: #f2ede2;
   --gl-surface-raised: #ffffff;
-  --gl-text: #16222a;
-  --gl-text-muted: #55646d;
-  --gl-border: #cdd7dc;
-  --gl-accent: #0b62cf;
-  --gl-accent-bright: #007aff;
-  --gl-accent-deep: #084b96;
-  --gl-on-accent: #f2f7fb;
-  --gl-tint-deep: #16303f;
-  --gl-tint: #35576b;
-  --gl-tint-bright: #3e6d84;
-  --gl-tint-pale: #b7cdd6;
-  --gl-on-tint: #f2f7fb;
+  --gl-text: #211e1b;
+  --gl-text-muted: #5c554a;
+  --gl-border: #dfd7c6;
+  --gl-accent: #234b6e;
+  --gl-accent-bright: #2f648e;
+  --gl-accent-deep: #15344e;
+  --gl-on-accent: #f8f6f0;
+  --gl-tint-deep: #182a36;
+  --gl-tint: #2c4659;
+  --gl-tint-bright: #486980;
+  --gl-tint-pale: #c4d3dc;
+  --gl-on-tint: #f8f6f0;
 }
 
-[data-mode="dark"],
+/* Dark Mode: Antique Study by Candlelight */
 [data-theme="dark"],
-html[data-theme="dark"] {
-  --gl-bg: #10161c;
-  --gl-surface: #171f26;
-  --gl-surface-raised: #1f2932;
-  --gl-text: #e8eef2;
-  --gl-text-muted: #8c8c8c;
-  --gl-border: #2a3540;
-  --gl-accent: #3d97ff;
-  --gl-accent-bright: #6cb2ff;
-  --gl-accent-deep: #007aff;
-  --gl-on-accent: #0b1218;
-  --gl-tint-deep: #142430;
-  --gl-tint: #2b4356;
-  --gl-tint-bright: #4d7391;
-  --gl-tint-pale: #93b7c9;
-  --gl-on-tint: #0d1720;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --gl-bg: #10161c;
-    --gl-surface: #171f26;
-    --gl-surface-raised: #1f2932;
-    --gl-text: #e8eef2;
-    --gl-text-muted: #8c8c8c;
-    --gl-border: #2a3540;
-    --gl-accent: #3d97ff;
-    --gl-accent-bright: #6cb2ff;
-    --gl-accent-deep: #007aff;
-    --gl-on-accent: #0b1218;
-    --gl-tint-deep: #142430;
-    --gl-tint: #2b4356;
-    --gl-tint-bright: #4d7391;
-    --gl-tint-pale: #93b7c9;
-    --gl-on-tint: #0d1720;
-  }
+html[data-theme="dark"],
+[data-mode="dark"] {
+  --gl-bg: #141210;
+  --gl-surface: #1c1916;
+  --gl-surface-raised: #24201c;
+  --gl-text: #eae4d5;
+  --gl-text-muted: #9e9585;
+  --gl-border: #2e2924;
+  --gl-accent: #6ea3cc;
+  --gl-accent-bright: #8bb9dc;
+  --gl-accent-deep: #4a7e9f;
+  --gl-on-accent: #141210;
+  --gl-tint-deep: #0f181f;
+  --gl-tint: #243642;
+  --gl-tint-bright: #3d596b;
+  --gl-tint-pale: #7a9cb3;
+  --gl-on-tint: #eae4d5;
 }
