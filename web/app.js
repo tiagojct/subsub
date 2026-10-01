@@ -67,6 +67,24 @@ marked.use({
 		image(token) {
 			return escapeHtml(token.text || token.href || "");
 		},
+		table(token) {
+			let headerHtml = "";
+			for (let r = 0; r < token.header.length; r++) {
+				headerHtml += this.tablecell(token.header[r]);
+			}
+			let t = this.tablerow({ text: headerHtml });
+			let s = "";
+			for (let r = 0; r < token.rows.length; r++) {
+				let row = token.rows[r];
+				let n = "";
+				for (let o = 0; o < row.length; o++) {
+					n += this.tablecell(row[o]);
+				}
+				s += this.tablerow({ text: n });
+			}
+			if (s) s = `<tbody>${s}</tbody>`;
+			return `<div class="md-table-wrap"><table><thead>${t}</thead>${s}</table></div>`;
+		},
 	},
 });
 function md(text) {
@@ -77,9 +95,25 @@ function md(text) {
 	}
 }
 
-// ---------------------------------------------------------------- theme & language
+// ---------------------------------------------------------------- theme, layout & language
 
 let currentTheme = localStorage.getItem("subsub-theme") || "auto";
+let currentLayout = localStorage.getItem("subsub-layout") || "standard";
+
+function updateLayoutUI() {
+	const isWide = currentLayout === "wide";
+	document.body.classList.toggle("layout-full", isWide);
+	const textEl = $("width-btn-text");
+	if (textEl) textEl.textContent = isWide ? t("layoutFocus") : t("layoutWide");
+	const btn = $("width-btn");
+	if (btn) btn.title = t("toggleWidth");
+}
+
+function toggleLayout() {
+	currentLayout = currentLayout === "wide" ? "standard" : "wide";
+	localStorage.setItem("subsub-layout", currentLayout);
+	updateLayoutUI();
+}
 
 function themeLabel(theme) {
 	if (theme === "light") return t("themeLight");
@@ -985,10 +1019,19 @@ $("main").addEventListener("click", () => {
 });
 $("menu-btn").addEventListener("click", (e) => {
 	e.stopPropagation();
-	const side = $("side");
-	side.classList.toggle("open");
-	$("menu-btn").setAttribute("aria-expanded", String(side.classList.contains("open")));
+	if (window.innerWidth > 832) {
+		const app = document.querySelector(".app");
+		app.classList.toggle("side-collapsed");
+		const collapsed = app.classList.contains("side-collapsed");
+		$("menu-btn").setAttribute("aria-expanded", String(!collapsed));
+		localStorage.setItem("subsub-side-collapsed", String(collapsed));
+	} else {
+		const side = $("side");
+		side.classList.toggle("open");
+		$("menu-btn").setAttribute("aria-expanded", String(side.classList.contains("open")));
+	}
 });
+$("width-btn")?.addEventListener("click", toggleLayout);
 $("theme-btn")?.addEventListener("click", toggleTheme);
 $("theme-btn-side")?.addEventListener("click", () => {
 	closeSide();
@@ -1029,5 +1072,10 @@ function connect() {
 }
 
 setTheme(currentTheme);
+updateLayoutUI();
+if (localStorage.getItem("subsub-side-collapsed") === "true" && window.innerWidth > 832) {
+	document.querySelector(".app")?.classList.add("side-collapsed");
+	$("menu-btn")?.setAttribute("aria-expanded", "false");
+}
 applyLang();
 connect();

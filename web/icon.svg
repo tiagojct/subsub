@@ -1,5 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="4" fill="#f8f6f0"/>
-  <rect width="28" height="28" x="2" y="2" rx="3" fill="none" stroke="#211e1b" stroke-width="1.2"/>
-  <text x="16" y="22" text-anchor="middle" font-family="Newsreader, Garamond, Georgia, serif" font-size="15" font-weight="700" font-style="italic" fill="#211e1b">SS</text>
+  <rect width="32" height="32" rx="5" fill="#f8f6f0"/>
+  <rect width="28" height="28" x="2" y="2" rx="4" fill="none" stroke="#211e1b" stroke-width="1.2"/>
+  <!-- Open Folio Book -->
+  <path d="M7 21.5V9A2 2 0 0 1 9 7h7v15H9a2 2 0 0 0-2 2v-2.5Z" fill="none" stroke="#211e1b" stroke-width="1.6" stroke-linejoin="round"/>
+  <path d="M25 21.5V9A2 2 0 0 0 23 7h-7v15h7a2 2 0 0 1 2 2v-2.5Z" fill="none" stroke="#211e1b" stroke-width="1.6" stroke-linejoin="round"/>
+  <line x1="16" y1="7" x2="16" y2="22" stroke="#211e1b" stroke-width="1.5"/>
+  <line x1="10" y1="11" x2="13" y2="11" stroke="#211e1b" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="10" y1="14" x2="13" y2="14" stroke="#211e1b" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="19" y1="11" x2="22" y2="11" stroke="#211e1b" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="19" y1="14" x2="22" y2="14" stroke="#211e1b" stroke-width="1.2" stroke-linecap="round"/>
 </svg>

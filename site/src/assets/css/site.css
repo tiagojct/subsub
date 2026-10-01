@@ -320,7 +320,7 @@ a:hover {
   border: 1px solid var(--border);
   padding: 0.65rem 4.5rem 0.65rem 0.85rem;
   font-family: var(--font-mono);
-  font-size: 0.85rem;
+  font-size: 0.80rem;
   line-height: 1.4;
   color: var(--text);
   overflow-x: auto;
@@ -362,56 +362,79 @@ a:hover {
   margin: 0.75rem 0 0;
 }
 
-/* --- 1851 Plate --- */
-.plate-1851 {
-  margin: 3rem 0;
-  text-align: center;
-}
-
-.plate-1851-frame {
-  display: inline-block;
-  padding: 0.5rem;
+/* --- 1851 Letterpress Frontispiece Broadside --- */
+.letterpress-plate {
+  margin: 3.5rem auto 3rem;
+  max-width: 44rem;
   background: var(--bg-paper);
-  border: 1px solid var(--border);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-rule);
+  padding: 0.75rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
 }
 
-.plate-1851-frame img {
-  display: block;
-  max-width: 100%;
-  height: auto;
+.letterpress-inner {
   border: 1px solid var(--border);
-}
-
-.plate-1851-caption {
-  margin-top: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  padding: 2.25rem 2rem;
   text-align: center;
 }
 
-.plate-1851-title {
-  font-family: var(--font-serif);
-  font-size: 0.95rem;
-  letter-spacing: 0.15em;
+.plate-masthead {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
   font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
   color: var(--text);
+  margin-bottom: 0.35rem;
 }
 
-.plate-1851-sub {
-  font-size: 0.9rem;
+.plate-subhead {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
   font-style: italic;
   color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+.plate-divider {
+  font-size: 1.25rem;
+  color: var(--text-dim);
+  margin: 1.1rem auto;
+  line-height: 1;
+}
+
+.plate-text {
+  font-family: var(--font-display);
+  font-size: 1.12rem;
+  line-height: 1.8;
+  color: var(--text);
   max-width: 34rem;
+  margin: 0 auto 1.5rem;
+  font-style: italic;
+}
+
+.plate-colophon {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+  max-width: 26rem;
   margin: 0 auto;
 }
 
-.plate-1851-pub {
+.plate-source {
+  font-family: var(--font-serif);
+  font-size: 0.92rem;
+  color: var(--text-muted);
+}
+
+.plate-date {
+  font-family: var(--font-serif);
   font-size: 0.75rem;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.15em;
   color: var(--text-dim);
-  margin-top: 0.2rem;
+  text-transform: uppercase;
 }
 
 /* --- The Desk / TUI Showcase --- */
@@ -718,25 +741,19 @@ a:hover {
   margin-top: 0.5rem;
 }
 
-/* --- Melville Bookplate Vignette --- */
+/* --- Melville Typographic Vignette --- */
 .melville-vignette {
   text-align: center;
-  margin: 4rem auto 2.5rem;
+  margin: 4.5rem auto 3rem;
   max-width: 36rem;
+  padding: 0 1rem;
 }
 
-.vignette-image {
-  max-width: 16rem;
-  margin: 0 auto 1.25rem;
-  border: 1px solid var(--border);
-  padding: 0.35rem;
-  background: var(--bg-paper);
-}
-
-.vignette-image img {
-  display: block;
-  width: 100%;
-  height: auto;
+.vignette-fleuron {
+  font-size: 1.6rem;
+  color: var(--text-dim);
+  margin-bottom: 1.25rem;
+  line-height: 1;
 }
 
 .vignette-quote {
@@ -848,10 +865,12 @@ a:hover {
 
 .prose code {
   font-family: var(--font-mono);
-  font-size: 0.88em;
+  font-size: 0.79em;
+  letter-spacing: -0.01em;
   background: var(--bg-subtle);
   border: 1px solid var(--border);
-  padding: 0.1em 0.3em;
+  padding: 0.12em 0.38em;
+  vertical-align: 0.04em;
 }
 
 .prose pre {
@@ -860,7 +879,7 @@ a:hover {
   padding: 0.85rem 1rem;
   overflow-x: auto;
   font-family: var(--font-mono);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   line-height: 1.5;
   margin: 1.25rem 0;
 }
