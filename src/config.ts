@@ -31,7 +31,7 @@ export const PROFILES: Profile[] = ["reader", "scholar", "author", "editor"];
 export const SERVER_VERSION = "0.4.1";
 
 /** The Starbuck release (PyPI) that this Sub-Sub version runs when there is no local Starbuck folder. */
-export const STARBUCK_VERSION = "0.1.0";
+export const STARBUCK_VERSION = "0.2.0";
 export const STARBUCK_SOURCE = `starbuck==${STARBUCK_VERSION}`;
 
 export interface SubsubConfig {
