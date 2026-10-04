@@ -202,7 +202,9 @@ function hasCommand(name) {
 function renderActions() {
 	const box = $("actions");
 	box.replaceChildren();
-	const list = [...ACTIONS[mode()]].filter((a) => hasCommand(a.cmd) && (!a.needs || state?.[a.needs]));
+	const list = [...ACTIONS[mode()]].filter(
+		(a) => hasCommand(a.cmd) && (!a.needs || state?.[a.needs]) && (!a.profiles || a.profiles.includes(state?.profile ?? "scholar")),
+	);
 	for (const a of list) box.append(actionButton(a));
 	box.append(el("hr"));
 	for (const a of ACTIONS.both.filter((x) => hasCommand(x.cmd))) box.append(actionButton(a));

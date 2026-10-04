@@ -35,7 +35,7 @@ import {
 	type SubsubConfig,
 	who,
 } from "./config.ts";
-import { profileList, profileSpec } from "./profiles.ts";
+import { profileList, profileSpec, promptBlocked } from "./profiles.ts";
 import { coerceArgs, loosenArrays } from "./args.ts";
 import { buildPolicy, judgePath, normalizeToolPath, realish, within } from "./paths.ts";
 import { describeArgs, formatPreview } from "./preview.ts";
@@ -296,6 +296,15 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	});
 
 	pi.on("model_select", async (_event, ctx) => status(ctx));
+
+	// Prompt commands that the profile does not run (/lit for Reader, /review for Reader and Scholar).
+	// The input event comes before pi expands a prompt template.
+	pi.on("input", async (event, ctx) => {
+		const why = promptBlocked(event.text, profile);
+		if (!why) return { action: "continue" };
+		ctx.ui.notify(`Sub-Sub: ${why}`, "warning");
+		return { action: "handled" };
+	});
 
 	pi.on("before_agent_start", async (event, ctx) => ({
 		systemPrompt: `${event.systemPrompt}\n\n${systemAddition(mode, { ...cfg, profile }, ctx.cwd)}`,

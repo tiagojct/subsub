@@ -7,7 +7,7 @@ import { test } from "node:test";
 import type { Bridge, BridgeTool, CallResult } from "../src/bridge.ts";
 import { agentDirFor, chooseCwd, ensureSettings, isSelfUpdate, reviewCommand, shareAuth } from "../src/cli.ts";
 import { findUv, loadConfig as loadCfg, SERVER_VERSION } from "../src/config.ts";
-import { profileSpec } from "../src/profiles.ts";
+import { profileSpec, promptBlocked } from "../src/profiles.ts";
 import { fill, languageRule } from "../src/prompt.ts";
 import { unavailableReason } from "../src/roles.ts";
 import { runInit, upsertEnv } from "../src/init.ts";
@@ -768,4 +768,32 @@ test("web: Open judges the real file, not a link inside the notes folder", async
 	symlinkSync(join(dir, "secret.md"), join(vault, "link.md"));
 	assert.ok(within(join(vault, "link.md"), vault), "the plain check is fooled by the link");
 	assert.ok(!within(realish(join(vault, "link.md")), realish(vault)), "the real path is outside");
+});
+
+test("profiles: prompt commands per profile, blocked before the template is expanded", async () => {
+	assert.match(promptBlocked("/lit FeNO in children", "reader")!, /\/lit is not part of the Reader profile \(it is in: Scholar, Author, Editor\)/);
+	assert.equal(promptBlocked("/lit FeNO", "scholar"), undefined);
+	assert.match(promptBlocked("/review draft.qmd", "scholar")!, /it is in: Author, Editor/);
+	assert.equal(promptBlocked("/review draft.qmd", "author"), undefined);
+	assert.equal(promptBlocked("/verify draft.qmd", "reader"), undefined);
+	assert.equal(promptBlocked("/compare", "reader")?.startsWith("/compare"), true);
+	assert.equal(promptBlocked("/literature", "reader"), undefined);
+	assert.equal(promptBlocked("please run /lit on FeNO", "reader"), undefined);
+	const dir = mkdtempSync(join(tmpdir(), "subsub-cfg-"));
+	const file = join(dir, "config.json");
+	writeFileSync(file, "{}");
+	const old = process.env.SUBSUB_CONFIG;
+	process.env.SUBSUB_CONFIG = file;
+	try {
+		const { fp, ctx, notes } = await setup();
+		const input = (text: string) => fp.handlers.input[0]({ type: "input", text, source: "interactive" }, ctx);
+		assert.deepEqual(await input("/lit FeNO"), { action: "continue" });
+		await fp.commands.profile.handler("reader", ctx);
+		assert.deepEqual(await input("/lit FeNO"), { action: "handled" });
+		assert.match(notes.at(-1)!, /Sub-Sub: \/lit is not part of the Reader profile/);
+		assert.deepEqual(await input("/verify paper.qmd"), { action: "continue" });
+	} finally {
+		if (old === undefined) delete process.env.SUBSUB_CONFIG;
+		else process.env.SUBSUB_CONFIG = old;
+	}
 });

@@ -144,6 +144,9 @@ Type the command followed by arguments:
   * `/clean-tags`: Find irregular tags and reconcile with your vocabulary.
   * `/import-queue [path]`: Import pending references from an inbox note.
 * **Researcher**:
+  * `/lit <question>`: Literature review: the library first, then PubMed, Europe PMC and OpenAlex in one merged search; reads before it summarises; an evidence table, agreement, disagreement and open questions; references checked; one note in `Research/` (Scholar, Author, Editor).
+  * `/compare <question or citekeys>`: Source matrix (claim, evidence type, caveats, confidence), agreements and disagreements (Scholar, Author, Editor).
+  * `/review <path>`: Critical review of your own manuscript: FATAL, MAJOR and MINOR issues against the reporting guideline that applies (CONSORT, STROBE, PRISMA, STARD, TRIPOD), with quotations and a revision plan. Comments only (Author, Editor).
   * `/lit-note <citekey>`: Generate an in-depth literature note from item fulltext.
   * `/synthesis <topic>`: Synthesize library findings on a specific topic.
   * `/gaps <topic>`: Identify unanswered questions and literature gaps.
@@ -231,4 +234,4 @@ ZLM_DIR=/path/to/zotero-local-mcp npm run test:e2e
 
 ## License
 
-[MIT](LICENSE) © Tiago Jacinto
+[MIT](LICENSE) © Tiago Jacinto. The `/lit`, `/compare` and `/review` prompts adapt text from [Feynman](https://github.com/Companion-Inc/feynman) (MIT); see [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES).

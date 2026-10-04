@@ -19,6 +19,8 @@ export interface ProfileSpec {
 	summary: string;
 	/** Tools this profile does not offer (full names). */
 	without: string[];
+	/** Prompt commands this profile does not run (names without the slash). */
+	withoutPrompts: string[];
 	/** Items per review note and per batch. */
 	batch: number;
 	/** Added to the system prompt. {{user}} is the user's name or "the user". */
@@ -36,6 +38,7 @@ export const PROFILE_SPECS: Record<Profile, ProfileSpec> = {
 		label: "Reader",
 		summary: "explains each step; reading notes are quotes and questions; no summaries; no bulk library changes",
 		without: [...BULK_LIBRARY, ...MANUSCRIPT],
+		withoutPrompts: ["lit", "compare", "review"],
 		batch: 10,
 		rules: [
 			"Profile: Reader. {{User}} is learning to work with the literature and wants to do the reading and the writing.",
@@ -51,6 +54,7 @@ export const PROFILE_SPECS: Record<Profile, ProfileSpec> = {
 		label: "Scholar",
 		summary: "literature notes, syntheses, searches and alerts; the full librarian",
 		without: MANUSCRIPT,
+		withoutPrompts: ["review"],
 		batch: 25,
 		rules: [
 			"Profile: Scholar.",
@@ -64,6 +68,7 @@ export const PROFILE_SPECS: Record<Profile, ProfileSpec> = {
 		label: "Author",
 		summary: "Scholar plus manuscripts: citation check, bibliography, comments on the argument",
 		without: [],
+		withoutPrompts: [],
 		batch: 25,
 		rules: [
 			"Profile: Author.",
@@ -78,6 +83,7 @@ export const PROFILE_SPECS: Record<Profile, ProfileSpec> = {
 		label: "Editor",
 		summary: "everything, including drafting manuscript text on request",
 		without: [],
+		withoutPrompts: [],
 		batch: 25,
 		rules: [
 			"Profile: Editor. All tools.",
@@ -90,6 +96,17 @@ export const PROFILE_SPECS: Record<Profile, ProfileSpec> = {
 
 export function profileSpec(p: Profile): ProfileSpec {
 	return PROFILE_SPECS[p];
+}
+
+/** Why a prompt command does not run in this profile, or undefined when it does. */
+export function promptBlocked(text: string, profile: Profile): string | undefined {
+	const m = /^\/([\w-]+)(?:\s|$)/.exec(text.trim());
+	if (!m || !PROFILE_SPECS[profile].withoutPrompts.includes(m[1])) return undefined;
+	const allowed = Object.values(PROFILE_SPECS)
+		.filter((s) => !s.withoutPrompts.includes(m[1]))
+		.map((s) => s.label)
+		.join(", ");
+	return `/${m[1]} is not part of the ${PROFILE_SPECS[profile].label} profile (it is in: ${allowed}). Change the profile with /profile.`;
 }
 
 export function profileList(current?: Profile): string {

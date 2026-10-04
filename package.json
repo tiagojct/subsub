@@ -57,7 +57,8 @@
     "src",
     "templates",
     "themes",
-    "web"
+    "web",
+    "THIRD_PARTY_NOTICES"
   ],
   "devDependencies": {
     "@earendil-works/pi-coding-agent": "1.0.2",

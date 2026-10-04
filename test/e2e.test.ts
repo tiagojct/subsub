@@ -321,6 +321,9 @@ test("the subsub command: own agent folder, package, prompts, vault as start fol
 		requests.length = 0;
 		await pi.prompt("/verify Drafts/paper.md");
 		assert.match(JSON.stringify(requests[0].messages.at(-1)), /Check the references of Drafts\/paper.md with Starbuck/);
+		requests.length = 0;
+		await pi.prompt("/lit FeNO in children");
+		assert.match(JSON.stringify(requests[0].messages.at(-1)), /Do a literature review on: FeNO in children/);
 	} finally {
 		pi.kill();
 	}
