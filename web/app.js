@@ -230,7 +230,7 @@ function renderBanner() {
 	b.replaceChildren();
 	const m = state?.model ?? session?.model;
 	if (!m && session) {
-		b.append(el("span", { text: t("connectModel") }), el("button", { type: "button", class: "primary small", text: t("connect"), onclick: openModels }));
+		b.append(el("span", { text: t("connectModel") }), el("button", { type: "button", class: "primary small", text: t("connect"), onclick: showModels }));
 		b.hidden = false;
 	} else b.hidden = true;
 }
@@ -826,6 +826,11 @@ function nextDialog() {
 
 // ---------------------------------------------------------------- models and keys
 
+/** Open the model dialog; a failure becomes a note, not an unhandled rejection. */
+function showModels() {
+	openModels().catch((err) => note(err.message, "warning"));
+}
+
 async function openModels() {
 	const dlg = $("model-dialog");
 	const ul = $("models");
@@ -1023,10 +1028,10 @@ $("starbuck-toggle").addEventListener("change", async (e) => {
 	}
 });
 $("profile-side").addEventListener("change", (e) => sendMessage(`/profile ${e.target.value}`));
-$("model-btn").addEventListener("click", openModels);
+$("model-btn").addEventListener("click", showModels);
 $("model-btn-side").addEventListener("click", () => {
 	closeSide();
-	openModels();
+	showModels();
 });
 $("model-close").addEventListener("click", () => $("model-dialog").close());
 $("main").addEventListener("click", () => {

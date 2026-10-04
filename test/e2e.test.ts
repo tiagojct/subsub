@@ -7,7 +7,7 @@
 
 import assert from "node:assert/strict";
 import { spawn, type ChildProcess } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, symlinkSync, writeFileSync } from "node:fs";
 import { createServer, request as httpRequest, type Server } from "node:http";
 import { homedir, tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -536,6 +536,10 @@ test("the web view: the page answers Sub-Sub's approval; other sites and hosts a
 		writeFileSync(join(vault, "run-me.command"), "#!/bin/sh\necho hi\n");
 		assert.equal((await call(port, "POST", "/api/open", { headers: ok, body: { path: "run-me.command" } })).status, 403);
 		assert.equal((await call(port, "POST", "/api/open", { headers: ok, body: { path: join(home, "..", "subsub.json") } })).status, 404);
+		// A link inside the notes folder to a document outside it is refused too.
+		writeFileSync(join(work, "outside.md"), "not in the notes folder");
+		symlinkSync(join(work, "outside.md"), join(vault, "link-out.md"));
+		assert.equal((await call(port, "POST", "/api/open", { headers: ok, body: { path: "link-out.md" } })).status, 404);
 
 		stream = new Stream(port, cookie);
 		const hello = await stream.wait((e) => e.type === "hello");

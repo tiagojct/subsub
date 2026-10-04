@@ -740,3 +740,32 @@ test("doctor: the Starbuck check", () => {
 	assert.equal(bad.ok, false);
 	assert.match(bad.fix!, /internet connection.*subsub init/);
 });
+
+test("every tool a mode offers is either a server tool, a read-only file tool, or gated", () => {
+	// gateKind knows write and edit by name; any other file-writing tool would pass without a question.
+	const all = [
+		...TOOL_NAMES, "verify_prepare_claims", "zotero_find_items", "read", "edit", "write", "grep", "find", "ls",
+		"bash", "codemode", "tool_search", "mcp_any_tool",
+	];
+	const readOnly = new Set(["read", "grep", "find", "ls"]);
+	for (const mode of ["librarian", "researcher"] as const) {
+		for (const p of ["reader", "scholar", "author", "editor"] as const) {
+			for (const name of toolsFor(mode, all, p)) {
+				const known = ["zotero_", "scholar_", "verify_"].some((x) => name.startsWith(x)) || readOnly.has(name)
+					|| gateKind(name, {}) === "path";
+				assert.ok(known, `${mode}/${p} offers ${name}, which the gate does not judge`);
+			}
+		}
+	}
+});
+
+test("web: Open judges the real file, not a link inside the notes folder", async () => {
+	const { realish, within } = await import("../src/paths.ts");
+	const dir = realpathSync(mkdtempSync(join(tmpdir(), "subsub-open-")));
+	const vault = join(dir, "vault");
+	mkdirSync(vault);
+	writeFileSync(join(dir, "secret.md"), "outside");
+	symlinkSync(join(dir, "secret.md"), join(vault, "link.md"));
+	assert.ok(within(join(vault, "link.md"), vault), "the plain check is fooled by the link");
+	assert.ok(!within(realish(join(vault, "link.md")), realish(vault)), "the real path is outside");
+});
