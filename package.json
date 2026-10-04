@@ -1,6 +1,6 @@
 {
   "name": "@tiagojct/subsub",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "description": "Sub-Sub: a Zotero librarian and research assistant in the browser or the terminal, built on pi",
   "type": "module",
   "license": "MIT",
@@ -26,8 +26,10 @@
     ]
   },
   "dependencies": {
-    "@earendil-works/pi-coding-agent": "0.87.1",
     "@modelcontextprotocol/sdk": "^1.30.1"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "^1.0.2"
   },
   "engines": {
     "node": ">=22.19.0"
@@ -58,6 +60,7 @@
     "web"
   ],
   "devDependencies": {
+    "@earendil-works/pi-coding-agent": "1.0.2",
     "@types/node": "^24.19.0",
     "typescript": "^5.9.3"
   },
