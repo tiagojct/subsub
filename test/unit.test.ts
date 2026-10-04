@@ -16,7 +16,9 @@ import { expand, loadConfig, parseEnvFile, type SubsubConfig } from "../src/conf
 import { formatPreview } from "../src/preview.ts";
 import { systemAddition } from "../src/prompt.ts";
 import { gateKind, toolsFor } from "../src/roles.ts";
-import { createSubsub } from "../src/subsub.ts";
+import { createSubsub, serverSpecs, starbuckEnv } from "../src/subsub.ts";
+import { STARBUCK_SOURCE } from "../src/config.ts";
+import { starbuckCheck } from "../src/doctor.ts";
 
 // ---------------------------------------------------------------- fakes
 
@@ -24,6 +26,7 @@ const TOOL_NAMES = [
 	"zotero_status", "zotero_find_items", "zotero_get_item", "zotero_history", "zotero_tag_items",
 	"zotero_undo", "zotero_trash_items", "zotero_library_overview", "zotero_bakeoff_submit",
 	"scholar_search_pubmed", "scholar_attach_note", "scholar_export_bibliography", "scholar_queue_imports",
+	"verify_check_manuscript", "verify_record_claims",
 ];
 
 class FakeBridge {
@@ -670,4 +673,58 @@ test("shortcut: macOS app, Linux .desktop and Windows script quote paths safely"
 	assert.ok(win.includes("$s.TargetPath = 'C:\\Users\\O''Neil\\node.exe'"));
 	assert.ok(win.includes(`$s.Arguments = '"C:\\Users\\O''Neil\\subsub.js" web'`));
 	assert.ok(!win.includes("Desktop"));
+});
+
+// ---------------------------------------------------------------- Starbuck add-on
+
+test("starbuck add-on: off by default; server, environment and release when on", () => {
+	const dir = mkdtempSync(join(tmpdir(), "subsub-sb-"));
+	const envFile = join(dir, "zotero.env");
+	writeFileSync(envFile, "ZOTERO_CONTACT_EMAIL=a@example.org\nNCBI_API_KEY=k1\n");
+	const base: SubsubConfig = { ...CFG, envFile, starbuckDir: join(dir, "starbuck") };
+	assert.deepEqual(serverSpecs(base, {}).map((s) => s.name), ["zotero", "scholar"]);
+	assert.equal(loadConfig({ SUBSUB_CONFIG: join(dir, "none.json"), ZOTERO_MCP_ENV: envFile } as any).addons?.length, 0);
+	const on = serverSpecs({ ...base, addons: ["starbuck"] }, {});
+	const verify = on.find((s) => s.name === "verify")!;
+	assert.deepEqual(verify.env, { STARBUCK_EMAIL: "a@example.org", NCBI_API_KEY: "k1" });
+	assert.deepEqual(verify.args.slice(-3), ["--from", STARBUCK_SOURCE, "starbuck-mcp"]);
+	mkdirSync(join(dir, "starbuck"));
+	writeFileSync(join(dir, "starbuck", "pyproject.toml"), "");
+	const local = serverSpecs({ ...base, addons: ["starbuck"] }, {}).at(-1)!;
+	assert.deepEqual(local.args, ["run", "--quiet", "--directory", join(dir, "starbuck"), "starbuck-mcp"]);
+	assert.equal(starbuckEnv({ envFile }, { STARBUCK_EMAIL: "b@example.org" }).STARBUCK_EMAIL, "b@example.org");
+	assert.deepEqual(starbuckEnv({}, {}), {});
+});
+
+test("starbuck add-on: researcher tools in every profile, not in librarian mode", () => {
+	const all = ["zotero_find_items", "zotero_tag_items", "scholar_search_pubmed", "verify_check_manuscript", "verify_prepare_claims", "read"];
+	for (const p of ["reader", "scholar", "author", "editor"] as const) {
+		assert.ok(toolsFor("researcher", all, p).includes("verify_check_manuscript"), p);
+	}
+	assert.ok(!toolsFor("librarian", all).some((n) => n.startsWith("verify_")));
+	assert.match(unavailableReason("verify_check_manuscript", "librarian", all, "editor")!, /not available in librarian mode.*\/researcher/);
+});
+
+test("starbuck add-on: reports in the vault pass, elsewhere need a yes; record_claims gets the model", async () => {
+	const { fp, ctx, toolCall, asked } = await setup(false);
+	assert.ok(fp.active.includes("verify_check_manuscript"));
+	assert.equal(await toolCall("verify_check_manuscript", { path: "/vault/Drafts/paper.qmd" }), undefined);
+	assert.equal(await toolCall("verify_check_manuscript", { path: "/elsewhere/paper.qmd", report_dir: "/vault/reports" }), undefined);
+	const out = await toolCall("verify_check_manuscript", { path: "/elsewhere/paper.qmd" });
+	assert.equal(out.block, true);
+	assert.match(asked.at(-1)!.title, /elsewhere\/_starbuck/);
+	const input: Record<string, unknown> = { path: "/vault/paper.qmd", verdicts: [] };
+	assert.equal(await toolCall("verify_record_claims", input), undefined);
+	assert.equal(input.judged_by, "glm-5.3-flash");
+	await fp.commands.librarian.handler("", ctx);
+	assert.match((await toolCall("verify_check_manuscript", { path: "/vault/p.qmd" })).reason, /not available in librarian mode/);
+});
+
+test("doctor: the Starbuck check", () => {
+	const ok = starbuckCheck({ ...CFG, addons: ["starbuck"], starbuckDir: "/no/such/dir" }, {}, () => ({ status: 0, stdout: "starbuck 0.1.0\n", stderr: "" }));
+	assert.equal(ok.ok, true);
+	assert.match(ok.detail, /starbuck 0\.1\.0 from git\+https/);
+	const bad = starbuckCheck({ ...CFG, addons: ["starbuck"], starbuckDir: "/no/such/dir" }, {}, () => ({ status: 1, stdout: "", stderr: "x" }));
+	assert.equal(bad.ok, false);
+	assert.match(bad.fix!, /starbuckDir/);
 });

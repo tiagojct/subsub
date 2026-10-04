@@ -12,6 +12,10 @@
  *
  * `subsub init` writes this file. Without "serverDir" (or when that folder does
  * not exist), the Zotero servers run from PyPI with uv.
+ *
+ * Add-ons: "addons": ["starbuck"] starts Starbuck (reference checks) as a third
+ * server, "verify". It runs from "starbuckDir" when that folder has a
+ * pyproject.toml, otherwise from the pinned release (STARBUCK_SOURCE).
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -24,6 +28,10 @@ export const PROFILES: Profile[] = ["reader", "scholar", "author", "editor"];
 
 /** The Zotero server release that this Sub-Sub version runs when there is no local server folder. */
 export const SERVER_VERSION = "0.4.1";
+
+/** The Starbuck release that this Sub-Sub version runs when there is no local Starbuck folder (Git until it is on PyPI). */
+export const STARBUCK_VERSION = "0.1.0";
+export const STARBUCK_SOURCE = `git+https://github.com/tiagojct/starbuck@v${STARBUCK_VERSION}`;
 
 export interface SubsubConfig {
 	/** The settings file (written by `subsub init` and `/profile`). */
@@ -57,6 +65,10 @@ export interface SubsubConfig {
 	quotes?: boolean;
 	/** Theme per mode, without -dark/-light; false keeps your pi theme. */
 	themes?: Partial<Record<Mode, string>> | false;
+	/** Optional servers to start, e.g. ["starbuck"]. */
+	addons?: string[];
+	/** Local Starbuck folder (used when it has a pyproject.toml). */
+	starbuckDir?: string;
 }
 
 export function expand(p: string, home?: string): string {
@@ -158,6 +170,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): SubsubConfig {
 		look: user.look,
 		quotes: user.quotes,
 		themes: user.themes,
+		addons: Array.isArray(user.addons) ? user.addons.filter((a): a is string => typeof a === "string") : [],
+		starbuckDir: expand(user.starbuckDir ?? "~/Projects/starbuck", home),
 	};
 }
 
@@ -188,6 +202,22 @@ export function serverCommand(
 		return { command: uv, args: ["run", "--quiet", "--directory", cfg.serverDir, program, ...args] };
 	}
 	return { command: uv, args: ["tool", "run", "--quiet", "--from", `zotero-local-mcp==${SERVER_VERSION}`, program, ...args] };
+}
+
+export function starbuckEnabled(cfg: Pick<SubsubConfig, "addons">): boolean {
+	return (cfg.addons ?? []).includes("starbuck");
+}
+
+/** How to start Starbuck's MCP server: from the local folder when it exists, otherwise the pinned release. */
+export function starbuckCommand(
+	cfg: Pick<SubsubConfig, "starbuckDir" | "uvPath">,
+	env: NodeJS.ProcessEnv = process.env,
+): { command: string; args: string[] } {
+	const uv = findUv(cfg, env);
+	if (cfg.starbuckDir && existsSync(join(cfg.starbuckDir, "pyproject.toml"))) {
+		return { command: uv, args: ["run", "--quiet", "--directory", cfg.starbuckDir, "starbuck-mcp"] };
+	}
+	return { command: uv, args: ["tool", "run", "--quiet", "--from", STARBUCK_SOURCE, "starbuck-mcp"] };
 }
 
 /** How prompts name the user. */

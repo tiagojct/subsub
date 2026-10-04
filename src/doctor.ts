@@ -3,14 +3,24 @@
  *
  * Checks Node, the settings file, uv, the Zotero server (it runs
  * `zotero-local-mcp --check`), Zotero itself, the tag list, the notes folder,
- * the contact email and the model login. Exit code 1 when something needs a fix.
+ * the contact email, Starbuck (when the add-on is on) and the model login. Exit
+ * code 1 when something needs a fix.
  */
 
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { findUv, loadConfig, SERVER_VERSION, serverCommand, type SubsubConfig } from "./config.ts";
+import {
+	findUv,
+	loadConfig,
+	SERVER_VERSION,
+	serverCommand,
+	STARBUCK_SOURCE,
+	starbuckCommand,
+	starbuckEnabled,
+	type SubsubConfig,
+} from "./config.ts";
 import { profileSpec } from "./profiles.ts";
 
 export interface Check {
@@ -137,6 +147,7 @@ export function runChecks(
 			? { name: "Contact email", ok: true, detail: "set" }
 			: { name: "Contact email", ok: true, warn: true, detail: "not set: open-access PDFs cannot be found", fix: "Type subsub init and give an email address." },
 	);
+	if (starbuckEnabled(cfg)) out.push(starbuckCheck(cfg, env, run));
 	const agentDir = deps.agentDir ?? (env.SUBSUB_AGENT_DIR ? env.SUBSUB_AGENT_DIR : join(homedir(), ".subsub", "agent"));
 	out.push(
 		hasLogin(agentDir)
@@ -144,6 +155,25 @@ export function runChecks(
 			: { name: "Model login", ok: false, detail: "no model provider yet", fix: "Type subsub, then /login." },
 	);
 	return out;
+}
+
+/** The Starbuck add-on: can uv start it? (`starbuck --version`, from the local folder or the pinned release) */
+export function starbuckCheck(cfg: SubsubConfig, env: NodeJS.ProcessEnv, run: Runner): Check {
+	const cmd = starbuckCommand(cfg, env);
+	const local = cmd.args.includes("--directory");
+	const args = cmd.args.slice(0, -1).concat(["starbuck", "--version"]);
+	const res = run(cmd.command, args, env);
+	if (res.status === 0) {
+		return { name: "Starbuck", ok: true, detail: `${res.stdout.trim()} ${local ? `from ${cfg.starbuckDir}` : `from ${STARBUCK_SOURCE}`}` };
+	}
+	return {
+		name: "Starbuck",
+		ok: false,
+		detail: local ? `cannot start from ${cfg.starbuckDir}` : `cannot install ${STARBUCK_SOURCE}`,
+		fix: local
+			? `Type: cd "${cfg.starbuckDir}" && uv sync`
+			: 'Set "starbuckDir" in the settings file to a copy of the Starbuck repository, or remove "starbuck" from "addons".',
+	};
 }
 
 export function formatChecks(checks: Check[]): string {

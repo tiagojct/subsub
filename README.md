@@ -148,6 +148,7 @@ Type the command followed by arguments:
   * `/synthesis <topic>`: Synthesize library findings on a specific topic.
   * `/gaps <topic>`: Identify unanswered questions and literature gaps.
   * `/manuscript <path>`: Cross-check manuscript citations against your library.
+  * `/verify <path> [claims]`: Check that each cited work exists, matches its citation and was not retracted (needs the Starbuck add-on). With `claims`, also check whether each source supports the sentence that cites it.
   * `/alert`: Check PubMed and OpenAlex for new publications matching research topics.
 
 ### Batch Tag Review
@@ -177,8 +178,23 @@ subsub review apply 13-31
 | `look` | boolean| Show header banners and status lines in terminal | `true` |
 | `quotes` | boolean| Display quotes from *Moby-Dick* in terminal banner | `true` |
 | `themes` | object | Mode-specific terminal themes | `true` |
+| `addons` | array | Optional servers; `["starbuck"]` adds reference checks | `[]` |
+| `starbuckDir` | string | Local Starbuck folder (used when it has a `pyproject.toml`) | `~/Projects/starbuck` |
 
 Server-level configurations (notes folder path, tag vocabulary path, Unpaywall email) reside in `~/.config/zotero-local-mcp/env`.
+
+### Reference checks (Starbuck add-on)
+
+[Starbuck](https://github.com/tiagojct/starbuck) checks references: does each cited work exist, do the title, first author and year match, was it retracted or corrected, and (on request) does the source support the sentence that cites it.
+
+1. Add the add-on to the settings file:
+   ```json
+   "addons": ["starbuck"]
+   ```
+2. Optional: set `"starbuckDir"` to a local copy of Starbuck. Without it, Sub-Sub runs the pinned Starbuck release with uv.
+3. Start Sub-Sub again and run `subsub doctor`. The line `Starbuck` must show `ok`.
+
+The researcher gets four tools: `verify_check_manuscript`, `verify_check_references`, `verify_prepare_claims` and `verify_record_claims`. Starbuck writes its report to a `_starbuck` folder next to the manuscript. Inside the notes folder or the working folder this needs no approval; elsewhere Sub-Sub asks first. Starbuck gets the contact email from the zotero-local-mcp env file. For the claim check, Sub-Sub's own model judges; Starbuck checks that every quoted passage is in the source.
 
 ---
 

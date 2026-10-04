@@ -8,6 +8,8 @@
  * - Profiles (reader, scholar, author, editor) set what Sub-Sub writes and which
  *   tools it offers; /profile changes it.
  * - Commands: /librarian, /researcher, /profile, /subsub, /history, /undo.
+ * - Add-on: with "addons": ["starbuck"], Starbuck runs as a third server
+ *   ("verify") for reference checks; its tools belong to researcher mode.
  *
  * The Python servers start in session_start (not in the factory) and stop in
  * session_shutdown. Tools are registered once and use the current bridge.
@@ -18,14 +20,28 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Bridge, type ServerSpec } from "./bridge.ts";
-import { expand, findUv, isProfile, loadConfig, type Mode, type Profile, saveConfig, serverCommand, type SubsubConfig, who } from "./config.ts";
+import {
+	expand,
+	findUv,
+	isProfile,
+	loadConfig,
+	type Mode,
+	parseEnvFile,
+	type Profile,
+	saveConfig,
+	serverCommand,
+	starbuckCommand,
+	starbuckEnabled,
+	type SubsubConfig,
+	who,
+} from "./config.ts";
 import { profileList, profileSpec } from "./profiles.ts";
 import { coerceArgs, loosenArrays } from "./args.ts";
 import { buildPolicy, judgePath, normalizeToolPath, realish, within } from "./paths.ts";
 import { describeArgs, formatPreview } from "./preview.ts";
 import { headerLines, type LibraryState, paintPreview, QUOTES, type Scheme, schemeFromAnsi, themeName } from "./look.ts";
 import { systemAddition } from "./prompt.ts";
-import { gateKind, toolsFor, unavailableReason } from "./roles.ts";
+import { gateKind, SERVER_PREFIXES, toolsFor, unavailableReason } from "./roles.ts";
 
 export interface SubsubDeps {
 	config?: SubsubConfig;
@@ -48,12 +64,30 @@ function ownVersion(): string {
 
 export { findUv };
 
-export function serverSpecs(cfg: SubsubConfig): ServerSpec[] {
+export function serverSpecs(cfg: SubsubConfig, processEnv: NodeJS.ProcessEnv = process.env): ServerSpec[] {
 	const env: Record<string, string> = cfg.envFile ? { ZOTERO_MCP_ENV: cfg.envFile } : {};
-	return [
-		{ name: "zotero", ...serverCommand(cfg, "zotero-local-mcp"), env },
-		{ name: "scholar", ...serverCommand(cfg, "zotero-scholar-mcp"), env },
+	const specs: ServerSpec[] = [
+		{ name: "zotero", ...serverCommand(cfg, "zotero-local-mcp", [], processEnv), env },
+		{ name: "scholar", ...serverCommand(cfg, "zotero-scholar-mcp", [], processEnv), env },
 	];
+	if (starbuckEnabled(cfg)) specs.push({ name: "verify", ...starbuckCommand(cfg, processEnv), env: starbuckEnv(cfg, processEnv) });
+	return specs;
+}
+
+/**
+ * Starbuck reads its contact address and API keys from the environment. Sub-Sub keeps
+ * them in the zotero-local-mcp env file, so they are passed on (the environment wins).
+ */
+export function starbuckEnv(cfg: Pick<SubsubConfig, "envFile">, processEnv: NodeJS.ProcessEnv = process.env): Record<string, string> {
+	const file = cfg.envFile ? parseEnvFile(cfg.envFile) : {};
+	const out: Record<string, string> = {};
+	const email = processEnv.STARBUCK_EMAIL || file.STARBUCK_EMAIL || processEnv.ZOTERO_CONTACT_EMAIL || file.ZOTERO_CONTACT_EMAIL;
+	if (email) out.STARBUCK_EMAIL = email;
+	for (const key of ["NCBI_API_KEY", "OPENALEX_API_KEY"]) {
+		const v = processEnv[key] || file[key];
+		if (v) out[key] = v;
+	}
+	return out;
 }
 
 export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Promise<void> {
@@ -276,13 +310,14 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		// Previews and the real call must see the same, repaired arguments.
 		const schema = schemas.get(name);
 		if (schema) coerceArgs(schema, input);
-		if (name.startsWith("zotero_") || name.startsWith("scholar_")) {
+		if (SERVER_PREFIXES.some((p) => name.startsWith(p))) {
 			const why = unavailableReason(name, mode, registered(), profile);
 			if (why) {
 				if (benchOut) record({ kind: "wrong_mode", tool: name, input });
 				return { block: true, reason: why };
 			}
 		}
+		if (name.startsWith("verify_")) return verifyGate(name, input, ctx);
 		const kind = benchOut && name === "scholar_queue_imports" ? "confirm" : gateKind(name, input);
 		if (!kind) return undefined;
 		if (benchOut) return benchGate(name, input, kind, ctx.cwd, ctx.signal);
@@ -317,6 +352,33 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		);
 		return ok ? undefined : { block: true, reason: `${user} did not approve this change. Ask what to change; do not retry the same call.` };
 	});
+
+	/**
+	 * Starbuck writes its reports into a folder: report_dir, or _starbuck next to the
+	 * manuscript. Inside the vault or the working folder that needs no approval; elsewhere
+	 * Sub-Sub asks, as for any file write. record_claims gets the current model's name.
+	 */
+	async function verifyGate(name: string, input: Record<string, unknown>, ctx: ExtensionContext) {
+		if (name === "verify_record_claims") {
+			input.judged_by = ctx.model ? [ctx.model.provider, ctx.model.id].filter(Boolean).join("/") : "the agent's model";
+		}
+		if (name === "verify_check_references") return undefined;
+		const dir = input.report_dir
+			? normalizeToolPath(String(input.report_dir), ctx.cwd)
+			: input.path
+				? join(dirname(normalizeToolPath(String(input.path), ctx.cwd)), "_starbuck")
+				: undefined;
+		if (!dir) return undefined;
+		const verdict = judgePath(dir, buildPolicy({ vault: cfg.vault, cwd: ctx.cwd, serverDir: cfg.serverDir, packageDir: PACKAGE_DIR }));
+		if (verdict.ok) return undefined;
+		if (benchOut) {
+			record({ kind: "path_blocked", tool: name, path: dir });
+			return { block: true, reason: `Model test: Starbuck reports only inside the vault or ${benchOut}.` };
+		}
+		if (!ctx.hasUI) return { block: true, reason: `Writing a Starbuck report to ${dir} needs ${user}'s approval: ${verdict.why}.` };
+		const ok = await ctx.ui.confirm(`Sub-Sub: write the Starbuck report to ${dir}?`, `Asking because ${verdict.why}.`);
+		return ok ? undefined : { block: true, reason: `${user} did not allow writing the report there. Ask where to put it (report_dir).` };
+	}
 
 	async function benchGate(name: string, input: Record<string, unknown>, kind: string, cwd: string, signal?: AbortSignal) {
 		if (kind === "path") {

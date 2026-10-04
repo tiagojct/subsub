@@ -7,6 +7,9 @@ import { profileSpec } from "./profiles.ts";
 
 export const FILE_TOOLS = ["read", "edit", "write", "grep", "find", "ls"];
 
+/** Prefixes of the tools that Sub-Sub's servers provide (the gate checks the mode for these). */
+export const SERVER_PREFIXES = ["zotero_", "scholar_", "verify_"];
+
 export const ZOTERO_READ = [
 	"status",
 	"library_overview",
@@ -51,7 +54,11 @@ export function toolsFor(mode: Mode, registered: string[], profile: Profile = "e
 	const wanted =
 		mode === "librarian"
 			? [...registered.filter((n) => n.startsWith("zotero_")), ...FILE_TOOLS]
-			: [...ZOTERO_READ, ...registered.filter((n) => n.startsWith("scholar_")), ...FILE_TOOLS];
+			: [
+					...ZOTERO_READ,
+					...registered.filter((n) => n.startsWith("scholar_") || n.startsWith("verify_")),
+					...FILE_TOOLS,
+				];
 	return [...new Set(wanted)].filter((n) => has.has(n) && !without.has(n));
 }
 

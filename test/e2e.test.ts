@@ -260,6 +260,37 @@ test("researcher mode has no library write tools and reads work", { timeout: 180
 	}
 });
 
+const STARBUCK = process.env.STARBUCK_DIR ?? join(homedir(), "Projects", "starbuck");
+
+test("starbuck add-on: the verify server starts and checks a manuscript without asking", {
+	timeout: 180_000,
+	skip: !existsSync(join(STARBUCK, ".venv")) && `run uv sync in ${STARBUCK} first`,
+}, async () => {
+	const cf = join(work, "subsub-starbuck.json");
+	writeFileSync(cf, JSON.stringify({ serverDir: ZLM, vault, models: {}, defaultMode: "researcher", addons: ["starbuck"], starbuckDir: STARBUCK }));
+	mkdirSync(join(vault, "Drafts"), { recursive: true });
+	// No reference needs the network: the cited key has no entry, the one entry is not cited.
+	writeFileSync(join(vault, "Drafts", "refs.json"), JSON.stringify([{ id: "miller", title: "Standardisation of spirometry", type: "article-journal" }]));
+	const ms = join(vault, "Drafts", "paper.md");
+	writeFileSync(ms, "---\nbibliography: refs.json\n---\n\nSpirometry needs standards [@absent].\n");
+	const pi = new Pi({ ...baseEnv, SUBSUB_CONFIG: cf }, vault, ["-e", join(ROOT, "extensions", "subsub.ts"), "--provider", "fake", "--model", "fake-model"]);
+	try {
+		script = [{ tool: { name: "verify_check_manuscript", args: { path: ms, formats: [] } } }, { text: "Checked." }];
+		requests.length = 0;
+		await pi.prompt("Check the references of Drafts/paper.md");
+		const toolNames = requests[0].tools.map((t: any) => t.function.name);
+		assert.ok(["verify_check_manuscript", "verify_check_references", "verify_prepare_claims", "verify_record_claims"].every((n) => toolNames.includes(n)));
+		assert.match(JSON.stringify(requests[0].messages[0]), /Reference checks \(Starbuck/);
+		const toolMsg = JSON.stringify(requests[1].messages.find((m: any) => m.role === "tool"));
+		assert.match(toolMsg, /missing_entries/);
+		assert.match(toolMsg, /absent/);
+		assert.equal(pi.confirms.length, 0);
+		assert.ok(existsSync(join(vault, "Drafts", "_starbuck", "paper-references.json")));
+	} finally {
+		pi.kill();
+	}
+});
+
 test("the subsub command: own agent folder, package, prompts, vault as start folder, English", { timeout: 180_000 }, async () => {
 	const home = join(work, "home");
 	const agentDir = join(home, ".subsub", "agent");
@@ -287,6 +318,9 @@ test("the subsub command: own agent folder, package, prompts, vault as start fol
 		const user = JSON.stringify(requests[0].messages.at(-1));
 		assert.match(user, /Make a literature note for jacinto2026/);
 		assert.doesNotMatch(user, /^"\/lit-note/);
+		requests.length = 0;
+		await pi.prompt("/verify Drafts/paper.md");
+		assert.match(JSON.stringify(requests[0].messages.at(-1)), /Check the references of Drafts\/paper.md with Starbuck/);
 	} finally {
 		pi.kill();
 	}
