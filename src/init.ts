@@ -12,7 +12,8 @@
  *
  * Flags (for scripts and tests): --yes (take every default), --setup
  * standard|fmup, --name, --about, --language, --notes, --profile, --tags
- * health-sciences|health-informatics|any-field, --email, --models keep|later|opencode-go.
+ * health-sciences|health-informatics|any-field, --email, --starbuck on|off,
+ * --models keep|later|opencode-go.
  */
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -20,7 +21,20 @@ import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { createInterface } from "node:readline/promises";
 import { fileURLToPath } from "node:url";
-import { configPath, expand, isProfile, loadConfig, parseEnvFile, PROFILES, readConfigFile, saveConfig } from "./config.ts";
+import {
+	configPath,
+	expand,
+	isProfile,
+	loadConfig,
+	parseEnvFile,
+	PROFILES,
+	readConfigFile,
+	saveConfig,
+	starbuckEnabled,
+	type SubsubConfig,
+	withStarbuck,
+} from "./config.ts";
+import { defaultRunner, starbuckCheck } from "./doctor.ts";
 import { PROFILE_SPECS } from "./profiles.ts";
 
 const TEMPLATES = resolve(dirname(fileURLToPath(import.meta.url)), "..", "templates");
@@ -83,7 +97,7 @@ export async function runInit(
 	io: InitIO,
 	flags: Record<string, string>,
 	env: NodeJS.ProcessEnv = process.env,
-	deps: { fetch?: typeof fetch; home?: string } = {},
+	deps: { fetch?: typeof fetch; home?: string; prepareStarbuck?: (cfg: SubsubConfig) => string } = {},
 ): Promise<InitResult> {
 	const home = deps.home ?? env.HOME ?? homedir();
 	const initEnv: NodeJS.ProcessEnv = { ...env, HOME: home };
@@ -133,6 +147,14 @@ export async function runInit(
 	const email = (
 		await io.ask("Email for Unpaywall and Crossref, to find open-access PDFs (optional)", flags.email ?? envValues.ZOTERO_CONTACT_EMAIL ?? "")
 	).trim();
+	const starbuck = await io.choose(
+		"Reference checks (Starbuck): check that cited works exist, match their citation and were not retracted",
+		[
+			{ value: "off", label: "Off" },
+			{ value: "on", label: "On (the researcher gets /verify; uses the email above)" },
+		],
+		flags.starbuck ?? (starbuckEnabled(current) ? "on" : "off"),
+	);
 	const modelOptions = [
 		...(existing.models ? [{ value: "keep", label: `Keep: ${JSON.stringify(existing.models)}` }] : []),
 		{ value: "later", label: "Choose later in Sub-Sub (/login, then /model)" },
@@ -171,12 +193,14 @@ export async function runInit(
 		setup: fmup ? "fmup" : undefined,
 		vault: notes,
 		envFile,
+		addons: withStarbuck(current.addons, starbuck === "on"),
 	};
 	if (models === "later") patch.models = {};
 	if (models === "opencode-go") patch.models = TESTED_MODELS;
 	saveConfig(patch, initEnv);
 
 	const zotero = await zoteroReachable(deps.fetch);
+	const starbuckNote = starbuck === "on" && deps.prepareStarbuck ? deps.prepareStarbuck(loadConfig(initEnv)) : "";
 	io.say("");
 	io.say(`Saved: ${configFile}`);
 	io.say(`Saved: ${envFile}`);
@@ -186,6 +210,7 @@ export async function runInit(
 			? "Zotero: reachable."
 			: "Zotero: not reachable. Start Zotero 10, then in Zotero open Settings > Advanced and turn on \"Allow other applications on this computer to communicate with Zotero\".",
 	);
+	if (starbuck === "on") io.say(starbuckNote || "Reference checks: on. The first start downloads Starbuck.");
 	if (fmup) io.say("FMUP / U.Porto: the FMUP model service will come in a later version. Until then, connect a model provider yourself.");
 	io.say("Next: type subsub web to open Sub-Sub in your browser (or subsub for the terminal). Connect a model provider with the model button (or /login in the terminal). To check the setup, type subsub doctor.");
 	return { configFile, envFile, notes, created, zotero };
@@ -243,7 +268,11 @@ export async function initMain(args: string[], env: NodeJS.ProcessEnv = process.
 	const flags = parseFlags(args);
 	const io = flags.yes || !process.stdin.isTTY ? defaultsIO((l) => console.log(l)) : terminalIO();
 	try {
-		await runInit(io, flags, env);
+		await runInit(io, flags, env, { prepareStarbuck: (cfg) => {
+			// Download Starbuck now, so that the first start of Sub-Sub does not wait for it.
+			const c = starbuckCheck(cfg, env, defaultRunner);
+			return c.ok ? `Reference checks: on (${c.detail}).` : `Reference checks: on, but ${c.detail}. ${c.fix ?? ""}`.trim();
+		} });
 		return 0;
 	} catch (err) {
 		console.error(`Sub-Sub init: ${(err as Error).message}`);

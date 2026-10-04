@@ -578,10 +578,16 @@ test("init: new user with defaults, then again without replacing files", async (
 	assert.match(envText, /ZOTERO_VAULT=.*Sub-Sub\nZOTERO_VOCAB=.*Zotero tags\.md\nZOTERO_CONTACT_EMAIL=ana@example\.org/);
 	assert.ok(said.some((l) => /Zotero: not reachable/.test(l)) && said.some((l) => /FMUP model service/.test(l)));
 	assert.equal(loadCfg(env).profile, "reader");
+	assert.equal(cfg.addons, undefined);
 	// again: the tag list the user edited stays, other env lines stay, the profile changes
 	writeFileSync(vocab, "MY TAGS");
 	writeFileSync(r.envFile, `${envText}NCBI_API_KEY=abc\n`);
-	const r2 = await runInit(io, { profile: "author", models: "opencode-go" }, env, { home, fetch: notFound });
+	const prepared: unknown[] = [];
+	const r2 = await runInit(io, { profile: "author", models: "opencode-go", starbuck: "on" }, env, {
+		home, fetch: notFound, prepareStarbuck: (c) => { prepared.push(c.addons); return "Reference checks: on (starbuck 0.1.0)."; },
+	});
+	assert.deepEqual(prepared, [["starbuck"]]);
+	assert.ok(said.includes("Reference checks: on (starbuck 0.1.0)."));
 	assert.equal(readFileSync(vocab, "utf8"), "MY TAGS");
 	assert.match(readFileSync(r2.envFile, "utf8"), /NCBI_API_KEY=abc/);
 	const cfg2 = JSON.parse(readFileSync(r2.configFile, "utf8"));
@@ -589,6 +595,12 @@ test("init: new user with defaults, then again without replacing files", async (
 	assert.equal(cfg2.userName, "Ana");
 	assert.equal(cfg2.models.librarian, "opencode-go/glm-5.3-flash");
 	assert.equal(r2.created.length, 0);
+	assert.deepEqual(cfg2.addons, ["starbuck"]);
+	// the default keeps the add-on; off removes it
+	await runInit(io, {}, env, { home, fetch: notFound });
+	assert.deepEqual(loadCfg(env).addons, ["starbuck"]);
+	await runInit(io, { starbuck: "off" }, env, { home, fetch: notFound });
+	assert.equal(JSON.parse(readFileSync(r2.configFile, "utf8")).addons, undefined);
 	assert.equal(upsertEnv("# c\nA=1\n", { A: "2", B: "3", C: "" }), "# c\nA=2\nB=3\n");
 	// someone who already logged in to OpenCode Go gets the tested models by default
 	const home3 = mkdtempSync(join(tmpdir(), "subsub-init3-"));
@@ -687,7 +699,7 @@ test("starbuck add-on: off by default; server, environment and release when on",
 	const on = serverSpecs({ ...base, addons: ["starbuck"] }, {});
 	const verify = on.find((s) => s.name === "verify")!;
 	assert.deepEqual(verify.env, { STARBUCK_EMAIL: "a@example.org", NCBI_API_KEY: "k1" });
-	assert.deepEqual(verify.args.slice(-3), ["--from", STARBUCK_SOURCE, "starbuck-mcp"]);
+	assert.deepEqual(verify.args.slice(-3), ["--from", "starbuck==0.1.0", "starbuck-mcp"]);
 	mkdirSync(join(dir, "starbuck"));
 	writeFileSync(join(dir, "starbuck", "pyproject.toml"), "");
 	const local = serverSpecs({ ...base, addons: ["starbuck"] }, {}).at(-1)!;
@@ -723,8 +735,8 @@ test("starbuck add-on: reports in the vault pass, elsewhere need a yes; record_c
 test("doctor: the Starbuck check", () => {
 	const ok = starbuckCheck({ ...CFG, addons: ["starbuck"], starbuckDir: "/no/such/dir" }, {}, () => ({ status: 0, stdout: "starbuck 0.1.0\n", stderr: "" }));
 	assert.equal(ok.ok, true);
-	assert.match(ok.detail, /starbuck 0\.1\.0 from git\+https/);
+	assert.equal(ok.detail, `starbuck 0.1.0 from ${STARBUCK_SOURCE}`);
 	const bad = starbuckCheck({ ...CFG, addons: ["starbuck"], starbuckDir: "/no/such/dir" }, {}, () => ({ status: 1, stdout: "", stderr: "x" }));
 	assert.equal(bad.ok, false);
-	assert.match(bad.fix!, /starbuckDir/);
+	assert.match(bad.fix!, /internet connection.*subsub init/);
 });

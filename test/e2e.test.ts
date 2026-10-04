@@ -568,6 +568,27 @@ test("the web view: the page answers Sub-Sub's approval; other sites and hosts a
 		const sessions = JSON.parse((await call(port, "GET", "/api/sessions", { headers: ok })).body).sessions;
 		assert.ok(sessions.length >= 1);
 		assert.match(sessions[0].first, /Tag BBBB3333/);
+
+		// Reference checks: the toggle saves the setting and restarts pi with the verify server.
+		if (existsSync(join(STARBUCK, ".venv"))) {
+			const cf = baseEnv.SUBSUB_CONFIG!;
+			const saved = readFileSync(cf, "utf8");
+			writeFileSync(cf, JSON.stringify({ ...JSON.parse(saved), starbuckDir: STARBUCK }));
+			try {
+				assert.equal((await call(port, "POST", "/api/addons", { headers: ok, body: { starbuck: "yes" } })).status, 400);
+				const mark2 = stream.events.length;
+				assert.equal((await call(port, "POST", "/api/addons", { headers: ok, body: { starbuck: true } })).status, 200);
+				const on = await stream.wait((e) => e.type === "subsub_state" && e.state?.starbuck === true, 90_000, mark2);
+				assert.deepEqual(on.state.down, []);
+				assert.deepEqual(JSON.parse(readFileSync(cf, "utf8")).addons, ["starbuck"]);
+				const mark3 = stream.events.length;
+				assert.equal((await call(port, "POST", "/api/addons", { headers: ok, body: { starbuck: false } })).status, 200);
+				await stream.wait((e) => e.type === "subsub_state" && e.state?.starbuck === false, 90_000, mark3);
+				assert.equal(JSON.parse(readFileSync(cf, "utf8")).addons, undefined);
+			} finally {
+				writeFileSync(cf, saved);
+			}
+		}
 	} finally {
 		stream?.close();
 		proc.kill();

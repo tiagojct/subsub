@@ -164,6 +164,8 @@ function renderHeader() {
 	document.body.dataset.mode = mode();
 	for (const b of document.querySelectorAll(".modes button")) b.setAttribute("aria-pressed", String(b.dataset.mode === mode()));
 	if (state?.profile) $("profile").value = $("profile-side").value = state.profile;
+	$("starbuck-toggle").checked = Boolean(state?.starbuck);
+	$("starbuck-toggle").parentElement.title = t("starbuckHint");
 	const m = state?.model ?? session?.model;
 	$("model-btn").textContent = $("model-btn-side").textContent = m ? m.id : t("noModel");
 	const lib = $("library");
@@ -200,7 +202,7 @@ function hasCommand(name) {
 function renderActions() {
 	const box = $("actions");
 	box.replaceChildren();
-	const list = [...ACTIONS[mode()]].filter((a) => hasCommand(a.cmd));
+	const list = [...ACTIONS[mode()]].filter((a) => hasCommand(a.cmd) && (!a.needs || state?.[a.needs]));
 	for (const a of list) box.append(actionButton(a));
 	box.append(el("hr"));
 	for (const a of ACTIONS.both.filter((x) => hasCommand(x.cmd))) box.append(actionButton(a));
@@ -1007,6 +1009,19 @@ for (const b of document.querySelectorAll(".modes button")) {
 	});
 }
 $("profile").addEventListener("change", (e) => sendMessage(`/profile ${e.target.value}`));
+$("starbuck-toggle").addEventListener("change", async (e) => {
+	const on = e.target.checked;
+	e.target.disabled = true;
+	try {
+		await api("/api/addons", { starbuck: on });
+		note(t(on ? "starbuckOn" : "starbuckOff"), "info");
+	} catch (err) {
+		e.target.checked = !on;
+		note(err.message, "warning");
+	} finally {
+		e.target.disabled = false;
+	}
+});
 $("profile-side").addEventListener("change", (e) => sendMessage(`/profile ${e.target.value}`));
 $("model-btn").addEventListener("click", openModels);
 $("model-btn-side").addEventListener("click", () => {

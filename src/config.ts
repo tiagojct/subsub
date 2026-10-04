@@ -15,7 +15,8 @@
  *
  * Add-ons: "addons": ["starbuck"] starts Starbuck (reference checks) as a third
  * server, "verify". It runs from "starbuckDir" when that folder has a
- * pyproject.toml, otherwise from the pinned release (STARBUCK_SOURCE).
+ * pyproject.toml, otherwise from the pinned PyPI release (STARBUCK_SOURCE).
+ * `subsub init` and the web view turn it on and off.
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -29,9 +30,9 @@ export const PROFILES: Profile[] = ["reader", "scholar", "author", "editor"];
 /** The Zotero server release that this Sub-Sub version runs when there is no local server folder. */
 export const SERVER_VERSION = "0.4.1";
 
-/** The Starbuck release that this Sub-Sub version runs when there is no local Starbuck folder (Git until it is on PyPI). */
+/** The Starbuck release (PyPI) that this Sub-Sub version runs when there is no local Starbuck folder. */
 export const STARBUCK_VERSION = "0.1.0";
-export const STARBUCK_SOURCE = `git+https://github.com/tiagojct/starbuck@v${STARBUCK_VERSION}`;
+export const STARBUCK_SOURCE = `starbuck==${STARBUCK_VERSION}`;
 
 export interface SubsubConfig {
 	/** The settings file (written by `subsub init` and `/profile`). */
@@ -218,6 +219,13 @@ export function starbuckCommand(
 		return { command: uv, args: ["run", "--quiet", "--directory", cfg.starbuckDir, "starbuck-mcp"] };
 	}
 	return { command: uv, args: ["tool", "run", "--quiet", "--from", STARBUCK_SOURCE, "starbuck-mcp"] };
+}
+
+/** The addons setting with Starbuck turned on or off; other add-ons stay. Undefined (no setting) when empty. */
+export function withStarbuck(addons: string[] | undefined, on: boolean): string[] | undefined {
+	const rest = (addons ?? []).filter((a) => a !== "starbuck");
+	const out = on ? [...rest, "starbuck"] : rest;
+	return out.length ? out : undefined;
 }
 
 /** How prompts name the user. */

@@ -159,6 +159,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			language: cfg.language,
 			userName: cfg.userName ?? null,
 			vault: cfg.vault ?? null,
+			starbuck: starbuckEnabled(cfg),
 		};
 		try {
 			ctx.ui.setStatus("subsub.web", JSON.stringify(state));

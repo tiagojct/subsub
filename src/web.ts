@@ -22,7 +22,7 @@ import { homedir } from "node:os";
 import { extname, join, normalize, resolve, sep } from "node:path";
 import { StringDecoder } from "node:string_decoder";
 import { agentDirFor, chooseCwd, PACKAGE_DIR, packageVersion } from "./cli.ts";
-import { expand, loadConfig, saveConfig, type SubsubConfig } from "./config.ts";
+import { expand, loadConfig, saveConfig, type SubsubConfig, withStarbuck } from "./config.ts";
 import { TESTED_MODELS } from "./init.ts";
 import { within } from "./paths.ts";
 
@@ -574,6 +574,15 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 					if (body.both) models[mode === "librarian" ? "researcher" : "librarian"] = spec;
 					saveConfig({ models }, env);
 					await agent.request({ type: "set_model", provider: String(body.provider), modelId: String(body.id) });
+					await restartAgent();
+					return send(res, 200, { ok: true });
+				}
+				case "POST /api/addons": {
+					// Turn an add-on on or off, then restart pi so the extension starts or stops its server.
+					if (busy) return send(res, 409, { error: "busy" });
+					const body = await readJson(req);
+					if (typeof body.starbuck !== "boolean") return send(res, 400, { error: "starbuck must be true or false" });
+					saveConfig({ addons: withStarbuck(loadConfig(env).addons, body.starbuck) }, env);
 					await restartAgent();
 					return send(res, 200, { ok: true });
 				}

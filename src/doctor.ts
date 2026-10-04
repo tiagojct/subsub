@@ -169,10 +169,10 @@ export function starbuckCheck(cfg: SubsubConfig, env: NodeJS.ProcessEnv, run: Ru
 	return {
 		name: "Starbuck",
 		ok: false,
-		detail: local ? `cannot start from ${cfg.starbuckDir}` : `cannot install ${STARBUCK_SOURCE}`,
+		detail: local ? `cannot start from ${cfg.starbuckDir}` : `cannot install ${STARBUCK_SOURCE} with uv`,
 		fix: local
 			? `Type: cd "${cfg.starbuckDir}" && uv sync`
-			: 'Set "starbuckDir" in the settings file to a copy of the Starbuck repository, or remove "starbuck" from "addons".',
+			: "Check the internet connection and run subsub doctor again. To turn reference checks off, type subsub init.",
 	};
 }
 
