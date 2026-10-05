@@ -724,7 +724,7 @@ test("starbuck add-on: reports in the vault pass, elsewhere need a yes; record_c
 	assert.equal(await toolCall("verify_check_manuscript", { path: "/elsewhere/paper.qmd", report_dir: "/vault/reports" }), undefined);
 	const out = await toolCall("verify_check_manuscript", { path: "/elsewhere/paper.qmd" });
 	assert.equal(out.block, true);
-	assert.match(asked.at(-1)!.title, /elsewhere\/_starbuck/);
+	assert.match(asked.at(-1)!.title, /elsewhere[\\/]_starbuck/);
 	const input: Record<string, unknown> = { path: "/vault/paper.qmd", verdicts: [] };
 	assert.equal(await toolCall("verify_record_claims", input), undefined);
 	assert.equal(input.judged_by, "glm-5.3-flash");
@@ -830,7 +830,7 @@ test("bench: the lit task prompt and its scores", async () => {
 	assert.ok(TASKS.researcher.includes("lit"));
 	const tasks: any = { synthesis: { topic: "topic/asthma", description: "Asthma", keys: [], citekeys: [] }, search: { topic: null, description: "", year_from: 2020 } };
 	const prompt = promptFor("lit", tasks, "M1", "/out")!;
-	assert.match(prompt, /^\/lit Asthma \(topic\/asthma\)\. This is a model test: write the review as \/out\/Lit.md/);
+	assert.ok(prompt.startsWith(`/lit Asthma (topic/asthma). This is a model test: write the review as ${join("/out", "Lit.md")}`), prompt);
 	const dir = mkdtempSync(join(tmpdir(), "subsub-bench-lit-"));
 	mkdirSync(join(dir, ".plans"));
 	writeFileSync(join(dir, ".plans", "asthma-screening.md"), "log");

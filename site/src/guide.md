@@ -53,7 +53,37 @@ Undo skips items that you changed in Zotero after the change.
 3. Type `/lit-note smith2021`. The researcher reads the full text (or the abstract, and says so) and writes `Literature/smith2021.md` in your notes folder.
 4. Type `/synthesis <topic>` for a note on several items, or `/gaps <topic>` to search PubMed and OpenAlex for works you do not have.
 
+Each literature note says what Sub-Sub read: the full text, the abstract or only the metadata. Page numbers come only from the full text. Sub-Sub refuses a note that breaks this rule.
+
 What the researcher writes depends on your [profile](/profiles/). The note formats are in `Systems/Zotero agent.md`. You can edit them.
+
+## Review the literature
+
+1. In the researcher mode, type `/lit` and your question, for example `/lit home spirometry in children with asthma`.
+2. Sub-Sub searches your library first. Then it does one merged search of PubMed, Europe PMC and OpenAlex, with terms that pre-screen the results.
+3. It screens each work and keeps a screening log in `Research/.plans/`.
+4. It reads the works before it summarises them. The evidence table says for each source if Sub-Sub read the full text, the abstract or only the metadata.
+5. It looks for gaps, checks the references and writes one note in `Research/`.
+
+Other researcher commands:
+
+- `/compare <question or citekeys>` writes a source matrix: the claim, the type of evidence, the caveats and the confidence for each source.
+- `/review <file>` comments on your own manuscript against the reporting guideline that applies: CONSORT, STROBE, PRISMA, STARD, TRIPOD, CHEERS, or SRQR or COREQ. It writes comments only, next to the manuscript in `<name>-review.md`, and does not change the manuscript.
+- `/digest [days] [topic]` summarises the alerts and notes of the last days (7 by default).
+- `/request-copy <citekey, DOI or PMID>` drafts an email to the corresponding author to ask for a copy of a paper that is not open access. The address comes from the PubMed record. Sub-Sub writes the draft in `Inbox/`; you send it.
+
+Some profiles do not run all of these commands. See [Profiles](/profiles/).
+
+## Check references
+
+Reference checks use Starbuck, an add-on. It is off by default. To turn it on, answer On to the question "Reference checks (Starbuck)" in `subsub init` (or type `subsub init --starbuck on`). In the browser, use the switch "Reference checks (Starbuck)" in the panel on the left. Sub-Sub restarts.
+
+1. Type `/verify <file>`, for example `/verify draft.qmd`.
+2. Starbuck checks each cited work: does it exist, does it match the citation, and does it still stand (retractions, corrections).
+3. Starbuck also lists the sentences that state a finding without a citation.
+4. To check whether each source supports the sentence that cites it, type `/verify <file> claims`. The model must quote the passage that it relies on. Starbuck checks that the quote is in the source, word for word.
+
+Sub-Sub does not change the manuscript. Starbuck writes an HTML report in a `_starbuck` folder next to the manuscript.
 
 ## Commands
 
@@ -65,6 +95,8 @@ What the researcher writes depends on your [profile](/profiles/). The note forma
 | `/history`, `/undo` | Recent changes; revert one |
 | `/tag-batch [size]`, `/clean-tags`, `/import-queue` | Librarian templates |
 | `/lit-note <citekey>`, `/synthesis <topic>`, `/gaps <topic>`, `/manuscript <file>`, `/alert` | Researcher templates |
+| `/lit <question>`, `/compare <question>`, `/review <file>`, `/digest [days]`, `/request-copy <citekey>` | Researcher templates (new in 0.7.0) |
+| `/verify <file> [claims]` | Reference checks (needs Starbuck) |
 | `subsub -c`, `subsub -r` | Continue the last session; select an older one (terminal) |
 | `subsub web` | Open Sub-Sub in the browser |
 | `subsub shortcut` | Add the Sub-Sub shortcut again, for example after a move |
@@ -76,5 +108,6 @@ What the researcher writes depends on your [profile](/profiles/). The note forma
 | `Inbox/` | Review notes, the import queue, proposals |
 | `Literature/` | One note per item, named after the citekey |
 | `Syntheses/` | Notes on several items |
+| `Research/` | Literature reviews, comparisons, digests; plans and screening logs in `Research/.plans/` |
 | `Systems/Zotero tags.md` | Your tag list |
 | `Systems/Zotero agent.md` | Note formats and shared rules |

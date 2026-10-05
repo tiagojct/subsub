@@ -56,7 +56,7 @@ The installer puts everything in `~/.subsub` (on Windows, `.subsub` in your user
 - It installs Node.js 22 in `~/.subsub/node`, if your Node.js is missing or older than 22.19. It checks the download against the checksums that nodejs.org publishes.
 - It installs Sub-Sub (the npm package [@tiagojct/subsub](https://www.npmjs.com/package/@tiagojct/subsub)).
 - It adds `~/.subsub/bin` to your PATH, so that the `subsub` command works in new terminal windows.
-- It starts `subsub init`, which asks for your name, a notes folder, a profile and a starter tag list.
+- It starts `subsub init`, which asks for your name, a notes folder, a profile, a starter tag list and if you want reference checks (Starbuck).
 - It adds a Sub-Sub shortcut (`subsub shortcut`): in Applications on macOS, in the Start menu and on the desktop on Windows, in the applications menu on Linux. The shortcut opens Sub-Sub in your browser.
 - It opens Sub-Sub in your browser.
 
@@ -68,9 +68,9 @@ If you have Node.js 22.19 or later and uv:
 
 <pre class="cmd"><code>npm install -g @tiagojct/subsub</code></pre>
 
-Then type `subsub init`, and `subsub shortcut` for the shortcut.
+npm also installs pi 1.0, which Sub-Sub needs. Then type `subsub init`, and `subsub shortcut` for the shortcut.
 
-If you already use [pi](https://pi.dev), you can also add Sub-Sub to pi: `pi install npm:@tiagojct/subsub`.
+If you already use [pi](https://pi.dev), you can also add Sub-Sub to pi: `pi install npm:@tiagojct/subsub`. Sub-Sub needs pi 1.0 or later.
 
 ## What `subsub init` creates
 
@@ -79,6 +79,15 @@ If you already use [pi](https://pi.dev), you can also add Sub-Sub to pi: `pi ins
 - In your notes folder: `Inbox/`, `Systems/Zotero tags.md` (a starter tag list) and `Systems/Zotero agent.md` (the note formats). You can edit both files.
 
 `subsub init` never replaces a file that exists. To change your settings later, type `subsub init` again.
+
+## Reference checks (Starbuck)
+
+Starbuck is an add-on that checks the references of a manuscript. It is off by default. To turn it on:
+
+- In `subsub init`, answer On to the question "Reference checks (Starbuck)". Or type `subsub init --starbuck on`.
+- Or, in the browser view, turn on the switch "Reference checks (Starbuck)" in the panel on the left. Sub-Sub restarts.
+
+Sub-Sub downloads Starbuck with uv the first time. Then type `subsub doctor`: the line Starbuck must show ok. The researcher then has `/verify`. See the [Guide](/guide/#check-references).
 
 ## Update
 

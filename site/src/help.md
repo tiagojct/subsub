@@ -19,6 +19,7 @@ Type `subsub doctor`. Each line starts with `ok`, `NOTE` or `FIX`. Do the fix th
 | FIX Tag list | Type `subsub init`. It creates a starter tag list. |
 | NOTE Tag list: no topic/ tags | In the librarian mode, ask: `propose topics for my tag list`. |
 | NOTE Contact email | Type `subsub init` and give an email address. Without it, Sub-Sub cannot find open-access PDFs. |
+| FIX Starbuck | Only when reference checks are on. Check the internet connection: the first start downloads Starbuck. Then type `subsub doctor` again. To turn reference checks off, type `subsub init`. |
 | FIX Model login | Open Sub-Sub, select the model button and save an API key. Or type `subsub`, then `/login`. |
 
 ## Other problems
@@ -30,9 +31,20 @@ Type `subsub doctor`. Each line starts with `ok`, `NOTE` or `FIX`. Do the fix th
 - The page says "Sub-Sub stopped": select Start again. If it stops again, type `subsub doctor`.
 - Zotero asks for permission when Sub-Sub first changes something: select Always Allow.
 - "cannot use opencode-go/…": you are not logged in to that provider, or the model name is wrong. Type `/login`, or change `models` in the settings file.
-- A tool is "not part of the Reader profile": type `/profile` to see the profile, and `/profile scholar` to change it.
+- A tool or a command is "not part of the Reader profile": type `/profile` to see the profile, and `/profile scholar` to change it. The message names the profiles that have it. For example, `/lit` is not in Reader, and `/review` is only in Author and Editor.
 - A tool is "not available in researcher mode": type `/librarian`.
+- `/verify` says that reference checks need Starbuck: turn on "Reference checks (Starbuck)" in the panel on the left of the browser view, or type `subsub init --starbuck on`.
+- Sub-Sub refuses a literature note: the note must say what Sub-Sub read (evidence: full text, abstract or metadata), and it can give page numbers only when it read the full text. Ask Sub-Sub to correct the note.
 - A review note was "already applied": Sub-Sub does not apply a note twice. To apply it again, ask for it explicitly.
+
+## Papers that are not open access
+
+Sub-Sub finds open-access copies through Unpaywall and Europe PMC. For other papers:
+
+- At FMUP or U.Porto, use Sub-Sub on the U.Porto network. There, the DOI link opens the publisher's version through the library's subscriptions. See [FMUP](/fmup/).
+- Type `/request-copy` and the citekey, DOI or PMID. Sub-Sub drafts an email to the corresponding author. You send it.
+
+Sub-Sub does not use unlicensed sources.
 
 ## Report a problem
 

@@ -15,20 +15,24 @@ Sub-Sub sends no usage data, statistics or crash reports anywhere.
 
 ## What goes to the model provider
 
-The AI model runs at the provider you choose. It receives your messages and what the tools return to it: titles, authors, abstracts, tags, and parts of a full text when you ask for a note on it. Choose a provider whose terms suit your material. For confidential work, use an institutional model service or a local model (see [Models](/models/)).
+The AI model runs at the provider you choose. It receives your messages and what the tools return to it: titles, authors, abstracts, tags, and parts of a full text when you ask for a note on it. When you check claims with `/verify <file> claims`, it also receives the citing sentences of your manuscript and the passages of the sources. Choose a provider whose terms suit your material. For confidential work, use an institutional model service or a local model (see [Models](/models/)).
 
 ## What goes to other services
 
 | Service | What it receives | When |
 |---|---|---|
-| PubMed (NCBI) | Your search terms | Researcher searches |
+| PubMed (NCBI) | Your search terms; DOIs and PMIDs | Researcher searches; the author's address for `/request-copy` (read from the PubMed record only) |
+| Europe PMC | Your search terms, DOIs and PMIDs | Researcher searches, open-access full text |
 | OpenAlex | Your search terms, DOIs | Searches, citation graph, alerts |
 | Crossref | DOIs, titles | Imports and metadata repair |
 | Unpaywall | DOIs and your contact email | Open-access PDFs (the email is required by Unpaywall) |
 | Open Library | ISBNs | Book imports |
+| Crossref, DataCite, PubMed, OpenAlex, arXiv, Open Library, Europe PMC | The identifiers and titles of the cited works, and your contact email | Reference checks (Starbuck), only when you turn the add-on on |
 | npm, PyPI | Package downloads | Install and update |
 
 These services receive identifiers and search terms, not your notes or your library.
+
+Sub-Sub sends no email. `/request-copy` writes a draft in your notes folder; you decide whether to send it.
 
 ## Safety
 

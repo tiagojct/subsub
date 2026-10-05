@@ -18,7 +18,7 @@ form:
 O Sub-Sub é um bibliotecário e assistente de investigação para o Zotero. Funciona no seu computador e abre no seu navegador, com um modelo de IA. Tem dois modos:
 
 - O bibliotecário organiza a biblioteca: etiquetas, importações por DOI ou PMID, correção de metadados.
-- O investigador lê a biblioteca, pesquisa na PubMed e na OpenAlex e escreve notas na sua pasta de notas.
+- O investigador lê a biblioteca, pesquisa na PubMed, na Europe PMC e na OpenAlex e escreve notas na sua pasta de notas.
 
 Nenhuma alteração à biblioteca acontece sem a sua aprovação. Com a língua definida para português europeu, os botões, as respostas e as notas ficam em português. As pré-visualizações das alterações e algumas mensagens técnicas ficam em inglês.
 
@@ -59,6 +59,7 @@ O instalador instala o uv, o Node.js (se for preciso) e o Sub-Sub na sua pasta p
 | Profile | Prima Enter (Reader). |
 | Starter tag list | Prima Enter (health sciences). |
 | Email for Unpaywall and Crossref | O seu email da U.Porto. Serve para encontrar PDF em acesso aberto. |
+| Reference checks (Starbuck) | Prima Enter (Off). |
 | Models | Prima Enter (Choose later). |
 
 </div>

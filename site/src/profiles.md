@@ -10,10 +10,14 @@ lead: A profile sets what Sub-Sub writes for you and which tools it offers. The 
 | Explains each step | yes | | | |
 | Reading notes: quotes with page numbers, and questions for you | yes | yes | yes | yes |
 | Summaries, literature notes, syntheses | | yes | yes | yes |
+| Literature reviews, comparisons, digests (`/lit`, `/compare`, `/digest`) | | yes | yes | yes |
 | Tagging, imports, metadata, PDFs | yes | yes | yes | yes |
 | Bulk library changes (rename or remove tags, repair, trash) | | yes | yes | yes |
+| Reference checks with Starbuck (`/verify`) | yes | yes | yes | yes |
+| Draft email to ask an author for a copy (`/request-copy`) | yes | yes | yes | yes |
 | Citation check and bibliography for a manuscript | | | yes | yes |
 | Comments on the argument of a manuscript | | | yes | yes |
+| Review of a manuscript against a reporting guideline (`/review`) | | | yes | yes |
 | Drafted text for a manuscript, when you ask | | | | yes |
 | Items per review note | 10 | 25 | 25 | 25 |
 
@@ -37,5 +41,7 @@ Everything. When you ask, it drafts text for a manuscript, cites library items a
 
 - Type `/profile` to see the current profile.
 - Type `/profile reader` (or `scholar`, `author`, `editor`) to change it. Sub-Sub saves the change.
+
+If you type a command that your profile does not run, Sub-Sub refuses it and names the profiles that run it.
 
 A profile is your choice, not a lock: you can change it at any time. If a course has rules about AI, those rules apply, whatever the profile.

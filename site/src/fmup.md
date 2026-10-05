@@ -15,6 +15,15 @@ This gives you:
 - A starter tag list for the health sciences: clinical areas, public health, methods and study designs.
 - The [Reader profile](/profiles/), which explains each step and writes reading notes with quotes and questions. You can change the profile at any time with `/profile`.
 
+## Papers that are not open access
+
+Sub-Sub finds open-access copies of papers. For a paper that is not open access:
+
+1. Use Sub-Sub on the U.Porto network. There, the DOI link opens the publisher's version through the library's subscriptions.
+2. If the library does not subscribe to the journal, type `/request-copy` and the citekey, DOI or PMID. Sub-Sub drafts an email to the corresponding author, with the address from the PubMed record. You read the draft and send it yourself.
+
+Sub-Sub does not use unlicensed sources.
+
 ## The FMUP model service
 
 Soon, the FMUP set-up will include a model service at no cost to you. Until then, connect your own provider with `/login` (see [Models](/models/)).

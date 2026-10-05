@@ -28,7 +28,7 @@ export default function (eleventyConfig) {
 		version: pkg.version,
 		name: pkg.name,
 		server: (config.match(/SERVER_VERSION = "([^"]+)"/) || [])[1],
-		pi: pkg.dependencies["@earendil-works/pi-coding-agent"],
+		pi: (pkg.peerDependencies || {})["@earendil-works/pi-coding-agent"] || (pkg.dependencies || {})["@earendil-works/pi-coding-agent"],
 	});
 
 	const md = markdownIt({ html: true, typographer: false }).use(markdownItAnchor, {
