@@ -179,6 +179,7 @@ export const ACTIONS = {
 		{ cmd: "verify", fill: true, needs: "starbuck", en: "Check references", pt: "Verificar referências" },
 		{ cmd: "review", fill: true, profiles: ["author", "editor"], en: "Review a manuscript", pt: "Rever um manuscrito" },
 		{ cmd: "alert", send: true, en: "New publications", pt: "Novas publicações" },
+		{ cmd: "request-copy", fill: true, en: "Ask an author for a copy", pt: "Pedir uma cópia ao autor" },
 		{ cmd: "digest", send: true, profiles: ["scholar", "author", "editor"], en: "Digest of the week", pt: "Resumo da semana" },
 	],
 	librarian: [
@@ -251,6 +252,7 @@ export const TOOLS = {
 		search_europepmc: "search Europe PMC",
 		search_multi: "search PubMed, Europe PMC and OpenAlex",
 		read_oa_fulltext: "read the open-access full text",
+		find_contact: "find the author's address",
 		verify_check_references: "check references",
 		verify_prepare_claims: "prepare the claim check",
 		verify_record_claims: "record the claim check",
@@ -306,6 +308,7 @@ export const TOOLS = {
 		search_europepmc: "pesquisar na Europe PMC",
 		search_multi: "pesquisar na PubMed, Europe PMC e OpenAlex",
 		read_oa_fulltext: "ler o texto integral em acesso aberto",
+		find_contact: "procurar o endereço do autor",
 		verify_check_references: "verificar referências",
 		verify_prepare_claims: "preparar a verificação das afirmações",
 		verify_record_claims: "registar a verificação das afirmações",

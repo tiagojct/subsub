@@ -148,6 +148,7 @@ Type the command followed by arguments:
   * `/compare <question or citekeys>`: Source matrix (claim, evidence type, caveats, confidence), agreements and disagreements (Scholar, Author, Editor).
   * `/review <path>`: Critical review of your own manuscript: FATAL, MAJOR and MINOR issues against the reporting guideline that applies (CONSORT, STROBE, PRISMA, STARD, TRIPOD), with quotations and a revision plan. Comments only (Author, Editor).
   * `/digest [days] [topic]`: Digest of the last days (default 7): what the new notes and alerts change, works worth reading, open questions, decisions for you (Scholar, Author, Editor).
+  * `/request-copy <citekey, DOI or PMID>`: Draft an email to the corresponding author asking for a copy of a paper that is not open access. The address comes from the PubMed record; you send the email yourself.
   * `/lit-note <citekey>`: Generate an in-depth literature note from item fulltext.
   * `/synthesis <topic>`: Synthesize library findings on a specific topic.
   * `/gaps <topic>`: Identify unanswered questions and literature gaps.
@@ -186,6 +187,10 @@ subsub review apply 13-31
 | `starbuckDir` | string | Local Starbuck folder (used when it has a `pyproject.toml`) | `~/Projects/starbuck` |
 
 Server-level configurations (notes folder path, tag vocabulary path, Unpaywall email) reside in `~/.config/zotero-local-mcp/env`.
+
+### Papers that are not open access
+
+Sub-Sub finds open-access copies (Unpaywall, Europe PMC). For other papers, use Sub-Sub on your institution's network (at FMUP: the U.Porto network), where the DOI link opens the publisher's version through the library's subscriptions, or use `/request-copy` to ask the author. Sub-Sub does not use unlicensed sources.
 
 ### Reference checks (Starbuck add-on)
 

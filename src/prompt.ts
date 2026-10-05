@@ -74,6 +74,12 @@ export function systemAddition(mode: Mode, cfg: SubsubConfig, cwd: string): stri
 			if (t) parts.push(`# Vault conventions (${f})`, t);
 		}
 	}
+	if (cfg.setup === "fmup") {
+		parts.push(
+			"# U.Porto",
+			`${capital(user)} works at the University of Porto. Papers that are not open access often open through the university's subscriptions when ${user} uses Sub-Sub on the U.Porto network: say so when a work is not open access.`,
+		);
+	}
 	// The profile and the language rule come last, so they win over the shared rules and the vault conventions.
 	parts.push("# Profile", fill(profileSpec(cfg.profile).rules, cfg));
 	parts.push("# Language", languageRule(cfg.language, user));
