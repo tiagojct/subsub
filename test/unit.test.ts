@@ -797,3 +797,58 @@ test("profiles: prompt commands per profile, blocked before the template is expa
 		else process.env.SUBSUB_CONFIG = old;
 	}
 });
+
+test("literature notes: evidence field required, page numbers only from the full text", async () => {
+	const { checkLiteratureNote, applyEdits } = await import("../src/notes.ts");
+	const note = (front: string, body = "## Summary\nFeNO predicts attacks.") => `---\ntitle: "FeNO"\ncitekey: jacinto2026\n${front}---\n\n${body}\n`;
+	assert.equal(checkLiteratureNote("---\ntitle: x\n---\nNo citekey, not a literature note."), undefined);
+	assert.equal(checkLiteratureNote("Plain text, p. 4."), undefined);
+	assert.match(checkLiteratureNote(note(""))!, /needs "evidence:"/);
+	assert.match(checkLiteratureNote(note("evidence: summary\n"))!, /needs "evidence:"/);
+	assert.equal(checkLiteratureNote(note("evidence: full text\n", "> quote (p. 4)")), undefined);
+	assert.equal(checkLiteratureNote(note('evidence: "abstract"\n')), undefined);
+	assert.match(checkLiteratureNote(note("evidence: abstract\n", "> quote (p. 4)"))!, /gives page numbers/);
+	assert.match(checkLiteratureNote(note("evidence: metadata\n", "see pages 3-5"))!, /gives page numbers/);
+	assert.equal(applyEdits("a b a", [{ oldText: "a", newText: "$&c" }]), "$&c b a");
+
+	// through the gate: write and edit of a note in the vault
+	const { toolCall } = await setup();
+	const blocked = await toolCall("write", { path: "/vault/Literature/jacinto2026.md", content: note("") });
+	assert.equal(blocked.block, true);
+	assert.match(blocked.reason, /needs "evidence:"/);
+	assert.equal(await toolCall("write", { path: "/vault/Literature/jacinto2026.md", content: note("evidence: abstract\n") }), undefined);
+	const dir = mkdtempSync(join(tmpdir(), "subsub-note-"));
+	const file = join(dir, "n.md");
+	writeFileSync(file, note("evidence: abstract\n"));
+	const edit = await toolCall("edit", { path: file, edits: [{ oldText: "FeNO predicts attacks.", newText: "FeNO predicts attacks (p. 7)." }] });
+	assert.equal(edit.block, true);
+	assert.match(edit.reason, /gives page numbers/);
+});
+
+test("bench: the lit task prompt and its scores", async () => {
+	const { promptFor, scoreRun, TASKS } = await import("../src/bench.ts");
+	assert.ok(TASKS.researcher.includes("lit"));
+	const tasks: any = { synthesis: { topic: "topic/asthma", description: "Asthma", keys: [], citekeys: [] }, search: { topic: null, description: "", year_from: 2020 } };
+	const prompt = promptFor("lit", tasks, "M1", "/out")!;
+	assert.match(prompt, /^\/lit Asthma \(topic\/asthma\)\. This is a model test: write the review as \/out\/Lit.md/);
+	const dir = mkdtempSync(join(tmpdir(), "subsub-bench-lit-"));
+	mkdirSync(join(dir, ".plans"));
+	writeFileSync(join(dir, ".plans", "asthma-screening.md"), "log");
+	writeFileSync(join(dir, "Lit.md"), [
+		"## Evidence table", "| # | Source | Design | Population | Key finding | Read | In library |", "|---|---|---|---|---|---|---|",
+		"| 1 | Smith 2020 | RCT | adults | x | full text | no |", "| [2] | Lee 2021 | cohort | children | y | abstract | yes |",
+		"| 3 | Kim 2019 | review | adults | z | skimmed | no |", "", "## Sources", "1. Smith. doi:10.1000/seen.1", "2. Lee. PMID: 12345678",
+	].join("\n"));
+	writeFileSync(join(dir, "events.jsonl"), JSON.stringify({ type: "tool_execution_end", toolName: "scholar_search_multi", toolCallId: "a",
+		result: { content: [{ type: "text", text: "10.1000/seen.1" }] }, isError: false }) + "\n");
+	const seenFiles: string[] = [];
+	const s = scoreRun("lit", dir, tasks, [], {}, (f) => { seenFiles.push(f); return { fail: 0, check: 1, citation_recall: 0.5 }; });
+	assert.equal(s.written, true);
+	assert.equal(s.evidence_rows, 3);
+	assert.equal(s.evidence_labelled, 2);
+	assert.equal(s.dois, 1);
+	assert.deepEqual(s.ungrounded, ["12345678"]);
+	assert.equal(s.screening_log, true);
+	assert.deepEqual(seenFiles, [join(dir, "Lit.md")]);
+	assert.equal(s.starbuck.citation_recall, 0.5);
+});

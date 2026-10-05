@@ -17,13 +17,13 @@ Make a short slug from the topic: lower case, hyphens, at most five words. Use t
 ## 2. Gather
 
 1. Library first: zotero_find_items for the topic (and the topic tags). Note what the library already has.
-2. Outside: scholar_search_multi with three or four phrasings of the question (synonyms, the test or drug name, the condition name, MeSH terms). Use year limits when the question needs recent work.
-3. Choose the works to read. Prefer systematic reviews, guidelines and primary studies with the right design. Say why you leave out a work that looks relevant.
+2. Outside: scholar_search_multi with three or four phrasings of the question (synonyms, the test or drug name, the condition name, MeSH terms). Give include_terms (the key concepts) and exclude_terms (populations or designs outside the question) so that the server pre-screens the results. Use year limits when the question needs recent work.
+3. Screen. For every work in the merged list, decide: read, maybe, or exclude, with a reason of a few words. Prefer systematic reviews, guidelines and primary studies with the right design. Write the screening log to `Research/.plans/<slug>-screening.md`: a table (#, work, identifier, pre-screen, decision, reason) and the counts for a flow diagram: found by the searches, unique works, pre-screen excluded, screened, read, used.
 4. Read before you summarise:
    - Library items: zotero_get_fulltext, or the abstract when there is no full text.
    - Open-access works: scholar_read_oa_fulltext, first the section list, then only the sections you need (usually methods and results).
    - Other works: scholar_get_work for the abstract.
-5. Keep an evidence table as you read. Give each source a number that does not change: [1], [2], ...
+5. Keep an evidence table as you read. Give each source a number that does not change: [1], [2], ... At most two rows from one paper, so that no single paper dominates. In the Read column write exactly one of: full text, abstract, metadata.
 
 ## 3. Synthesise
 
@@ -33,13 +33,19 @@ Make a short slug from the topic: lower case, hyphens, at most five words. Use t
 - Give numbers (effect sizes, accuracy, sample sizes) only from what you read, with the source.
 - Do not draft text for the user's own manuscript.
 
-## 4. Verify
+## 4. Check the draft for gaps
+
+1. Read your draft as a critical reviewer. Name at most three gaps that matter for the question (a population, outcome, design or recent period that the draft does not cover), each as one self-contained search question.
+2. Search only for those questions (scholar_search_multi), read what you add, and give the new sources the next numbers.
+3. Edit only the parts of the draft that a gap names. Do not shorten the draft by more than a tenth. If a search finds nothing new, say so in Methods.
+
+## 5. Verify
 
 - If the verify_ tools are available: verify_check_references with the identifiers of every source in the evidence table. Fix the sources that fail. Report the ones that need checking.
 - If not: check each DOI or PMID with scholar_get_work.
 - Never write "verified" for a check you did not run.
 
-## 5. Deliver
+## 6. Deliver
 
 Write one note: `Research/<date> <slug>.md` in the notes folder. Do not overwrite an existing note; add -2 to the name. Use this structure:
 
@@ -51,8 +57,10 @@ type: literature-review
 question: "<question in one sentence>"
 searches: ["<phrasing 1>", "<phrasing 2>", "<phrasing 3>"]
 sources_found: <number of unique works>
+sources_screened: <number>
 sources_read: <number>
 sources_used: <number>
+screening_log: "Research/.plans/<slug>-screening.md"
 verification: PASS | PASS WITH NOTES | BLOCKED
 reference_check: "<path of the Starbuck report, or none>"
 ---
@@ -68,7 +76,7 @@ reference_check: "<path of the Starbuck report, or none>"
 ## Disagreement
 ## Open questions
 ## Methods
-(where you searched, the phrasings, what you included and left out, and why)
+(where you searched, the phrasings, the pre-screen terms, the screening counts, the gap searches, what you included and left out, and why)
 
 ## Sources
 1. [@citekey] for library items; for other works: Authors, year, title, journal. doi:... (not in library)

@@ -16,7 +16,7 @@
  */
 
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Bridge, type ServerSpec } from "./bridge.ts";
@@ -37,6 +37,7 @@ import {
 } from "./config.ts";
 import { profileList, profileSpec, promptBlocked } from "./profiles.ts";
 import { coerceArgs, loosenArrays } from "./args.ts";
+import { applyEdits, checkLiteratureNote } from "./notes.ts";
 import { buildPolicy, judgePath, normalizeToolPath, realish, within } from "./paths.ts";
 import { describeArgs, formatPreview } from "./preview.ts";
 import { headerLines, type LibraryState, paintPreview, QUOTES, type Scheme, schemeFromAnsi, themeName } from "./look.ts";
@@ -333,6 +334,8 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		if (benchOut) return benchGate(name, input, kind, ctx.cwd, ctx.signal);
 		if (kind === "path") {
 			const target = normalizeToolPath(String(input.path ?? ""), ctx.cwd);
+			const noteProblem = literatureNoteProblem(name, target, input);
+			if (noteProblem) return { block: true, reason: noteProblem };
 			const verdict = judgePath(target, buildPolicy({ vault: cfg.vault, cwd: ctx.cwd, serverDir: cfg.serverDir, packageDir: PACKAGE_DIR }));
 			if (verdict.ok) return undefined;
 			if (!ctx.hasUI) return { block: true, reason: `Writing ${target} needs ${user}'s approval: ${verdict.why}.` };
@@ -362,6 +365,17 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		);
 		return ok ? undefined : { block: true, reason: `${user} did not approve this change. Ask what to change; do not retry the same call.` };
 	});
+
+	/** A literature note (front matter with a citekey) must state its evidence; see notes.ts. */
+	function literatureNoteProblem(name: string, target: string, input: Record<string, unknown>): string | undefined {
+		if (!target.toLowerCase().endsWith(".md")) return undefined;
+		if (name === "write") return checkLiteratureNote(String(input.content ?? ""));
+		if (name === "edit" && Array.isArray(input.edits) && existsSync(target)) {
+			const current = readFileSync(target, "utf8");
+			return checkLiteratureNote(applyEdits(current, input.edits as Array<{ oldText?: unknown; newText?: unknown }>));
+		}
+		return undefined;
+	}
 
 	/**
 	 * Starbuck writes its reports into a folder: report_dir, or _starbuck next to the
@@ -393,6 +407,11 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	async function benchGate(name: string, input: Record<string, unknown>, kind: string, cwd: string, signal?: AbortSignal) {
 		if (kind === "path") {
 			const target = normalizeToolPath(String(input.path ?? ""), cwd);
+			const noteProblem = literatureNoteProblem(name, target, input);
+			if (noteProblem) {
+				record({ kind: "note_blocked", tool: name, path: target, reason: noteProblem });
+				return { block: true, reason: noteProblem };
+			}
 			if (within(target, realish(benchOut!))) return undefined;
 			record({ kind: "path_blocked", tool: name, path: target });
 			return { block: true, reason: `Model test: write only inside ${benchOut}.` };

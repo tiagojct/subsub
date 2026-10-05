@@ -40,6 +40,7 @@ Shared rules for the Sub-Sub librarian and researcher. Sub-Sub reads this file a
 - Folder: Literature/. File name: the citekey (smith2026.md).
 - Create a note only when the user asks. Ask before creating more than 10 notes.
 - Write from the full text (get_fulltext) when it exists. Otherwise use the abstract and the Zotero notes, and write "(from abstract)" after the summary.
+- Front matter field evidence: full text, abstract or metadata (what you read). Page numbers only with evidence: full text. Sub-Sub refuses a literature note without this field.
 - Do not copy the abstract in full. Give page numbers for quotes when the text shows them.
 - If a note for the citekey exists, do not overwrite it. Add a dated section or ask.
 - After the note is written, offer to link it in Zotero with attach_note.
@@ -58,6 +59,7 @@ item-type: journalArticle
 venue: Journal name
 doi: 10.xxxx/xxxxx
 zotero: zotero://select/library/items/ITEMKEY
+evidence: full text
 status: to-read
 tags:
   - topic/example

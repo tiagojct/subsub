@@ -38,7 +38,7 @@ export const PROFILE_SPECS: Record<Profile, ProfileSpec> = {
 		label: "Reader",
 		summary: "explains each step; reading notes are quotes and questions; no summaries; no bulk library changes",
 		without: [...BULK_LIBRARY, ...MANUSCRIPT],
-		withoutPrompts: ["lit", "compare", "review"],
+		withoutPrompts: ["lit", "compare", "review", "digest"],
 		batch: 10,
 		rules: [
 			"Profile: Reader. {{User}} is learning to work with the literature and wants to do the reading and the writing.",

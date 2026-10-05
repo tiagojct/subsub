@@ -147,6 +147,7 @@ Type the command followed by arguments:
   * `/lit <question>`: Literature review: the library first, then PubMed, Europe PMC and OpenAlex in one merged search; reads before it summarises; an evidence table, agreement, disagreement and open questions; references checked; one note in `Research/` (Scholar, Author, Editor).
   * `/compare <question or citekeys>`: Source matrix (claim, evidence type, caveats, confidence), agreements and disagreements (Scholar, Author, Editor).
   * `/review <path>`: Critical review of your own manuscript: FATAL, MAJOR and MINOR issues against the reporting guideline that applies (CONSORT, STROBE, PRISMA, STARD, TRIPOD), with quotations and a revision plan. Comments only (Author, Editor).
+  * `/digest [days] [topic]`: Digest of the last days (default 7): what the new notes and alerts change, works worth reading, open questions, decisions for you (Scholar, Author, Editor).
   * `/lit-note <citekey>`: Generate an in-depth literature note from item fulltext.
   * `/synthesis <topic>`: Synthesize library findings on a specific topic.
   * `/gaps <topic>`: Identify unanswered questions and literature gaps.

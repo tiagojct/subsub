@@ -16,7 +16,7 @@ import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { expand, loadConfig, type Mode } from "./config.ts";
+import { expand, loadConfig, type Mode, starbuckCommand, starbuckEnabled } from "./config.ts";
 import { findUv } from "./subsub.ts";
 
 export const PACKAGE_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -28,7 +28,7 @@ export const DEFAULT_MODELS: Record<Mode, string[]> = {
 
 export const TASKS: Record<Mode, string[]> = {
 	librarian: ["tagging", "facet_fix", "import"],
-	researcher: ["lit_note", "synthesis", "search"],
+	researcher: ["lit_note", "synthesis", "search", "lit"],
 };
 
 export interface Tasks {
@@ -84,6 +84,12 @@ export function promptFor(task: string, t: Tasks, code: string, out: string): st
 			return t.synthesis
 				? `Write a synthesis of what my library says about ${about(t)}, following the synthesis format in the shared rules. ` +
 						`This is a model test: save it as ${join(out, "Synthesis.md")}.`
+				: undefined;
+		case "lit":
+			// The /lit template, with the model-test paths in its arguments.
+			return t.synthesis
+				? `/lit ${about(t)}. This is a model test: write the review as ${join(out, "Lit.md")}, the plan and the screening log ` +
+						`in ${join(out, ".plans")}, nothing in Research/, and do not queue imports.`
 				: undefined;
 		case "search":
 			return t.synthesis
@@ -300,7 +306,33 @@ export function citekeysIn(text: string): string[] {
 
 // ---------------------------------------------------------------- score one run
 
-export function scoreRun(task: string, dir: string, t: Tasks, index: IndexRow[], blindRef: Record<string, string[]>): Record<string, any> {
+/** Starbuck's verdicts on a file: runs `starbuck check` and reads its JSON report (undefined when it cannot run). */
+export type StarbuckScorer = (file: string) => Record<string, any> | undefined;
+
+export function starbuckScorer(cfg = loadConfig(), env: NodeJS.ProcessEnv = process.env): StarbuckScorer | undefined {
+	if (!starbuckEnabled(cfg)) return undefined;
+	const cmd = starbuckCommand(cfg, env);
+	return (file) => {
+		const claims = env.STARBUCK_JUDGE_URL && env.STARBUCK_JUDGE_MODEL ? ["--claims"] : [];
+		const args = [...cmd.args.slice(0, -1), "starbuck", "check", file, "--to", "", "--quiet", ...claims];
+		const r = spawnSync(cmd.command, args, { env, encoding: "utf8", timeout: 20 * 60_000 });
+		const report = join(dirname(file), "_starbuck", `${file.split(/[\\/]/).pop()!.replace(/\.[^.]+$/, "")}-references.json`);
+		if (!existsSync(report)) return { error: (r.stderr || r.error?.message || "no report").trim().slice(0, 300) };
+		const res = JSON.parse(readFileSync(report, "utf8"));
+		const run = res.claims_run ?? {};
+		return {
+			references: res.summary?.references_checked,
+			fail: res.summary?.fail,
+			check: res.summary?.warn,
+			uncited_sentences: Array.isArray(res.uncited) ? res.uncited.length : undefined,
+			citation_recall: run.citation_recall?.value,
+			citation_precision: run.citation_precision?.value,
+		};
+	};
+}
+
+export function scoreRun(task: string, dir: string, t: Tasks, index: IndexRow[], blindRef: Record<string, string[]>,
+	starbuck?: StarbuckScorer): Record<string, any> {
 	const events = readEvents(dir);
 	const calls = toolCalls(events);
 	const entries = benchEntries(events);
@@ -410,6 +442,29 @@ export function scoreRun(task: string, dir: string, t: Tasks, index: IndexRow[],
 		}
 		return res;
 	}
+	if (task === "lit") {
+		const text = readFile("Lit.md") ?? "";
+		const seen = calls.map((c) => c.result).join("\n").toLowerCase();
+		const dois = [...new Set([...text.matchAll(DOI_RE)].map((m) => normDoi(m[0])))];
+		const pmids = [...new Set([...text.matchAll(PMID_RE)].map((m) => m[1]))];
+		const rows = text.split("\n").filter((l) => /^\|\s*\[?\d+\]?\s*\|/.test(l));
+		const readCol = rows.map((l) => l.split("|").map((c) => c.trim().toLowerCase())).map((c) => c.find((x) => /^(full text|abstract|metadata)$/.test(x)));
+		const plans = join(dir, ".plans");
+		return {
+			...base,
+			written: !!text,
+			words: text ? text.split(/\s+/).filter(Boolean).length : 0,
+			evidence_rows: rows.length,
+			evidence_labelled: readCol.filter(Boolean).length,
+			dois: dois.length,
+			pmids: pmids.length,
+			ungrounded: [...dois.filter((d) => !seen.includes(d)), ...pmids.filter((p) => !seen.includes(p))],
+			screening_log: existsSync(plans) && readdirSync(plans).some((f) => /screening/i.test(f)),
+			multi_searches: calls.filter((c) => c.name === "scholar_search_multi").length,
+			fulltext_reads: calls.filter((c) => c.name === "scholar_read_oa_fulltext" || c.name === "zotero_get_fulltext").length,
+			starbuck: text && starbuck ? starbuck(join(dir, "Lit.md")) : undefined,
+		};
+	}
 	if (task === "search") {
 		const text = readFile("Search.md") ?? "";
 		const seen = calls.map((c) => c.result).join("\n").toLowerCase();
@@ -453,6 +508,9 @@ export function renderResults(rows: Array<{ model: string; role: Mode; task: str
 		lit_note: ["written", "words", "read_fulltext", "cites_itself", "citekeys_unknown"],
 		synthesis: ["written", "words", "topic_items", "topic_items_cited", "citekeys_unknown"],
 		search: ["written", "dois", "pmids", "ungrounded", "already_in_library", "queued", "searches"],
+		lit: ["written", "words", "evidence_rows", "evidence_labelled", "dois", "pmids", "ungrounded", "screening_log",
+			"multi_searches", "fulltext_reads", "starbuck.fail", "starbuck.check", "starbuck.uncited_sentences",
+			"starbuck.citation_recall", "starbuck.citation_precision"],
 	};
 	const common = ["seconds", "tool_calls", "tool_errors", "wrong_mode", "tokens_in", "tokens_out", "cost", "error"];
 	for (const task of Object.keys(cols)) {
@@ -562,12 +620,13 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
 		const key: Record<string, string> = JSON.parse(readFileSync(join(dir, "key.json"), "utf8"));
 		const blind = existsSync(join(dir, "reference.json")) ? JSON.parse(readFileSync(join(dir, "reference.json"), "utf8")) : {};
 		const rows: Array<{ model: string; role: Mode; task: string; s: Record<string, any> }> = [];
+		const scorer = starbuckScorer(cfg);
 		for (const code of Object.keys(key).sort()) {
 			for (const role of ["librarian", "researcher"] as Mode[])
 				for (const task of TASKS[role]) {
 					const d = join(dir, "runs", code, task);
 					if (!existsSync(join(d, "summary.json"))) continue;
-					rows.push({ model: key[code], role, task, s: scoreRun(task, d, t, index, blind) });
+					rows.push({ model: key[code], role, task, s: scoreRun(task, d, t, index, blind, scorer) });
 				}
 		}
 		writeFileSync(join(dir, "results.json"), JSON.stringify(rows, null, 1));

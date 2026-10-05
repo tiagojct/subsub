@@ -179,6 +179,7 @@ export const ACTIONS = {
 		{ cmd: "verify", fill: true, needs: "starbuck", en: "Check references", pt: "Verificar referências" },
 		{ cmd: "review", fill: true, profiles: ["author", "editor"], en: "Review a manuscript", pt: "Rever um manuscrito" },
 		{ cmd: "alert", send: true, en: "New publications", pt: "Novas publicações" },
+		{ cmd: "digest", send: true, profiles: ["scholar", "author", "editor"], en: "Digest of the week", pt: "Resumo da semana" },
 	],
 	librarian: [
 		{ cmd: "subsub", send: true, en: "Library overview", pt: "Resumo da biblioteca" },
