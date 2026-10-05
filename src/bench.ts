@@ -324,7 +324,7 @@ export function starbuckScorer(cfg = loadConfig(), env: NodeJS.ProcessEnv = proc
 			references: res.summary?.references_checked,
 			fail: res.summary?.fail,
 			check: res.summary?.warn,
-			uncited_sentences: Array.isArray(res.uncited) ? res.uncited.length : undefined,
+			uncited_sentences: res.summary?.uncited_sentences,
 			citation_recall: run.citation_recall?.value,
 			citation_precision: run.citation_precision?.value,
 		};
