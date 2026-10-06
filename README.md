@@ -18,7 +18,7 @@ A Zotero librarian and research assistant that runs on your computer, in your br
 * **Code-Enforced Safety Gate**: The model **cannot** modify your library without your explicit approval. Every change is calculated first as a dry-run preview (+added in green, -removed in red) and executed only when you confirm.
 * **Full Journal & Reversible Edits**: Every library modification is recorded with a unique journal ID and can be reverted anytime using `/undo`.
 * **Two Dedicated Roles**:
-  * 📚 **The Librarian**: Cleans tags, imports references (DOI, PMID, ISBN), deduplicates, fixes metadata, retrieves open-access PDFs, creates collections, and checks retractions. *Runs completely offline with no web search access.*
+  * 📚 **The Librarian**: Cleans tags, imports references (DOI, PMID, ISBN), deduplicates, fixes metadata, retrieves open-access PDFs, creates collections, and checks retractions. *Has no web search tools; imports and PDFs come from Crossref, Unpaywall and Open Library.*
   * 🔬 **The Researcher**: Reads items, searches PubMed and OpenAlex, finds gaps, checks citations in manuscripts, and writes structured Markdown notes in your Sub-Sub folder (it can sit inside an Obsidian vault). *Cannot modify library records.*
 * **Local & Private**: Listens strictly on `127.0.0.1` protected by an authenticated single-origin session cookie. Your library contents remain on your computer.
 * **Modern Web Interface & Terminal UI**: Use Sub-Sub in your browser with desktop shortcuts (`~/Applications/Sub-Sub.app`, Start menu, or `.desktop`), or launch it right in your terminal with adaptive color themes.
