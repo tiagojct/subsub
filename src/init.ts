@@ -4,7 +4,7 @@
  *
  * Writes:
  * - the settings file (~/.config/subsub/config.json): profile, name, language,
- *   Sub-Sub folder, library changes, model;
+ *   Sub-Sub folder, models;
  * - the server settings file (~/.config/zotero-local-mcp/env, or the one that
  *   already exists): the Sub-Sub folder, tag list, alerts file, contact email.
  *   Other lines stay;
@@ -19,7 +19,7 @@
  * Flags (for scripts and tests): --yes (take every default), --setup
  * standard|fmup, --name, --about, --language, --folder (or --notes), --move
  * yes|no, --profile, --tags health-sciences|health-informatics|any-field,
- * --library on|off, --email, --starbuck on|off, --models keep|later|opencode-go.
+ * --email, --starbuck on|off, --models keep|later|opencode-go.
  */
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -29,7 +29,7 @@ import { createInterface } from "node:readline/promises";
 import { fileURLToPath } from "node:url";
 import {
 	configPath,
-	DEFAULT_MODEL,
+	DEFAULT_MODELS,
 	expand,
 	isProfile,
 	loadConfig,
@@ -53,7 +53,7 @@ export const STARTER_TAGS: Record<string, string> = {
 	"any-field": "Any field: methods and document types only; Sub-Sub proposes topics from your library",
 };
 
-export const TESTED_MODEL = DEFAULT_MODEL;
+export const TESTED_MODELS = DEFAULT_MODELS;
 
 export interface InitIO {
 	ask(question: string, def: string): Promise<string>;
@@ -185,19 +185,6 @@ export async function runInit(
 		isProfile(profileDefault) ? profileDefault : "scholar",
 	);
 
-	explain(
-		"Library changes",
-		"With library changes on, Sub-Sub can import, tag and repair items in Zotero. It shows a preview of every change, and nothing changes until you select Yes. With them off, it only reads, searches and writes notes. Switch at any time with /library on or /library off.",
-	);
-	const library = await io.choose(
-		"Library changes",
-		[
-			{ value: "on", label: "On (recommended): every change shows a preview first" },
-			{ value: "off", label: "Off: read, search and write notes only" },
-		],
-		flags.library ?? (existing.libraryChanges === false ? "off" : "on"),
-	);
-
 	// The tag list: a custom path in the server settings stays; otherwise Zotero/Zotero tags.md (moved, kept or new).
 	const vocabTarget = join(notes, SETTINGS_DIR, SETTINGS_FILES.tags);
 	const oldDefaults = new Set([join(from, "Systems", SETTINGS_FILES.tags), join(from, SETTINGS_DIR, SETTINGS_FILES.tags)]);
@@ -233,16 +220,20 @@ export async function runInit(
 		flags.starbuck ?? (starbuckEnabled(current) ? "on" : "off"),
 	);
 
-	explain("Models", "Sub-Sub needs an account with a model provider. You can connect one later in Sub-Sub with the model button (or /login in the terminal).");
+	explain(
+		"Models",
+		"Sub-Sub needs an account with a model provider. Each mode can use its own model: the Librarian a fast, cheap one for tags and imports, the Researcher a stronger one for reading. You can connect a provider later in Sub-Sub with the model button (or /login in the terminal).",
+	);
 	const hadModel = "model" in existing || "models" in existing;
+	const show = (m: Partial<Record<string, string>>) => (Object.keys(m).length ? Object.entries(m).map(([k, v]) => `${k} ${v}`).join(", ") : "choose in Sub-Sub");
 	const modelOptions = [
-		...(hadModel ? [{ value: "keep", label: `Keep: ${current.model ?? "choose in Sub-Sub"}` }] : []),
+		...(hadModel ? [{ value: "keep", label: `Keep: ${show(current.models)}` }] : []),
 		{ value: "later", label: "Choose later in Sub-Sub" },
-		{ value: "opencode-go", label: `OpenCode Go, tested: ${TESTED_MODEL}` },
+		{ value: "opencode-go", label: `OpenCode Go, tested: ${TESTED_MODELS.librarian} for the Librarian, ${TESTED_MODELS.researcher} for the Researcher` },
 	];
 	const agentDir = initEnv.SUBSUB_AGENT_DIR ? expand(initEnv.SUBSUB_AGENT_DIR, home) : join(home, ".subsub", "agent");
 	const modelDefault = hadModel ? "keep" : hasProvider(agentDir, "opencode") ? "opencode-go" : "later";
-	const models = await io.choose("Model", modelOptions, flags.models ?? modelDefault);
+	const models = await io.choose("Models", modelOptions, flags.models ?? modelDefault);
 
 	// ---- write
 	if (move === "yes") applyMoves(moves);
@@ -278,15 +269,14 @@ export async function runInit(
 		setup: fmup ? "fmup" : undefined,
 		vault: notes,
 		envFile,
-		libraryChanges: library === "on",
-		defaultMode: undefined,
+		libraryChanges: undefined,
 		addons: withStarbuck(current.addons, starbuck === "on"),
 	};
-	// One model since 0.10: the per-mode models are replaced.
-	patch.models = undefined;
-	if (models === "keep") patch.model = current.model ?? "";
-	if (models === "later") patch.model = "";
-	if (models === "opencode-go") patch.model = TESTED_MODEL;
+	// A model per mode; "model" (0.10, one for both) is replaced.
+	patch.model = undefined;
+	if (models === "keep") patch.models = current.models;
+	if (models === "later") patch.models = {};
+	if (models === "opencode-go") patch.models = TESTED_MODELS;
 	saveConfig(patch, initEnv);
 
 	const zotero = await zoteroReachable(deps.fetch);

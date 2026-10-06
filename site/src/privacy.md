@@ -41,7 +41,7 @@ Sub-Sub sends no email. `/request-copy` writes a draft in your Sub-Sub folder; y
 - Every change is journaled and can be undone.
 - Nothing is deleted. Items go to the Zotero trash; tags are removed from items.
 - Only tags from your tag list can be added.
-- With library changes off (the switch at the top, or `/library off`), Sub-Sub cannot change the library, except to add a short linked note (with a preview).
+- The Librarian has no search tools; only the Researcher contacts PubMed, Europe PMC and OpenAlex.
 - Text in abstracts, full texts and search results is treated as data. Sub-Sub's instructions tell the model never to follow instructions found in it.
 - Sub-Sub has no shell access. Writes outside your Sub-Sub folder and the current folder, and writes to settings and rule files, need your yes.
 - The browser view is a small server on your own computer. It listens only on 127.0.0.1, so other computers cannot reach it. The address that opens it contains a random key; other websites cannot read the page or answer an approval. It stops by itself 10 minutes after you close the page.

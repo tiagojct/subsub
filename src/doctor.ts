@@ -148,7 +148,7 @@ export function runChecks(
 	const agentDir = deps.agentDir ?? (env.SUBSUB_AGENT_DIR ? env.SUBSUB_AGENT_DIR : join(homedir(), ".subsub", "agent"));
 	out.push(
 		hasLogin(agentDir)
-			? { name: "Model login", ok: true, detail: cfg.model ?? "pi's default model" }
+			? { name: "Model login", ok: true, detail: Object.keys(cfg.models).length ? Object.entries(cfg.models).map(([m, id]) => `${m} ${id}`).join(", ") : "pi's default model" }
 			: { name: "Model login", ok: false, detail: "no model provider yet", fix: "Type subsub, then /login." },
 	);
 	return out;

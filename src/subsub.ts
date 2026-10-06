@@ -1,15 +1,14 @@
 /**
  * Sub-Sub: a Zotero librarian and research assistant for pi.
  *
- * - One assistant: it reads the library, searches PubMed, Europe PMC and
- *   OpenAlex, writes notes in the Sub-Sub folder and, with library changes on,
- *   changes the library. /library on|off is the switch (saved in the settings).
+ * - Two modes: the Librarian manages the library (Zotero tools only); the
+ *   Researcher does the same and also searches PubMed, Europe PMC and OpenAlex
+ *   and writes notes. Each mode can have its own model.
  * - An approval gate: every library change is previewed by the server (dry run)
  *   and shown to the user; nothing is applied without a yes.
  * - Profiles (reader, scholar, author, editor) set what Sub-Sub writes and which
  *   tools it offers; /profile changes it.
- * - Commands: /library, /profile, /subsub, /history, /undo. /librarian and
- *   /researcher (the two modes before 0.10) turn library changes on and off.
+ * - Commands: /librarian, /researcher, /profile, /subsub, /history, /undo.
  * - Add-on: with "addons": ["starbuck"], Starbuck runs as a third server
  *   ("verify") for reference checks.
  *
@@ -29,6 +28,7 @@ import {
 	loadConfig,
 	parseEnvFile,
 	type Profile,
+	type Mode,
 	saveConfig,
 	serverCommand,
 	starbuckCommand,
@@ -44,6 +44,8 @@ import { describeArgs, formatPreview } from "./preview.ts";
 import { headerLines, type LibraryState, paintPreview, QUOTES, type Scheme, schemeFromAnsi, themeName } from "./look.ts";
 import { systemAddition } from "./prompt.ts";
 import { gateKind, SERVER_PREFIXES, toolsFor, unavailableReason } from "./roles.ts";
+
+const MODE_ENTRY = "subsub-mode";
 
 export interface SubsubDeps {
 	config?: SubsubConfig;
@@ -127,12 +129,11 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 
 	if (deps.bridge) registerTools(deps.bridge);
 
-	pi.registerFlag("read-only", { description: "Start Sub-Sub with library changes off (this run only)", type: "boolean", default: false });
-	pi.registerFlag("librarian", { description: "Start Sub-Sub with library changes on (this run only)", type: "boolean", default: false });
+	pi.registerFlag("librarian", { description: "Start Sub-Sub in the Librarian mode", type: "boolean", default: false });
 
-	let libraryChanges = cfg.libraryChanges;
+	let mode: Mode = cfg.defaultMode;
 	const benchRun = Boolean(process.env.SUBSUB_BENCH_OUT);
-	const toolOpts = () => ({ libraryChanges, profile, bench: benchRun });
+	const toolOpts = () => ({ profile, bench: benchRun });
 	let profile: Profile = cfg.profile;
 	const user = who(cfg);
 	/** True when started with the `subsub` command (not as a package inside plain pi). */
@@ -154,7 +155,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		if (!webView || !ctx || ctx.mode !== "rpc") return;
 		const down = bridge ? Object.keys(bridge.errors) : ["zotero", "scholar"];
 		const state = {
-			libraryChanges,
+			mode,
 			profile,
 			profileLabel: profileSpec(profile).label,
 			model: ctx.model ? { provider: ctx.model.provider, id: ctx.model.id } : null,
@@ -221,7 +222,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 					const th = ctx.ui.theme;
 					return headerLines({
 						version,
-						libraryChanges,
+						mode,
 						profile: profileSpec(profile).label,
 						model: modelId,
 						library,
@@ -244,35 +245,25 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	function status(ctx: ExtensionContext): void {
 		modelId = ctx.model ? `${ctx.model.id}` : "no model";
 		const down = bridge ? Object.keys(bridge.errors) : ["zotero", "scholar"];
-		const lib = libraryChanges ? "library changes on" : "read only";
-		ctx.ui.setStatus("subsub", `Sub-Sub: ${lib} | ${profileSpec(profile).label} | ${modelId}${down.length ? ` | not running: ${down.join(", ")}` : ""}`);
-		if (standalone) ctx.ui.setTitle(libraryChanges ? "Sub-Sub" : "Sub-Sub (read only)");
+		ctx.ui.setStatus("subsub", `Sub-Sub: ${mode} | ${profileSpec(profile).label} | ${modelId}${down.length ? ` | not running: ${down.join(", ")}` : ""}`);
+		if (standalone) ctx.ui.setTitle(`Sub-Sub: ${mode}`);
 		headerTui?.requestRender();
 		webCtx = ctx;
 		emitWeb();
 	}
 
-	/** Set the tools for the switch and the profile; save the switch when asked. */
-	function applyLibrary(ctx: ExtensionContext, on: boolean, save: boolean): void {
-		libraryChanges = on;
-		pi.setActiveTools(toolsFor(registered(), toolOpts()));
-		if (save) {
-			try {
-				saveConfig({ libraryChanges: on });
-			} catch (err) {
-				ctx.ui.notify(`Sub-Sub: the setting was not saved: ${(err as Error).message}`, "warning");
-			}
+	async function applyMode(ctx: ExtensionContext, next: Mode, remember: boolean): Promise<void> {
+		mode = next;
+		pi.setActiveTools(toolsFor(mode, registered(), toolOpts()));
+		const spec = cfg.models[mode];
+		if (spec) {
+			const i = spec.indexOf("/");
+			const model = i > 0 ? ctx.modelRegistry.find(spec.slice(0, i), spec.slice(i + 1)) : undefined;
+			const ok = model ? await pi.setModel(model) : false;
+			if (!ok) ctx.ui.notify(`Sub-Sub: cannot use ${spec} (unknown model or no key); keeping the current model.`, "warning");
 		}
+		if (remember) pi.appendEntry(MODE_ENTRY, { mode });
 		status(ctx);
-	}
-
-	async function applyModel(ctx: ExtensionContext): Promise<void> {
-		const spec = cfg.model;
-		if (!spec) return;
-		const i = spec.indexOf("/");
-		const model = i > 0 ? ctx.modelRegistry.find(spec.slice(0, i), spec.slice(i + 1)) : undefined;
-		const ok = model ? await pi.setModel(model) : false;
-		if (!ok) ctx.ui.notify(`Sub-Sub: cannot use ${spec} (unknown model or no key); keeping the current model.`, "warning");
 	}
 
 	pi.on("session_start", async (_event, ctx) => {
@@ -282,12 +273,15 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			bridge = b;
 			registerTools(b);
 		}
+		let restored: Mode | undefined;
+		for (const e of ctx.sessionManager.getBranch() as Array<{ customType?: string; data?: { mode?: unknown } }>) {
+			const m = e.customType === MODE_ENTRY ? e.data?.mode : undefined;
+			if (m === "librarian" || m === "researcher") restored = m;
+		}
 		// Judge light or dark before Sub-Sub changes the theme.
 		if (lookOn(ctx)) scheme ??= schemeFromAnsi(ctx.ui.theme.getFgAnsi("text"), ctx.ui.theme.name);
-		await applyModel(ctx);
 		applyTheme(ctx);
-		// The flags change this run only; the saved setting stays.
-		applyLibrary(ctx, pi.getFlag("read-only") ? false : pi.getFlag("librarian") ? true : cfg.libraryChanges, false);
+		await applyMode(ctx, restored ?? (pi.getFlag("librarian") ? "librarian" : cfg.defaultMode), false);
 		if (lookOn(ctx)) {
 			setHeader(ctx);
 			void refreshLibrary();
@@ -318,7 +312,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	});
 
 	pi.on("before_agent_start", async (event, ctx) => ({
-		systemPrompt: `${event.systemPrompt}\n\n${systemAddition({ ...cfg, profile }, ctx.cwd, libraryChanges)}`,
+		systemPrompt: `${event.systemPrompt}\n\n${systemAddition(mode, { ...cfg, profile }, ctx.cwd)}`,
 	}));
 
 	/** Model test (subsub-bench): record every change instead of asking, and apply none. */
@@ -333,7 +327,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		if (schema) coerceArgs(schema, input);
 		resolvePathArgs(name, input, (p) => normalizeToolPath(p, ctx.cwd));
 		if (SERVER_PREFIXES.some((p) => name.startsWith(p))) {
-			const why = unavailableReason(name, registered(), toolOpts());
+			const why = unavailableReason(name, mode, registered(), toolOpts());
 			if (why) {
 				if (benchOut) record({ kind: "wrong_mode", tool: name, input });
 				return { block: true, reason: why };
@@ -447,39 +441,19 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		};
 	}
 
-	const libraryNote = (on: boolean) =>
-		on
-			? "Sub-Sub: library changes on. Every change shows a preview first."
-			: "Sub-Sub: library changes off. Sub-Sub reads, searches and writes notes; it does not change the library.";
-
-	pi.registerCommand("library", {
-		description: "Sub-Sub: turn library changes on or off (/library on, /library off)",
-		handler: async (args, ctx) => {
-			const a = args.trim().toLowerCase();
-			const on = a === "on" ? true : a === "off" ? false : a === "" ? !libraryChanges : undefined;
-			if (on === undefined) {
-				ctx.ui.notify("Type /library on or /library off.", "warning");
-				return;
-			}
-			applyLibrary(ctx, on, true);
-			ctx.ui.notify(libraryNote(on), "info");
-		},
-	});
-
-	// The two modes before 0.10, kept so that old habits and notes still work.
 	pi.registerCommand("librarian", {
-		description: "Sub-Sub: same as /library on",
+		description: "Sub-Sub: switch to the Librarian (manages the library: tags, imports, metadata, PDFs)",
 		handler: async (_args, ctx) => {
-			applyLibrary(ctx, true, true);
-			ctx.ui.notify(`${libraryNote(true)} (/librarian is now /library on.)`, "info");
+			await applyMode(ctx, "librarian", true);
+			ctx.ui.notify("Sub-Sub: Librarian mode. For searches and notes, switch to /researcher.", "info");
 		},
 	});
 
 	pi.registerCommand("researcher", {
-		description: "Sub-Sub: same as /library off",
+		description: "Sub-Sub: switch to the Researcher (searches, notes, reviews, and everything the Librarian does)",
 		handler: async (_args, ctx) => {
-			applyLibrary(ctx, false, true);
-			ctx.ui.notify(`${libraryNote(false)} (/researcher is now /library off.)`, "info");
+			await applyMode(ctx, "researcher", true);
+			ctx.ui.notify("Sub-Sub: Researcher mode. It searches, writes notes and also changes the library, with a preview.", "info");
 		},
 	});
 
@@ -502,7 +476,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			} catch (err) {
 				saved = ` Not saved: ${(err as Error).message}`;
 			}
-			applyLibrary(ctx, libraryChanges, false);
+			await applyMode(ctx, mode, false);
 			ctx.ui.notify(`Sub-Sub: ${profileSpec(profile).label} profile (${profileSpec(profile).summary}).${saved}`, "info");
 		},
 	});
@@ -510,7 +484,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	pi.registerCommand("subsub", {
 		description: "Sub-Sub: Zotero connection and library overview",
 		handler: async (_args, ctx) => {
-			const lines = [`Library changes: ${libraryChanges ? "on" : "off"}. Profile: ${profileSpec(profile).label}. Model: ${ctx.model?.id ?? "none"}.`];
+			const lines = [`Mode: ${mode}. Profile: ${profileSpec(profile).label}. Model: ${ctx.model?.id ?? "none"}.`];
 			if (!bridge) {
 				ctx.ui.notify(`${lines[0]}\nThe Zotero servers are not running. Try /reload.`, "warning");
 				return;

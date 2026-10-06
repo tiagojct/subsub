@@ -2,7 +2,7 @@
 <div class="diagram-scroll">
 <svg class="dg" viewBox="0 0 1100 712" role="img" aria-labelledby="dg-title dg-desc">
 <title id="dg-title">How Sub-Sub works</title>
-<desc id="dg-desc">You use Sub-Sub in the browser view or in the terminal. Sub-Sub runs in pi on your computer and sends your messages to the model provider that you choose. It reads the library through the zotero server and uses the scholar server and, if it is on, the verify server (Starbuck). A switch, Library changes, decides whether it may also change the library through the zotero server. The profile removes some tools. Every library change goes through the approval gate. The zotero server talks to Zotero on 127.0.0.1 and keeps a journal of changes for undo. The servers use online services such as PubMed, Europe PMC, OpenAlex, Crossref, Unpaywall and Open Library. Sub-Sub writes everything in one Sub-Sub folder, which can sit inside an Obsidian vault, and reads its settings from your configuration folder.</desc>
+<desc id="dg-desc">You use Sub-Sub in the browser view or in the terminal. Sub-Sub runs in pi on your computer and sends your messages to the model provider that you choose. It works with the library through the zotero server, searches through the scholar server and, if it is on, checks references through the verify server (Starbuck). The mode decides which servers it may use. The Librarian uses the zotero server only and manages the library. The Researcher uses the zotero, scholar and verify servers: it reads, searches, writes notes and changes the library too. The profile removes some tools. Every library change goes through the approval gate. The zotero server talks to Zotero on 127.0.0.1 and keeps a journal of changes for undo. The servers use online services such as PubMed, Europe PMC, OpenAlex, Crossref, Unpaywall and Open Library. Sub-Sub writes everything in one Sub-Sub folder, which can sit inside an Obsidian vault, and reads its settings from your configuration folder.</desc>
 <defs>
 	<marker id="dg-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0 1 L9 5 L0 9 Z"/></marker>
 	<marker id="dg-al" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah lib" d="M0 1 L9 5 L0 9 Z"/></marker>
@@ -32,12 +32,11 @@
 <text class="cap acc" x="270" y="128">SUB-SUB</text>
 <text class="s" x="336" y="128">a pi extension, on your computer</text>
 
-<text class="s" x="270" y="158">Switch: may it change the library?</text>
-<rect class="pill lib" x="270" y="166" width="300" height="34" rx="6"/>
-<rect class="sw-track" x="282" y="173" width="36" height="20" rx="10"/>
-<circle class="sw-knob" cx="308" cy="183" r="7"/>
-<text class="t lib" x="330" y="188">Library changes: on</text>
-<text class="s" x="490" y="188">off: read only</text>
+<text class="s" x="270" y="158">Mode: which tools it may use</text>
+<rect class="pill res" x="270" y="166" width="145" height="34" rx="6"/>
+<text class="t res" x="342" y="188" text-anchor="middle">Researcher</text>
+<rect class="pill lib" x="425" y="166" width="145" height="34" rx="6"/>
+<text class="t lib" x="497" y="188" text-anchor="middle">Librarian</text>
 
 <text class="s" x="270" y="228">Profile: what it writes for you</text>
 <rect class="chip" x="270" y="236" width="70" height="28" rx="5"/><text class="c" x="305" y="255" text-anchor="middle">Reader</text>
@@ -51,7 +50,7 @@
 <text class="s" x="286" y="364">File outside the Sub-Sub folder: Yes or No</text>
 <text class="s" x="286" y="386">Every change is journaled; /undo reverts it</text>
 
-<!-- tool lanes: rust changes the library (switch on), blue reads -->
+<!-- tool lanes: rust is the Librarian (zotero only), blue is the Researcher (zotero, scholar, verify) -->
 <path class="ln lib w" d="M590 152 H648" marker-end="url(#dg-al)"/>
 <path class="ln res w" d="M590 184 H648" marker-end="url(#dg-ar)"/>
 <path class="ln res w" d="M590 266 H648" marker-end="url(#dg-ar)"/>
@@ -62,15 +61,15 @@
 <rect class="box" x="650" y="130" width="200" height="72" rx="8"/>
 <text class="m t" x="666" y="156">zotero</text>
 <text class="s" x="666" y="176">library tools</text>
-<text class="s f" x="666" y="194">reads always · changes when on</text>
+<text class="s f" x="666" y="194">Librarian and Researcher</text>
 <rect class="box" x="650" y="230" width="200" height="72" rx="8"/>
 <text class="m t" x="666" y="256">scholar</text>
 <text class="s" x="666" y="276">searches, notes, manuscripts</text>
-<text class="s f" x="666" y="294">always</text>
+<text class="s f" x="666" y="294">Researcher</text>
 <rect class="box dash" x="650" y="330" width="200" height="72" rx="8"/>
 <text class="m t" x="666" y="356">verify</text>
 <text class="s" x="666" y="376">reference checks (Starbuck)</text>
-<text class="s f" x="666" y="394">optional add-on</text>
+<text class="s f" x="666" y="394">Researcher, optional add-on</text>
 
 <!-- zotero, journal, web -->
 <text class="cap" x="910" y="120">ZOTERO AND THE WEB</text>
@@ -114,7 +113,7 @@
 <rect class="box" x="570" y="476" width="280" height="220" rx="10"/>
 <text class="t" x="590" y="504">Settings</text>
 <text class="m" x="590" y="536">~/.config/subsub/config.json</text>
-<text class="s" x="590" y="555">profile, model, library switch, add-ons</text>
+<text class="s" x="590" y="555">profile, models, default mode, add-ons</text>
 <text class="m" x="590" y="590">~/.config/zotero-local-mcp/env</text>
 <text class="s" x="590" y="609">tag list, contact email</text>
 <text class="m" x="590" y="644">~/.subsub/agent/auth.json</text>
@@ -123,12 +122,12 @@
 <!-- key -->
 <rect class="soft" x="870" y="476" width="210" height="220" rx="10"/>
 <text class="cap" x="888" y="504">KEY</text>
-<path class="ln lib w" d="M888 532 H928"/><text class="s" x="938" y="536">changes the library</text>
-<text class="s f" x="938" y="554">only when the switch</text>
-<text class="s f" x="938" y="570">is on; each change</text>
-<text class="s f" x="938" y="586">is previewed</text>
-<path class="ln res w" d="M888 612 H928"/><text class="s" x="938" y="616">reads, searches,</text>
-<text class="s f" x="938" y="634">writes notes</text>
+<path class="ln lib w" d="M888 532 H928"/><text class="s" x="938" y="536">Librarian</text>
+<text class="s f" x="938" y="554">manages the library</text>
+<path class="ln res w" d="M888 584 H928"/><text class="s" x="938" y="588">Researcher</text>
+<text class="s f" x="938" y="606">reads, searches,</text>
+<text class="s f" x="938" y="622">writes notes and</text>
+<text class="s f" x="938" y="638">changes the library</text>
 <path class="ln res w dash" d="M888 664 H928"/><text class="s" x="938" y="668">optional add-on</text>
 </svg>
 </div>

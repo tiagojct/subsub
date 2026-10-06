@@ -195,7 +195,7 @@ function startPi(extra: string[] = []) {
 	return new Pi(baseEnv, vault, ["-e", join(ROOT, "extensions", "subsub.ts"), "--provider", "fake", "--model", "fake-model", ...extra]);
 }
 
-test("a library change is previewed, approved and applied (library changes on by default)", { timeout: 180_000 }, async () => {
+test("the Researcher makes a library change: previewed, approved and applied", { timeout: 180_000 }, async () => {
 	const pi = startPi();
 	try {
 		script = [
@@ -206,7 +206,7 @@ test("a library change is previewed, approved and applied (library changes on by
 		await pi.prompt("Tag AAAA2222 with topic/spirometry");
 		// The model saw the library and search tools together, and the Sub-Sub prompt
 		const sys = JSON.stringify(requests[0].messages[0]);
-		assert.match(sys, /# Sub-Sub\\n\\nYou are Sub-Sub/);
+		assert.match(sys, /# Sub-Sub: Researcher mode\\n\\nYou are Sub-Sub/);
 		assert.match(sys, /Shared rules: use vocabulary tags only/);
 		const toolNames = requests[0].tools.map((t: any) => t.function.name);
 		assert.ok(toolNames.includes("zotero_tag_items") && toolNames.includes("scholar_search_pubmed"));
@@ -242,15 +242,14 @@ test("declined change is not applied and the model is told", { timeout: 180_000 
 	}
 });
 
-test("with --read-only there are no library write tools, and reads work", { timeout: 180_000 }, async () => {
-	const pi = startPi(["--read-only"]);
+test("the Librarian has the library tools and no search tools; reads work", { timeout: 180_000 }, async () => {
+	const pi = startPi(["--librarian"]);
 	try {
 		script = [{ tool: { name: "zotero_find_items", args: { query: "asthma" } } }, { text: "Found one." }];
 		requests.length = 0;
 		await pi.prompt("What do I have on asthma?");
 		const toolNames = requests[0].tools.map((t: any) => t.function.name);
-		assert.ok(toolNames.includes("scholar_search_pubmed") && toolNames.includes("zotero_find_items"));
-		assert.ok(!toolNames.includes("zotero_tag_items") && !toolNames.includes("zotero_trash_items"));
+		assert.ok(toolNames.includes("zotero_find_items") && toolNames.includes("zotero_tag_items") && !toolNames.includes("scholar_search_pubmed"));
 		const toolMsg = requests[1].messages.find((m: any) => m.role === "tool");
 		assert.match(JSON.stringify(toolMsg), /BBBB3333/);
 		assert.equal(pi.confirms.length, 0);
@@ -305,7 +304,7 @@ test("the subsub command: own agent folder, package, prompts, vault as start fol
 		const settings = JSON.parse(readFileSync(join(agentDir, "settings.json"), "utf8"));
 		assert.deepEqual(settings.packages, [realpathSync(ROOT)]);
 		const sys = JSON.stringify(requests[0].messages[0]);
-		assert.match(sys, /# Sub-Sub\\n\\nYou are Sub-Sub/);
+		assert.match(sys, /# Sub-Sub: Researcher mode\\n\\nYou are Sub-Sub/);
 		assert.match(sys, /Always reply in English/);
 		// Compare paths with / and in lower case: the prompt is JSON (backslashes doubled), and on
 		// Windows the folder may appear with / or \\, in its short 8.3 form (RUNNER~1) or in full.
@@ -547,7 +546,7 @@ test("the web view: the page answers Sub-Sub's approval; other sites and hosts a
 		const hello = await stream.wait((e) => e.type === "hello");
 		assert.equal(hello.lang, "en");
 		assert.ok(Array.isArray(hello.commands) && hello.commands.some((c: any) => c.name === "tag-batch"));
-		const st = await stream.wait((e) => e.type === "subsub_state" && e.state?.libraryChanges === true);
+		const st = await stream.wait((e) => e.type === "subsub_state" && e.state?.mode === "librarian");
 		assert.equal(st.state.profile, "scholar");
 
 		// A library change: Sub-Sub asks, the page answers, the change is made.
@@ -569,8 +568,8 @@ test("the web view: the page answers Sub-Sub's approval; other sites and hosts a
 		assert.ok(texts.some((x) => x.includes("Tagged.")));
 
 		// Mode switch through the page, and the conversation list.
-		await call(port, "POST", "/api/prompt", { headers: ok, body: { message: "/library off" } });
-		await stream.wait((e) => e.type === "subsub_state" && e.state?.libraryChanges === false, 30_000, mark);
+		await call(port, "POST", "/api/prompt", { headers: ok, body: { message: "/researcher" } });
+		await stream.wait((e) => e.type === "subsub_state" && e.state?.mode === "researcher", 30_000, mark);
 		const sessions = JSON.parse((await call(port, "GET", "/api/sessions", { headers: ok })).body).sessions;
 		assert.ok(sessions.length >= 1);
 		assert.match(sessions[0].first, /Tag BBBB3333/);
@@ -626,7 +625,7 @@ test("the npm package: installed with npm install -g, it starts pi with Sub-Sub"
 		const settings = JSON.parse(readFileSync(join(agentDir, "settings.json"), "utf8"));
 		assert.ok(String(settings.packages[0]).includes("node_modules"), "the installed copy is the package");
 		const sys = JSON.stringify(requests[0].messages[0]);
-		assert.match(sys, /# Sub-Sub\\n\\nYou are Sub-Sub/);
+		assert.match(sys, /# Sub-Sub: Researcher mode\\n\\nYou are Sub-Sub/);
 		assert.match(sys, /# Profile/);
 	} finally {
 		pi.kill();

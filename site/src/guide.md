@@ -11,21 +11,21 @@ lead: Tag your first items, import a paper, write a literature note and undo a c
 2. Select Library overview. The result shows the Zotero connection and your library: items, items without tags, items that wait for review.
 3. Talk to Sub-Sub in plain language. Type `/` in the message box to see all commands.
 
-Sub-Sub is one assistant. It reads your library, searches the literature, writes notes and, with library changes on, changes the library. The switch Library changes at the top turns that on or off. When it is on, every change still shows a preview first.
+Sub-Sub has two modes. The Researcher is the default. It reads your library, searches the literature, writes notes and also changes the library. The Librarian manages the library only: tags, imports, metadata, PDFs and collections. To change the mode, select Researcher or Librarian at the top. Each mode can have its own model. In both modes, every library change shows a preview first and runs only after you select Yes.
 
-The profile menu and the model button are at the top right. The panel on the left has the most used commands, in two groups (Research and Library), and your earlier conversations.
+The profile menu and the model button are at the top right. The panel on the left has the most used commands and your earlier conversations. In the Researcher, the commands are in two groups, Research and Library. In the Librarian, only the Library group shows.
 
 This guide gives the commands that you type. In the browser, most of them are also buttons.
 
-For a map of the parts (the apps, the servers, the library switch, the profiles and the folders), see [How it fits together](/#how-it-fits).
+For a map of the parts (the apps, the servers, the modes, the profiles and the folders), see [How it fits together](/#how-it-fits).
 
 ### In the terminal
 
-Type `subsub`. To start with library changes off for one session, type `subsub --read-only`. To change the setting, type `/library on` or `/library off`. When you start Sub-Sub from your home folder, it works in your Sub-Sub folder. From another folder (for example a manuscript folder), it works in that folder. To stay in the home folder, type `subsub --here`.
+Type `subsub`. It starts in the Researcher. To start in the Librarian, type `subsub --librarian`. To change the mode, type `/librarian` or `/researcher`. When you start Sub-Sub from your home folder, it works in your Sub-Sub folder. From another folder (for example a manuscript folder), it works in that folder. To stay in the home folder, type `subsub --here`.
 
 ## Tag your first items
 
-1. Make sure that library changes are on (the switch at the top, or `/library on`).
+1. Type `/librarian` (or stay in the Researcher: it can tag too).
 2. Type `/tag-batch 10`. Sub-Sub reads ten items without a topic and writes a review note: `Inbox/Zotero tag review 01.md`.
 3. Open the note. Each row has the item, its current tags, the proposed tags and a reason.
 4. Edit the Proposed tags column. To leave an item as it is, write `skip`.
@@ -46,11 +46,13 @@ Undo skips items that you changed in Zotero after the change.
 
 ## Import a paper
 
-1. With library changes on, type `import` and an identifier: a DOI (for example `import 10.1038/s41591-018-0300-7`), `pmid:` and a PubMed ID, or `isbn:` and an ISBN.
+1. In either mode, type `import` and an identifier: a DOI (for example `import 10.1038/s41591-018-0300-7`), `pmid:` and a PubMed ID, or `isbn:` and an ISBN.
 2. Read the preview. It shows the new citekey and says if the work is already in your library.
 3. Select Yes. The item gets the review marker `_agent`, so the next tag batch includes it.
 
 ## Read and write notes
+
+Use the Researcher for this part. The Librarian does not search or write notes.
 
 1. Ask: `What do I have on home spirometry?`. The answer lists citekeys from your library.
 2. Type `/lit-note smith2021`. Sub-Sub reads the full text (or the abstract, and says so) and writes `Literature/smith2021.md` in your Sub-Sub folder.
@@ -93,14 +95,14 @@ Sub-Sub does not change the manuscript. Starbuck writes an HTML report in a `_st
 
 | Command | What it does |
 |---|---|
-| `/library on`, `/library off` | Turn library changes on or off (saved). `/librarian` and `/researcher` still work: on and off |
+| `/librarian`, `/researcher` | Change the mode (each mode can have its own model) |
 | `/profile` | Show or change the profile |
 | `/subsub` | Zotero connection and library overview |
 | `/history`, `/undo` | Recent changes; revert one |
-| `/tag-batch [size]`, `/clean-tags`, `/import-queue` | Library templates (need library changes on) |
-| `/lit-note <citekey>`, `/synthesis <topic>`, `/gaps <topic>`, `/manuscript <file>`, `/alert` | Research templates |
-| `/lit <question>`, `/compare <question>`, `/review <file>`, `/digest [days]`, `/request-copy <citekey>` | Research templates |
-| `/verify <file> [claims]` | Reference checks (needs Starbuck) |
+| `/tag-batch [size]`, `/clean-tags`, `/import-queue` | Library templates (both modes) |
+| `/lit-note <citekey>`, `/synthesis <topic>`, `/gaps <topic>`, `/manuscript <file>`, `/alert` | Research templates (Researcher) |
+| `/lit <question>`, `/compare <question>`, `/review <file>`, `/digest [days]`, `/request-copy <citekey>` | Research templates (Researcher) |
+| `/verify <file> [claims]` | Reference checks (Researcher, needs Starbuck) |
 | `subsub -c`, `subsub -r` | Continue the last session; select an older one (terminal) |
 | `subsub web` | Open Sub-Sub in the browser |
 | `subsub shortcut` | Add the Sub-Sub shortcut again, for example after a move |

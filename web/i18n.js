@@ -79,14 +79,15 @@ export const STRINGS = {
 		starbuckOff: "Reference checks are off.",
 		composerHint: "Enter sends. Shift+Enter starts a new line. / shows the commands.",
 		previewKicker: "Preview",
-		assistant: "Assistant",
-		readOnly: "Read only",
-		libraryChanges: "Library changes",
-		libraryHint: "On: Sub-Sub can import, tag and repair items, and every change shows a preview first. Off: it only reads, searches and writes notes.",
-		placeholder: "Ask about your library, or type / for commands",
-		placeholderReadOnly: "Ask about your library (read only), or type / for commands",
-		emptyOn: "Sub-Sub reads your library, searches PubMed, Europe PMC and OpenAlex, and writes notes. It also imports and tags: every change shows a preview, and nothing changes until you approve it.",
-		emptyOff: "Library changes are off. Sub-Sub reads your library, searches and writes notes, but does not change the library. Turn them on with the switch at the top.",
+		researcher: "Researcher",
+		librarian: "Librarian",
+		researcherHint: "Searches, reads and writes notes, and also changes the library (every change is previewed).",
+		librarianHint: "Manages the library only: tags, imports, metadata, PDFs. No literature search.",
+		placeholderResearcher: "Ask about your library or the literature, or type / for commands",
+		placeholderLibrarian: "Ask for a change to your library, or type / for commands",
+		emptyResearcher: "The Researcher reads your library, searches PubMed, Europe PMC and OpenAlex and writes notes. It also imports, tags and repairs items: every change shows a preview, and nothing changes until you approve it.",
+		emptyLibrarian: "The Librarian manages your library: tags, imports, metadata and PDFs. Every change shows a preview, and nothing changes until you approve it. For searches and notes, switch to the Researcher.",
+		forBoth: "Use it in both modes",
 		groupResearch: "Research",
 		groupLibrary: "Library",
 	},
@@ -167,14 +168,15 @@ export const STRINGS = {
 		starbuckOff: "A verificação de referências está desligada.",
 		composerHint: "Enter envia. Shift+Enter muda de linha. / mostra os comandos.",
 		previewKicker: "Pré-visualização",
-		assistant: "Assistente",
-		readOnly: "Só leitura",
-		libraryChanges: "Alterações à biblioteca",
-		libraryHint: "Ligado: o Sub-Sub pode importar, etiquetar e corrigir itens, e cada alteração mostra primeiro uma pré-visualização. Desligado: só lê, pesquisa e escreve notas.",
-		placeholder: "Pergunte sobre a sua biblioteca, ou escreva / para ver os comandos",
-		placeholderReadOnly: "Pergunte sobre a sua biblioteca (só leitura), ou escreva / para ver os comandos",
-		emptyOn: "O Sub-Sub lê a sua biblioteca, pesquisa na PubMed, Europe PMC e OpenAlex e escreve notas. Também importa e etiqueta: cada alteração mostra uma pré-visualização, e nada muda até a aprovar.",
-		emptyOff: "As alterações à biblioteca estão desligadas. O Sub-Sub lê a biblioteca, pesquisa e escreve notas, mas não altera a biblioteca. Ligue-as no interruptor no topo.",
+		researcher: "Investigador",
+		librarian: "Bibliotecário",
+		researcherHint: "Pesquisa, lê e escreve notas, e também altera a biblioteca (cada alteração é pré-visualizada).",
+		librarianHint: "Só gere a biblioteca: etiquetas, importações, metadados, PDF. Não pesquisa a literatura.",
+		placeholderResearcher: "Pergunte sobre a sua biblioteca ou a literatura, ou escreva / para ver os comandos",
+		placeholderLibrarian: "Peça uma alteração à biblioteca, ou escreva / para ver os comandos",
+		emptyResearcher: "O Investigador lê a sua biblioteca, pesquisa na PubMed, Europe PMC e OpenAlex e escreve notas. Também importa, etiqueta e corrige itens: cada alteração mostra uma pré-visualização, e nada muda até a aprovar.",
+		emptyLibrarian: "O Bibliotecário gere a sua biblioteca: etiquetas, importações, metadados e PDF. Cada alteração mostra uma pré-visualização, e nada muda até a aprovar. Para pesquisar e escrever notas, mude para o Investigador.",
+		forBoth: "Usar nos dois modos",
 		groupResearch: "Investigação",
 		groupLibrary: "Biblioteca",
 	},
@@ -182,7 +184,7 @@ export const STRINGS = {
 
 /**
  * Buttons in the side panel, in two groups. `fill` puts the command in the message box; `send` runs it at once.
- * `changes`: shown only with library changes on. `profiles` and `needs` limit a button to some profiles or add-ons.
+ * The Librarian sees the Library group only. `profiles` and `needs` limit a button to some profiles or add-ons.
  */
 export const ACTIONS = {
 	research: [
@@ -200,21 +202,27 @@ export const ACTIONS = {
 	],
 	library: [
 		{ cmd: "subsub", send: true, en: "Library overview", pt: "Resumo da biblioteca" },
-		{ cmd: "tag-batch 10", send: true, changes: true, en: "Tag 10 items", pt: "Etiquetar 10 itens" },
-		{ cmd: "clean-tags", send: true, changes: true, en: "Clean up tags", pt: "Limpar etiquetas" },
-		{ cmd: "import-queue", send: true, changes: true, en: "Import the queue", pt: "Importar a fila" },
+		{ cmd: "tag-batch 10", send: true, en: "Tag 10 items", pt: "Etiquetar 10 itens" },
+		{ cmd: "clean-tags", send: true, en: "Clean up tags", pt: "Limpar etiquetas" },
+		{ cmd: "import-queue", send: true, en: "Import the queue", pt: "Importar a fila" },
 		{ cmd: "history", send: true, en: "Recent changes", pt: "Alterações recentes" },
-		{ cmd: "undo", send: true, changes: true, en: "Undo the last change", pt: "Desfazer a última alteração" },
+		{ cmd: "undo", send: true, en: "Undo the last change", pt: "Desfazer a última alteração" },
 	],
 };
 
-/** Suggestions on an empty conversation. `changes`: only with library changes on. */
-export const SUGGESTIONS = [
-	{ en: "What do I have on ", pt: "O que tenho sobre " },
-	{ en: "Find recent systematic reviews on ", pt: "Procure revisões sistemáticas recentes sobre " },
-	{ en: "Tag the next 10 items without a topic", pt: "Etiquete os próximos 10 itens sem tópico", changes: true },
-	{ en: "Import 10.1136/bmj.n71", pt: "Importe 10.1136/bmj.n71", changes: true },
-];
+/** Suggestions on an empty conversation, per mode. */
+export const SUGGESTIONS = {
+	researcher: [
+		{ en: "What do I have on ", pt: "O que tenho sobre " },
+		{ en: "Find recent systematic reviews on ", pt: "Procure revisões sistemáticas recentes sobre " },
+		{ en: "Which items have no PDF?", pt: "Que itens não têm PDF?" },
+	],
+	librarian: [
+		{ en: "Tag the next 10 items without a topic", pt: "Etiquete os próximos 10 itens sem tópico" },
+		{ en: "Import 10.1136/bmj.n71", pt: "Importe 10.1136/bmj.n71" },
+		{ en: "Find duplicates", pt: "Procure duplicados" },
+	],
+};
 
 /** Plain names for the tools, shown while they run. Unknown tools keep their name. */
 export const TOOLS = {

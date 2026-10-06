@@ -15,12 +15,12 @@ form:
 
 ## O que é o Sub-Sub
 
-O Sub-Sub é um bibliotecário e assistente de investigação para o Zotero. Funciona no seu computador e abre no seu navegador, com um modelo de IA. Na mesma conversa:
+O Sub-Sub é um bibliotecário e assistente de investigação para o Zotero. Funciona no seu computador e abre no seu navegador, com um modelo de IA. Tem dois modos:
 
-- lê a biblioteca, pesquisa na PubMed, na Europe PMC e na OpenAlex e escreve notas na sua pasta Sub-Sub;
-- organiza a biblioteca: etiquetas, importações por DOI ou PMID, correção de metadados.
+- o Investigador lê a biblioteca, pesquisa na PubMed, na Europe PMC e na OpenAlex, escreve notas na sua pasta Sub-Sub e também organiza a biblioteca;
+- o Bibliotecário só organiza a biblioteca: etiquetas, importações por DOI ou PMID, correção de metadados.
 
-O interruptor Alterações à biblioteca, no topo da página, liga ou desliga a segunda parte.
+Para mudar de modo, selecione Investigador ou Bibliotecário no topo da página.
 
 Nenhuma alteração à biblioteca acontece sem a sua aprovação. Com a língua definida para português europeu, os botões, as respostas e as notas ficam em português. As pré-visualizações das alterações e algumas mensagens técnicas ficam em inglês.
 
@@ -107,7 +107,7 @@ Faça as tarefas por esta ordem. Durante as tarefas, anote o que correu mal e o 
 
 ### 2. Etiquetar dez itens
 
-1. No topo da página, confirme que o interruptor Alterações à biblioteca está ligado.
+1. No topo da página, selecione Bibliotecário.
 2. No painel da esquerda, em Biblioteca, selecione Etiquetar 10 itens. O Sub-Sub escreve uma nota de revisão na pasta Inbox, dentro da sua pasta Sub-Sub.
 3. Abra a nota, por exemplo com o Obsidian ou com um editor de texto. Cada linha tem o item, as etiquetas atuais, as etiquetas propostas e o motivo.
 4. Corrija a coluna das etiquetas propostas. Para deixar um item como está, escreva `skip`.
@@ -117,15 +117,16 @@ Faça as tarefas por esta ordem. Durante as tarefas, anote o que correu mal e o 
 
 ### 3. Importar um artigo
 
-1. Escreva `import` e um DOI. Por exemplo, a declaração PRISMA 2020: `import 10.1136/bmj.n71`.
+1. Em qualquer dos modos, escreva `import` e um DOI. Por exemplo, a declaração PRISMA 2020: `import 10.1136/bmj.n71`.
 2. Leia a pré-visualização. Selecione Sim.
 
 ### 4. Escrever uma nota de leitura
 
-1. No painel da esquerda, em Investigação, selecione Nota de leitura. A caixa de mensagem fica com `/lit-note`.
-2. Acrescente a citekey de um item com PDF e prima Enter. As respostas do Sub-Sub mostram as citekeys entre `[@` e `]`.
-3. Quando a nota estiver escrita, selecione Abrir na linha "escrever um ficheiro". Com o perfil Reader, a nota tem citações com a página e perguntas para si.
-4. Confirme duas citações no PDF.
+1. No topo da página, selecione Investigador.
+2. No painel da esquerda, em Investigação, selecione Nota de leitura. A caixa de mensagem fica com `/lit-note`.
+3. Acrescente a citekey de um item com PDF e prima Enter. As respostas do Sub-Sub mostram as citekeys entre `[@` e `]`.
+4. Quando a nota estiver escrita, selecione Abrir na linha "escrever um ficheiro". Com o perfil Reader, a nota tem citações com a página e perguntas para si.
+5. Confirme duas citações no PDF.
 
 ### 5. Desfazer uma alteração
 

@@ -1,13 +1,13 @@
 /**
- * Which tools the Assistant may use, and which calls need the user's approval.
+ * Which tools each mode may use, and which calls need the user's approval.
  */
 
-import type { Profile } from "./config.ts";
+import type { Mode, Profile } from "./config.ts";
 import { profileSpec } from "./profiles.ts";
 
 export const FILE_TOOLS = ["read", "edit", "write", "grep", "find", "ls"];
 
-/** Prefixes of the tools that Sub-Sub's servers provide (the gate checks the switch and the profile for these). */
+/** Prefixes of the tools that Sub-Sub's servers provide (the gate checks the mode and the profile for these). */
 export const SERVER_PREFIXES = ["zotero_", "scholar_", "verify_"];
 
 export const ZOTERO_READ = [
@@ -53,42 +53,41 @@ export const ZOTERO_CHECKS = ["tag_audit", "audit_metadata", "find_duplicates", 
 	(n) => `zotero_${n}`,
 );
 
+
 export interface ToolOptions {
-	/** Library changes on: the Zotero write tools are offered (each still previewed). */
-	libraryChanges: boolean;
 	profile?: Profile;
 	/** The model test: also the bakeoff_ tools. */
 	bench?: boolean;
 }
 
 /**
- * The Assistant's tools: reading the library, searching, notes and reference
- * checks always; the Zotero write tools when library changes are on. The profile
- * then removes tools.
+ * The tools of a mode. The Librarian manages the library: Zotero tools and files.
+ * The Researcher has the same, plus searches, notes and reference checks. The
+ * profile then removes tools. Every library change is still previewed (gateKind).
  */
-export function toolsFor(registered: string[], opts: ToolOptions): string[] {
+export function toolsFor(mode: Mode, registered: string[], opts: ToolOptions = {}): string[] {
 	const has = new Set(registered);
 	const without = new Set(profileSpec(opts.profile ?? "editor").without);
 	const zotero = registered.filter((n) => n.startsWith("zotero_") && (opts.bench || !n.startsWith("zotero_bakeoff_")));
 	const wanted = [
 		...ZOTERO_READ,
 		...ZOTERO_CHECKS,
-		...(opts.libraryChanges ? zotero : []),
-		...registered.filter((n) => n.startsWith("scholar_") || n.startsWith("verify_")),
+		...zotero,
+		...(mode === "researcher" ? registered.filter((n) => n.startsWith("scholar_") || n.startsWith("verify_")) : []),
 		...FILE_TOOLS,
 	];
 	return [...new Set(wanted)].filter((n) => has.has(n) && !without.has(n));
 }
 
 /** Why a Sub-Sub tool is not available now, or undefined when it is. */
-export function unavailableReason(name: string, registered: string[], opts: ToolOptions): string | undefined {
-	if (toolsFor(registered, opts).includes(name)) return undefined;
+export function unavailableReason(name: string, mode: Mode, registered: string[], opts: ToolOptions = {}): string | undefined {
+	if (toolsFor(mode, registered, opts).includes(name)) return undefined;
 	const profile = opts.profile ?? "editor";
 	if (profileSpec(profile).without.includes(name)) {
 		return `${name} is not part of the ${profileSpec(profile).label} profile. The user can change the profile with /profile.`;
 	}
-	if (!opts.libraryChanges && toolsFor(registered, { ...opts, libraryChanges: true }).includes(name)) {
-		return `${name} changes the library, and library changes are off. The user can turn them on with /library on.`;
+	if (mode === "librarian" && toolsFor("researcher", registered, opts).includes(name)) {
+		return `${name} is part of the Researcher, which also does everything the Librarian does. The user can switch with /researcher.`;
 	}
 	return `${name} is not available.`;
 }

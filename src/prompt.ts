@@ -10,7 +10,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { type SubsubConfig, who } from "./config.ts";
+import { type Mode, type SubsubConfig, who } from "./config.ts";
 import { profileSpec } from "./profiles.ts";
 
 const ROLE_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "roles");
@@ -52,19 +52,14 @@ export function fill(text: string, cfg: Pick<SubsubConfig, "userName" | "about" 
 		.replace(/[ \t]+\n/g, "\n");
 }
 
-export function roleText(cfg?: Pick<SubsubConfig, "userName" | "about" | "profile">): string {
-	const raw = readIf(join(ROLE_DIR, "assistant.md")) ?? "You are Sub-Sub, a Zotero librarian and research assistant.";
+export function roleText(mode: Mode, cfg?: Pick<SubsubConfig, "userName" | "about" | "profile">): string {
+	const raw = readIf(join(ROLE_DIR, `${mode}.md`)) ?? `You are Sub-Sub, the ${mode}.`;
 	return cfg ? fill(raw, cfg) : raw;
 }
 
-export function systemAddition(cfg: SubsubConfig, cwd: string, libraryChanges: boolean = cfg.libraryChanges): string {
+export function systemAddition(mode: Mode, cfg: SubsubConfig, cwd: string): string {
 	const user = who(cfg);
-	const parts = ["# Sub-Sub", roleText(cfg)];
-	if (!libraryChanges) {
-		parts.push(
-			`Library changes are off: you read the library, search, write notes and queue imports. To import, tag or change items, ask ${user} to turn library changes on (/library on, or the switch in the browser view).`,
-		);
-	}
+	const parts = [`# Sub-Sub: ${mode === "librarian" ? "Librarian" : "Researcher"} mode`, roleText(mode, cfg)];
 	const shared = readIf(cfg.sharedRules);
 	if (shared) {
 		parts.push(

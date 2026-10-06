@@ -17,7 +17,7 @@ Type `subsub doctor`. Each line starts with `ok`, `NOTE` or `FIX`. Do the fix th
 | FIX Zotero server | Check the internet connection: the first start downloads the Zotero server. Then type `subsub doctor` again. |
 | FIX Zotero | Start Zotero 10. In Zotero, open Settings > Advanced and turn on "Allow other applications on this computer to communicate with Zotero". |
 | FIX Tag list | Type `subsub init`. It creates a starter tag list. |
-| NOTE Tag list: no topic/ tags | With library changes on, ask: `propose topics for my tag list`. |
+| NOTE Tag list: no topic/ tags | In Sub-Sub, ask: `propose topics for my tag list`. |
 | NOTE Sub-Sub folder | The folder is a whole Obsidian vault, or the tag list and note formats are still in `Systems/` (before version 0.9). Type `subsub init`: it moves Sub-Sub's files into a `Sub-Sub` folder, with the settings files in `Zotero/`. |
 | NOTE Contact email | Type `subsub init` and give an email address. Without it, Sub-Sub cannot find open-access PDFs. |
 | FIX Starbuck | Only when reference checks are on. Check the internet connection: the first start downloads Starbuck. Then type `subsub doctor` again. To turn reference checks off, type `subsub init`. |
@@ -33,7 +33,7 @@ Type `subsub doctor`. Each line starts with `ok`, `NOTE` or `FIX`. Do the fix th
 - Zotero asks for permission when Sub-Sub first changes something: select Always Allow.
 - "cannot use opencode-go/…": you are not logged in to that provider, or the model name is wrong. Type `/login`, or change `models` in the settings file.
 - A tool or a command is "not part of the Reader profile": type `/profile` to see the profile, and `/profile scholar` to change it. The message names the profiles that have it. For example, `/lit` is not in Reader, and `/review` is only in Author and Editor.
-- A tool "changes the library, and library changes are off": turn them on with the switch at the top, or type `/library on`.
+- A search tool is "part of the Researcher": type `/researcher`, or select Researcher at the top of the browser view.
 - `/verify` says that reference checks need Starbuck: turn on "Reference checks (Starbuck)" in the panel on the left of the browser view, or type `subsub init --starbuck on`.
 - Sub-Sub refuses a literature note: the note must say what Sub-Sub read (evidence: full text, abstract or metadata), and it can give page numbers only when it read the full text. Ask Sub-Sub to correct the note.
 - A review note was "already applied": Sub-Sub does not apply a note twice. To apply it again, ask for it explicitly.

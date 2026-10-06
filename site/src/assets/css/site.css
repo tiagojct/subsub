@@ -401,8 +401,6 @@ code, pre, kbd { font-family: var(--mono); }
 .dg .ln.w { stroke-width: 2.2; }
 .dg .ln.lib { stroke: var(--librarian); }
 .dg .ln.res { stroke: var(--accent); }
-.dg .sw-track { fill: var(--librarian); }
-.dg .sw-knob { fill: #fff; }
 .dg .ah { fill: var(--faint); }
 .dg .ah.lib { fill: var(--librarian); }
 .dg .ah.res { fill: var(--accent); }

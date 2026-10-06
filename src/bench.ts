@@ -17,10 +17,7 @@ import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { expand, loadConfig, starbuckCommand, starbuckEnabled } from "./config.ts";
-
-/** Task groups: library work and research. Every run has library changes on (each change is recorded, not applied). */
-export type Mode = "librarian" | "researcher";
+import { expand, loadConfig, type Mode, starbuckCommand, starbuckEnabled } from "./config.ts";
 import { findUv } from "./subsub.ts";
 
 export const PACKAGE_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -138,7 +135,7 @@ export function runOne(opts: {
 }): Promise<RunSummary> {
 	mkdirSync(opts.out, { recursive: true });
 	const args = ["--mode", "rpc", "--no-session", "--provider", opts.provider ?? "opencode-go", "--model", opts.model];
-	args.push("--librarian"); // library changes on for every task
+	if (opts.role === "librarian") args.push("--librarian");
 	const env = { ...process.env, ...opts.extraEnv, SUBSUB_BENCH_OUT: opts.out, SUBSUB_CONFIG: opts.configFile };
 	const proc = spawn(process.execPath, [opts.cli ?? join(PACKAGE_DIR, "bin", "subsub.js"), ...args], { cwd: opts.cwd, env });
 	const events: any[] = [];
@@ -611,7 +608,7 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
 			const prompt = promptFor(j.task, t, j.code, out);
 			if (!prompt) return;
 			const cf = join(cfgDir, `${j.code}.json`);
-			writeFileSync(cf, JSON.stringify({ ...userCfg, profile: "editor", model: `opencode-go/${j.model}`, models: undefined, libraryChanges: true }));
+			writeFileSync(cf, JSON.stringify({ ...userCfg, profile: "editor", models: { librarian: `opencode-go/${j.model}`, researcher: `opencode-go/${j.model}` }, model: undefined, libraryChanges: undefined }));
 			const s = await runOne({ ...j, prompt, out, cwd: cfg.vault!, configFile: cf, timeoutSec });
 			n++;
 			console.log(`${n}/${jobs.length}  ${j.code}  ${j.task}  ${s.seconds}s  ${s.error ?? (s.settled ? "done" : "?")}`);

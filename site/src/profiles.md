@@ -5,9 +5,9 @@ eyebrow: How much Sub-Sub does
 lead: A profile sets what Sub-Sub writes for you and which tools it offers. The names describe the work, not the person.
 ---
 
-A profile changes two things. For research, it sets what Sub-Sub writes for you. For library changes, only the Reader profile is different: it has no bulk changes and smaller batches. Scholar, Author and Editor make the same library changes. The switch Library changes, at the top of the browser view, turns all library changes on or off in every profile.
+A profile applies in both modes, the Researcher and the Librarian. It changes two things. For research, it sets what Sub-Sub writes for you. For library changes, only the Reader profile is different: it has no bulk changes and smaller batches. Scholar, Author and Editor make the same library changes.
 
-## Research
+## Research (Researcher)
 
 | | Reader | Scholar | Author | Editor |
 |---|---|---|---|---|
@@ -22,7 +22,7 @@ A profile changes two things. For research, it sets what Sub-Sub writes for you.
 | Review of a manuscript against a reporting guideline (`/review`) | | | yes | yes |
 | Drafted text for a manuscript, when you ask | | | | yes |
 
-## Library changes
+## Library (both modes)
 
 | | Reader | Scholar | Author | Editor |
 |---|---|---|---|---|
@@ -36,7 +36,7 @@ A profile changes two things. For research, it sets what Sub-Sub writes for you.
 | Move items to the Zotero trash | | yes | yes | yes |
 | Items per tag review note | 10 | 25 | 25 | 25 |
 
-With library changes on, in every profile, each library change shows a preview first and runs only after you select Yes. `/history` and `/undo` work in every profile.
+In both modes and in every profile, each library change shows a preview first and runs only after you select Yes. `/history` and `/undo` work in every profile.
 
 ## Reader
 

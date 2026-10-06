@@ -2,8 +2,8 @@ Shared rules for Sub-Sub. Sub-Sub reads this file at the start of every session.
 
 ## What Sub-Sub does
 
-- Sub-Sub reads the library, searches PubMed, Europe PMC and OpenAlex, and writes notes in this folder.
-- With library changes on, it also changes the library: tags, imports, metadata, PDFs, collections, notes in Zotero. Every change shows a preview and needs the user's yes.
+- Sub-Sub has two modes. The Librarian manages the library: tags, imports, metadata, PDFs, collections, notes in Zotero. The Researcher reads the library, searches PubMed, Europe PMC and OpenAlex, writes notes in this folder, and also does everything the Librarian does.
+- Every library change shows a preview and needs the user's yes.
 - Works found in a search are imported directly when the user chooses them. For a list to choose from later, Sub-Sub writes Inbox/Zotero import queue.md; the user ticks the lines and Sub-Sub imports them.
 
 ## Safety

@@ -6,13 +6,13 @@
  *   "profile": "scholar",
  *   "userName": "Ana", "about": "a master's student in health informatics", "language": "English",
  *   "vault": "~/Documents/Sub-Sub",
- *   "model": "opencode-go/mimo-v2.6-pro",
- *   "libraryChanges": true
+ *   "models": { "librarian": "opencode-go/glm-5.3-flash", "researcher": "opencode-go/mimo-v2.6-pro" },
+ *   "defaultMode": "researcher"
  * }
  *
- * Before 0.10 there were two modes, each with a model ("models": {"librarian",
- * "researcher"}) and "defaultMode". Those keys are still read: the researcher's
- * model becomes the model.
+ * Two modes: the Librarian manages the library; the Researcher does that too,
+ * and searches and writes notes. "model" (0.10) sets one model for both;
+ * "libraryChanges" (0.10) is no longer used.
  *
  * `subsub init` writes this file. Without "serverDir" (or when that folder does
  * not exist), the Zotero servers run from PyPI with uv.
@@ -28,8 +28,13 @@ import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { isObsidianVault, settingsFile } from "./layout.ts";
 
-/** The tested model (September 2026 model test). */
-export const DEFAULT_MODEL = "opencode-go/mimo-v2.6-pro";
+export type Mode = "librarian" | "researcher";
+
+/** The tested models, one per mode (model test, see bench-results). */
+export const DEFAULT_MODELS: Record<Mode, string> = {
+	librarian: "opencode-go/glm-5.3-flash",
+	researcher: "opencode-go/mimo-v2.6-pro",
+};
 export type Profile = "reader" | "scholar" | "author" | "editor";
 export const PROFILES: Profile[] = ["reader", "scholar", "author", "editor"];
 
@@ -56,10 +61,9 @@ export interface SubsubConfig {
 	serverDir: string;
 	envFile?: string;
 	vault?: string;
-	/** The model, as provider/id. Undefined: pi's own choice (the user picks with /model). */
-	model?: string;
-	/** Library changes on: the Zotero write tools are offered, each with a preview. */
-	libraryChanges: boolean;
+	/** The model of each mode, as provider/id. Missing: pi's own choice (the user picks with /model). */
+	models: Partial<Record<Mode, string>>;
+	defaultMode: Mode;
 	/** Extra context files added to the system prompt when pi runs inside the vault. */
 	vaultContext: string[];
 	/** Shared rules file (tag system, citekeys, note formats). */
@@ -152,10 +156,11 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): SubsubConfig {
 	const envValues = envFile && existsSync(envFile) ? parseEnvFile(envFile) : {};
 	const vaultRaw = user.vault ?? env.ZOTERO_VAULT ?? envValues.ZOTERO_VAULT;
 	const vault = vaultRaw ? expand(vaultRaw, home) : undefined;
-	// Before 0.10: a model per mode, and themes per mode.
-	const legacyModels = user.models && typeof user.models === "object" ? (user.models as Record<string, string>) : undefined;
-	// "model": "" means: the user chooses in pi (/login, /model).
-	const model = "model" in user ? (typeof user.model === "string" && user.model) || undefined : legacyModels ? legacyModels.researcher || legacyModels.librarian || undefined : DEFAULT_MODEL;
+	// "models" per mode; "model" (0.10) for both; {} or "" means: the user chooses in pi (/login, /model).
+	const one = typeof user.model === "string" ? user.model : undefined;
+	const given = user.models && typeof user.models === "object" ? (user.models as Record<string, string>) : undefined;
+	const models: Partial<Record<Mode, string>> = given ?? (one !== undefined ? { librarian: one || undefined, researcher: one || undefined } : { ...DEFAULT_MODELS });
+	for (const k of Object.keys(models) as Mode[]) if (!models[k]) delete models[k];
 	const themes = user.themes === false ? false : typeof user.themes === "string" ? user.themes : user.themes?.researcher;
 	return {
 		configFile: file,
@@ -167,8 +172,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): SubsubConfig {
 		serverDir: expand(user.serverDir ?? "~/Projects/zotero-local-mcp", home),
 		envFile,
 		vault,
-		model,
-		libraryChanges: user.libraryChanges !== false,
+		models,
+		defaultMode: user.defaultMode === "librarian" ? "librarian" : "researcher",
 		// A Sub-Sub folder inside an Obsidian vault also reads the vault's context file.
 		vaultContext: (
 			user.vaultContext ??

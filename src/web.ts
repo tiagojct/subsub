@@ -23,7 +23,7 @@ import { extname, join, normalize, resolve, sep } from "node:path";
 import { StringDecoder } from "node:string_decoder";
 import { agentDirFor, chooseCwd, PACKAGE_DIR, packageVersion } from "./cli.ts";
 import { expand, loadConfig, saveConfig, type SubsubConfig, withStarbuck } from "./config.ts";
-import { TESTED_MODEL } from "./init.ts";
+import { TESTED_MODELS } from "./init.ts";
 import { obsidianRoot } from "./layout.ts";
 import { realish, within } from "./paths.ts";
 
@@ -568,9 +568,11 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 					if (busy) return send(res, 409, { error: "busy" });
 					const body = await readJson(req);
 					const spec = `${String(body.provider)}/${String(body.id)}`;
-					// Remember the model (and drop the per-mode models of versions before 0.10), then restart pi
-					// so the extension reads the new setting.
-					saveConfig({ model: spec, models: undefined }, env);
+					// Remember the model for the current mode (or both), then restart pi so the extension reads it.
+					const mode = (subsubState as { mode?: string } | null)?.mode === "librarian" ? "librarian" : "researcher";
+					const models: Record<string, string> = { ...(loadConfig(env).models ?? {}), [mode]: spec };
+					if (body.both) models[mode === "librarian" ? "researcher" : "librarian"] = spec;
+					saveConfig({ models, model: undefined }, env);
 					await agent.request({ type: "set_model", provider: String(body.provider), modelId: String(body.id) });
 					await restartAgent();
 					return send(res, 200, { ok: true });
@@ -594,7 +596,7 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 					const body = await readJson(req);
 					saveApiKey(agentDir, String(body.provider ?? ""), String(body.key ?? ""));
 					const current = loadConfig(env);
-					if (body.provider === "opencode-go" && !current.model) saveConfig({ model: TESTED_MODEL, models: undefined }, env);
+					if (body.provider === "opencode-go" && Object.keys(current.models).length === 0) saveConfig({ models: TESTED_MODELS, model: undefined }, env);
 					await restartAgent();
 					return send(res, 200, { ok: true });
 				}

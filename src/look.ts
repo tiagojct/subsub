@@ -83,8 +83,7 @@ export function libraryLine(st: LibraryState): { text: string; warn: boolean } {
 /** Header lines. Each line is cut to the width before it is coloured. */
 export function headerLines(opts: {
 	version: string;
-	/** Library changes on (false: read only). */
-	libraryChanges: boolean;
+	mode: "librarian" | "researcher";
 	/** Profile label, e.g. "Scholar". */
 	profile?: string;
 	model: string;
@@ -95,7 +94,7 @@ export function headerLines(opts: {
 }): string[] {
 	const p = opts.paint ?? plain;
 	const w = Math.max(10, opts.width);
-	const modeLabel = `Assistant${opts.profile ? `, ${opts.profile}` : ""}${opts.libraryChanges ? "" : ", read only"}`;
+	const modeLabel = (opts.mode === "librarian" ? "Librarian" : "Researcher") + (opts.profile ? `, ${opts.profile}` : "");
 	const lib = libraryLine(opts.library);
 	if (w < BANNER[0].length + 2) {
 		return [p.mark(cut(`Sub-Sub ${opts.version}`, w)), p.text(cut(`${modeLabel} | ${opts.model}`, w)), (lib.warn ? p.warn : p.muted)(cut(lib.text, w))];
@@ -108,7 +107,7 @@ export function headerLines(opts: {
 		if ([...one].length <= w) out.push(p.dim(one));
 		else out.push(p.dim(cut(`"${opts.quote[0]}"`, w)), p.dim(cut(`  (${opts.quote[1]})`, w)));
 	}
-	out.push(p.dim(cut("/library  /profile  /history  /undo  |  / for all commands", w)), "");
+	out.push(p.dim(cut("/researcher  /librarian  /profile  /history  /undo  |  / for all commands", w)), "");
 	return out;
 }
 

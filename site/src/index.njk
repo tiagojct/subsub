@@ -47,7 +47,7 @@ description: A Zotero librarian and research assistant that runs on your compute
 	<div class="wrap">
 		<p class="eyebrow">How it fits together</p>
 		<h2>What runs where.</h2>
-		<p class="section-lead">Everything except the model and the online services runs on your computer. The switch Library changes decides whether Sub-Sub may change the library, and the profile removes tools from what is left.</p>
+		<p class="section-lead">Everything except the model and the online services runs on your computer. The mode decides which servers Sub-Sub may use: the Librarian uses zotero only, the Researcher uses zotero, scholar and verify. The profile removes tools from what is left.</p>
 		{% include "diagram.njk" %}
 	</div>
 </section>
@@ -73,31 +73,32 @@ description: A Zotero librarian and research assistant that runs on your compute
 
 <section class="section">
 	<div class="wrap">
-		<p class="eyebrow">One assistant</p>
-		<h2>Research a topic and file what you find, in the same conversation.</h2>
-		<p class="section-lead">Sub-Sub reads and searches, and it changes your library when you approve. A switch at the top, Library changes, turns the second part off when you only want to read.</p>
+		<p class="eyebrow">Two modes</p>
+		<h2>The Researcher does everything. The Librarian only keeps the library.</h2>
+		<p class="section-lead">The Researcher is the default: research a topic and file what you find in the same conversation. Use the Librarian for tagging sessions with a fast, cheap model.</p>
 		<div class="modes">
 			<article class="mode researcher">
-				<h3>Research</h3>
-				<p class="mode-lead">Reads your library and the literature.</p>
+				<h3>Researcher</h3>
+				<p class="mode-lead">Reads your library and the literature, and changes the library too.</p>
 				<ul>
 					<li>Answers "what do I have on…?" from your library, with citekeys.</li>
 					<li>Searches PubMed, Europe PMC and OpenAlex for works that are not in your library.</li>
 					<li>Writes literature notes, syntheses and literature reviews with a screening log. Each note says what Sub-Sub read: the full text, the abstract or only the metadata.</li>
 					<li>Checks the references of a manuscript with Starbuck, an optional add-on.</li>
+					<li>Imports, tags and repairs what it finds, with a preview for each change.</li>
 				</ul>
-				<p class="mode-cmds"><code>/lit</code> <code>/lit-note</code> <code>/synthesis</code> <code>/gaps</code> <code>/compare</code> <code>/verify</code></p>
+				<p class="mode-cmds"><code>/lit</code> <code>/lit-note</code> <code>/synthesis</code> <code>/gaps</code> <code>/compare</code> <code>/verify</code> <code>/researcher</code></p>
 			</article>
 			<article class="mode librarian">
-				<h3>Library changes</h3>
-				<p class="mode-lead">Changes your library, one approved change at a time. On by default.</p>
+				<h3>Librarian</h3>
+				<p class="mode-lead">Manages the library only.</p>
 				<ul>
 					<li>Tags items with the tags in your own list, <code>Zotero/Zotero tags.md</code>. It refuses other tags.</li>
 					<li>Writes tag proposals into a review note that you can edit before you apply it.</li>
 					<li>Imports by DOI, PMID or ISBN, with the abstract and a citekey.</li>
 					<li>Repairs metadata, finds duplicates, flags retractions and attaches open-access PDFs.</li>
 				</ul>
-				<p class="mode-cmds"><code>/tag-batch</code> <code>/clean-tags</code> <code>/import-queue</code> <code>/history</code> <code>/undo</code> <code>/library off</code></p>
+				<p class="mode-cmds"><code>/tag-batch</code> <code>/clean-tags</code> <code>/import-queue</code> <code>/history</code> <code>/undo</code> <code>/librarian</code></p>
 			</article>
 		</div>
 	</div>
@@ -107,13 +108,13 @@ description: A Zotero librarian and research assistant that runs on your compute
 	<div class="wrap split terminal-split">
 		<div>
 			<p class="eyebrow">Browser or terminal</p>
-			<h2>The same assistant in both.</h2>
-			<p>Open Sub-Sub from its shortcut and it opens in your browser. Type <code>subsub</code> and it opens in the terminal. The profiles, the library switch and the approvals are the same.</p>
+			<h2>The same Sub-Sub in both.</h2>
+			<p>Open Sub-Sub from its shortcut and it opens in your browser. Type <code>subsub</code> and it opens in the terminal. The modes, the profiles and the approvals are the same.</p>
 			<p>The browser view is a small server on your own computer. It listens only on 127.0.0.1 and stops 10 minutes after you close the page.</p>
 		</div>
 <div class="terminal" role="img" aria-label="Sub-Sub in the terminal: it shows a preview of a tag change and asks Yes or No.">
-<pre><span class="t-dim">$</span> subsub
-<span class="t-acc">Sub-Sub {{ release.version }}</span>  <span class="t-dim">Assistant, Scholar · Zotero: 1,024 items</span>
+<pre><span class="t-dim">$</span> subsub --librarian
+<span class="t-acc">Sub-Sub {{ release.version }}</span>  <span class="t-dim">Librarian, Scholar · Zotero: 1,024 items</span>
 
 <span class="t-acc">&gt;</span> Tag the next 10 items without a topic.</pre>
 <div class="t-box"><span class="t-box-title">Sub-Sub: apply tag_items?</span>
