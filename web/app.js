@@ -104,9 +104,12 @@ function updateLayoutUI() {
 	const isWide = currentLayout === "wide";
 	document.body.classList.toggle("layout-full", isWide);
 	const textEl = $("width-btn-text");
-	if (textEl) textEl.textContent = isWide ? t("layoutFocus") : t("layoutWide");
+	if (textEl) textEl.textContent = t("layoutWide");
 	const btn = $("width-btn");
-	if (btn) btn.title = t("toggleWidth");
+	if (btn) {
+		btn.title = t("toggleWidth");
+		btn.setAttribute("aria-pressed", String(isWide));
+	}
 }
 
 function toggleLayout() {
@@ -121,16 +124,23 @@ function themeLabel(theme) {
 	return t("themeAuto");
 }
 
+/** Stroke icons for the theme button: fixed markup, no user text. */
+const THEME_ICONS = {
+	light: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/>',
+	dark: '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/>',
+	auto: '<rect x="3" y="4.5" width="18" height="12" rx="1.5"/><path d="M8.5 20h7M12 16.5V20"/>',
+};
+
 function updateThemeUI() {
-	const icon = currentTheme === "light" ? "☀️" : currentTheme === "dark" ? "🌙" : "💻";
-	const label = `${icon} ${themeLabel(currentTheme)}`;
+	const label = `${t("theme")}: ${themeLabel(currentTheme)}`;
 	const btn = $("theme-btn");
 	if (btn) {
-		btn.textContent = label;
-		btn.title = t("themeToggle");
+		btn.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${THEME_ICONS[currentTheme] ?? THEME_ICONS.auto}</svg>`;
+		btn.append(el("span", { class: "visually-hidden", text: label }));
+		btn.title = `${label} (${t("themeToggle")})`;
 	}
 	const sideBtn = $("theme-btn-side");
-	if (sideBtn) sideBtn.textContent = label;
+	if (sideBtn) sideBtn.textContent = themeLabel(currentTheme);
 }
 
 function setTheme(theme) {
@@ -153,7 +163,10 @@ function toggleTheme() {
 function applyLang() {
 	document.documentElement.lang = lang === "pt" ? "pt-PT" : "en";
 	for (const e of document.querySelectorAll("[data-i18n]")) e.textContent = t(e.dataset.i18n);
+	for (const e of document.querySelectorAll("[data-i18n-placeholder]")) e.placeholder = t(e.dataset.i18nPlaceholder);
+	for (const e of document.querySelectorAll("[data-i18n-title]")) e.title = t(e.dataset.i18nTitle);
 	updateThemeUI();
+	updateLayoutUI();
 }
 
 function mode() {
@@ -165,7 +178,7 @@ function renderHeader() {
 	for (const b of document.querySelectorAll(".modes button")) b.setAttribute("aria-pressed", String(b.dataset.mode === mode()));
 	if (state?.profile) $("profile").value = $("profile-side").value = state.profile;
 	$("starbuck-toggle").checked = Boolean(state?.starbuck);
-	$("starbuck-toggle").parentElement.title = t("starbuckHint");
+	$("starbuck-label").title = t("starbuckHint");
 	const m = state?.model ?? session?.model;
 	$("model-btn").textContent = $("model-btn-side").textContent = m ? m.id : t("noModel");
 	const lib = $("library");
@@ -179,16 +192,22 @@ function renderHeader() {
 		txt.textContent = t("zoteroDown");
 		lib.classList.add("down");
 	} else {
-		const parts = [t("items", { n: L.items ?? "?" })];
-		if (L.toReview) parts.push(t("toReview", { n: L.toReview }));
+		const num = (n) => (typeof n === "number" ? n.toLocaleString(lang === "pt" ? "pt-PT" : "en-GB") : (n ?? "?"));
+		const parts = [t("items", { n: num(L.items) })];
+		if (L.toReview) parts.push(t("toReview", { n: num(L.toReview) }));
 		txt.textContent = `Zotero: ${parts.join(", ")}`;
 		lib.classList.add("reachable");
 	}
 	if (state?.down?.length) {
-		txt.textContent += ` | ${t("serversDown", { x: state.down.join(", ") })}`;
+		txt.textContent += ` · ${t("serversDown", { x: state.down.join(", ") })}`;
 		lib.classList.add("down");
 	}
+	lib.title = txt.textContent;
 	$("input").placeholder = mode() === "librarian" ? t("placeholderLibrarian") : t("placeholderResearcher");
+	if (log.querySelector(".empty")) {
+		clearEmpty();
+		renderEmpty();
+	}
 	renderActions();
 	renderBanner();
 	updateThemeUI();
@@ -355,14 +374,16 @@ function renderEmpty() {
 		el(
 			"div",
 			{ class: "empty" },
+			el("p", { class: "kicker", text: t(mode()) }),
 			el("h1", { text: t("emptyTitle") }),
+			el("p", { class: "lede", text: t(mode() === "librarian" ? "emptyLibrarian" : "emptyResearcher") }),
 			el(
 				"div",
 				{ class: "chips" },
 				s.map((x) =>
 					el("button", {
 						type: "button",
-						text: x.trim(),
+						text: x.endsWith(" ") ? `${x.trim()}…` : x,
 						onclick: () => {
 							const input = $("input");
 							input.value = x;
@@ -771,6 +792,7 @@ function nextDialog() {
 	const d = dialogs[0];
 	shownDialog = d;
 	const dlg = $("dialog");
+	$("dialog-kicker").textContent = d.method === "confirm" ? t("previewKicker") : "";
 	$("dialog-title").textContent = dialogTitle(d);
 	const hint = $("dialog-hint");
 	hint.textContent = d.method === "confirm" ? t("approveHint") : "";

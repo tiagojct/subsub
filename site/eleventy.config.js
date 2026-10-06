@@ -28,6 +28,7 @@ export default function (eleventyConfig) {
 		version: pkg.version,
 		name: pkg.name,
 		server: (config.match(/SERVER_VERSION = "([^"]+)"/) || [])[1],
+		starbuck: (config.match(/STARBUCK_VERSION = "([^"]+)"/) || [])[1],
 		pi: (pkg.peerDependencies || {})["@earendil-works/pi-coding-agent"] || (pkg.dependencies || {})["@earendil-works/pi-coding-agent"],
 	});
 

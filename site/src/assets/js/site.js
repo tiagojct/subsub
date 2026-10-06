@@ -1,157 +1,138 @@
-// Sub-Sub: Vintage & Minimal interactive behaviors (theme, installation tabs, desk preview, copy)
+// Sub-Sub website: theme switch, install tabs, copy buttons, page contents.
 
 (function () {
-  "use strict";
+	"use strict";
 
-  // --- Theme Toggle ---
-  const THEME_KEY = "subsub-theme";
+	var root = document.documentElement;
+	var pt = (root.lang || "").indexOf("pt") === 0;
 
-  function getTheme() {
-    const saved = localStorage.getItem(THEME_KEY);
-    if (saved) return saved;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  }
+	function currentTheme() {
+		if (root.dataset.theme) return root.dataset.theme;
+		return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+	}
 
-  function applyTheme(theme) {
-    document.documentElement.setAttribute("data-theme", theme);
-    const btn = document.getElementById("theme-toggle");
-    if (btn) {
-      btn.textContent = theme === "dark" ? "Light theme" : "Dark theme";
-    }
-  }
+	function ready() {
+		// ---- theme: the button switches between light and dark and remembers the choice
+		var themeBtn = document.getElementById("theme-toggle");
+		if (themeBtn) {
+			themeBtn.addEventListener("click", function () {
+				var next = currentTheme() === "dark" ? "light" : "dark";
+				root.dataset.theme = next;
+				try {
+					localStorage.setItem("subsub-site-theme", next);
+				} catch (e) {}
+			});
+		}
 
-  // Initial theme
-  applyTheme(getTheme());
+		// ---- install tabs (arrow keys move between tabs)
+		document.querySelectorAll("[data-tabs]").forEach(function (box) {
+			var tabs = Array.prototype.slice.call(box.querySelectorAll('[role="tab"]'));
+			function select(tab) {
+				tabs.forEach(function (t) {
+					var on = t === tab;
+					t.setAttribute("aria-selected", String(on));
+					t.tabIndex = on ? 0 : -1;
+					document.getElementById(t.getAttribute("aria-controls")).hidden = !on;
+				});
+			}
+			tabs.forEach(function (tab, i) {
+				tab.addEventListener("click", function () {
+					select(tab);
+				});
+				tab.addEventListener("keydown", function (e) {
+					var j = e.key === "ArrowRight" ? i + 1 : e.key === "ArrowLeft" ? i - 1 : null;
+					if (j === null) return;
+					e.preventDefault();
+					var next = tabs[(j + tabs.length) % tabs.length];
+					select(next);
+					next.focus();
+				});
+			});
+		});
 
-  window.addEventListener("DOMContentLoaded", () => {
-    const themeBtn = document.getElementById("theme-toggle");
-    if (themeBtn) {
-      applyTheme(getTheme());
-      themeBtn.addEventListener("click", () => {
-        const cur = document.documentElement.getAttribute("data-theme") || "light";
-        const next = cur === "dark" ? "light" : "dark";
-        localStorage.setItem(THEME_KEY, next);
-        applyTheme(next);
-      });
-    }
+		// ---- copy buttons on commands
+		document.querySelectorAll("pre.cmd").forEach(function (pre) {
+			var btn = document.createElement("button");
+			btn.type = "button";
+			btn.className = "copy-btn";
+			btn.textContent = pt ? "Copiar" : "Copy";
+			btn.addEventListener("click", function () {
+				var text = (pre.querySelector("code") || pre).textContent.trim();
+				var done = function () {
+					btn.textContent = pt ? "Copiado" : "Copied";
+					btn.classList.add("copied");
+					setTimeout(function () {
+						btn.textContent = pt ? "Copiar" : "Copy";
+						btn.classList.remove("copied");
+					}, 1600);
+				};
+				if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, function () {});
+			});
+			pre.appendChild(btn);
+		});
 
-    // --- Installer Platform Switcher ---
-    const installBtns = document.querySelectorAll(".install-os-btn");
-    const cmdEl = document.getElementById("install-code-text");
-    const noteEl = document.getElementById("install-note-text");
+		var prose = document.querySelector(".prose");
+		if (!prose) return;
 
-    const commands = {
-      unix: {
-        cmd: "curl -fsSL https://subsub.tiagojacinto.eu/install.sh | sh",
-        prefix: "$ ",
-        note: "Requires macOS or Linux. Installs uv and Node 22 automatically if missing.",
-      },
-      windows: {
-        cmd: "powershell -ExecutionPolicy ByPass -c \"irm https://subsub.tiagojacinto.eu/install.ps1 | iex\"",
-        prefix: "> ",
-        note: "Requires Windows with PowerShell. Adds desktop and Start menu shortcuts.",
-      },
-      npm: {
-        cmd: "npm install -g @tiagojct/subsub && subsub init",
-        prefix: "$ ",
-        note: "Requires Node.js 22.19+ and Zotero 10+ with local API communication enabled.",
-      },
-      pi: {
-        cmd: "pi install npm:@tiagojct/subsub",
-        prefix: "$ ",
-        note: "Installs Sub-Sub as an extension into your existing pi assistant environment.",
-      },
-    };
+		// ---- a numbered list that starts after a command keeps counting
+		prose.querySelectorAll("ol[start]").forEach(function (ol) {
+			var start = parseInt(ol.getAttribute("start"), 10);
+			if (start > 1) ol.style.counterReset = "li " + (start - 1);
+		});
 
-    if (installBtns.length && cmdEl) {
-      installBtns.forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const os = btn.dataset.os;
-          const conf = commands[os];
-          if (!conf) return;
+		// ---- tables scroll on narrow screens; the profile matrix gets centred marks
+		prose.querySelectorAll("table").forEach(function (table) {
+			if (!table.parentElement.classList.contains("table-wrap")) {
+				var wrap = document.createElement("div");
+				wrap.className = "table-scroll";
+				table.parentNode.insertBefore(wrap, table);
+				wrap.appendChild(table);
+			}
+			var cells = table.querySelectorAll("td:not(:first-child)");
+			var marks = Array.prototype.filter.call(cells, function (td) {
+				return /^(yes|\d+|)$/.test(td.textContent.trim());
+			});
+			if (cells.length > 8 && marks.length === cells.length) {
+				table.classList.add("matrix");
+				cells.forEach(function (td) {
+					if (td.textContent.trim() === "yes") td.classList.add("yes");
+				});
+			}
+		});
 
-          installBtns.forEach((b) => b.classList.remove("active"));
-          btn.classList.add("active");
+		// ---- "On this page", for pages with four sections or more
+		var toc = document.getElementById("toc");
+		var heads = prose.querySelectorAll("h2[id]");
+		if (!toc || heads.length < 4) return;
+		var list = toc.querySelector("ol");
+		var links = [];
+		heads.forEach(function (h) {
+			var li = document.createElement("li");
+			var a = document.createElement("a");
+			a.href = "#" + h.id;
+			a.textContent = h.textContent;
+			li.appendChild(a);
+			list.appendChild(li);
+			links.push(a);
+		});
+		toc.hidden = false;
+		if (!("IntersectionObserver" in window)) return;
+		var observer = new IntersectionObserver(
+			function (entries) {
+				entries.forEach(function (entry) {
+					if (!entry.isIntersecting) return;
+					links.forEach(function (a) {
+						a.classList.toggle("active", a.getAttribute("href") === "#" + entry.target.id);
+					});
+				});
+			},
+			{ rootMargin: "-15% 0px -70% 0px" },
+		);
+		heads.forEach(function (h) {
+			observer.observe(h);
+		});
+	}
 
-          cmdEl.innerHTML = `<span class="cmd-prefix">${conf.prefix}</span>${conf.cmd}`;
-          if (noteEl && conf.note) noteEl.textContent = conf.note;
-        });
-      });
-    }
-
-    // --- Desk Demonstration (Librarian vs Researcher) ---
-    const toggleLibrarian = document.getElementById("desk-tab-librarian");
-    const toggleResearcher = document.getElementById("desk-tab-researcher");
-    const viewLibrarian = document.getElementById("desk-view-librarian");
-    const viewResearcher = document.getElementById("desk-view-researcher");
-
-    if (toggleLibrarian && toggleResearcher && viewLibrarian && viewResearcher) {
-      toggleLibrarian.addEventListener("click", () => {
-        toggleLibrarian.classList.add("active");
-        toggleResearcher.classList.remove("active");
-        viewLibrarian.style.display = "block";
-        viewResearcher.style.display = "none";
-      });
-
-      toggleResearcher.addEventListener("click", () => {
-        toggleResearcher.classList.add("active");
-        toggleLibrarian.classList.remove("active");
-        viewLibrarian.style.display = "none";
-        viewResearcher.style.display = "block";
-      });
-
-      const approveBtn = document.getElementById("demo-approve-btn");
-      const approveResult = document.getElementById("demo-approve-result");
-      if (approveBtn && approveResult) {
-        approveBtn.addEventListener("click", (e) => {
-          e.preventDefault();
-          approveBtn.style.display = "none";
-          approveResult.style.display = "inline";
-        });
-      }
-    }
-
-    // --- Universal Copy Buttons ---
-    const isPt = document.documentElement.lang && document.documentElement.lang.startsWith("pt");
-    const copyLabel = isPt ? "Copiar" : "Copy";
-    const copiedLabel = isPt ? "Copiado" : "Copied";
-
-    document.querySelectorAll(".vintage-cmd-wrap, pre.cmd").forEach((wrap) => {
-      if (wrap.querySelector(".copy-btn")) return;
-
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "copy-btn";
-      btn.textContent = copyLabel;
-
-      btn.addEventListener("click", async () => {
-        const text = wrap.innerText.replace(/^\$\s+|^>\s+/, "").replace(/Copy$|Copied$/, "").trim();
-        try {
-          await navigator.clipboard.writeText(text);
-          btn.textContent = copiedLabel;
-          btn.classList.add("copied");
-          setTimeout(() => {
-            btn.textContent = copyLabel;
-            btn.classList.remove("copied");
-          }, 1800);
-        } catch {
-          // fallback
-          const t = document.createElement("textarea");
-          t.value = text;
-          document.body.appendChild(t);
-          t.select();
-          document.execCommand("copy");
-          document.body.removeChild(t);
-          btn.textContent = copiedLabel;
-          btn.classList.add("copied");
-          setTimeout(() => {
-            btn.textContent = copyLabel;
-            btn.classList.remove("copied");
-          }, 1800);
-        }
-      });
-
-      wrap.appendChild(btn);
-    });
-  });
+	if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", ready);
+	else ready();
 })();

@@ -3,249 +3,167 @@ layout: base.njk
 title: Sub-Sub
 hideTitle: true
 bodyClass: home
-description: A Zotero librarian and research assistant that runs on your computer, in your browser or in the terminal. Previews every library change, journals all edits, and writes literature notes in Markdown.
+description: A Zotero librarian and research assistant that runs on your computer, in your browser or in the terminal. It shows a preview of every library change, keeps a journal for undo, and writes literature notes in Markdown.
 ---
 
-<div class="vintage-container">
-	<!-- Title Header -->
-	<header class="frontispiece-header">
-		<p class="frontispiece-series">A BIBLIOGRAPHIC ASSISTANT FOR ZOTERO</p>
-		<h1 class="frontispiece-main-title">Sub-Sub</h1>
-		<p class="frontispiece-subtitle">The Librarian &amp; Research Assistant</p>
-		<div class="ornament-rule">— ❦ —</div>
-		<p class="frontispiece-summary">
-			Sub-Sub tags, imports, repairs, and reads your references, and helps you search the literature. It connects directly to your local Zotero library, in your browser or in your terminal. Nothing in your library changes until you say yes.
-		</p>
-	</header>
+<section class="hero">
+	<div class="wrap hero-grid">
+		<div class="hero-text">
+			<p class="eyebrow"><a href="{{ site.npm }}" rel="noopener">Version {{ release.version }}</a> · Open source · For Zotero 10</p>
+			<h1>A librarian and a research assistant for your Zotero library.</h1>
+			<p class="lead">Sub-Sub tags, imports and repairs your references, searches PubMed, Europe PMC and OpenAlex for work you do not have, and writes literature notes in Markdown. It runs on your computer, in the browser or in the terminal. Your library changes only when you approve the change.</p>
 
-	<!-- Minimal Installer Box -->
-	<section class="minimal-install">
-		<div class="install-header-line">
-			<span class="install-label">INSTALLATION · v{{ release.version }}</span>
-			<div class="install-platform-nav" role="tablist">
-				<button type="button" class="install-os-btn active" data-os="unix">macOS &amp; Linux</button>
-				<button type="button" class="install-os-btn" data-os="windows">Windows</button>
-				<button type="button" class="install-os-btn" data-os="npm">npm</button>
-				<button type="button" class="install-os-btn" data-os="pi">pi</button>
-			</div>
-		</div>
-
-		<div class="vintage-cmd-wrap">
-			<code id="install-code-text"><span class="cmd-prefix">$ </span>curl -fsSL https://subsub.tiagojacinto.eu/install.sh | sh</code>
-		</div>
-
-		<p class="install-subnote" id="install-note-text">
-			Installs uv and Node 22 automatically if missing. <a href="/install/">Full install guide →</a>
-		</p>
-	</section>
-
-	<!-- Plate I: Authentic 1851 Letterpress Frontispiece (Pure Typographic Broadside) -->
-	<figure class="letterpress-plate">
-		<div class="letterpress-inner">
-			<div class="oxford-border">
-				<div class="plate-masthead">EXTRACTS</div>
-				<div class="plate-subhead">(Supplied by a Sub-Sub-Librarian).</div>
-				<div class="plate-divider" aria-hidden="true">❧</div>
-				<p class="plate-text">
-					"It will be seen that this mere painstaking burrower and grub-worm of a poor devil of a Sub-Sub appears to have gone through the long Vaticans and street-stalls of the earth, picking up whatever random allusions to whales he could anyways find in any book whatsoever, heaven or earth..."
-				</p>
-				<div class="plate-colophon">
-					<span class="plate-source">— Herman Melville, <em>Moby-Dick; or, The Whale</em></span>
-					<span class="plate-date">NEW YORK: HARPER &amp; BROTHERS · MDCCCLI (1851)</span>
+			<div class="install" data-tabs>
+				<div class="install-tabs" role="tablist" aria-label="Install">
+					<button type="button" role="tab" id="tab-unix" aria-controls="panel-unix" aria-selected="true">macOS and Linux</button>
+					<button type="button" role="tab" id="tab-win" aria-controls="panel-win" aria-selected="false" tabindex="-1">Windows</button>
+					<button type="button" role="tab" id="tab-npm" aria-controls="panel-npm" aria-selected="false" tabindex="-1">npm</button>
+				</div>
+				<div class="install-panel" role="tabpanel" id="panel-unix" aria-labelledby="tab-unix">
+					<pre class="cmd"><code>curl -fsSL https://subsub.tiagojacinto.eu/install.sh | sh</code></pre>
+					<p>Paste in Terminal. The installer adds uv and Node.js if they are missing. You do not need administrator rights.</p>
+				</div>
+				<div class="install-panel" role="tabpanel" id="panel-win" aria-labelledby="tab-win" hidden>
+					<pre class="cmd ps"><code>powershell -ExecutionPolicy ByPass -c "irm https://subsub.tiagojacinto.eu/install.ps1 | iex"</code></pre>
+					<p>Paste in PowerShell. The installer adds a shortcut to the Start menu and the desktop.</p>
+				</div>
+				<div class="install-panel" role="tabpanel" id="panel-npm" aria-labelledby="tab-npm" hidden>
+					<pre class="cmd"><code>npm install -g @tiagojct/subsub && subsub init</code></pre>
+					<p>Needs Node.js 22.19 or later and uv. In pi: <code>pi install npm:@tiagojct/subsub</code>.</p>
 				</div>
 			</div>
+			<p class="hero-links"><a class="button" href="/install/">Install guide</a> <a class="button quiet" href="/guide/">The first half hour</a></p>
 		</div>
-	</figure>
-
-	<!-- The Desk (TUI Presentation: Minimal, Tight, Mathematical Alignment) -->
-	<section class="tui-showcase">
-		<div class="tui-header">
-			<span class="tui-title">THE DESK</span>
-			<div class="tui-mode-toggle">
-				<button type="button" class="tui-tab active" id="desk-tab-librarian">Librarian</button>
-				<span class="tui-sep">·</span>
-				<button type="button" class="tui-tab" id="desk-tab-researcher">Researcher</button>
-			</div>
-		</div>
-
-		<div class="tui-body">
-			<!-- Librarian TUI Screen -->
-			<div id="desk-view-librarian">
-<pre class="tui-screen"><code><span class="tui-banner">╔═╗╦ ╦╔╗    ╔═╗╦ ╦╔╗</span>
-<span class="tui-banner">╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗</span>
-<span class="tui-banner">╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝</span>  <span class="tui-dim">{{ release.version }}</span>
-
-<span class="tui-dim">Librarian, Scholar  |  Zotero: 1,024 items (Local API)</span>
-<span class="tui-dim">"Very like a whale." (Hamlet, in the Extracts)</span>
-<span class="tui-dim">/researcher  /librarian  /profile  /history  /undo</span>
-
-<span class="tui-prompt">&gt;</span> Tag the next 10 items without a topic.
-
-<span class="tui-box-border">┌ Sub-Sub: preview tag_items ──────────────────────────────┐</span>
-  2 item(s) would change.
-  Smith 2021: Home spirometry in children with asthma:
-    <span class="tui-add">+ topic/respiratory, topic/pediatrics, type/cohort</span>
-  Costa 2019: A decision aid for inhaler choice:
-    <span class="tui-add">+ topic/clinical-decision-support</span>; <span class="tui-rem">- type/rct</span>
-                                            <button type="button" class="tui-btn-approve" id="demo-approve-btn">[ Yes ]</button> <span class="tui-btn-decline">No</span><span class="tui-approved-msg" id="demo-approve-result">✓ Applied (#4928)</span>
-<span class="tui-box-border">└─────────────────────────────────────────────────────────┘</span></code></pre>
-			</div>
-
-			<!-- Researcher TUI Screen -->
-			<div id="desk-view-researcher" style="display: none;">
-<pre class="tui-screen"><code><span class="tui-banner-researcher">╔═╗╦ ╦╔╗    ╔═╗╦ ╦╔╗</span>
-<span class="tui-banner-researcher">╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗</span>
-<span class="tui-banner-researcher">╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝</span>  <span class="tui-dim">{{ release.version }}</span>
-
-<span class="tui-dim">Researcher, Scholar  |  PubMed &amp; OpenAlex Active</span>
-<span class="tui-dim">/researcher  /librarian  /lit-note  /synthesis  /gaps</span>
-
-<span class="tui-prompt">&gt;</span> What do I have on home spirometry?
-
-  4 items in your library have topic/respiratory:
-  [@smith2021]   2021  Home spirometry in children with asthma    cohort
-  [@okafor2023]  2023  Remote monitoring after lung transplant    cohort
-  [@lind2020]    2020  Agreement of home and clinic FEV1          cross-sectional
-  [@reyes2024]   2024  Home spirometry: a systematic review       systematic review
-
-  PubMed has 38 works since 2024; 3 look relevant and are not in your library.
-  Queue them for import? The librarian imports the lines you confirm.</code></pre>
-			</div>
-		</div>
-	</section>
-
-	<!-- I. The Principles -->
-	<section class="minimal-section">
-		<h2 class="minimal-section-title">I. The Principles</h2>
-		<div class="principles-grid">
-			<div class="principle-entry">
-				<h3>1. The Code-Enforced Gate</h3>
-				<p>
-					The model cannot modify your library on its own. Every alteration is calculated as a server-side dry run with a clear diff (+added in green, -removed in red) and runs only after your explicit confirmation.
-				</p>
-			</div>
-
-			<div class="principle-entry">
-				<h3>2. Universal Journal &amp; Rollback</h3>
-				<p>
-					Every change is recorded in a local SQLite journal with a unique identifier. Type <code>/undo</code> at any time to restore previous metadata, tags, or items.
-				</p>
-			</div>
-
-			<div class="principle-entry">
-				<h3>3. Air-Gapped Local Privacy</h3>
-				<p>
-					Listens strictly on <code>127.0.0.1</code> protected by an authenticated single-origin session cookie. The Librarian operates entirely offline. Your library, notes, and citations remain on your machine.
-				</p>
-			</div>
-		</div>
-	</section>
-
-	<!-- II. The Two Offices -->
-	<section class="minimal-section">
-		<h2 class="minimal-section-title">II. The Two Offices</h2>
-		<div class="offices-grid">
-			<div class="office-column">
-				<h3>The Librarian</h3>
-				<p class="office-lead">Keeps your library in order.</p>
-				<ul class="office-list">
-					<li>Tags references from your custom vocabulary in <code>Systems/Zotero tags.md</code></li>
-					<li>Imports citations by DOI, PMID, or ISBN with full abstracts and citekeys</li>
-					<li>Repairs metadata, flags retractions, eliminates duplicates, and fetches open-access PDFs</li>
-					<li>Operates completely offline with zero unsolicited network traffic</li>
-				</ul>
-			</div>
-
-			<div class="office-column">
-				<h3>The Researcher</h3>
-				<p class="office-lead">Reads and surveys the wider literature.</p>
-				<ul class="office-list">
-					<li>Answers "What do I have on...?" directly from your local references with citekeys</li>
-					<li>Searches PubMed, Europe PMC and OpenAlex for critical works missing from your collection</li>
-					<li>Writes literature reviews with a screening log and an evidence table that says what was read: full text, abstract or metadata</li>
-					<li>Writes structured literature notes and syntheses in plain Markdown</li>
-					<li>Checks references with the optional Starbuck add-on: existence, match, retractions and, on request, support for the citing sentence</li>
-					<li>Read-only safety: cannot alter library records or delete items</li>
-				</ul>
-			</div>
-		</div>
-	</section>
-
-	<!-- III. In Your Browser -->
-	<section class="minimal-section">
-		<h2 class="minimal-section-title">III. In Your Browser</h2>
-		<p class="section-prose">
-			Open Sub-Sub from Applications or the Start menu, or run <code>subsub web</code>. It opens in your browser with the same modes, profiles, and dry-run approvals as the terminal. A switch in the side panel turns on reference checks with Starbuck.
-		</p>
-
-		<figure class="plate-small">
-			<img src="/assets/img/web-approval.webp?v={{ assetVersion }}" width="1600" height="1013" loading="lazy" alt="Sub-Sub web approval view.">
-			<figcaption class="plate-caption-sub">Plate II. — The web approval view. Changes run only after you select Yes.</figcaption>
-		</figure>
-	</section>
-
-	<!-- IV. Profiles -->
-	<section class="minimal-section">
-		<h2 class="minimal-section-title">IV. Calibrated Profiles</h2>
-		<p class="section-prose">
-			A profile sets how much Sub-Sub does for you. Switch anytime with <code>/profile &lt;name&gt;</code>.
-		</p>
-
-		<table class="vintage-table">
-			<thead>
-				<tr>
-					<th>Profile</th>
-					<th>Operational Scope</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td class="col-name">Reader</td>
-					<td>Guided and pedagogical. Reading notes are quotes with page numbers and questions for you. Never generates unrequested summaries.</td>
-				</tr>
-				<tr>
-					<td class="col-name">Scholar</td>
-					<td>Literature notes, conceptual syntheses, literature reviews, source comparisons, gap searches, alerts and digests, and the full librarian toolkit.</td>
-				</tr>
-				<tr>
-					<td class="col-name">Author</td>
-					<td>Scholar, plus manuscript auditing: citation verification against your library, automated bibliographies, argument analysis, and reviews against reporting guidelines.</td>
-				</tr>
-				<tr>
-					<td class="col-name">Editor</td>
-					<td>Everything unlocked, including drafting manuscript text and abstracts upon request.</td>
-				</tr>
-			</tbody>
-		</table>
-
-		<p class="table-footnote"><a href="/profiles/">About profiles →</a></p>
-	</section>
-
-	<!-- Melville Colophon Vignette -->
-	<div class="melville-vignette">
-		<div class="vignette-fleuron" aria-hidden="true">❦</div>
-		<blockquote class="vignette-quote">
-			"So fare thee well, poor devil of a Sub-Sub, whose commentator I am. Thou belongest to that hopeless, sallow tribe which no wine of this world will ever warm."
-		</blockquote>
-		<div class="vignette-author">— Herman Melville, <em>Moby-Dick; or, The Whale</em> (Extracts, 1851)</div>
 	</div>
+	<div class="wrap">
+		<figure class="shot hero-shot">
+			<img class="only-light" src="/assets/img/web-view-light.webp?v={{ assetVersion }}" width="1600" height="1000" alt="The Sub-Sub web view. The researcher answers a question about home spirometry with a table of four items from the library and three recent works that are not in it.">
+			<img class="only-dark" src="/assets/img/web-view-dark.webp?v={{ assetVersion }}" width="1600" height="1000" alt="" loading="lazy">
+		</figure>
+	</div>
+</section>
 
-	<!-- V. Essentials -->
-	<section class="minimal-section" style="margin-bottom: 4rem;">
-		<h2 class="minimal-section-title">V. Essentials</h2>
-		<div class="essentials-row">
-			<div class="essential-block">
-				<h4>Zotero 10+</h4>
-				<p>Running locally with local API communication turned on.</p>
-			</div>
-			<div class="essential-block">
-				<h4>AI Model Account</h4>
-				<p>Any provider supported by pi. <a href="/models/">Tested models</a>.</p>
-			</div>
-			<div class="essential-block">
-				<h4>Notes Folder</h4>
-				<p>Plain Markdown files (e.g. an Obsidian vault).</p>
-			</div>
+<section class="band">
+	<div class="wrap split">
+		<div>
+			<p class="eyebrow">How a change happens</p>
+			<h2>You see the change before it happens. You can undo it after.</h2>
+			<ol class="steps">
+				<li><strong>You ask in plain language.</strong> For example: tag the next 10 items without a topic.</li>
+				<li><strong>Sub-Sub prepares the change as a dry run.</strong> The preview shows each item, with the tags it adds in green and the tags it removes in red.</li>
+				<li><strong>You select Yes or No.</strong> The check is in the program, not in the instructions to the model. The model cannot skip it.</li>
+				<li><strong>The change goes into a journal.</strong> <code>/undo</code> reverts it. Nothing is deleted: items go to the Zotero trash.</li>
+			</ol>
 		</div>
-	</section>
+		<figure class="shot approval-shot">
+			<img class="only-light" src="/assets/img/web-approval.webp?v={{ assetVersion }}" width="1200" height="600" loading="lazy" alt="An approval dialog. It asks: Apply tag items? Two items would change. One gets three new topic tags; the other gets one new tag and loses type/rct. Buttons: No and Yes.">
+			<img class="only-dark" src="/assets/img/web-approval-dark.webp?v={{ assetVersion }}" width="1200" height="600" loading="lazy" alt="">
+		</figure>
+	</div>
+</section>
+
+<section class="section">
+	<div class="wrap">
+		<p class="eyebrow">Two modes</p>
+		<h2>One keeps the library in order. The other reads.</h2>
+		<div class="modes">
+			<article class="mode librarian">
+				<h3>Librarian</h3>
+				<p class="mode-lead">Changes your library, one approved change at a time.</p>
+				<ul>
+					<li>Tags items with the tags in your own list, <code>Systems/Zotero tags.md</code>. It refuses other tags.</li>
+					<li>Writes tag proposals into a review note that you can edit before you apply it.</li>
+					<li>Imports by DOI, PMID or ISBN, with the abstract and a citekey.</li>
+					<li>Repairs metadata, finds duplicates, flags retractions and attaches open-access PDFs.</li>
+				</ul>
+				<p class="mode-cmds"><code>/tag-batch</code> <code>/clean-tags</code> <code>/import-queue</code> <code>/history</code> <code>/undo</code></p>
+			</article>
+			<article class="mode researcher">
+				<h3>Researcher</h3>
+				<p class="mode-lead">Reads your library and the literature. It cannot change the library.</p>
+				<ul>
+					<li>Answers "what do I have on…?" from your library, with citekeys.</li>
+					<li>Searches PubMed, Europe PMC and OpenAlex for works that are not in your library.</li>
+					<li>Writes literature notes, syntheses and literature reviews with a screening log. Each note says what Sub-Sub read: the full text, the abstract or only the metadata.</li>
+					<li>Checks the references of a manuscript with Starbuck, an optional add-on.</li>
+				</ul>
+				<p class="mode-cmds"><code>/lit</code> <code>/lit-note</code> <code>/synthesis</code> <code>/gaps</code> <code>/compare</code> <code>/verify</code></p>
+			</article>
+		</div>
+	</div>
+</section>
+
+<section class="section">
+	<div class="wrap split terminal-split">
+		<div>
+			<p class="eyebrow">Browser or terminal</p>
+			<h2>The same assistant in both.</h2>
+			<p>Open Sub-Sub from its shortcut and it opens in your browser. Type <code>subsub</code> and it opens in the terminal. The modes, the profiles and the approvals are the same.</p>
+			<p>The browser view is a small server on your own computer. It listens only on 127.0.0.1 and stops 10 minutes after you close the page.</p>
+		</div>
+<div class="terminal" role="img" aria-label="Sub-Sub in the terminal: the librarian shows a preview of a tag change and asks Yes or No.">
+<pre><span class="t-dim">$</span> subsub --librarian
+<span class="t-acc">Sub-Sub {{ release.version }}</span>  <span class="t-dim">Librarian, Scholar · Zotero: 1,024 items</span>
+
+<span class="t-acc">&gt;</span> Tag the next 10 items without a topic.</pre>
+<div class="t-box"><span class="t-box-title">Sub-Sub: apply tag_items?</span>
+<pre>2 item(s) would change.
+Smith 2021: Home spirometry in children with asthma
+  <span class="t-add">+ topic/respiratory, topic/pediatrics, type/cohort</span>
+Costa 2019: A decision aid for inhaler choice
+  <span class="t-add">+ topic/clinical-decision-support</span>; <span class="t-rem">- type/rct</span></pre>
+<span class="t-box-keys"><span class="t-on">Yes</span> <span class="t-dim">No</span></span></div>
 </div>
+	</div>
+</section>
+
+<section class="section">
+	<div class="wrap">
+		<p class="eyebrow">Profiles</p>
+		<h2>You decide how much it writes for you.</h2>
+		<div class="profiles">
+			<div><h3>Reader</h3><p>Explains each step. Reading notes are quotes with page numbers and a question for you under each quote. No summaries.</p></div>
+			<div><h3>Scholar</h3><p>The default. Literature notes, syntheses, literature reviews and the full librarian. No text for your manuscripts.</p></div>
+			<div><h3>Author</h3><p>Scholar, plus help with your manuscripts: citation checks, a bibliography, comments on the argument, reviews against reporting guidelines.</p></div>
+			<div><h3>Editor</h3><p>Everything. When you ask, it drafts text for a manuscript and marks the drafted text so that you can check it.</p></div>
+		</div>
+		<p class="more"><a href="/profiles/">Compare the profiles</a></p>
+	</div>
+</section>
+
+<section class="section">
+	<div class="wrap split">
+		<div>
+			<p class="eyebrow">What you need</p>
+			<h2>Three things. The installer does the rest.</h2>
+		</div>
+		<dl class="needs">
+			<div><dt>Zotero 10 or later</dt><dd>Running, with "Allow other applications on this computer to communicate with Zotero" on.</dd></div>
+			<div><dt>An account with a model provider</dt><dd>Any provider that pi supports, or a local model. See <a href="/models/">Models</a> for the tested ones.</dd></div>
+			<div><dt>A folder for notes</dt><dd>Plain Markdown files. An Obsidian vault works.</dd></div>
+		</dl>
+	</div>
+</section>
+
+<section class="section">
+	<div class="wrap split">
+		<div>
+			<p class="eyebrow">Privacy</p>
+			<h2>Your library stays in Zotero.</h2>
+		</div>
+		<div class="prose-block">
+			<p>Sub-Sub talks to Zotero through its local API and never uses your zotero.org account. It sends no usage data.</p>
+			<p>The model provider that you choose receives your messages and what the tools return: titles, authors, abstracts, and parts of a full text when you ask for a note. PubMed, Europe PMC, OpenAlex, Crossref and Unpaywall receive search terms and identifiers, not your notes.</p>
+			<p><a href="/privacy/">What goes where</a></p>
+		</div>
+	</div>
+</section>
+
+<section class="colophon">
+	<div class="wrap">
+		<blockquote>
+			<p>"It will be seen that this mere painstaking burrower and grub-worm of a poor devil of a Sub-Sub appears to have gone through the long Vaticans and street-stalls of the earth, picking up whatever random allusions to whales he could anyways find in any book whatsoever, sacred or profane."</p>
+			<footer>Herman Melville, <cite>Moby-Dick</cite> (1851), the Extracts. <a href="/about/">About the name</a></footer>
+		</blockquote>
+	</div>
+</section>

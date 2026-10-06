@@ -20,7 +20,8 @@ Sub-Sub is made by Tiago Jacinto, assistant professor at the Faculty of Medicine
 - [Europe PMC](https://europepmc.org), for searches and open-access full text.
 - [Starbuck](https://github.com/tiagojct/starbuck), the optional add-on for reference checks.
 - The `/lit`, `/compare` and `/review` commands and the integrity rules of the researcher adapt text from [Feynman](https://github.com/Companion-Inc/feynman) (MIT licence). The sections of `/digest` come from [alberto-research](https://github.com/gabriel-affonso/alberto-research) (MIT licence).
-- The Glauca and Try-Works design systems, for this site and the terminal themes.
+- [IBM Plex](https://www.ibm.com/plex/) type (SIL Open Font License), for this site and the browser view.
+- The Glauca and Try-Works design systems, for the terminal themes.
 
 ## Source and licence
 
