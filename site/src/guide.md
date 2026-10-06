@@ -15,6 +15,8 @@ The buttons at the top change the mode (Researcher, Librarian) and the profile. 
 
 This guide gives the commands that you type. In the browser, most of them are also buttons.
 
+For a map of the parts (the apps, the servers, the modes, the profiles and the folders), see [How it fits together](/#how-it-fits).
+
 ### In the terminal
 
 Type `subsub`. To start in the librarian mode, type `subsub --librarian`. When you start Sub-Sub from your home folder, it works in your notes folder. From another folder (for example a manuscript folder), it works in that folder. To stay in the home folder, type `subsub --here`.

@@ -23,6 +23,7 @@
 	--accent: #1d4f7c;
 	--accent-soft: #e3ebf3;
 	--librarian: #a33b14;
+	--librarian-soft: #f5e6de;
 	--term-bg: #1c1c1a;
 	--term-text: #e6e2da;
 	--term-dim: #8f8a80;
@@ -48,6 +49,7 @@
 		--accent: #7fb0de;
 		--accent-soft: #1b2733;
 		--librarian: #e48a5f;
+		--librarian-soft: #33221a;
 		--term-bg: #0e0e0d;
 		--shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 24px 48px -24px rgb(0 0 0 / 0.7);
 	}
@@ -65,6 +67,7 @@
 	--accent: #7fb0de;
 	--accent-soft: #1b2733;
 	--librarian: #e48a5f;
+	--librarian-soft: #33221a;
 	--term-bg: #0e0e0d;
 	--shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 24px 48px -24px rgb(0 0 0 / 0.7);
 }
@@ -369,6 +372,38 @@ code, pre, kbd { font-family: var(--mono); }
 .colophon blockquote p { font-family: var(--serif); font-size: clamp(1.1rem, 2vw, 1.35rem); line-height: 1.5; margin: 0 0 1rem; font-style: italic; text-wrap: balance; }
 .colophon footer { font-size: 0.88rem; color: var(--muted); }
 .colophon footer a { margin-left: 0.5rem; }
+
+/* The diagram: inline SVG, coloured with the page tokens so it follows the theme. */
+.section-lead { color: var(--muted); max-width: 44rem; margin: -0.5rem 0 2rem; }
+.diagram { margin: 0; }
+.diagram-scroll { overflow-x: auto; border: 1px solid var(--rule); border-radius: 12px; background: var(--bg); padding: 1.25rem; }
+.diagram figcaption { margin-top: 0.75rem; font-size: 0.88rem; color: var(--muted); }
+.dg { display: block; width: 100%; min-width: 860px; height: auto; font-family: var(--sans); }
+.dg .box { fill: var(--raised); stroke: var(--rule-strong); stroke-width: 1; }
+.dg .box.strong { stroke: var(--text); stroke-opacity: 0.35; }
+.dg .soft { fill: var(--surface); stroke: var(--rule); }
+.dg .dash { stroke-dasharray: 5 4; }
+.dg text { fill: var(--text); }
+.dg .t { font-size: 14px; font-weight: 600; }
+.dg .s { font-size: 12px; fill: var(--muted); font-weight: 400; }
+.dg .f { fill: var(--faint); }
+.dg .m { font-family: var(--mono); font-size: 12px; }
+.dg .m.t { font-size: 14px; }
+.dg .c { font-size: 12px; }
+.dg .cap { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; fill: var(--faint); }
+.dg .cap.acc { fill: var(--text); }
+.dg .chip { fill: var(--surface); stroke: var(--rule-strong); }
+.dg .pill.lib { fill: var(--librarian-soft); stroke: var(--librarian); }
+.dg .pill.res { fill: var(--accent-soft); stroke: var(--accent); }
+.dg text.lib { fill: var(--librarian); }
+.dg text.res { fill: var(--accent); }
+.dg .ln { fill: none; stroke: var(--faint); stroke-width: 1.4; }
+.dg .ln.w { stroke-width: 2.2; }
+.dg .ln.lib { stroke: var(--librarian); }
+.dg .ln.res { stroke: var(--accent); }
+.dg .ah { fill: var(--faint); }
+.dg .ah.lib { fill: var(--librarian); }
+.dg .ah.res { fill: var(--accent); }
 
 /* ---------------------------------------------------------------- documentation pages */
 
