@@ -1,13 +1,13 @@
 /**
- * Which tools each mode may use, and which calls need the user's approval.
+ * Which tools the Assistant may use, and which calls need the user's approval.
  */
 
-import type { Mode, Profile } from "./config.ts";
+import type { Profile } from "./config.ts";
 import { profileSpec } from "./profiles.ts";
 
 export const FILE_TOOLS = ["read", "edit", "write", "grep", "find", "ls"];
 
-/** Prefixes of the tools that Sub-Sub's servers provide (the gate checks the mode for these). */
+/** Prefixes of the tools that Sub-Sub's servers provide (the gate checks the switch and the profile for these). */
 export const SERVER_PREFIXES = ["zotero_", "scholar_", "verify_"];
 
 export const ZOTERO_READ = [
@@ -48,27 +48,49 @@ export const PREVIEW_WRITES = new Set([
 /** Writes without a dry run that still need a yes. */
 export const CONFIRM_WRITES = new Set(["scholar_export_bibliography"]);
 
-export function toolsFor(mode: Mode, registered: string[], profile: Profile = "editor"): string[] {
+/** Zotero tools that look at the library or write only a note in the Sub-Sub folder. */
+export const ZOTERO_CHECKS = ["tag_audit", "audit_metadata", "find_duplicates", "check_retractions", "missing_pdfs", "write_tag_review"].map(
+	(n) => `zotero_${n}`,
+);
+
+export interface ToolOptions {
+	/** Library changes on: the Zotero write tools are offered (each still previewed). */
+	libraryChanges: boolean;
+	profile?: Profile;
+	/** The model test: also the bakeoff_ tools. */
+	bench?: boolean;
+}
+
+/**
+ * The Assistant's tools: reading the library, searching, notes and reference
+ * checks always; the Zotero write tools when library changes are on. The profile
+ * then removes tools.
+ */
+export function toolsFor(registered: string[], opts: ToolOptions): string[] {
 	const has = new Set(registered);
-	const without = new Set(profileSpec(profile).without);
-	const wanted =
-		mode === "librarian"
-			? [...registered.filter((n) => n.startsWith("zotero_")), ...FILE_TOOLS]
-			: [
-					...ZOTERO_READ,
-					...registered.filter((n) => n.startsWith("scholar_") || n.startsWith("verify_")),
-					...FILE_TOOLS,
-				];
+	const without = new Set(profileSpec(opts.profile ?? "editor").without);
+	const zotero = registered.filter((n) => n.startsWith("zotero_") && (opts.bench || !n.startsWith("zotero_bakeoff_")));
+	const wanted = [
+		...ZOTERO_READ,
+		...ZOTERO_CHECKS,
+		...(opts.libraryChanges ? zotero : []),
+		...registered.filter((n) => n.startsWith("scholar_") || n.startsWith("verify_")),
+		...FILE_TOOLS,
+	];
 	return [...new Set(wanted)].filter((n) => has.has(n) && !without.has(n));
 }
 
 /** Why a Sub-Sub tool is not available now, or undefined when it is. */
-export function unavailableReason(name: string, mode: Mode, registered: string[], profile: Profile): string | undefined {
-	if (toolsFor(mode, registered, profile).includes(name)) return undefined;
+export function unavailableReason(name: string, registered: string[], opts: ToolOptions): string | undefined {
+	if (toolsFor(registered, opts).includes(name)) return undefined;
+	const profile = opts.profile ?? "editor";
 	if (profileSpec(profile).without.includes(name)) {
 		return `${name} is not part of the ${profileSpec(profile).label} profile. The user can change the profile with /profile.`;
 	}
-	return `${name} is not available in ${mode} mode. The user can switch with /${otherMode(mode)}.`;
+	if (!opts.libraryChanges && toolsFor(registered, { ...opts, libraryChanges: true }).includes(name)) {
+		return `${name} changes the library, and library changes are off. The user can turn them on with /library on.`;
+	}
+	return `${name} is not available.`;
 }
 
 export type GateKind = "preview" | "confirm" | "path" | null;
@@ -83,8 +105,4 @@ export function gateKind(toolName: string, input: Record<string, unknown>): Gate
 	if (CONFIRM_WRITES.has(toolName)) return "confirm";
 	if (toolName === "write" || toolName === "edit") return "path";
 	return null;
-}
-
-export function otherMode(mode: Mode): Mode {
-	return mode === "librarian" ? "researcher" : "librarian";
 }

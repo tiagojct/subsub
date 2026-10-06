@@ -1,5 +1,5 @@
 ---
-description: "Researcher: critical review of a manuscript (FATAL, MAJOR, MINOR issues, annotations, revision plan); comments only"
+description: "Critical review of a manuscript (FATAL, MAJOR, MINOR issues, annotations, revision plan); comments only"
 argument-hint: "<path to .qmd, .md or .docx>"
 ---
 Review the manuscript $1 as a critical reader before submission. Comment only: do not rewrite the user's paragraphs and do not change the file.

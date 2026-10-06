@@ -4,7 +4,6 @@
  * Only used when Sub-Sub runs as its own command in the terminal UI.
  */
 
-import type { Mode } from "./config.ts";
 
 export const BANNER = [
 	"╔═╗╦ ╦╔╗    ╔═╗╦ ╦╔╗",
@@ -25,7 +24,8 @@ export const QUOTES: Array<[string, string]> = [
 	["Call me Ishmael.", "Moby-Dick, ch. 1"],
 ];
 
-export const MODE_THEMES: Record<Mode, string> = { librarian: "subsub-try-works", researcher: "subsub-glauca" };
+/** The terminal theme, without -dark/-light. subsub-try-works is the other one shipped. */
+export const DEFAULT_THEME = "subsub-glauca";
 
 export type Scheme = "dark" | "light";
 
@@ -47,8 +47,7 @@ export function schemeFromAnsi(fgAnsi: string, themeName?: string): Scheme {
 	return "dark";
 }
 
-export function themeName(mode: Mode, scheme: Scheme, map: Partial<Record<Mode, string>> = MODE_THEMES): string | undefined {
-	const base = map[mode];
+export function themeName(scheme: Scheme, base: string | undefined = DEFAULT_THEME): string | undefined {
 	return base ? `${base}-${scheme}` : undefined;
 }
 
@@ -84,7 +83,8 @@ export function libraryLine(st: LibraryState): { text: string; warn: boolean } {
 /** Header lines. Each line is cut to the width before it is coloured. */
 export function headerLines(opts: {
 	version: string;
-	mode: Mode;
+	/** Library changes on (false: read only). */
+	libraryChanges: boolean;
 	/** Profile label, e.g. "Scholar". */
 	profile?: string;
 	model: string;
@@ -95,7 +95,7 @@ export function headerLines(opts: {
 }): string[] {
 	const p = opts.paint ?? plain;
 	const w = Math.max(10, opts.width);
-	const modeLabel = (opts.mode === "librarian" ? "Librarian" : "Researcher") + (opts.profile ? `, ${opts.profile}` : "");
+	const modeLabel = `Assistant${opts.profile ? `, ${opts.profile}` : ""}${opts.libraryChanges ? "" : ", read only"}`;
 	const lib = libraryLine(opts.library);
 	if (w < BANNER[0].length + 2) {
 		return [p.mark(cut(`Sub-Sub ${opts.version}`, w)), p.text(cut(`${modeLabel} | ${opts.model}`, w)), (lib.warn ? p.warn : p.muted)(cut(lib.text, w))];
@@ -108,7 +108,7 @@ export function headerLines(opts: {
 		if ([...one].length <= w) out.push(p.dim(one));
 		else out.push(p.dim(cut(`"${opts.quote[0]}"`, w)), p.dim(cut(`  (${opts.quote[1]})`, w)));
 	}
-	out.push(p.dim(cut("/researcher  /librarian  /profile  /history  /undo  |  / for all commands", w)), "");
+	out.push(p.dim(cut("/library  /profile  /history  /undo  |  / for all commands", w)), "");
 	return out;
 }
 

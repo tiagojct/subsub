@@ -87,7 +87,7 @@ Starbuck is an add-on that checks the references of a manuscript. It is off by d
 - In `subsub init`, answer On to the question "Reference checks (Starbuck)". Or type `subsub init --starbuck on`.
 - Or, in the browser view, turn on the switch "Reference checks (Starbuck)" in the panel on the left. Sub-Sub restarts.
 
-Sub-Sub downloads Starbuck with uv the first time. Then type `subsub doctor`: the line Starbuck must show ok. The researcher then has `/verify`. See the [Guide](/guide/#check-references).
+Sub-Sub downloads Starbuck with uv the first time. Then type `subsub doctor`: the line Starbuck must show ok. Sub-Sub then has `/verify`. See the [Guide](/guide/#check-references).
 
 ## Update
 

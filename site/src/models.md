@@ -11,27 +11,26 @@ lead: Sub-Sub works with any model provider that pi supports. You need your own 
 2. Type `/login` and select the provider: for example OpenCode Go, OpenRouter, Anthropic, OpenAI or Google.
 3. Type `/model` to select a model.
 
-To use a different model for each mode, add them to the settings file `~/.config/subsub/config.json`:
+Sub-Sub uses one model. To set it in the settings file `~/.config/subsub/config.json`:
 
 ```json
 {
-  "models": {
-    "librarian": "opencode-go/glm-5.3-flash",
-    "researcher": "opencode-go/mimo-v2.6-pro"
-  }
+  "model": "opencode-go/mimo-v2.6-pro"
 }
 ```
+
+Before version 0.10, Sub-Sub had two modes, each with its own model (`"models"`). That setting still works: Sub-Sub uses the researcher's model.
 
 ## Tested models
 
 These models were tested on a real library of about 1000 items in September 2026, on the same tasks, with the answers judged blind.
 
-| Mode | Model | Why |
-|---|---|---|
-| Librarian | `opencode-go/glm-5.3-flash` | Accurate tags, correct tool calls, low cost |
-| Researcher | `opencode-go/mimo-v2.6-pro` | No invented references, good notes |
+| Model | Result |
+|---|---|
+| `opencode-go/mimo-v2.6-pro` | No invented references, good notes. The default since 0.10. |
+| `opencode-go/glm-5.3-flash` | Accurate tags, correct tool calls, low cost in the tagging tasks. |
 
-`subsub init` offers these two when you use OpenCode Go.
+`subsub init` offers mimo-v2.6-pro when you use OpenCode Go. For a long tagging session, you can switch to glm-5.3-flash with the model button (or `/model` in the terminal).
 
 ## Local models
 
@@ -43,5 +42,5 @@ pi can use a local model through Ollama or another server with an OpenAI-compati
 
 1. Start Zotero.
 2. Type `subsub-bench prepare`.
-3. Type `subsub-bench run --librarian a,b --researcher c,d` (OpenCode Go model names; the test uses OpenCode Go).
+3. Type `subsub-bench run --models a,b` (OpenCode Go model names; the test uses OpenCode Go). To compare different models on the library and the research tasks, use `--librarian a,b --researcher c,d`.
 4. Type `subsub-bench score`.

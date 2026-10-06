@@ -17,9 +17,7 @@ A Zotero librarian and research assistant that runs on your computer, in your br
 
 * **Code-Enforced Safety Gate**: The model **cannot** modify your library without your explicit approval. Every change is calculated first as a dry-run preview (+added in green, -removed in red) and executed only when you confirm.
 * **Full Journal & Reversible Edits**: Every library modification is recorded with a unique journal ID and can be reverted anytime using `/undo`.
-* **Two Dedicated Roles**:
-  * 📚 **The Librarian**: Cleans tags, imports references (DOI, PMID, ISBN), deduplicates, fixes metadata, retrieves open-access PDFs, creates collections, and checks retractions. *Has no web search tools; imports and PDFs come from Crossref, Unpaywall and Open Library.*
-  * 🔬 **The Researcher**: Reads items, searches PubMed and OpenAlex, finds gaps, checks citations in manuscripts, and writes structured Markdown notes in your Sub-Sub folder (it can sit inside an Obsidian vault). *Cannot modify library records.*
+* **One assistant, one switch**: Sub-Sub reads items, searches PubMed, Europe PMC and OpenAlex, finds gaps, checks citations in manuscripts and writes Markdown notes in your Sub-Sub folder (it can sit inside an Obsidian vault). With **library changes** on (the default), it also tags, imports by DOI, PMID or ISBN, repairs metadata, finds duplicates, attaches open-access PDFs and checks retractions, in the same conversation. Turn library changes off (`/library off`, or the switch in the browser view) to read only.
 * **Local & Private**: Listens strictly on `127.0.0.1` protected by an authenticated single-origin session cookie. Your library contents remain on your computer.
 * **Modern Web Interface & Terminal UI**: Use Sub-Sub in your browser with desktop shortcuts (`~/Applications/Sub-Sub.app`, Start menu, or `.desktop`), or launch it right in your terminal with adaptive color themes.
 
@@ -32,7 +30,7 @@ Profiles calibrate how much Sub-Sub drafts and executes for you. Choose your pro
 | Profile | Description |
 |---|---|
 | **Reader** | Guided and instructional. Reading notes are quotes with page numbers and reflective questions. Never generates unrequested summaries or syntheses. No bulk library edits. |
-| **Scholar** | Full research workflow: literature notes, conceptual syntheses, database searches, alerts, and the full librarian toolkit. |
+| **Scholar** | Full research workflow: literature notes, conceptual syntheses, database searches, alerts, and all library changes. |
 | **Author** | Scholar capabilities plus manuscript workflows: citation auditing against your library, automated Pandoc/Quarto bibliographies, and argument analysis. It critiques but does not write your paragraphs. |
 | **Editor** | Everything unlocked, including drafting full manuscript sections and abstracts upon request. |
 
@@ -106,7 +104,8 @@ Starting Sub-Sub with `subsub web` (or `subsub serve`) launches the browser appl
 
 * **Approval Previews**: Shows server-computed dry-run diffs directly in the UI. Changes are applied only after clicking **Yes** or pressing <kbd>Y</kbd>.
 * **Keyboard-First Review**: In approval dialogs, press <kbd>Y</kbd> or <kbd>Cmd</kbd>/<kbd>Ctrl</kbd>+<kbd>Enter</kbd> to approve, or <kbd>N</kbd>/<kbd>Esc</kbd> to decline.
-* **Theme Switcher**: Header toggle between **Light**, **Dark**, and **System** themes, with tailored styling for each mode (Try-Works amber for Librarian, Glauca blue for Researcher).
+* **Library changes switch**: In the header. Off, Sub-Sub reads, searches and writes notes only; the Library actions in the side panel are hidden.
+* **Theme Switcher**: Header toggle between **Light**, **Dark**, and **System** themes.
 * **One-Click Copy**: Built-in copy buttons on all code snippets, BibTeX records, and assistant literature notes.
 * **Session Search & Markdown Export**: Filter conversation history in real time and download full discussions as Markdown notes.
 * **Local Security**: Binds strictly to `127.0.0.1`. The initial link carries a random token that converts into an `HttpOnly`, `SameSite=Strict` cookie. Protected with strict Content Security Policy (CSP), origin validation, and sanitized output.
@@ -116,11 +115,11 @@ Starting Sub-Sub with `subsub web` (or `subsub serve`) launches the browser appl
 
 ## Usage
 
-### Interactive Modes & Commands
+### Starting and commands
 
 ```sh
-subsub             # Start in researcher mode
-subsub --librarian # Start in librarian mode
+subsub             # Start in the terminal
+subsub --read-only # Start with library changes off (this session only)
 subsub web         # Start browser view
 subsub -c          # Continue the previous session
 subsub -r          # Resume an older session
@@ -128,8 +127,7 @@ subsub -r          # Resume an older session
 
 Commands available within Sub-Sub:
 
-* `/librarian`: Switch to the librarian (modify library, tag, import; offline).
-* `/researcher`: Switch to the researcher (read library, search literature, write notes).
+* `/library on|off`: Turn library changes on or off (saved). Without an argument, it toggles. `/librarian` and `/researcher`, the two modes before 0.10, still work: on and off.
 * `/profile [name]`: View or change active profile (`reader`, `scholar`, `author`, `editor`).
 * `/subsub`: Display Zotero connection health and library statistics.
 * `/history`: List recent library changes with journal IDs.
@@ -139,11 +137,11 @@ Commands available within Sub-Sub:
 
 Type the command followed by arguments:
 
-* **Librarian**:
+* **Library** (need library changes on):
   * `/tag-batch [size]`: Tag untagged items using your tag vocabulary.
   * `/clean-tags`: Find irregular tags and reconcile with your vocabulary.
   * `/import-queue [path]`: Import pending references from an inbox note.
-* **Researcher**:
+* **Research**:
   * `/lit <question>`: Literature review: the library first, then PubMed, Europe PMC and OpenAlex in one merged search; reads before it summarises; an evidence table, agreement, disagreement and open questions; references checked; one note in `Research/` (Scholar, Author, Editor).
   * `/compare <question or citekeys>`: Source matrix (claim, evidence type, caveats, confidence), agreements and disagreements (Scholar, Author, Editor).
   * `/review <path>`: Critical review of your own manuscript: FATAL, MAJOR and MINOR issues against the reporting guideline that applies (CONSORT, STROBE, PRISMA, STARD, TRIPOD), with quotations and a revision plan. Comments only (Author, Editor).
@@ -177,12 +175,12 @@ subsub review apply 13-31
 | `about` | string | Brief background context about your research domain | `null` |
 | `language` | string | Response language, or `"auto"` to match your input | `"English"` |
 | `vault` | string | Path to your Sub-Sub folder | `$ZOTERO_VAULT` |
-| `models` | object | Model overrides per mode (e.g. `{"librarian": "opencode-go/glm-5.3-flash"}`) | Current model |
-| `defaultMode`| string | Default launch mode (`"researcher"` or `"librarian"`) | `"researcher"` |
+| `model` | string | The model, as provider/id; `""` to choose it in Sub-Sub | `"opencode-go/mimo-v2.6-pro"` |
+| `libraryChanges` | boolean | Library changes on (each change still needs your Yes) | `true` |
 | `serverDir` | string | Local development path for `zotero-local-mcp` | PyPI package |
 | `look` | boolean| Show header banners and status lines in terminal | `true` |
 | `quotes` | boolean| Display quotes from *Moby-Dick* in terminal banner | `true` |
-| `themes` | object | Mode-specific terminal themes | `true` |
+| `themes` | string or false | Terminal theme family (`subsub-glauca` or `subsub-try-works`); `false` keeps your pi theme | `"subsub-glauca"` |
 | `addons` | array | Optional servers; `["starbuck"]` adds reference checks | `[]` |
 | `starbuckDir` | string | Local Starbuck folder (used when it has a `pyproject.toml`) | `~/Projects/starbuck` |
 
@@ -203,7 +201,7 @@ Sub-Sub finds open-access copies (Unpaywall, Europe PMC). For other papers, use 
 2. Optional: set `"starbuckDir"` to a local copy of Starbuck. Without it, Sub-Sub runs the pinned Starbuck release with uv.
 3. Start Sub-Sub again and run `subsub doctor`. The line `Starbuck` must show `ok`.
 
-The researcher gets four tools: `verify_check_manuscript`, `verify_check_references`, `verify_prepare_claims` and `verify_record_claims`. Starbuck writes its report to a `_starbuck` folder next to the manuscript. Inside the Sub-Sub folder or the working folder this needs no approval; elsewhere Sub-Sub asks first. Starbuck gets the contact email from the zotero-local-mcp env file. For the claim check, Sub-Sub's own model judges; Starbuck checks that every quoted passage is in the source.
+Sub-Sub gets four tools: `verify_check_manuscript`, `verify_check_references`, `verify_prepare_claims` and `verify_record_claims`. Starbuck writes its report to a `_starbuck` folder next to the manuscript. Inside the Sub-Sub folder or the working folder this needs no approval; elsewhere Sub-Sub asks first. Starbuck gets the contact email from the zotero-local-mcp env file. For the claim check, Sub-Sub's own model judges; Starbuck checks that every quoted passage is in the source.
 
 ---
 

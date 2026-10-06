@@ -18,6 +18,9 @@ import { systemAddition } from "../src/prompt.ts";
 import { gateKind, toolsFor } from "../src/roles.ts";
 import { createSubsub, serverSpecs, starbuckEnv } from "../src/subsub.ts";
 import { STARBUCK_SOURCE } from "../src/config.ts";
+
+// Commands such as /library and /profile save the settings: never the user's real file.
+process.env.SUBSUB_CONFIG ??= join(mkdtempSync(join(tmpdir(), "subsub-test-")), "config.json");
 import { starbuckCheck } from "../src/doctor.ts";
 
 // ---------------------------------------------------------------- fakes
@@ -54,7 +57,8 @@ function fakePi() {
 	const pi = {
 		registerTool: (t: any) => tools.push(t),
 		registerFlag: () => {},
-		getFlag: () => false,
+		flags: {} as Record<string, boolean>,
+		getFlag(name: string) { return Boolean((this as any).flags[name]); },
 		registerCommand: (n: string, c: any) => { commands[n] = c; },
 		on: (ev: string, h: Function) => { (handlers[ev] ??= []).push(h); },
 		getAllTools: () => [...tools.map((t) => ({ name: t.name })), ...["read", "edit", "write", "grep", "find", "ls", "bash"].map((name) => ({ name }))],
@@ -88,8 +92,8 @@ function fakeCtx(opts: { hasUI?: boolean; confirm?: boolean; cwd?: string; branc
 
 const CFG: SubsubConfig = {
 	configFile: "/nonexistent/subsub.json", profile: "editor", language: "English",
-	serverDir: "/x", vault: "/vault", models: { librarian: "opencode-go/glm-5.3-flash", researcher: "opencode-go/mimo-v2.6-pro" },
-	defaultMode: "researcher", vaultContext: [], startTimeout: 5,
+	serverDir: "/x", vault: "/vault", model: "opencode-go/mimo-v2.6-pro",
+	libraryChanges: true, vaultContext: [], startTimeout: 5,
 };
 
 async function setup(confirm = true, hasUI = true) {
@@ -104,14 +108,15 @@ async function setup(confirm = true, hasUI = true) {
 
 // ---------------------------------------------------------------- pure parts
 
-test("tool sets per mode", () => {
+test("tool sets: library changes on and off", () => {
 	const all = [...TOOL_NAMES, "read", "edit", "write", "grep", "find", "ls", "bash"];
-	const lib = toolsFor("librarian", all);
-	const res = toolsFor("researcher", all);
-	assert.ok(lib.includes("zotero_tag_items") && !lib.some((n) => n.startsWith("scholar_")));
-	assert.ok(res.includes("scholar_search_pubmed") && res.includes("zotero_find_items"));
-	assert.ok(!res.includes("zotero_tag_items") && !res.includes("zotero_bakeoff_submit"));
-	assert.ok(!lib.includes("bash") && !res.includes("bash"));
+	const on = toolsFor(all, { libraryChanges: true });
+	const off = toolsFor(all, { libraryChanges: false });
+	assert.ok(on.includes("zotero_tag_items") && on.includes("scholar_search_pubmed") && on.includes("zotero_find_items"));
+	assert.ok(off.includes("scholar_search_pubmed") && off.includes("zotero_find_items") && off.includes("scholar_queue_imports"));
+	assert.ok(!off.includes("zotero_tag_items") && !off.includes("zotero_import_identifiers"));
+	assert.ok(!on.includes("zotero_bakeoff_submit") && toolsFor(all, { libraryChanges: true, bench: true }).includes("zotero_bakeoff_submit"));
+	assert.ok(!on.includes("bash") && !off.includes("bash"));
 });
 
 test("gate kinds", () => {
@@ -164,14 +169,22 @@ test("config defaults and env file", () => {
 	assert.equal(cfg.envFile, env);
 	assert.equal(cfg.vault, resolve("/Users/t/Notes"));
 	assert.equal(cfg.sharedRules, join(resolve("/Users/t/Notes"), "Zotero", "Zotero agent.md"));
-	assert.equal(cfg.models.researcher, "opencode-go/mimo-v2.6-pro");
+	assert.equal(cfg.model, "opencode-go/mimo-v2.6-pro");
+	assert.equal(cfg.libraryChanges, true);
 	assert.equal(expand("~/test", "/custom/home"), resolve("/custom/home/test"));
 	const isolated = loadConfig({ HOME: dir, SUBSUB_CONFIG: join(dir, "none.json"), ZOTERO_MCP_ENV: join(dir, "no-such-env") } as any);
 	assert.equal(isolated.vault, undefined);
-	writeFileSync(join(dir, "c.json"), JSON.stringify({ defaultMode: "librarian", models: {} }));
+	// before 0.10: a model per mode; the researcher's model becomes the model; {} means choose in pi
+	writeFileSync(join(dir, "c.json"), JSON.stringify({ defaultMode: "librarian", models: { librarian: "p/a", researcher: "p/b" }, themes: { researcher: "t" } }));
 	const c2 = loadConfig({ SUBSUB_CONFIG: join(dir, "c.json"), ZOTERO_MCP_ENV: env } as any);
-	assert.equal(c2.defaultMode, "librarian");
-	assert.deepEqual(c2.models, {});
+	assert.equal(c2.model, "p/b");
+	assert.equal(c2.themes, "t");
+	writeFileSync(join(dir, "c.json"), JSON.stringify({ models: {} }));
+	assert.equal(loadConfig({ SUBSUB_CONFIG: join(dir, "c.json"), ZOTERO_MCP_ENV: env } as any).model, undefined);
+	writeFileSync(join(dir, "c.json"), JSON.stringify({ model: "", libraryChanges: false }));
+	const c3 = loadConfig({ SUBSUB_CONFIG: join(dir, "c.json"), ZOTERO_MCP_ENV: env } as any);
+	assert.equal(c3.model, undefined);
+	assert.equal(c3.libraryChanges, false);
 });
 
 test("system prompt addition", () => {
@@ -181,12 +194,14 @@ test("system prompt addition", () => {
 	writeFileSync(join(dir, "Systems", "Zotero agent.md"), "SHARED RULES");
 	writeFileSync(join(dir, ".claude", "CLAUDE.md"), "VAULT CONVENTIONS");
 	const cfg = { ...CFG, vault: dir, sharedRules: join(dir, "Systems", "Zotero agent.md"), vaultContext: [join(dir, ".claude", "CLAUDE.md")] };
-	const inVault = systemAddition("librarian", cfg, join(dir, "Inbox"));
-	assert.match(inVault, /Sub-Sub: librarian mode/);
-	assert.match(inVault, /You are Sub-Sub, the librarian/);
+	const inVault = systemAddition(cfg, join(dir, "Inbox"));
+	assert.match(inVault, /^# Sub-Sub\n/);
+	assert.match(inVault, /You are Sub-Sub, the librarian and research assistant/);
+	assert.doesNotMatch(inVault, /Library changes are off/);
+	assert.match(systemAddition(cfg, join(dir, "Inbox"), false), /Library changes are off/);
 	assert.match(inVault, /SHARED RULES[\s\S]*Sub-Sub note/);
 	assert.match(inVault, /VAULT CONVENTIONS/);
-	assert.doesNotMatch(systemAddition("researcher", cfg, "/elsewhere"), /VAULT CONVENTIONS/);
+	assert.doesNotMatch(systemAddition(cfg, "/elsewhere"), /VAULT CONVENTIONS/);
 	// The English rule comes last, after the vault conventions.
 	assert.match(inVault, /VAULT CONVENTIONS[\s\S]*# Language\n\nAlways reply in English/);
 	assert.doesNotMatch(inVault, /in the language he uses/);
@@ -242,27 +257,42 @@ test("cli: settings, shared auth, start folder, self-update guard", () => {
 
 // ---------------------------------------------------------------- extension wiring
 
-test("registers bridge tools, commands and starts in researcher mode", async () => {
+test("registers bridge tools and commands; starts with library changes on and one model", async () => {
 	const { fp } = await setup();
 	assert.equal(fp.tools.length, TOOL_NAMES.length);
-	assert.ok(["librarian", "researcher", "subsub", "history", "undo"].every((c) => c in fp.commands));
-	assert.ok(fp.active.includes("scholar_search_pubmed") && !fp.active.includes("zotero_tag_items"));
+	assert.ok(["library", "librarian", "researcher", "subsub", "history", "undo"].every((c) => c in fp.commands));
+	assert.ok(fp.active.includes("scholar_search_pubmed") && fp.active.includes("zotero_tag_items"));
 	assert.deepEqual((fp.pi as any).model, { provider: "opencode-go", id: "mimo-v2.6-pro" });
 });
 
-test("mode switch changes tools, model and is remembered", async () => {
-	const { fp, ctx } = await setup();
+test("/library turns library changes off and on, and saves the setting", async () => {
+	const file = process.env.SUBSUB_CONFIG!;
+	const { fp, ctx, notes } = await setup();
+	await fp.commands.library.handler("off", ctx);
+	assert.ok(!fp.active.includes("zotero_tag_items") && fp.active.includes("scholar_search_pubmed") && fp.active.includes("zotero_find_items"));
+	assert.equal(JSON.parse(readFileSync(file, "utf8")).libraryChanges, false);
+	assert.match(notes.at(-1)!, /library changes off/);
+	await fp.commands.library.handler("", ctx); // no argument: toggle
+	assert.ok(fp.active.includes("zotero_tag_items"));
+	assert.equal(JSON.parse(readFileSync(file, "utf8")).libraryChanges, true);
+	await fp.commands.researcher.handler("", ctx); // the old modes: off and on
+	assert.ok(!fp.active.includes("zotero_tag_items"));
+	assert.match(notes.at(-1)!, /\/researcher is now \/library off/);
 	await fp.commands.librarian.handler("", ctx);
-	assert.ok(fp.active.includes("zotero_tag_items") && !fp.active.includes("scholar_search_pubmed"));
-	assert.deepEqual((fp.pi as any).model, { provider: "opencode-go", id: "glm-5.3-flash" });
-	assert.deepEqual(fp.entries.at(-1), { customType: "subsub-mode", data: { mode: "librarian" } });
+	assert.ok(fp.active.includes("zotero_tag_items") && fp.active.includes("scholar_search_pubmed"));
+	assert.deepEqual((fp.pi as any).model, { provider: "opencode-go", id: "mimo-v2.6-pro" }, "the model does not change");
+	await fp.commands.library.handler("maybe", ctx);
+	assert.match(notes.at(-1)!, /Type \/library on or \/library off/);
 });
 
-test("tools of the other mode are blocked", async () => {
-	const { toolCall } = await setup();
+test("write tools are blocked while library changes are off", async () => {
+	const { fp, ctx, toolCall } = await setup();
+	await fp.commands.library.handler("off", ctx);
 	const r = await toolCall("zotero_tag_items", { dry_run: false });
 	assert.equal(r.block, true);
-	assert.match(r.reason, /not available in researcher mode.*\/librarian/);
+	assert.match(r.reason, /library changes are off.*\/library on/);
+	assert.equal(await toolCall("scholar_queue_imports", { works: [] }), undefined, "the queue still works");
+	await fp.commands.library.handler("on", ctx);
 });
 
 test("preview gate asks with the server's preview and applies on yes", async () => {
@@ -348,12 +378,19 @@ test("file writes outside the vault need a yes; tricks do not escape", async () 
 	assert.match(asked.at(-1)!.message, /protected/);
 });
 
-test("mode is restored from the session branch", async () => {
-	const fp = fakePi();
-	await createSubsub(fp.pi as any, { config: CFG, bridge: new FakeBridge() as unknown as Bridge });
-	const { ctx } = fakeCtx({ branch: [{ customType: "subsub-mode", data: { mode: "librarian" } }, { customType: "subsub-mode", data: { mode: "bogus" } }] } as any);
-	for (const h of fp.handlers.session_start) await h({ reason: "resume" }, ctx);
-	assert.ok(fp.active.includes("zotero_tag_items"));
+test("the saved setting and the --read-only flag decide the start", async () => {
+	const start = async (config: SubsubConfig, flags: Record<string, boolean> = {}) => {
+		const fp = fakePi();
+		Object.assign((fp.pi as any).flags, flags);
+		await createSubsub(fp.pi as any, { config, bridge: new FakeBridge() as unknown as Bridge });
+		const { ctx } = fakeCtx({ branch: [{ customType: "subsub-mode", data: { mode: "researcher" } }] } as any);
+		for (const h of fp.handlers.session_start) await h({ reason: "resume" }, ctx);
+		return fp.active;
+	};
+	assert.ok((await start(CFG)).includes("zotero_tag_items"), "old mode entries in a session are ignored");
+	assert.ok(!(await start({ ...CFG, libraryChanges: false })).includes("zotero_tag_items"));
+	assert.ok(!(await start(CFG, { "read-only": true })).includes("zotero_tag_items"));
+	assert.ok((await start({ ...CFG, libraryChanges: false }, { librarian: true })).includes("zotero_tag_items"));
 });
 
 test("setModel failure is reported", async () => {
@@ -373,7 +410,7 @@ test("MCP tools run sequentially", async () => {
 test("system prompt hook appends the Sub-Sub part", async () => {
 	const { fp, ctx } = await setup();
 	const out = await fp.handlers.before_agent_start[0]({ systemPrompt: "BASE" }, ctx);
-	assert.match(out.systemPrompt, /^BASE\n\n# Sub-Sub: researcher mode/);
+	assert.match(out.systemPrompt, /^BASE\n\n# Sub-Sub\n\nYou are Sub-Sub/);
 });
 
 test("/undo previews, confirms and applies", async () => {
@@ -411,23 +448,23 @@ test("bench: prompts, tag scoring, identifiers and citekeys", async () => {
 
 test("look: banner, narrow terminal, scheme, theme names, coloured preview", async () => {
 	const { headerLines, schemeFromAnsi, themeName, paintPreview, BANNER, QUOTES } = await import("../src/look.ts");
-	const wide = headerLines({ version: "0.3.0", mode: "researcher", model: "mimo-v2.6-pro", library: { zotero: "reachable", items: 990, toReview: 975 }, quote: QUOTES[4], width: 100 });
+	const wide = headerLines({ version: "0.3.0", libraryChanges: true, profile: "Scholar", model: "mimo-v2.6-pro", library: { zotero: "reachable", items: 990, toReview: 975 }, quote: QUOTES[4], width: 100 });
 	assert.equal(wide[1], BANNER[0]);
 	assert.match(wide[3], /0\.3\.0$/);
-	assert.ok(wide.some((l) => l === "Researcher  mimo-v2.6-pro  |  Zotero: 990 items, 975 to review"));
+	assert.ok(wide.some((l) => l === "Assistant, Scholar  mimo-v2.6-pro  |  Zotero: 990 items, 975 to review"));
 	assert.ok(wide.some((l) => l === '"Very like a whale." (Hamlet, in the Extracts)'));
-	const narrow = headerLines({ version: "0.3.0", mode: "librarian", model: "glm-5.3-flash", library: { zotero: "down" }, width: 18 });
+	const narrow = headerLines({ version: "0.3.0", libraryChanges: false, model: "glm-5.3-flash", library: { zotero: "down" }, width: 18 });
 	assert.equal(narrow.length, 3);
 	assert.ok(narrow.every((l) => [...l].length <= 18));
-	const down = headerLines({ version: "0.3.0", mode: "librarian", model: "m", library: { zotero: "down" }, width: 60 });
+	const down = headerLines({ version: "0.3.0", libraryChanges: false, model: "m", library: { zotero: "down" }, width: 60 });
+	assert.ok(down.some((l) => /Assistant, read only/.test(l)));
 	assert.ok(down.some((l) => /Zotero is not running/.test(l)));
-	assert.ok(headerLines({ version: "1", mode: "librarian", model: "m", library: { zotero: "checking" }, width: 40 }).every((l) => [...l].length <= 40));
+	assert.ok(headerLines({ version: "1", libraryChanges: true, model: "m", library: { zotero: "checking" }, width: 40 }).every((l) => [...l].length <= 40));
 	assert.equal(schemeFromAnsi("\x1b[38;2;232;238;242m"), "dark");
 	assert.equal(schemeFromAnsi("\x1b[38;2;22;34;42m"), "light");
 	assert.equal(schemeFromAnsi("", "subsub-glauca-light"), "light");
-	assert.equal(themeName("librarian", "dark"), "subsub-try-works-dark");
-	assert.equal(themeName("researcher", "light"), "subsub-glauca-light");
-	assert.equal(themeName("researcher", "light", { librarian: "x" }), undefined);
+	assert.equal(themeName("dark"), "subsub-glauca-dark");
+	assert.equal(themeName("light", "subsub-try-works"), "subsub-try-works-light");
 	const painted = paintPreview("Smith 2020: + topic/asthma, type/cohort; - topic/copd", (x) => `<${x}>`, (x) => `[${x}]`);
 	assert.equal(painted, "Smith 2020: <+ topic/asthma, type/cohort>; [- topic/copd]");
 	const based = paintPreview("2 item(s) would change.\nSmith 2020: Title: + a; - b\n- c", (x) => `<${x}>`, (x) => `[${x}]`, (x) => `{${x}}`);
@@ -505,22 +542,24 @@ test("preview: already applied notes and tags changed since the note", () => {
 
 test("profiles: tools, reasons and prompt text", () => {
 	const all = [...TOOL_NAMES, "read", "edit", "write"];
-	const readerLib = toolsFor("librarian", all, "reader");
-	assert.ok(readerLib.includes("zotero_tag_items") && readerLib.includes("zotero_undo"));
-	assert.ok(!readerLib.includes("zotero_trash_items"));
-	assert.ok(!toolsFor("researcher", all, "scholar").includes("scholar_export_bibliography"));
-	assert.ok(toolsFor("researcher", all, "author").includes("scholar_export_bibliography"));
-	assert.match(unavailableReason("zotero_trash_items", "librarian", all, "reader")!, /not part of the Reader profile.*\/profile/);
-	assert.match(unavailableReason("zotero_tag_items", "researcher", all, "editor")!, /not available in researcher mode.*\/librarian/);
-	assert.equal(unavailableReason("zotero_tag_items", "librarian", all, "reader"), undefined);
+	const reader = toolsFor(all, { libraryChanges: true, profile: "reader" });
+	assert.ok(reader.includes("zotero_tag_items") && reader.includes("zotero_undo"));
+	assert.ok(!reader.includes("zotero_trash_items"));
+	assert.ok(!toolsFor(all, { libraryChanges: true, profile: "scholar" }).includes("scholar_export_bibliography"));
+	assert.ok(toolsFor(all, { libraryChanges: false, profile: "author" }).includes("scholar_export_bibliography"));
+	assert.match(unavailableReason("zotero_trash_items", all, { libraryChanges: true, profile: "reader" })!, /not part of the Reader profile.*\/profile/);
+	assert.match(unavailableReason("zotero_trash_items", all, { libraryChanges: false, profile: "reader" })!, /not part of the Reader profile/, "the profile reason comes first");
+	assert.match(unavailableReason("zotero_tag_items", all, { libraryChanges: false, profile: "editor" })!, /library changes are off.*\/library on/);
+	assert.equal(unavailableReason("zotero_tag_items", all, { libraryChanges: true, profile: "reader" }), undefined);
 	assert.equal(profileSpec("reader").batch, 10);
 	const t = fill("{{User}} edits; tell {{user}}. {{about}} limit={{batch}}", { userName: "Ana", about: "a master's student", profile: "reader" });
 	assert.equal(t, "Ana edits; tell Ana. Ana is a master's student. limit=10");
 	assert.equal(fill("{{User}} can undo. {{about}}", { profile: "scholar" }), "The user can undo. ");
 	assert.match(languageRule("auto"), /language the user writes in/);
 	assert.match(languageRule("Portuguese", "Ana"), /Always reply in Portuguese, even when Ana writes/);
-	const sys = systemAddition("researcher", { ...CFG, profile: "reader", userName: "Ana", language: "auto" }, "/elsewhere");
+	const sys = systemAddition({ ...CFG, profile: "reader", userName: "Ana", language: "auto" }, "/elsewhere");
 	assert.match(sys, /research assistant for Ana/);
+	assert.match(sys, /Tag review notes: at most 10 items/);
 	assert.match(sys, /# Profile\n\nProfile: Reader[\s\S]*# Language\n\nReply in the language Ana writes in/);
 	assert.doesNotMatch(sys, /Tiago|\{\{/);
 });
@@ -569,7 +608,9 @@ test("init: new user with defaults, then again without replacing files", async (
 	assert.equal(cfg.profile, "reader");
 	assert.equal(cfg.userName, "Ana");
 	assert.equal(cfg.setup, "fmup");
-	assert.deepEqual(cfg.models, {});
+	assert.equal(cfg.model, "");
+	assert.equal(cfg.libraryChanges, true);
+	assert.equal(loadCfg(env).model, undefined, "choose the model in Sub-Sub");
 	assert.equal(r.notes, join(home, "Documents", "Sub-Sub"));
 	const vocab = join(r.notes, "Zotero", "Zotero tags.md");
 	assert.match(readFileSync(vocab, "utf8"), /topic\/cardiovascular/);
@@ -594,7 +635,8 @@ test("init: new user with defaults, then again without replacing files", async (
 	const cfg2 = JSON.parse(readFileSync(r2.configFile, "utf8"));
 	assert.equal(cfg2.profile, "author");
 	assert.equal(cfg2.userName, "Ana");
-	assert.equal(cfg2.models.librarian, "opencode-go/glm-5.3-flash");
+	assert.equal(cfg2.model, "opencode-go/mimo-v2.6-pro");
+	assert.equal(cfg2.models, undefined);
 	assert.equal(r2.created.length, 0);
 	assert.deepEqual(cfg2.addons, ["starbuck"]);
 	// the default keeps the add-on; off removes it
@@ -603,13 +645,16 @@ test("init: new user with defaults, then again without replacing files", async (
 	await runInit(io, { starbuck: "off" }, env, { home, fetch: notFound });
 	assert.equal(JSON.parse(readFileSync(r2.configFile, "utf8")).addons, undefined);
 	assert.equal(upsertEnv("# c\nA=1\n", { A: "2", B: "3", C: "" }), "# c\nA=2\nB=3\n");
-	// someone who already logged in to OpenCode Go gets the tested models by default
+	// someone who already logged in to OpenCode Go gets the tested model by default
 	const home3 = mkdtempSync(join(tmpdir(), "subsub-init3-"));
 	mkdirSync(join(home3, "agent"));
 	writeFileSync(join(home3, "agent", "auth.json"), JSON.stringify({ "opencode-go": { type: "api_key", key: "x" } }));
 	const env3 = { SUBSUB_CONFIG: join(home3, "c.json"), ZOTERO_MCP_ENV: join(home3, "env"), SUBSUB_AGENT_DIR: join(home3, "agent") } as any;
 	await runInit(io, {}, env3, { home: home3, fetch: notFound });
-	assert.equal(JSON.parse(readFileSync(join(home3, "c.json"), "utf8")).models.researcher, "opencode-go/mimo-v2.6-pro");
+	assert.equal(JSON.parse(readFileSync(join(home3, "c.json"), "utf8")).model, "opencode-go/mimo-v2.6-pro");
+	// --library off is saved
+	await runInit(io, { library: "off" }, env3, { home: home3, fetch: notFound });
+	assert.equal(loadCfg(env3).libraryChanges, false);
 });
 
 test("doctor: checks and fixes", () => {
@@ -709,13 +754,11 @@ test("starbuck add-on: off by default; server, environment and release when on",
 	assert.deepEqual(starbuckEnv({}, {}), {});
 });
 
-test("starbuck add-on: researcher tools in every profile, not in librarian mode", () => {
+test("starbuck add-on: in every profile, with library changes on or off", () => {
 	const all = ["zotero_find_items", "zotero_tag_items", "scholar_search_pubmed", "verify_check_manuscript", "verify_prepare_claims", "read"];
 	for (const p of ["reader", "scholar", "author", "editor"] as const) {
-		assert.ok(toolsFor("researcher", all, p).includes("verify_check_manuscript"), p);
+		for (const libraryChanges of [true, false]) assert.ok(toolsFor(all, { libraryChanges, profile: p }).includes("verify_check_manuscript"), p);
 	}
-	assert.ok(!toolsFor("librarian", all).some((n) => n.startsWith("verify_")));
-	assert.match(unavailableReason("verify_check_manuscript", "librarian", all, "editor")!, /not available in librarian mode.*\/researcher/);
 });
 
 test("starbuck add-on: reports in the vault pass, elsewhere need a yes; record_claims gets the model", async () => {
@@ -729,8 +772,9 @@ test("starbuck add-on: reports in the vault pass, elsewhere need a yes; record_c
 	const input: Record<string, unknown> = { path: "/vault/paper.qmd", verdicts: [] };
 	assert.equal(await toolCall("verify_record_claims", input), undefined);
 	assert.equal(input.judged_by, "glm-5.3-flash");
-	await fp.commands.librarian.handler("", ctx);
-	assert.match((await toolCall("verify_check_manuscript", { path: "/vault/p.qmd" })).reason, /not available in librarian mode/);
+	await fp.commands.library.handler("off", ctx);
+	assert.equal(await toolCall("verify_check_manuscript", { path: "/vault/p.qmd" }), undefined, "reference checks do not change the library");
+	await fp.commands.library.handler("on", ctx);
 });
 
 test("doctor: the Starbuck check", () => {
@@ -742,19 +786,19 @@ test("doctor: the Starbuck check", () => {
 	assert.match(bad.fix!, /internet connection.*subsub init/);
 });
 
-test("every tool a mode offers is either a server tool, a read-only file tool, or gated", () => {
+test("every tool Sub-Sub offers is either a server tool, a read-only file tool, or gated", () => {
 	// gateKind knows write and edit by name; any other file-writing tool would pass without a question.
 	const all = [
 		...TOOL_NAMES, "verify_prepare_claims", "zotero_find_items", "read", "edit", "write", "grep", "find", "ls",
 		"bash", "codemode", "tool_search", "mcp_any_tool",
 	];
 	const readOnly = new Set(["read", "grep", "find", "ls"]);
-	for (const mode of ["librarian", "researcher"] as const) {
+	for (const libraryChanges of [true, false]) {
 		for (const p of ["reader", "scholar", "author", "editor"] as const) {
-			for (const name of toolsFor(mode, all, p)) {
+			for (const name of toolsFor(all, { libraryChanges, profile: p })) {
 				const known = ["zotero_", "scholar_", "verify_"].some((x) => name.startsWith(x)) || readOnly.has(name)
 					|| gateKind(name, {}) === "path";
-				assert.ok(known, `${mode}/${p} offers ${name}, which the gate does not judge`);
+				assert.ok(known, `${libraryChanges ? "on" : "off"}/${p} offers ${name}, which the gate does not judge`);
 			}
 		}
 	}

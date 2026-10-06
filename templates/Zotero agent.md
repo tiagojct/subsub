@@ -1,10 +1,10 @@
-Shared rules for the Sub-Sub librarian and researcher. Sub-Sub reads this file at the start of every session. Edit it to change how notes look or where they go. Tag list: [[Zotero tags]].
+Shared rules for Sub-Sub. Sub-Sub reads this file at the start of every session. Edit it to change how notes look or where they go. Tag list: [[Zotero tags]].
 
-## Roles
+## What Sub-Sub does
 
-- The librarian changes the library: tags, imports, metadata, PDFs, collections, notes in Zotero. It does not search the web.
-- The researcher searches PubMed and OpenAlex, reads the library and writes notes in this folder. It cannot change the library, with one exception: it can add a short linked note to an item (attach_note).
-- Hand-off: the researcher adds works to Inbox/Zotero import queue.md. The user ticks the lines. The librarian imports the ticked lines.
+- Sub-Sub reads the library, searches PubMed, Europe PMC and OpenAlex, and writes notes in this folder.
+- With library changes on, it also changes the library: tags, imports, metadata, PDFs, collections, notes in Zotero. Every change shows a preview and needs the user's yes.
+- Works found in a search are imported directly when the user chooses them. For a list to choose from later, Sub-Sub writes Inbox/Zotero import queue.md; the user ticks the lines and Sub-Sub imports them.
 
 ## Safety
 
@@ -85,5 +85,5 @@ created: YYYY-MM-DD
 - Structure: scope and question; synthesis by theme; disagreements; gaps; a table of included items (citekey, year, design, main finding, source: full text or abstract).
 - For a tag ("what does my library say about X"), include every item with the tag, one table row each. If an item is left out, say which and why.
 - Cite with [@citekey] after each claim. Every claim must come from an included item.
-- Works that are not in the library go in a separate section "Not in the library", with DOI or PMID, and are proposed for the import queue.
+- Works that are not in the library go in a separate section "Not in the library", with DOI or PMID, and are proposed for import.
 - Link existing literature notes as [[citekey]].

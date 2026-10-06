@@ -10,15 +10,12 @@
 	<link rel="stylesheet" href="/app.css">
 	<script type="module" src="/app.js"></script>
 </head>
-<body data-mode="researcher">
+<body data-library="on">
 	<div class="app">
 		<header class="top">
 			<button type="button" class="icon-btn" id="menu-btn" aria-controls="side" aria-expanded="true" data-i18n-title="menu" title="Menu"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M9.5 4.5v15"/></svg><span class="visually-hidden" data-i18n="menu">Menu</span></button>
 			<div class="brand"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M6.5 9h7M6.5 12h11"/><circle cx="12" cy="16" r="1.1"/></svg><span>Sub<span class="hyphen">-</span>Sub</span></div>
-			<div class="modes" role="group" aria-label="Mode">
-				<button type="button" data-mode="researcher" aria-pressed="true" data-i18n="researcher">Researcher</button>
-				<button type="button" data-mode="librarian" aria-pressed="false" data-i18n="librarian">Librarian</button>
-			</div>
+			<label class="switch lib-switch" id="library-switch-label"><input type="checkbox" role="switch" id="library-switch" checked><span class="track" aria-hidden="true"></span><span data-i18n="libraryChanges">Library changes</span></label>
 			<div class="status">
 				<span class="library" id="library"><span class="library-dot" aria-hidden="true"></span><span class="library-text"></span></span>
 				<label class="profile wide-only"><span class="visually-hidden" data-i18n="profile">Profile</span>
@@ -110,7 +107,6 @@
 			<button type="button" class="link-btn" id="model-close" data-i18n="close">Close</button>
 		</div>
 		<h3 data-i18n="chooseModel">Choose a model</h3>
-		<label class="check"><input type="checkbox" id="model-both" checked> <span data-i18n="forBoth">Use it in both modes</span></label>
 		<ul class="models" id="models"></ul>
 		<h3 data-i18n="connectProvider">Connect a provider</h3>
 		<form id="login-form" class="login">

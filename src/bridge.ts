@@ -1,6 +1,6 @@
 /**
- * Bridge to the Python MCP servers of zotero-local-mcp (librarian "zotero" and
- * researcher "scholar"). Starts them over stdio, lists their tools, and calls them.
+ * Bridge to the Python MCP servers of zotero-local-mcp ("zotero" for the library,
+ * "scholar" for searches and notes). Starts them over stdio, lists their tools, and calls them.
  * All safety logic (dry runs, version checks, journal, vocabulary, the researcher's
  * note-only client) stays in the Python servers.
  */

@@ -7,7 +7,7 @@ import { ACTIONS, STRINGS, SUGGESTIONS, TOOLS } from "/i18n.js";
 // ---------------------------------------------------------------- state
 
 let lang = "en";
-let state = null; // Sub-Sub's own state: mode, profile, model, library, down
+let state = null; // Sub-Sub's own state: libraryChanges, profile, model, library, down
 let session = null; // pi's session state
 let busy = false;
 let commands = [];
@@ -169,13 +169,15 @@ function applyLang() {
 	updateLayoutUI();
 }
 
-function mode() {
-	return state?.mode === "librarian" ? "librarian" : "researcher";
+/** Library changes on (the default until the state arrives). */
+function libOn() {
+	return state?.libraryChanges !== false;
 }
 
 function renderHeader() {
-	document.body.dataset.mode = mode();
-	for (const b of document.querySelectorAll(".modes button")) b.setAttribute("aria-pressed", String(b.dataset.mode === mode()));
+	document.body.dataset.library = libOn() ? "on" : "off";
+	$("library-switch").checked = libOn();
+	$("library-switch-label").title = t("libraryHint");
 	if (state?.profile) $("profile").value = $("profile-side").value = state.profile;
 	$("starbuck-toggle").checked = Boolean(state?.starbuck);
 	$("starbuck-label").title = t("starbuckHint");
@@ -203,7 +205,7 @@ function renderHeader() {
 		lib.classList.add("down");
 	}
 	lib.title = txt.textContent;
-	$("input").placeholder = mode() === "librarian" ? t("placeholderLibrarian") : t("placeholderResearcher");
+	$("input").placeholder = libOn() ? t("placeholder") : t("placeholderReadOnly");
 	if (log.querySelector(".empty")) {
 		clearEmpty();
 		renderEmpty();
@@ -221,12 +223,17 @@ function hasCommand(name) {
 function renderActions() {
 	const box = $("actions");
 	box.replaceChildren();
-	const list = [...ACTIONS[mode()]].filter(
-		(a) => hasCommand(a.cmd) && (!a.needs || state?.[a.needs]) && (!a.profiles || a.profiles.includes(state?.profile ?? "scholar")),
-	);
-	for (const a of list) box.append(actionButton(a));
-	box.append(el("hr"));
-	for (const a of ACTIONS.both.filter((x) => hasCommand(x.cmd))) box.append(actionButton(a));
+	const shown = (a) =>
+		hasCommand(a.cmd) &&
+		(!a.changes || libOn()) &&
+		(!a.needs || state?.[a.needs]) &&
+		(!a.profiles || a.profiles.includes(state?.profile ?? "scholar"));
+	for (const [group, label] of [["research", "groupResearch"], ["library", "groupLibrary"]]) {
+		const list = ACTIONS[group].filter(shown);
+		if (!list.length) continue;
+		box.append(el("p", { class: "group", text: t(label) }));
+		for (const a of list) box.append(actionButton(a));
+	}
 }
 
 function actionButton(a) {
@@ -326,17 +333,17 @@ function exportConversation() {
 			if (text && text !== "/subsub-refresh") msgs.push(`### User\n\n${text}\n`);
 		} else if (m.classList.contains("assistant")) {
 			const text = Array.from(m.querySelectorAll(".md")).map((d) => d.innerText).join("\n\n");
-			if (text) msgs.push(`### Sub-Sub (${mode()})\n\n${text}\n`);
+			if (text) msgs.push(`### Sub-Sub\n\n${text}\n`);
 		}
 	}
 	if (!msgs.length) return;
 	const date = new Date().toISOString().slice(0, 10);
-	const content = `# Sub-Sub Research Session (${date})\n\n**Mode**: ${mode()}  \n**Profile**: ${state?.profile ?? "scholar"}  \n\n---\n\n${msgs.join("\n---\n\n")}`;
+	const content = `# Sub-Sub Research Session (${date})\n\n**Profile**: ${state?.profile ?? "scholar"}  \n\n---\n\n${msgs.join("\n---\n\n")}`;
 	const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
 	const url = URL.createObjectURL(blob);
 	const a = document.createElement("a");
 	a.href = url;
-	a.download = `Sub-Sub-${mode()}-${date}.md`;
+	a.download = `Sub-Sub-${date}.md`;
 	document.body.append(a);
 	a.click();
 	a.remove();
@@ -369,14 +376,14 @@ function clearEmpty() {
 
 function renderEmpty() {
 	if (log.children.length) return;
-	const s = SUGGESTIONS[mode()][lang] ?? SUGGESTIONS[mode()].en;
+	const s = SUGGESTIONS.filter((x) => !x.changes || libOn()).map((x) => x[lang] ?? x.en);
 	log.append(
 		el(
 			"div",
 			{ class: "empty" },
-			el("p", { class: "kicker", text: t(mode()) }),
+			el("p", { class: "kicker", text: libOn() ? t("assistant") : `${t("assistant")} · ${t("readOnly")}` }),
 			el("h1", { text: t("emptyTitle") }),
-			el("p", { class: "lede", text: t(mode() === "librarian" ? "emptyLibrarian" : "emptyResearcher") }),
+			el("p", { class: "lede", text: t(libOn() ? "emptyOn" : "emptyOff") }),
 			el(
 				"div",
 				{ class: "chips" },
@@ -708,7 +715,8 @@ function onEvent(ev) {
 			break;
 		case "extension_ui_request":
 			if (ev.method === "notify") {
-				if (/^Sub-Sub: (librarian|researcher) mode$/.test(ev.message)) break;
+				// The switch shows the state; these confirmations would only repeat it.
+				if (/^Sub-Sub: library changes (on|off)\./.test(ev.message)) break;
 				note(ev.message, ev.notifyType === "error" ? "error" : ev.notifyType === "warning" ? "warning" : "info", /\n/.test(ev.message));
 			} else {
 				dialogs.push(ev);
@@ -893,7 +901,7 @@ async function openModels() {
 					onclick: async () => {
 						if (busy) return note(t("busy"), "warning");
 						try {
-							await api("/api/model", { provider: m.provider, id: m.id, both: $("model-both").checked });
+							await api("/api/model", { provider: m.provider, id: m.id });
 							dlg.close();
 						} catch (err) {
 							note(err.message, "error");
@@ -935,15 +943,17 @@ function autosize() {
 
 async function sendMessage(text) {
 	const message = text.trim();
-	if (!message) return;
+	if (!message) return false;
 	const name = message.startsWith("/") ? message.slice(1).split(/\s/)[0] : "";
 	const isTemplate = name && commands.some((c) => c.name === name && c.source === "prompt");
 	if (isTemplate) sentTemplates.push(message);
 	try {
 		await api("/api/prompt", { message });
+		return true;
 	} catch (err) {
 		if (isTemplate) sentTemplates.pop();
 		note(err.message, "error");
+		return false;
 	}
 }
 
@@ -1032,11 +1042,12 @@ $("new-btn").addEventListener("click", async () => {
 		note(err.message, "error");
 	}
 });
-for (const b of document.querySelectorAll(".modes button")) {
-	b.addEventListener("click", () => {
-		if (b.dataset.mode !== mode()) sendMessage(`/${b.dataset.mode}`);
-	});
-}
+$("library-switch").addEventListener("change", async (e) => {
+	const on = e.target.checked;
+	if (on === libOn()) return;
+	const ok = await sendMessage(`/library ${on ? "on" : "off"}`);
+	if (!ok) e.target.checked = libOn();
+});
 $("profile").addEventListener("change", (e) => sendMessage(`/profile ${e.target.value}`));
 $("starbuck-toggle").addEventListener("change", async (e) => {
 	const on = e.target.checked;

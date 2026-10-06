@@ -134,7 +134,7 @@ export function runChecks(
 			fix: v.problems?.length
 				? `Fix these lines in the tag list: ${v.problems.slice(0, 3).join("; ")}`
 				: noTopics
-					? "In Sub-Sub (librarian), ask: propose topics for my tag list."
+					? "In Sub-Sub, ask: propose topics for my tag list."
 					: undefined,
 		});
 	}
@@ -148,7 +148,7 @@ export function runChecks(
 	const agentDir = deps.agentDir ?? (env.SUBSUB_AGENT_DIR ? env.SUBSUB_AGENT_DIR : join(homedir(), ".subsub", "agent"));
 	out.push(
 		hasLogin(agentDir)
-			? { name: "Model login", ok: true, detail: Object.keys(cfg.models).length ? Object.values(cfg.models).join(", ") : "pi's default model" }
+			? { name: "Model login", ok: true, detail: cfg.model ?? "pi's default model" }
 			: { name: "Model login", ok: false, detail: "no model provider yet", fix: "Type subsub, then /login." },
 	);
 	return out;

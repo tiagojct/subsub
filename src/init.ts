@@ -4,7 +4,7 @@
  *
  * Writes:
  * - the settings file (~/.config/subsub/config.json): profile, name, language,
- *   notes folder, models;
+ *   Sub-Sub folder, library changes, model;
  * - the server settings file (~/.config/zotero-local-mcp/env, or the one that
  *   already exists): the Sub-Sub folder, tag list, alerts file, contact email.
  *   Other lines stay;
@@ -19,7 +19,7 @@
  * Flags (for scripts and tests): --yes (take every default), --setup
  * standard|fmup, --name, --about, --language, --folder (or --notes), --move
  * yes|no, --profile, --tags health-sciences|health-informatics|any-field,
- * --email, --starbuck on|off, --models keep|later|opencode-go.
+ * --library on|off, --email, --starbuck on|off, --models keep|later|opencode-go.
  */
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -29,6 +29,7 @@ import { createInterface } from "node:readline/promises";
 import { fileURLToPath } from "node:url";
 import {
 	configPath,
+	DEFAULT_MODEL,
 	expand,
 	isProfile,
 	loadConfig,
@@ -49,10 +50,10 @@ const TEMPLATES = resolve(dirname(fileURLToPath(import.meta.url)), "..", "templa
 export const STARTER_TAGS: Record<string, string> = {
 	"health-sciences": "Health sciences: clinical areas, public health, methods and study designs",
 	"health-informatics": "Health informatics: information systems, data, AI, digital health",
-	"any-field": "Any field: methods and document types only; the librarian proposes topics from your library",
+	"any-field": "Any field: methods and document types only; Sub-Sub proposes topics from your library",
 };
 
-export const TESTED_MODELS = { librarian: "opencode-go/glm-5.3-flash", researcher: "opencode-go/mimo-v2.6-pro" };
+export const TESTED_MODEL = DEFAULT_MODEL;
 
 export interface InitIO {
 	ask(question: string, def: string): Promise<string>;
@@ -184,6 +185,19 @@ export async function runInit(
 		isProfile(profileDefault) ? profileDefault : "scholar",
 	);
 
+	explain(
+		"Library changes",
+		"With library changes on, Sub-Sub can import, tag and repair items in Zotero. It shows a preview of every change, and nothing changes until you select Yes. With them off, it only reads, searches and writes notes. Switch at any time with /library on or /library off.",
+	);
+	const library = await io.choose(
+		"Library changes",
+		[
+			{ value: "on", label: "On (recommended): every change shows a preview first" },
+			{ value: "off", label: "Off: read, search and write notes only" },
+		],
+		flags.library ?? (existing.libraryChanges === false ? "off" : "on"),
+	);
+
 	// The tag list: a custom path in the server settings stays; otherwise Zotero/Zotero tags.md (moved, kept or new).
 	const vocabTarget = join(notes, SETTINGS_DIR, SETTINGS_FILES.tags);
 	const oldDefaults = new Set([join(from, "Systems", SETTINGS_FILES.tags), join(from, SETTINGS_DIR, SETTINGS_FILES.tags)]);
@@ -198,7 +212,7 @@ export async function runInit(
 		io.say("");
 		io.say(`Tag list: keeping ${vocab}.`);
 	} else {
-		explain("Tag list", `The librarian tags items only with the tags in this list. Pick a start; you edit the list later in ${SETTINGS_DIR}/${SETTINGS_FILES.tags}.`);
+		explain("Tag list", `Sub-Sub tags items only with the tags in this list. Pick a start; you edit the list later in ${SETTINGS_DIR}/${SETTINGS_FILES.tags}.`);
 		tags = await io.choose(
 			"Starter tag list",
 			Object.entries(STARTER_TAGS).map(([value, label]) => ({ value, label })),
@@ -209,7 +223,7 @@ export async function runInit(
 	explain("Contact email", "Unpaywall needs an email address to find open-access PDFs. Sub-Sub sends it only to Unpaywall, Crossref, OpenAlex and PubMed, as they ask.");
 	const email = (await io.ask("Email (optional)", flags.email ?? envValues.ZOTERO_CONTACT_EMAIL ?? "")).trim();
 
-	explain("Reference checks (Starbuck)", "An optional add-on for manuscripts: it checks that each cited work exists, matches its citation and was not retracted. The researcher then has /verify.");
+	explain("Reference checks (Starbuck)", "An optional add-on for manuscripts: it checks that each cited work exists, matches its citation and was not retracted. Sub-Sub then has /verify.");
 	const starbuck = await io.choose(
 		"Reference checks",
 		[
@@ -220,14 +234,15 @@ export async function runInit(
 	);
 
 	explain("Models", "Sub-Sub needs an account with a model provider. You can connect one later in Sub-Sub with the model button (or /login in the terminal).");
+	const hadModel = "model" in existing || "models" in existing;
 	const modelOptions = [
-		...(existing.models ? [{ value: "keep", label: `Keep: ${JSON.stringify(existing.models)}` }] : []),
+		...(hadModel ? [{ value: "keep", label: `Keep: ${current.model ?? "choose in Sub-Sub"}` }] : []),
 		{ value: "later", label: "Choose later in Sub-Sub" },
-		{ value: "opencode-go", label: `OpenCode Go, tested: ${TESTED_MODELS.librarian} for the librarian, ${TESTED_MODELS.researcher} for the researcher` },
+		{ value: "opencode-go", label: `OpenCode Go, tested: ${TESTED_MODEL}` },
 	];
 	const agentDir = initEnv.SUBSUB_AGENT_DIR ? expand(initEnv.SUBSUB_AGENT_DIR, home) : join(home, ".subsub", "agent");
-	const modelDefault = existing.models ? "keep" : hasProvider(agentDir, "opencode") ? "opencode-go" : "later";
-	const models = await io.choose("Models", modelOptions, flags.models ?? modelDefault);
+	const modelDefault = hadModel ? "keep" : hasProvider(agentDir, "opencode") ? "opencode-go" : "later";
+	const models = await io.choose("Model", modelOptions, flags.models ?? modelDefault);
 
 	// ---- write
 	if (move === "yes") applyMoves(moves);
@@ -263,10 +278,15 @@ export async function runInit(
 		setup: fmup ? "fmup" : undefined,
 		vault: notes,
 		envFile,
+		libraryChanges: library === "on",
+		defaultMode: undefined,
 		addons: withStarbuck(current.addons, starbuck === "on"),
 	};
-	if (models === "later") patch.models = {};
-	if (models === "opencode-go") patch.models = TESTED_MODELS;
+	// One model since 0.10: the per-mode models are replaced.
+	patch.models = undefined;
+	if (models === "keep") patch.model = current.model ?? "";
+	if (models === "later") patch.model = "";
+	if (models === "opencode-go") patch.model = TESTED_MODEL;
 	saveConfig(patch, initEnv);
 
 	const zotero = await zoteroReachable(deps.fetch);

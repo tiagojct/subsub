@@ -1,5 +1,5 @@
 ---
-description: "Researcher: compare sources on a question (a source matrix: claim, evidence type, caveats, confidence)"
+description: "Compare sources on a question (a source matrix: claim, evidence type, caveats, confidence)"
 argument-hint: "<question, or citekeys, DOIs or PMIDs>"
 ---
 Compare the sources on: $ARGUMENTS

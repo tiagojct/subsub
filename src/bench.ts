@@ -3,7 +3,8 @@
  * with no changes applied. See docs/Subsub.md ("Model test").
  *
  *   subsub-bench prepare [--seed 7]        pick the tasks (read-only)
- *   subsub-bench run [--librarian a,b] [--researcher c,d] [--parallel 3] [--only task]
+ *   subsub-bench run [--models a,b] [--librarian a,b] [--researcher c,d] [--parallel 3] [--only task]
+ *   (--models sets the models for both task groups.)
  *   subsub-bench score                     objective checks -> results.md
  *
  * Results go to ~/Projects/subsub/bench-results/<date>/ (or --dir). Each model gets
@@ -16,7 +17,10 @@ import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { expand, loadConfig, type Mode, starbuckCommand, starbuckEnabled } from "./config.ts";
+import { expand, loadConfig, starbuckCommand, starbuckEnabled } from "./config.ts";
+
+/** Task groups: library work and research. Every run has library changes on (each change is recorded, not applied). */
+export type Mode = "librarian" | "researcher";
 import { findUv } from "./subsub.ts";
 
 export const PACKAGE_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -134,7 +138,7 @@ export function runOne(opts: {
 }): Promise<RunSummary> {
 	mkdirSync(opts.out, { recursive: true });
 	const args = ["--mode", "rpc", "--no-session", "--provider", opts.provider ?? "opencode-go", "--model", opts.model];
-	if (opts.role === "librarian") args.push("--librarian");
+	args.push("--librarian"); // library changes on for every task
 	const env = { ...process.env, ...opts.extraEnv, SUBSUB_BENCH_OUT: opts.out, SUBSUB_CONFIG: opts.configFile };
 	const proc = spawn(process.execPath, [opts.cli ?? join(PACKAGE_DIR, "bin", "subsub.js"), ...args], { cwd: opts.cwd, env });
 	const events: any[] = [];
@@ -584,9 +588,10 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
 		if (!existsSync(tasksFile)) throw new Error(`No tasks in ${dir}. Run: subsub-bench prepare`);
 		if (!cfg.vault) throw new Error("No vault configured (ZOTERO_VAULT).");
 		const t: Tasks = JSON.parse(readFileSync(tasksFile, "utf8"));
+		const both = arg(argv, "models")?.split(",").filter(Boolean);
 		const lists: Record<Mode, string[]> = {
-			librarian: arg(argv, "librarian")?.split(",").filter(Boolean) ?? DEFAULT_MODELS.librarian,
-			researcher: arg(argv, "researcher")?.split(",").filter(Boolean) ?? DEFAULT_MODELS.researcher,
+			librarian: arg(argv, "librarian")?.split(",").filter(Boolean) ?? both ?? DEFAULT_MODELS.librarian,
+			researcher: arg(argv, "researcher")?.split(",").filter(Boolean) ?? both ?? DEFAULT_MODELS.researcher,
 		};
 		const only = arg(argv, "only")?.split(",");
 		const codes = codesFor([...new Set([...lists.librarian, ...lists.researcher])], dir);
@@ -606,7 +611,7 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
 			const prompt = promptFor(j.task, t, j.code, out);
 			if (!prompt) return;
 			const cf = join(cfgDir, `${j.code}.json`);
-			writeFileSync(cf, JSON.stringify({ ...userCfg, profile: "editor", models: { librarian: `opencode-go/${j.model}`, researcher: `opencode-go/${j.model}` } }));
+			writeFileSync(cf, JSON.stringify({ ...userCfg, profile: "editor", model: `opencode-go/${j.model}`, models: undefined, libraryChanges: true }));
 			const s = await runOne({ ...j, prompt, out, cwd: cfg.vault!, configFile: cf, timeoutSec });
 			n++;
 			console.log(`${n}/${jobs.length}  ${j.code}  ${j.task}  ${s.seconds}s  ${s.error ?? (s.settled ? "done" : "?")}`);
@@ -634,6 +639,6 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
 		console.log(`Wrote ${join(dir, "results.md")}`);
 		return;
 	}
-	console.log("Usage: subsub-bench prepare | run [--librarian a,b] [--researcher c,d] [--only task] [--parallel 3] | score  [--dir DIR]");
+	console.log("Usage: subsub-bench prepare | run [--models a,b] [--librarian a,b] [--researcher c,d] [--only task] [--parallel 3] | score  [--dir DIR]");
 }
 

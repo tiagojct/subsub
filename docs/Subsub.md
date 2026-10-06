@@ -4,7 +4,7 @@ Sub-Sub is a Zotero librarian and research assistant that runs in pi. It uses th
 - Shared rules: [[Zotero agent]]. Tag vocabulary: [[Zotero tags]]
 - Settings: ~/.config/subsub/config.json (written by `subsub init`) and ~/.config/zotero-local-mcp/env (also read by the weekly alerts in launchd)
 - Sub-Sub folder: ~/Obsidian/Powerslave/Sub-Sub, with Inbox/, Literature/, Syntheses/, Research/ and Zotero/ (tag list, note formats, alert searches). Sub-Sub writes only there without asking.
-- Models: librarian opencode-go/glm-5.3-flash, researcher opencode-go/mimo-v2.6-pro
+- Model: opencode-go/mimo-v2.6-pro (one model since 0.10)
 - Public docs: the README in ~/Projects/subsub (source for subsub.tiagojacinto.eu)
 
 ## Safety
@@ -12,8 +12,8 @@ Sub-Sub is a Zotero librarian and research assistant that runs in pi. It uses th
 - Approval is enforced in code. Before any library change, Sub-Sub asks the server for the preview and shows it in a dialog. The change runs only after you select Yes. The model cannot skip this.
 - The model does not need to do a dry run first. You see one dialog per change.
 - Library tools run one at a time, so each preview includes the effect of earlier changes in the same step.
-- The researcher does not have the library write tools at all. It can only add a linked note (with a dialog) and add works to the import queue.
-- bash is off in both modes. File writes outside the Sub-Sub folder, and writes to the rule files, config folders and code folders, need a Yes.
+- With library changes off (`/library off`), Sub-Sub has no library write tools. It can only add a linked note (with a dialog) and add works to the import queue.
+- bash is off. File writes outside the Sub-Sub folder, and writes to the rule files, config folders and code folders, need a Yes.
 
 ## Install
 
@@ -32,8 +32,8 @@ If you change the Node version with fnm, do step 3 again.
 
 1. Start Zotero.
 2. Type `subsub`. From the home folder, Sub-Sub starts in the Sub-Sub folder. From a different folder (for example a manuscript folder), it starts in that folder. To stay in the home folder, type `subsub --here`.
-3. Sub-Sub starts in the researcher mode. To start in the librarian mode, type `subsub --librarian`.
-4. To change the mode, type `/librarian` or `/researcher`. The mode also changes the model.
+3. Sub-Sub is one assistant: it reads, searches, writes notes and, with library changes on, changes the library. To turn library changes off or on, type `/library off` or `/library on` (saved). To start with them off for one session, type `subsub --read-only`. `/librarian` and `/researcher` still work: on and off.
+4. After research, ask Sub-Sub to import the works you choose. It imports them in the same conversation, with one preview, and offers to tag them.
 5. When a dialog shows a preview, read it. Select Yes to apply the change, or No to stop it. After No, tell Sub-Sub what to change.
 6. To continue the last session, type `subsub -c`. To select an older session, type `subsub -r`.
 
@@ -50,12 +50,12 @@ Commands:
 
 Templates (type the name, then the argument):
 
-- Librarian: `/tag-batch [size]`, `/clean-tags`, `/import-queue [note path]`
-- Researcher: `/lit-note <citekey>`, `/synthesis <topic>`, `/gaps <topic>`, `/manuscript <path>`, `/alert`
+- Library (need library changes on): `/tag-batch [size]`, `/clean-tags`, `/import-queue [note path]`
+- Research: `/lit-note <citekey>`, `/synthesis <topic>`, `/gaps <topic>`, `/manuscript <path>`, `/alert`
 
 ## Web view
 
-1. Type `subsub web`. Sub-Sub opens in the browser, with the same modes, profiles, tools and approvals. The approval dialog shows the server preview; the change runs only after Yes.
+1. Type `subsub web`. Sub-Sub opens in the browser, with the same profiles, tools and approvals. The switch Library changes is at the top. The approval dialog shows the server preview; the change runs only after Yes.
 2. To add a shortcut (Applications on macOS), type `subsub shortcut`. To remove it, type `subsub shortcut --remove`.
 3. The server listens only on 127.0.0.1 and needs the random key in the address that `subsub web` opens. A second `subsub web` opens the running one.
 4. The server stops 10 minutes after the last page closes. `subsub web --stay` keeps it running.
@@ -71,15 +71,15 @@ The log is in ~/.subsub/web.log.
 The profile sets how much Sub-Sub does. To see the profile, type `/profile`. To change it, type `/profile reader` (or scholar, author, editor). The change is saved.
 
 - Reader: explains each step. Reading notes are quotes with page numbers, plus questions. No summaries or syntheses. No bulk library changes.
-- Scholar: literature notes, syntheses, searches and alerts. The full librarian.
+- Scholar: literature notes, syntheses, searches and alerts. All library changes.
 - Author: Scholar plus manuscripts: citation check, bibliography, comments on the argument. It does not write the paragraphs.
 - Editor: everything, including drafted manuscript text when you ask.
 
 ## Tag review notes
 
-The librarian writes proposed tags in review notes in Inbox/ ("Zotero tag review NN.md"). Edit the Proposed tags column. Write skip to leave an item as it is.
+Sub-Sub writes proposed tags in review notes in Inbox/ ("Zotero tag review NN.md"). Edit the Proposed tags column. Write skip to leave an item as it is.
 
-To apply one note, in the librarian mode, type: apply the tag review Inbox/Zotero tag review NN.md.
+To apply one note, with library changes on, type: apply the tag review Inbox/Zotero tag review NN.md.
 
 To apply many notes:
 
@@ -94,7 +94,7 @@ Notes that were already applied are left out. Each applied note gets an "Applied
 
 ## Look
 
-When you start Sub-Sub with the `subsub` command, it shows a banner, a status line (mode, model, Zotero items, items to review) and a line from Moby-Dick. Each mode has its own theme: try-works for the librarian, Glauca for the researcher, in the dark or light version that matches your terminal. The theme changes for the session only; your pi theme setting stays.
+When you start Sub-Sub with the `subsub` command, it shows a banner, a status line (library changes on or read only, model, Zotero items, items to review) and a line from Moby-Dick. The theme is Glauca, in the dark or light version that matches your terminal (set "themes": "subsub-try-works" for the other one). The theme changes for the session only; your pi theme setting stays.
 
 To change this, add to ~/.config/subsub/config.json:
 
@@ -110,8 +110,8 @@ The model test runs several models on the same tasks against your library and co
 
 Tasks:
 
-- Librarian: tag 20 items against a blind reference (reference.md shows the items without their tags; the tags go in reference.json); fix the items without topic or status; import identifiers, one of them already in the library.
-- Researcher: a literature note on one item with full text; a synthesis on one topic; a search for recent papers that are not in the library.
+- Library tasks: tag 20 items against a blind reference (reference.md shows the items without their tags; the tags go in reference.json); fix the items without topic or status; import identifiers, one of them already in the library.
+- Research tasks: a literature note on one item with full text; a synthesis on one topic; a search for recent papers that are not in the library.
 
 Procedure:
 
@@ -120,7 +120,7 @@ Procedure:
 3. Type `caffeinate -i subsub-bench run`. This takes 1 to 2 hours. caffeinate keeps the Mac awake. If the run stops, type the same command again: finished runs are not repeated.
 4. Type `subsub-bench score`. The result is results.md in the results folder.
 
-Options for `run`: `--librarian a,b` and `--researcher c,d` (OpenCode Go model ids), `--only tagging,import`, `--parallel 3`, `--timeout 900`.
+Options for `run`: `--models a,b` for all tasks, or `--librarian a,b` and `--researcher c,d` for each group of tasks (OpenCode Go model ids), `--only tagging,import`, `--parallel 3`, `--timeout 900`. Every task runs with library changes on.
 
 Each model gets a code (for example M417), so the notes can be judged blind. key.json has the codes.
 
@@ -131,7 +131,7 @@ Each model gets a code (for example M417), so the notes can be judged blind. key
 - "cannot use opencode-go/...": the OpenCode Go key is missing. In Sub-Sub, type `/login` again.
 - "command not found: subsub": type `cd ~/Projects/subsub && npm link`.
 - To update Sub-Sub after new code arrives, type `cd ~/Projects/subsub && npm install --omit=dev`. Do not use `subsub update`.
-- A tool call is refused with "not available in researcher mode": type `/librarian`.
+- A tool call is refused with "library changes are off": type `/library on`.
 - `subsub review` says "No note matches": check the note numbers in Inbox/. A path is written from the Sub-Sub folder, in quotes (for example "Inbox/Zotero tag review 13.md").
 
 ## Tests

@@ -1,5 +1,5 @@
 ---
-description: "Researcher: digest of the last days: new works from the alerts and what the recent notes changed"
+description: "Digest of the last days: new works from the alerts and what the recent notes changed"
 argument-hint: "[days, default 7] [topic]"
 ---
 Write a digest of the last ${1:-7} days. Topic, if given: ${@:2}
@@ -18,6 +18,6 @@ Write a digest of the last ${1:-7} days. Topic, if given: ${@:2}
    - Sources: [@citekey] for library items; full reference with DOI and "(not in library)" for the others.
    Front matter: title, date, type: digest, period (from and to), sources (the notes and alert files used).
 4. If there is nothing in the period, say so in one line and do not write a note.
-5. Offer scholar_queue_imports for the works the user wants to add.
+5. Offer to import the works the user wants to add.
 
 Give the user the path and the three most important points.

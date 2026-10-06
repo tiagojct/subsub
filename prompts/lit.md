@@ -1,5 +1,5 @@
 ---
-description: "Researcher: literature review on a health research question (library first, then PubMed, Europe PMC, OpenAlex)"
+description: "Literature review on a health research question (library first, then PubMed, Europe PMC, OpenAlex)"
 argument-hint: "<question or topic>"
 ---
 Do a literature review on: $ARGUMENTS
@@ -84,4 +84,4 @@ reference_check: "<path of the Starbuck report, or none>"
 
 If a step fails (a service does not answer, a full text cannot be read), do not stop. Finish the note, mark the step "BLOCKED: <what failed>", and set verification: BLOCKED.
 
-Before you answer, read the note back to confirm that it exists. Then give the user the path, the answer in three lines, and the works worth adding to the library (offer scholar_queue_imports).
+Before you answer, read the note back to confirm that it exists. Then give the user the path, the answer in three lines, and the works worth adding to the library (offer to import them).

@@ -5,9 +5,9 @@ eyebrow: How much Sub-Sub does
 lead: A profile sets what Sub-Sub writes for you and which tools it offers. The names describe the work, not the person.
 ---
 
-A profile works in both modes, but it changes them differently. In the researcher mode, it sets what Sub-Sub writes for you. In the librarian mode, only the Reader profile is different: it has no bulk changes and smaller batches. Scholar, Author and Editor have the same librarian.
+A profile changes two things. For research, it sets what Sub-Sub writes for you. For library changes, only the Reader profile is different: it has no bulk changes and smaller batches. Scholar, Author and Editor make the same library changes. The switch Library changes, at the top of the browser view, turns all library changes on or off in every profile.
 
-## In the researcher mode
+## Research
 
 | | Reader | Scholar | Author | Editor |
 |---|---|---|---|---|
@@ -22,7 +22,7 @@ A profile works in both modes, but it changes them differently. In the researche
 | Review of a manuscript against a reporting guideline (`/review`) | | | yes | yes |
 | Drafted text for a manuscript, when you ask | | | | yes |
 
-## In the librarian mode
+## Library changes
 
 | | Reader | Scholar | Author | Editor |
 |---|---|---|---|---|
@@ -36,17 +36,17 @@ A profile works in both modes, but it changes them differently. In the researche
 | Move items to the Zotero trash | | yes | yes | yes |
 | Items per tag review note | 10 | 25 | 25 | 25 |
 
-In every profile, each library change shows a preview first and runs only after you select Yes. `/history` and `/undo` work in every profile.
+With library changes on, in every profile, each library change shows a preview first and runs only after you select Yes. `/history` and `/undo` work in every profile.
 
 ## Reader
 
 For someone who wants to do the reading and the writing: a student who is new to a field, or anyone who starts in a new area. Sub-Sub says what it will do before each step. A reading note has the reference, direct quotes with page numbers, and under each quote a question for you to answer. Sub-Sub does not write summaries or text that you could hand in as your own.
 
-In the librarian mode, Reader tags, imports and attaches PDFs, with 10 items per review note. It cannot rename or remove tags, edit fields, repair metadata or move items to the trash. For those, change the profile to Scholar.
+For library changes, Reader tags, imports and attaches PDFs, with 10 items per review note. It cannot rename or remove tags, edit fields, repair metadata or move items to the trash. For those, change the profile to Scholar.
 
 ## Scholar
 
-The default. Literature notes and syntheses from what Sub-Sub read, with a source for every claim, and the full librarian, including the bulk changes. It does not draft text for your manuscripts.
+The default. Literature notes and syntheses from what Sub-Sub read, with a source for every claim, and all library changes, including the bulk changes. It does not draft text for your manuscripts.
 
 ## Author
 

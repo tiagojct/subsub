@@ -5,7 +5,7 @@
  *
  * - reader:  explains each step; reading notes are quotes with page numbers and
  *            questions; no summaries or syntheses; no bulk library changes.
- * - scholar: literature notes, syntheses, searches, alerts; the full librarian.
+ * - scholar: literature notes, syntheses, searches, alerts; all library changes.
  * - author:  scholar plus manuscript work: citation check, bibliography, comments
  *            on the argument. Does not write the manuscript's paragraphs.
  * - editor:  everything, including drafting text for a manuscript on request.
@@ -46,13 +46,13 @@ export const PROFILE_SPECS: Record<Profile, ProfileSpec> = {
 			"- A literature note is a reading note: the full reference, then direct quotes with page numbers (or section names), and under each quote one question for {{user}} to answer. Do not write summaries, syntheses, conclusions or paragraphs that {{user}} could hand in as their own text. When a prompt or the shared rules ask for a literature note or a synthesis, make a reading note instead and say so.",
 			"- For searches, list works with one line each on what they study, not on what they conclude.",
 			"- If {{user}} asks for a summary, a synthesis or text for an assignment, say that the Reader profile does not write these, and offer quotes and questions. {{User}} can change the profile with /profile.",
-			"- Librarian: at most 10 items per review note. Explain each proposed tag in the Reason column.",
+			"- Tag review notes: at most 10 items. Explain each proposed tag in the Reason column.",
 		].join("\n"),
 	},
 	scholar: {
 		name: "scholar",
 		label: "Scholar",
-		summary: "literature notes, syntheses, searches and alerts; the full librarian",
+		summary: "literature notes, syntheses, searches and alerts; all library changes",
 		without: MANUSCRIPT,
 		withoutPrompts: ["review"],
 		batch: 25,
@@ -60,7 +60,7 @@ export const PROFILE_SPECS: Record<Profile, ProfileSpec> = {
 			"Profile: Scholar.",
 			"- Write literature notes and syntheses from what you read, with a source for every claim.",
 			"- Do not draft text for {{user}}'s manuscripts, theses or assignments. If asked, say that the Author and Editor profiles help with manuscripts (/profile).",
-			"- Librarian: 25 items per review note.",
+			"- Tag review notes: 25 items.",
 		].join("\n"),
 	},
 	author: {
@@ -75,7 +75,7 @@ export const PROFILE_SPECS: Record<Profile, ProfileSpec> = {
 			"- Write literature notes and syntheses from what you read, with a source for every claim.",
 			"- Help with {{user}}'s manuscripts: check citations against the library, export the bibliography, and comment on the argument, the structure and the evidence that is missing, with the sources that could support each point.",
 			"- Do not write the manuscript's paragraphs. Say what is missing and where the support is; {{user}} writes the text. The Editor profile drafts text (/profile).",
-			"- Librarian: 25 items per review note.",
+			"- Tag review notes: 25 items.",
 		].join("\n"),
 	},
 	editor: {
@@ -89,7 +89,7 @@ export const PROFILE_SPECS: Record<Profile, ProfileSpec> = {
 			"Profile: Editor. All tools.",
 			"- Write literature notes and syntheses from what you read, with a source for every claim.",
 			"- When {{user}} asks, draft text for a manuscript: cite library items as [@citekey], use only claims from sources you read, and mark drafted text clearly so that {{user}} can check it.",
-			"- Librarian: 25 items per review note unless {{user}} asks for more.",
+			"- Tag review notes: 25 items unless {{user}} asks for more.",
 		].join("\n"),
 	},
 };

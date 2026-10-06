@@ -1,5 +1,5 @@
 ---
-description: "Researcher: check the references of a manuscript or of a Sub-Sub report"
+description: "Check the references of a manuscript or of a Sub-Sub report"
 argument-hint: "<path to .qmd or .md> [claims]"
 ---
 Check the references of $1 with Starbuck.

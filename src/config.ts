@@ -6,9 +6,13 @@
  *   "profile": "scholar",
  *   "userName": "Ana", "about": "a master's student in health informatics", "language": "English",
  *   "vault": "~/Documents/Sub-Sub",
- *   "models": { "librarian": "opencode-go/glm-5.3-flash", "researcher": "opencode-go/mimo-v2.6-pro" },
- *   "defaultMode": "researcher"
+ *   "model": "opencode-go/mimo-v2.6-pro",
+ *   "libraryChanges": true
  * }
+ *
+ * Before 0.10 there were two modes, each with a model ("models": {"librarian",
+ * "researcher"}) and "defaultMode". Those keys are still read: the researcher's
+ * model becomes the model.
  *
  * `subsub init` writes this file. Without "serverDir" (or when that folder does
  * not exist), the Zotero servers run from PyPI with uv.
@@ -24,7 +28,8 @@ import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { isObsidianVault, settingsFile } from "./layout.ts";
 
-export type Mode = "librarian" | "researcher";
+/** The tested model (September 2026 model test). */
+export const DEFAULT_MODEL = "opencode-go/mimo-v2.6-pro";
 export type Profile = "reader" | "scholar" | "author" | "editor";
 export const PROFILES: Profile[] = ["reader", "scholar", "author", "editor"];
 
@@ -51,8 +56,10 @@ export interface SubsubConfig {
 	serverDir: string;
 	envFile?: string;
 	vault?: string;
-	models: Partial<Record<Mode, string>>;
-	defaultMode: Mode;
+	/** The model, as provider/id. Undefined: pi's own choice (the user picks with /model). */
+	model?: string;
+	/** Library changes on: the Zotero write tools are offered, each with a preview. */
+	libraryChanges: boolean;
 	/** Extra context files added to the system prompt when pi runs inside the vault. */
 	vaultContext: string[];
 	/** Shared rules file (tag system, citekeys, note formats). */
@@ -65,8 +72,8 @@ export interface SubsubConfig {
 	look?: boolean;
 	/** A line from Moby-Dick under the banner (default true). */
 	quotes?: boolean;
-	/** Theme per mode, without -dark/-light; false keeps your pi theme. */
-	themes?: Partial<Record<Mode, string>> | false;
+	/** Theme, without -dark/-light; false keeps your pi theme. */
+	themes?: string | false;
 	/** Optional servers to start, e.g. ["starbuck"]. */
 	addons?: string[];
 	/** Local Starbuck folder (used when it has a pyproject.toml). */
@@ -125,7 +132,7 @@ export function isProfile(x: unknown): x is Profile {
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): SubsubConfig {
 	const home = env.HOME;
 	const file = configPath(env);
-	let user: Partial<SubsubConfig> = {};
+	let user: Record<string, any> = {};
 	if (existsSync(file)) {
 		try {
 			user = JSON.parse(readFileSync(file, "utf8"));
@@ -145,7 +152,11 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): SubsubConfig {
 	const envValues = envFile && existsSync(envFile) ? parseEnvFile(envFile) : {};
 	const vaultRaw = user.vault ?? env.ZOTERO_VAULT ?? envValues.ZOTERO_VAULT;
 	const vault = vaultRaw ? expand(vaultRaw, home) : undefined;
-	const mode = user.defaultMode === "librarian" ? "librarian" : "researcher";
+	// Before 0.10: a model per mode, and themes per mode.
+	const legacyModels = user.models && typeof user.models === "object" ? (user.models as Record<string, string>) : undefined;
+	// "model": "" means: the user chooses in pi (/login, /model).
+	const model = "model" in user ? (typeof user.model === "string" && user.model) || undefined : legacyModels ? legacyModels.researcher || legacyModels.librarian || undefined : DEFAULT_MODEL;
+	const themes = user.themes === false ? false : typeof user.themes === "string" ? user.themes : user.themes?.researcher;
 	return {
 		configFile: file,
 		profile: isProfile(user.profile) ? user.profile : "scholar",
@@ -156,16 +167,13 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): SubsubConfig {
 		serverDir: expand(user.serverDir ?? "~/Projects/zotero-local-mcp", home),
 		envFile,
 		vault,
-		models: user.models ?? {
-			librarian: "opencode-go/glm-5.3-flash",
-			researcher: "opencode-go/mimo-v2.6-pro",
-		},
-		defaultMode: mode,
+		model,
+		libraryChanges: user.libraryChanges !== false,
 		// A Sub-Sub folder inside an Obsidian vault also reads the vault's context file.
 		vaultContext: (
 			user.vaultContext ??
 			(vault ? [join(vault, ".claude", "CLAUDE.md"), ...(isObsidianVault(dirname(vault)) ? [join(dirname(vault), ".claude", "CLAUDE.md")] : [])] : [])
-		).map((p) => expand(p, home)),
+		).map((p: string) => expand(p, home)),
 		sharedRules: user.sharedRules
 			? expand(user.sharedRules, home)
 			: vault
@@ -175,7 +183,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): SubsubConfig {
 		uvPath: user.uvPath ? expand(user.uvPath, home) : undefined,
 		look: user.look,
 		quotes: user.quotes,
-		themes: user.themes,
+		themes,
 		addons: Array.isArray(user.addons) ? user.addons.filter((a): a is string => typeof a === "string") : [],
 		starbuckDir: expand(user.starbuckDir ?? "~/Projects/starbuck", home),
 	};

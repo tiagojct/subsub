@@ -1,5 +1,5 @@
 ---
-description: "Researcher: draft an email asking the corresponding author for a copy of a paper (you send it)"
+description: "Draft an email asking the corresponding author for a copy of a paper (you send it)"
 argument-hint: "<citekey, DOI or PMID>"
 ---
 Draft an email to ask the corresponding author of $1 for a copy of the paper.
