@@ -1,6 +1,6 @@
 {
   "name": "@tiagojct/subsub",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Sub-Sub: a Zotero librarian and research assistant in the browser or the terminal, built on pi",
   "type": "module",
   "license": "MIT",

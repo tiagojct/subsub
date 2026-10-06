@@ -170,7 +170,7 @@ test("config defaults and env file", () => {
 	assert.equal(cfg.envFile, env);
 	assert.equal(cfg.vault, resolve("/Users/t/Notes"));
 	assert.equal(cfg.sharedRules, join(resolve("/Users/t/Notes"), "Zotero", "Zotero agent.md"));
-	assert.deepEqual(cfg.models, { librarian: "opencode-go/glm-5.3-flash", researcher: "opencode-go/mimo-v2.6-pro" });
+	assert.deepEqual(cfg.models, { librarian: "opencode-go/mimo-v2.6-flash", researcher: "opencode-go/mimo-v2.6-pro" });
 	assert.equal(cfg.defaultMode, "researcher");
 	assert.equal(expand("~/test", "/custom/home"), resolve("/custom/home/test"));
 	const isolated = loadConfig({ HOME: dir, SUBSUB_CONFIG: join(dir, "none.json"), ZOTERO_MCP_ENV: join(dir, "no-such-env") } as any);
@@ -625,7 +625,7 @@ test("init: new user with defaults, then again without replacing files", async (
 	const cfg2 = JSON.parse(readFileSync(r2.configFile, "utf8"));
 	assert.equal(cfg2.profile, "author");
 	assert.equal(cfg2.userName, "Ana");
-	assert.equal(cfg2.models.librarian, "opencode-go/glm-5.3-flash");
+	assert.equal(cfg2.models.librarian, "opencode-go/mimo-v2.6-flash");
 	assert.equal(cfg2.models.researcher, "opencode-go/mimo-v2.6-pro");
 	assert.equal(cfg2.model, undefined);
 	assert.equal(r2.created.length, 0);

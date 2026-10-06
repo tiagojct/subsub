@@ -16,7 +16,7 @@ Each mode can have its own model. `/model` and the model button set the model fo
 ```json
 {
   "models": {
-    "librarian": "opencode-go/glm-5.3-flash",
+    "librarian": "opencode-go/mimo-v2.6-flash",
     "researcher": "opencode-go/mimo-v2.6-pro"
   }
 }
@@ -26,18 +26,34 @@ Version 0.10 used one model for all work (`"model"`). That setting still works: 
 
 ## Tested models
 
-These models were tested on a real library of about 1000 items in September 2026, on the same tasks, with the answers judged blind.
+In October 2026, 15 models on OpenCode Go did the same seven tasks on a real library of about 1000 items. Library tasks: tag 20 items, and import two works, one of them already in the library. Research tasks: a literature note, a synthesis of 15 items, a search for recent work, and a literature review with `/lit`. The research notes were judged blind (the judge saw codes, not names), from 1 to 5. Every library change was recorded and blocked.
 
-| Model | Result |
-|---|---|
-| `opencode-go/mimo-v2.6-pro` | No invented references, good notes. The default for the Researcher. |
-| `opencode-go/glm-5.3-flash` | Accurate tags, correct tool calls, low cost in the tagging tasks. The default for the Librarian. |
+| Model | Research (1 to 5) | Tagging F1 | Import | Invented references | Cost, all 7 tasks |
+|---|---|---|---|---|---|
+| kimi-k3 | 5.0 | 0.68 | both | 0 | $2.37 |
+| qwen3.8-flash | 4.9 | 0.71 | both | 0 | $0.13 |
+| **mimo-v2.6-pro** (Researcher) | 4.8 | 0.66 | both | 0 | $0.16 |
+| **mimo-v2.6-flash** (Librarian) | 4.5 | 0.69 | both | 0 | $0.07 |
+| glm-5.3 | 4.5 | 0.71 | both | 0 | $0.89 |
+| qwen3.8-max | 4.5 | 0.72 | both | 0 | $1.15 |
+| minimax-m3 | 4.4 | 0.69 | both | 0 | $0.47 |
+| gpt-5.6-luna | 4.3 | 0.66 | both | 0 | $0.16 |
+| hy3 | 4.3 | 0.67 | both | 0 | $0.19 |
+| glm-5.3-flash | 4.1 | 0.71 | one of two | 1 | $0.16 |
+| longcat-2.0 | 4.0 | 0.68 | none | 0 | $0.18 |
+| mimo-v2.5-pro | 4.0 | 0.69 | none | 1 | $0.14 |
+| qwen3.7-plus | 3.5 | 0.68 | both | 2 | $0.34 |
+| gpt-6-luna | 3.1 | 0.68 | both | 0 | $0.08 |
+| minimax-m2.7 | does not work with pi | | | | |
 
-In October 2026, in Sub-Sub 0.10, both were tested again on 20 tagged items (the models did not see the tags) and on an import. Tagging was close: F1 0.69 for mimo-v2.6-pro and 0.67 for glm-5.3-flash, against the tags already in the library; both proposed about one tag more per item than the library has. In the import, mimo-v2.6-pro imported the new work and reported the duplicate; glm-5.3-flash sent no identifiers. Tagging with glm-5.3-flash cost about 40% less.
+How to read the table:
 
-`subsub init` offers glm-5.3-flash for the Librarian and mimo-v2.6-pro for the Researcher when you use OpenCode Go.
+- Tagging is close for all models (F1 0.66 to 0.72 against the tags already in the library, which its owner had approved in tag reviews). The models differ in the import and in the research notes.
+- mimo-v2.6-pro is the Researcher's default: it scored 4.8 in September and again now, invented no references and did both library tasks. qwen3.8-flash scored a little higher at lower cost, but in September it sent malformed tool calls; it needs one more good test before it becomes the default. kimi-k3 wrote the best notes at about 15 times the cost.
+- mimo-v2.6-flash is the Librarian's default: both imports right, the lowest cost, and in September its tagging matched the best. glm-5.3-flash, the Librarian's default until now, missed an identifier in the import in two tests in a row.
+- An invented reference is a citekey that is not in the library, or a DOI or PMID that no search returned. One test per model is a small sample: treat differences under 0.3 as noise.
 
-A new test of 15 models is under way; this page will show its results.
+`subsub init` offers mimo-v2.6-flash for the Librarian and mimo-v2.6-pro for the Researcher when you use OpenCode Go.
 
 ## Local models
 

@@ -6,7 +6,7 @@
  *   "profile": "scholar",
  *   "userName": "Ana", "about": "a master's student in health informatics", "language": "English",
  *   "vault": "~/Documents/Sub-Sub",
- *   "models": { "librarian": "opencode-go/glm-5.3-flash", "researcher": "opencode-go/mimo-v2.6-pro" },
+ *   "models": { "librarian": "opencode-go/mimo-v2.6-flash", "researcher": "opencode-go/mimo-v2.6-pro" },
  *   "defaultMode": "researcher"
  * }
  *
@@ -32,7 +32,7 @@ export type Mode = "librarian" | "researcher";
 
 /** The tested models, one per mode (model test, see bench-results). */
 export const DEFAULT_MODELS: Record<Mode, string> = {
-	librarian: "opencode-go/glm-5.3-flash",
+	librarian: "opencode-go/mimo-v2.6-flash",
 	researcher: "opencode-go/mimo-v2.6-pro",
 };
 export type Profile = "reader" | "scholar" | "author" | "editor";

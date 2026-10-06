@@ -23,8 +23,8 @@ import { findUv } from "./subsub.ts";
 export const PACKAGE_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 export const DEFAULT_MODELS: Record<Mode, string[]> = {
-	librarian: ["glm-5.3-flash", "deepseek-v4.1-flash", "qwen3.8-flash", "mimo-v2.6-flash", "minimax-m3", "mimo-v2.6-pro"],
-	researcher: ["mimo-v2.6-pro", "deepseek-v4-pro", "kimi-k2.6", "glm-5.3", "qwen3.7-plus", "minimax-m3"],
+	librarian: ["mimo-v2.6-flash", "glm-5.3-flash", "qwen3.8-flash", "gpt-5.6-luna", "hy3", "mimo-v2.6-pro"],
+	researcher: ["mimo-v2.6-pro", "qwen3.8-flash", "kimi-k3", "glm-5.3", "minimax-m3", "gpt-5.6-luna"],
 };
 
 export const TASKS: Record<Mode, string[]> = {

@@ -176,7 +176,7 @@ subsub review apply 13-31
 | `about` | string | Brief background context about your research domain | `null` |
 | `language` | string | Response language, or `"auto"` to match your input | `"English"` |
 | `vault` | string | Path to your Sub-Sub folder | `$ZOTERO_VAULT` |
-| `models` | object | The model for each mode, as provider/id: `{"librarian": ..., "researcher": ...}`; `{}` to choose them in Sub-Sub. The 0.10 key `model` (one for both modes) still works; `libraryChanges` is ignored. | `{"librarian": "opencode-go/glm-5.3-flash", "researcher": "opencode-go/mimo-v2.6-pro"}` |
+| `models` | object | The model for each mode, as provider/id: `{"librarian": ..., "researcher": ...}`; `{}` to choose them in Sub-Sub. The 0.10 key `model` (one for both modes) still works; `libraryChanges` is ignored. | `{"librarian": "opencode-go/mimo-v2.6-flash", "researcher": "opencode-go/mimo-v2.6-pro"}` |
 | `defaultMode` | string | `"researcher"` or `"librarian"`: the mode Sub-Sub starts in | `"researcher"` |
 | `serverDir` | string | Local development path for `zotero-local-mcp` | PyPI package |
 | `look` | boolean| Show header banners and status lines in terminal | `true` |

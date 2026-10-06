@@ -4,7 +4,7 @@ Sub-Sub is a Zotero librarian and research assistant that runs in pi. It uses th
 - Shared rules: [[Zotero agent]]. Tag vocabulary: [[Zotero tags]]
 - Settings: ~/.config/subsub/config.json (written by `subsub init`) and ~/.config/zotero-local-mcp/env (also read by the weekly alerts in launchd)
 - Sub-Sub folder: ~/Obsidian/Powerslave/Sub-Sub, with Inbox/, Literature/, Syntheses/, Research/ and Zotero/ (tag list, note formats, alert searches). Sub-Sub writes only there without asking.
-- Models: Librarian opencode-go/glm-5.3-flash, Researcher opencode-go/mimo-v2.6-pro
+- Models: Librarian opencode-go/mimo-v2.6-flash, Researcher opencode-go/mimo-v2.6-pro
 - Public docs: the README in ~/Projects/subsub (source for subsub.tiagojacinto.eu)
 
 ## Safety
