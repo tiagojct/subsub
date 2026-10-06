@@ -1,12 +1,13 @@
-Sub-Sub is a Zotero librarian and research assistant that runs in pi. It uses the same Python servers as the OpenCode setup ([[Zotero MCP]]), so the library safety is the same: previews, version checks, journal and undo, the tag vocabulary. The OpenCode setup keeps working in parallel.
+Sub-Sub is a Zotero librarian and research assistant that runs in pi. It uses the Python servers of zotero-local-mcp for the library: previews, version checks, journal and undo, the tag vocabulary.
 
 - Code: ~/Projects/subsub (git). Servers: ~/Projects/zotero-local-mcp
 - Shared rules: [[Zotero agent]]. Tag vocabulary: [[Zotero tags]]
-- Settings: ~/.config/subsub/config.json (written by `subsub init`) and ~/.config/opencode/zotero.env (same file as OpenCode)
+- Settings: ~/.config/subsub/config.json (written by `subsub init`) and ~/.config/zotero-local-mcp/env (also read by the weekly alerts in launchd)
+- Sub-Sub folder: ~/Obsidian/Powerslave/Sub-Sub, with Inbox/, Literature/, Syntheses/, Research/ and Zotero/ (tag list, note formats, alert searches). Sub-Sub writes only there without asking.
 - Models: librarian opencode-go/glm-5.3-flash, researcher opencode-go/mimo-v2.6-pro
 - Public docs: the README in ~/Projects/subsub (source for subsub.tiagojacinto.eu)
 
-## Differences from the OpenCode setup
+## Safety
 
 - Approval is enforced in code. Before any library change, Sub-Sub asks the server for the preview and shows it in a dialog. The change runs only after you select Yes. The model cannot skip this.
 - The model does not need to do a dry run first. You see one dialog per change.
@@ -20,7 +21,7 @@ Sub-Sub is a Zotero librarian and research assistant that runs in pi. It uses th
 2. Type `cd ~/Projects/subsub && npm install --omit=dev`.
 3. Type `npm link`. This adds the `subsub` command.
 4. Optional: type `pi remove ~/Projects/subsub`. Then plain `pi` stays a plain coding agent without Sub-Sub.
-5. Type `subsub`. If pi already has your OpenCode Go key, Sub-Sub uses the same key. If not, type `/login`, select OpenCode Zen and Go, and paste the key.
+5. Type `subsub`. If pi has no OpenCode Go key yet, type `/login`, select OpenCode Zen and Go, and paste the key.
 6. Type `/subsub`. Make sure that the result shows "Zotero: reachable" and the model mimo-v2.6-pro.
 7. Type `subsub init` once. Keep the Sub-Sub folder, the tag list, the email and the models. For the profile, select Editor.
 8. Type `subsub doctor`. Make sure that no line shows FIX.
