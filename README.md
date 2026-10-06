@@ -6,7 +6,7 @@
 [![Node Version](https://img.shields.io/badge/node-%3E%3D22.19.0-339933.svg?style=flat-square)](https://nodejs.org)
 [![Platform: macOS | Linux | Windows](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey.svg?style=flat-square)](#requirements)
 
-A Zotero librarian and research assistant that runs on your computer, in your browser or in your terminal. It is built on the [pi](https://pi.dev) agent and connects directly to your local Zotero library through Zotero's local API.
+Your research assistant, working from your own Zotero library. It runs on your computer, in your browser or in your terminal. It is built on the [pi](https://pi.dev) agent and connects directly to your local Zotero library through Zotero's local API.
 
 > *"This mere painstaking burrower and grub-worm of a poor devil of a Sub-Sub appears to have gone through the long Vaticans and street-stalls of the earth, picking up whatever random allusions to whales he could anyways find in any book whatsoever."*  
 > — Herman Melville, *Moby-Dick* (Extracts)

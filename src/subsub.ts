@@ -1,5 +1,5 @@
 /**
- * Sub-Sub: a Zotero librarian and research assistant for pi.
+ * Sub-Sub: a research assistant for pi that works from your own Zotero library.
  *
  * - Two modes: the Librarian manages the library (Zotero tools only); the
  *   Researcher does the same and also searches PubMed, Europe PMC and OpenAlex
