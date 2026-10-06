@@ -30,6 +30,8 @@ These models were tested on a real library of about 1000 items in September 2026
 | `opencode-go/mimo-v2.6-pro` | No invented references, good notes. The default since 0.10. |
 | `opencode-go/glm-5.3-flash` | Accurate tags, correct tool calls, low cost in the tagging tasks. |
 
+In October 2026, with one model for all work, both were tested again on 20 tagged items (the models did not see the tags) and on an import. Tagging was close: F1 0.69 for mimo-v2.6-pro and 0.67 for glm-5.3-flash, against the tags already in the library; both proposed about one tag more per item than the library has. In the import, mimo-v2.6-pro imported the new work and reported the duplicate; glm-5.3-flash sent no identifiers. Tagging with glm-5.3-flash cost about 40% less.
+
 `subsub init` offers mimo-v2.6-pro when you use OpenCode Go. For a long tagging session, you can switch to glm-5.3-flash with the model button (or `/model` in the terminal).
 
 ## Local models
