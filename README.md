@@ -19,7 +19,7 @@ A Zotero librarian and research assistant that runs on your computer, in your br
 * **Full Journal & Reversible Edits**: Every library modification is recorded with a unique journal ID and can be reverted anytime using `/undo`.
 * **Two Dedicated Roles**:
   * 📚 **The Librarian**: Cleans tags, imports references (DOI, PMID, ISBN), deduplicates, fixes metadata, retrieves open-access PDFs, creates collections, and checks retractions. *Runs completely offline with no web search access.*
-  * 🔬 **The Researcher**: Reads items, searches PubMed and OpenAlex, finds gaps, checks citations in manuscripts, and writes structured Markdown notes in your notes vault (e.g. Obsidian). *Cannot modify library records.*
+  * 🔬 **The Researcher**: Reads items, searches PubMed and OpenAlex, finds gaps, checks citations in manuscripts, and writes structured Markdown notes in your Sub-Sub folder (it can sit inside an Obsidian vault). *Cannot modify library records.*
 * **Local & Private**: Listens strictly on `127.0.0.1` protected by an authenticated single-origin session cookie. Your library contents remain on your computer.
 * **Modern Web Interface & Terminal UI**: Use Sub-Sub in your browser with desktop shortcuts (`~/Applications/Sub-Sub.app`, Start menu, or `.desktop`), or launch it right in your terminal with adaptive color themes.
 
@@ -77,7 +77,7 @@ Automated installers handle Node.js, uv, and desktop shortcuts:
    ```sh
    subsub init
    ```
-   Answer the interactive prompts (press <kbd>Enter</kbd> to accept defaults). This creates your notes folder (`Inbox/` and `Systems/`), sets up starter tag vocabularies, and writes note templates (`Systems/Zotero agent.md`).
+   Answer the interactive prompts (press <kbd>Enter</kbd> to accept defaults). This creates your Sub-Sub folder (`~/Documents/Sub-Sub`, or `Sub-Sub` inside your Obsidian vault) with `Inbox/`, `Literature/`, `Syntheses/`, `Research/` and `Zotero/`, sets up a starter tag list (`Zotero/Zotero tags.md`), and writes the note formats (`Zotero/Zotero agent.md`).
 3. Verify your environment:
    ```sh
    subsub doctor
@@ -176,7 +176,7 @@ subsub review apply 13-31
 | `userName` | string | Name used by the agent in replies | `"the user"` |
 | `about` | string | Brief background context about your research domain | `null` |
 | `language` | string | Response language, or `"auto"` to match your input | `"English"` |
-| `vault` | string | Path to your Markdown notes folder / Obsidian vault | `$ZOTERO_VAULT` |
+| `vault` | string | Path to your Sub-Sub folder | `$ZOTERO_VAULT` |
 | `models` | object | Model overrides per mode (e.g. `{"librarian": "opencode-go/glm-5.3-flash"}`) | Current model |
 | `defaultMode`| string | Default launch mode (`"researcher"` or `"librarian"`) | `"researcher"` |
 | `serverDir` | string | Local development path for `zotero-local-mcp` | PyPI package |
@@ -186,7 +186,7 @@ subsub review apply 13-31
 | `addons` | array | Optional servers; `["starbuck"]` adds reference checks | `[]` |
 | `starbuckDir` | string | Local Starbuck folder (used when it has a `pyproject.toml`) | `~/Projects/starbuck` |
 
-Server-level configurations (notes folder path, tag vocabulary path, Unpaywall email) reside in `~/.config/zotero-local-mcp/env`.
+Server-level configurations (Sub-Sub folder, tag list, alerts file, Unpaywall email) reside in `~/.config/zotero-local-mcp/env`.
 
 ### Papers that are not open access
 
@@ -203,7 +203,7 @@ Sub-Sub finds open-access copies (Unpaywall, Europe PMC). For other papers, use 
 2. Optional: set `"starbuckDir"` to a local copy of Starbuck. Without it, Sub-Sub runs the pinned Starbuck release with uv.
 3. Start Sub-Sub again and run `subsub doctor`. The line `Starbuck` must show `ok`.
 
-The researcher gets four tools: `verify_check_manuscript`, `verify_check_references`, `verify_prepare_claims` and `verify_record_claims`. Starbuck writes its report to a `_starbuck` folder next to the manuscript. Inside the notes folder or the working folder this needs no approval; elsewhere Sub-Sub asks first. Starbuck gets the contact email from the zotero-local-mcp env file. For the claim check, Sub-Sub's own model judges; Starbuck checks that every quoted passage is in the source.
+The researcher gets four tools: `verify_check_manuscript`, `verify_check_references`, `verify_prepare_claims` and `verify_record_claims`. Starbuck writes its report to a `_starbuck` folder next to the manuscript. Inside the Sub-Sub folder or the working folder this needs no approval; elsewhere Sub-Sub asks first. Starbuck gets the contact email from the zotero-local-mcp env file. For the claim check, Sub-Sub's own model judges; Starbuck checks that every quoted passage is in the source.
 
 ---
 

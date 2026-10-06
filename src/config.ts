@@ -5,7 +5,7 @@
  * {
  *   "profile": "scholar",
  *   "userName": "Ana", "about": "a master's student in health informatics", "language": "English",
- *   "vault": "~/Notes",
+ *   "vault": "~/Documents/Sub-Sub",
  *   "models": { "librarian": "opencode-go/glm-5.3-flash", "researcher": "opencode-go/mimo-v2.6-pro" },
  *   "defaultMode": "researcher"
  * }
@@ -22,6 +22,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
+import { isObsidianVault, settingsFile } from "./layout.ts";
 
 export type Mode = "librarian" | "researcher";
 export type Profile = "reader" | "scholar" | "author" | "editor";
@@ -160,11 +161,15 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): SubsubConfig {
 			researcher: "opencode-go/mimo-v2.6-pro",
 		},
 		defaultMode: mode,
-		vaultContext: (user.vaultContext ?? (vault ? [join(vault, ".claude", "CLAUDE.md")] : [])).map((p) => expand(p, home)),
+		// A Sub-Sub folder inside an Obsidian vault also reads the vault's context file.
+		vaultContext: (
+			user.vaultContext ??
+			(vault ? [join(vault, ".claude", "CLAUDE.md"), ...(isObsidianVault(dirname(vault)) ? [join(dirname(vault), ".claude", "CLAUDE.md")] : [])] : [])
+		).map((p) => expand(p, home)),
 		sharedRules: user.sharedRules
 			? expand(user.sharedRules, home)
 			: vault
-				? join(vault, "Systems", "Zotero agent.md")
+				? settingsFile(vault, "rules")
 				: undefined,
 		startTimeout: user.startTimeout ?? 45,
 		uvPath: user.uvPath ? expand(user.uvPath, home) : undefined,

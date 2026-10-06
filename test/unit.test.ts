@@ -163,7 +163,7 @@ test("config defaults and env file", () => {
 	const cfg = loadConfig({ SUBSUB_CONFIG: join(dir, "none.json"), ZOTERO_MCP_ENV: env } as any);
 	assert.equal(cfg.envFile, env);
 	assert.equal(cfg.vault, resolve("/Users/t/Notes"));
-	assert.equal(cfg.sharedRules, join(resolve("/Users/t/Notes"), "Systems", "Zotero agent.md"));
+	assert.equal(cfg.sharedRules, join(resolve("/Users/t/Notes"), "Zotero", "Zotero agent.md"));
 	assert.equal(cfg.models.researcher, "opencode-go/mimo-v2.6-pro");
 	assert.equal(expand("~/test", "/custom/home"), resolve("/custom/home/test"));
 	const isolated = loadConfig({ HOME: dir, SUBSUB_CONFIG: join(dir, "none.json"), ZOTERO_MCP_ENV: join(dir, "no-such-env") } as any);
@@ -571,11 +571,12 @@ test("init: new user with defaults, then again without replacing files", async (
 	assert.equal(cfg.setup, "fmup");
 	assert.deepEqual(cfg.models, {});
 	assert.equal(r.notes, join(home, "Documents", "Sub-Sub"));
-	const vocab = join(r.notes, "Systems", "Zotero tags.md");
+	const vocab = join(r.notes, "Zotero", "Zotero tags.md");
 	assert.match(readFileSync(vocab, "utf8"), /topic\/cardiovascular/);
-	assert.ok(existsSync(join(r.notes, "Inbox")) && existsSync(join(r.notes, "Systems", "Zotero agent.md")));
+	for (const d of ["Inbox", "Literature", "Syntheses", "Research"]) assert.ok(existsSync(join(r.notes, d)), d);
+	assert.ok(existsSync(join(r.notes, "Zotero", "Zotero agent.md")) && !existsSync(join(r.notes, "Systems")));
 	const envText = readFileSync(r.envFile, "utf8");
-	assert.match(envText, /ZOTERO_VAULT=.*Sub-Sub\nZOTERO_VOCAB=.*Zotero tags\.md\nZOTERO_CONTACT_EMAIL=ana@example\.org/);
+	assert.match(envText, /ZOTERO_VAULT=.*Sub-Sub\nZOTERO_VOCAB=.*Zotero tags\.md\nZOTERO_ALERTS=.*Zotero.Literature alerts\.md\nZOTERO_CONTACT_EMAIL=ana@example\.org/);
 	assert.ok(said.some((l) => /Zotero: not reachable/.test(l)) && said.some((l) => /FMUP model service/.test(l)));
 	assert.equal(loadCfg(env).profile, "reader");
 	assert.equal(cfg.addons, undefined);
@@ -851,4 +852,65 @@ test("bench: the lit task prompt and its scores", async () => {
 	assert.equal(s.screening_log, true);
 	assert.deepEqual(seenFiles, [join(dir, "Lit.md")]);
 	assert.equal(s.starbuck.citation_recall, 0.5);
+});
+
+test("layout: a vault gets a Sub-Sub folder; files of the old layout move only on yes", async () => {
+	const { folderCheck } = await import("../src/doctor.ts");
+	const { planMoves, settingsFile, subsubFolder } = await import("../src/layout.ts");
+	const notFound = (async () => { throw new Error("no zotero"); }) as unknown as typeof fetch;
+	const io = { ask: async (_q: string, d: string) => d, choose: async (_q: string, _o: unknown, d: string) => d, say: () => {} };
+
+	// an old setup: the whole vault was the notes folder, settings in Systems/
+	const home = mkdtempSync(join(tmpdir(), "subsub-layout-"));
+	const vault = join(home, "Vault");
+	for (const d of [".obsidian", "Inbox", "Systems", "Literature"]) mkdirSync(join(vault, d), { recursive: true });
+	writeFileSync(join(vault, "Systems", "Zotero tags.md"), "MY TAGS");
+	writeFileSync(join(vault, "Systems", "Zotero agent.md"), "MY RULES");
+	writeFileSync(join(vault, "Systems", "Machines.md"), "not Sub-Sub's");
+	writeFileSync(join(vault, "Inbox", "Zotero tag review 01.md"), "r");
+	writeFileSync(join(vault, "Inbox", "Literature alerts 2026-10-05.md"), "a");
+	writeFileSync(join(vault, "Inbox", "Groceries.md"), "not Sub-Sub's");
+	writeFileSync(join(vault, "Literature", "smith2021.md"), "n");
+	const env = { SUBSUB_CONFIG: join(home, "c.json"), ZOTERO_MCP_ENV: join(home, "env") } as any;
+	writeFileSync(env.SUBSUB_CONFIG, JSON.stringify({ vault }));
+	writeFileSync(env.ZOTERO_MCP_ENV, `ZOTERO_VAULT=${vault}\nZOTERO_VOCAB=${join(vault, "Systems", "Zotero tags.md")}\n`);
+
+	assert.equal(subsubFolder(vault), join(vault, "Sub-Sub"));
+	assert.equal(folderCheck(vault).warn, true);
+	assert.equal(planMoves(vault, join(vault, "Sub-Sub")).length, 4);
+
+	// without questions, nothing moves and the folder stays
+	const keep = await runInit(io, { yes: "true" }, env, { home, fetch: notFound });
+	assert.equal(keep.notes, vault);
+	assert.equal(keep.moved, 0);
+	assert.ok(existsSync(join(vault, "Systems", "Zotero tags.md")));
+
+	// asked, the default is the Sub-Sub folder and the move
+	const r = await runInit(io, {}, env, { home, fetch: notFound });
+	const sub = join(vault, "Sub-Sub");
+	assert.equal(r.notes, sub);
+	assert.equal(r.moved, 4);
+	assert.equal(readFileSync(join(sub, "Zotero", "Zotero tags.md"), "utf8"), "MY TAGS");
+	assert.equal(readFileSync(join(sub, "Zotero", "Zotero agent.md"), "utf8"), "MY RULES");
+	assert.ok(existsSync(join(sub, "Inbox", "Zotero tag review 01.md")) && existsSync(join(sub, "Inbox", "Literature alerts 2026-10-05.md")));
+	assert.ok(existsSync(join(vault, "Inbox", "Groceries.md")) && existsSync(join(vault, "Systems", "Machines.md")));
+	assert.ok(existsSync(join(vault, "Literature", "smith2021.md")), "a vault's Literature/ stays");
+	const envText = readFileSync(env.ZOTERO_MCP_ENV, "utf8");
+	assert.ok(envText.includes(`ZOTERO_VAULT=${sub}`) && envText.includes(`ZOTERO_VOCAB=${join(sub, "Zotero", "Zotero tags.md")}`));
+	assert.equal(loadCfg(env).sharedRules, join(sub, "Zotero", "Zotero agent.md"));
+	assert.equal(folderCheck(sub).warn, undefined);
+
+	// a dedicated folder of the old layout: Systems/ becomes Zotero/ and goes away when empty
+	const home2 = mkdtempSync(join(tmpdir(), "subsub-layout2-"));
+	const old = join(home2, "Documents", "Sub-Sub");
+	mkdirSync(join(old, "Systems"), { recursive: true });
+	writeFileSync(join(old, "Systems", "Zotero tags.md"), "T");
+	const env2 = { SUBSUB_CONFIG: join(home2, "c.json"), ZOTERO_MCP_ENV: join(home2, "env") } as any;
+	writeFileSync(env2.SUBSUB_CONFIG, JSON.stringify({ vault: old }));
+	assert.equal(settingsFile(old, "tags"), join(old, "Systems", "Zotero tags.md"));
+	assert.equal(folderCheck(old).warn, true);
+	const r2 = await runInit(io, {}, env2, { home: home2, fetch: notFound });
+	assert.equal(r2.notes, old);
+	assert.equal(readFileSync(join(old, "Zotero", "Zotero tags.md"), "utf8"), "T");
+	assert.ok(!existsSync(join(old, "Systems")));
 });

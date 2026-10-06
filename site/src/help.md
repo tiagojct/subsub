@@ -18,6 +18,7 @@ Type `subsub doctor`. Each line starts with `ok`, `NOTE` or `FIX`. Do the fix th
 | FIX Zotero | Start Zotero 10. In Zotero, open Settings > Advanced and turn on "Allow other applications on this computer to communicate with Zotero". |
 | FIX Tag list | Type `subsub init`. It creates a starter tag list. |
 | NOTE Tag list: no topic/ tags | In the librarian mode, ask: `propose topics for my tag list`. |
+| NOTE Sub-Sub folder | The folder is a whole Obsidian vault, or the tag list and note formats are still in `Systems/` (before version 0.9). Type `subsub init`: it moves Sub-Sub's files into a `Sub-Sub` folder, with the settings files in `Zotero/`. |
 | NOTE Contact email | Type `subsub init` and give an email address. Without it, Sub-Sub cannot find open-access PDFs. |
 | FIX Starbuck | Only when reference checks are on. Check the internet connection: the first start downloads Starbuck. Then type `subsub doctor` again. To turn reference checks off, type `subsub init`. |
 | FIX Model login | Open Sub-Sub, select the model button and save an API key. Or type `subsub`, then `/login`. |

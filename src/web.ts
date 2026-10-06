@@ -604,10 +604,10 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 					const body = await readJson(req);
 					const target = resolve(cwd, expand(String(body.path ?? "")));
 					const vault = cfg.vault;
-					// Judge the real file, so a link inside the notes folder cannot open a document outside it.
+					// Judge the real file, so a link inside the Sub-Sub folder cannot open a document outside it.
 					const real = realish(target);
 					const inside = within(real, realish(cwd)) || Boolean(vault && within(real, realish(vault)));
-					if (!inside || !existsSync(target)) return send(res, 404, { error: "not found in the notes folder" });
+					if (!inside || !existsSync(target)) return send(res, 404, { error: "not found in the Sub-Sub folder" });
 					// Documents only: a file that the model wrote must never be run.
 					if (!OPENABLE.has(extname(target).toLowerCase())) return send(res, 403, { error: "Sub-Sub opens only notes and documents (.md, .txt, .pdf, .bib, .csv, .qmd)." });
 					if (vault && within(target, vault) && existsSync(join(vault, ".obsidian"))) openExternal(`obsidian://open?path=${encodeURIComponent(target)}`);

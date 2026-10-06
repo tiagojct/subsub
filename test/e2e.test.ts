@@ -161,10 +161,10 @@ before(async () => {
 	zoteroUrl = await startZotero();
 	work = mkdtempSync(join(tmpdir(), "subsub-e2e-"));
 	vault = join(work, "vault");
-	mkdirSync(join(vault, "Systems"), { recursive: true });
+	mkdirSync(join(vault, "Zotero"), { recursive: true });
 	mkdirSync(join(vault, "Inbox"));
-	writeFileSync(join(vault, "Systems", "Zotero tags.md"), VOCAB);
-	writeFileSync(join(vault, "Systems", "Zotero agent.md"), "Shared rules: use vocabulary tags only.");
+	writeFileSync(join(vault, "Zotero", "Zotero tags.md"), VOCAB);
+	writeFileSync(join(vault, "Zotero", "Zotero agent.md"), "Shared rules: use vocabulary tags only.");
 	const agentDir = join(work, "agent");
 	mkdirSync(agentDir);
 	writeFileSync(join(agentDir, "models.json"), JSON.stringify({
@@ -180,7 +180,7 @@ before(async () => {
 		SUBSUB_CONFIG: join(work, "subsub.json"),
 		ZOTERO_MCP_ENV: join(work, "no-such.env"),
 		ZOTERO_API_URL: zoteroUrl,
-		ZOTERO_VOCAB: join(vault, "Systems", "Zotero tags.md"),
+		ZOTERO_VOCAB: join(vault, "Zotero", "Zotero tags.md"),
 		ZOTERO_VAULT: vault,
 		ZOTERO_MCP_STATE: join(work, "state"),
 	};
@@ -421,7 +421,7 @@ test("subsub init and subsub doctor from the command line", { timeout: 180_000 }
 	const init = spawnSync(process.execPath, [cli, "init", "--yes", "--notes", join(home, "Notes"), "--tags", "health-informatics", "--name", "Ana"], { env, encoding: "utf8" });
 	assert.equal(init.status, 0, init.stderr);
 	assert.match(init.stdout, /Created: .*Zotero tags\.md/);
-	assert.ok(existsSync(join(home, "Notes", "Systems", "Zotero agent.md")));
+	assert.ok(existsSync(join(home, "Notes", "Zotero", "Zotero agent.md")));
 	const cfg = JSON.parse(readFileSync(join(home, "config.json"), "utf8"));
 	assert.equal(cfg.userName, "Ana");
 	assert.equal(cfg.profile, "scholar");

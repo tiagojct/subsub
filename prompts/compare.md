@@ -17,7 +17,7 @@ Make a short slug: lower case, hyphens, at most five words. Use today's date (YY
    - Confidence: high, moderate or low, with one reason.
 4. Below the matrix, write: where the sources agree; where they disagree and the most likely reason (population, design, outcome definition, analysis); what no source answers. Cite source numbers in every sentence. Write "inference:" before a statement that no single source makes.
 5. Check the sources: verify_check_references when the verify_ tools are available, otherwise scholar_get_work for each identifier. Never write "verified" for a check you did not run.
-6. Write one note: `Research/<date> <slug> comparison.md` in the notes folder (do not overwrite; add -2). Front matter: title, date, type: comparison, sources (the identifiers), verification (PASS, PASS WITH NOTES or BLOCKED), reference_check (path of the Starbuck report, or none). End with a Sources section: [@citekey] for library items, full reference with DOI and "(not in library)" for the others.
+6. Write one note: `Research/<date> <slug> comparison.md` in the Sub-Sub folder (do not overwrite; add -2). Front matter: title, date, type: comparison, sources (the identifiers), verification (PASS, PASS WITH NOTES or BLOCKED), reference_check (path of the Starbuck report, or none). End with a Sources section: [@citekey] for library items, full reference with DOI and "(not in library)" for the others.
 7. If a step fails, finish the note anyway and mark the step "BLOCKED: <what failed>".
 
 Give the user the path and three lines on what the comparison shows.

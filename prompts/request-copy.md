@@ -6,7 +6,7 @@ Draft an email to ask the corresponding author of $1 for a copy of the paper.
 
 1. Find the work: zotero_get_item for a citekey or Zotero key, otherwise scholar_get_work. If it is open access (open_access, or scholar_read_oa_fulltext gives the full text), tell the user where to read it and stop: no email is needed.
 2. Find the address with scholar_find_contact. Use only an address it returns. Never guess or build an address from a name. If it returns none, give the user the article link and say: look for "Correspondence" on the article page; then stop.
-3. Write the draft to `Inbox/Copy request <citekey or DOI>.md` in the notes folder (do not overwrite; add -2):
+3. Write the draft to `Inbox/Copy request <citekey or DOI>.md` in the Sub-Sub folder (do not overwrite; add -2):
 
 ```markdown
 ---

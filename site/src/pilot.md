@@ -55,11 +55,11 @@ O instalador instala o uv, o Node.js (se for preciso) e o Sub-Sub na sua pasta p
 | Your name | O seu primeiro nome. |
 | One line about you | Por exemplo: estudante do 4.º ano de Medicina. Pode deixar em branco. |
 | Language for replies and notes | Escreva European Portuguese. |
-| Notes folder | Prima Enter para aceitar a pasta proposta, ou escreva o caminho do seu cofre do Obsidian. |
+| Sub-Sub folder | Prima Enter para aceitar a pasta proposta. Se usa o Obsidian, escreva o caminho do seu cofre: o Sub-Sub cria lá dentro uma pasta Sub-Sub e não mexe no resto do cofre. |
 | Profile | Prima Enter (Reader). |
 | Starter tag list | Prima Enter (health sciences). |
-| Email for Unpaywall and Crossref | O seu email da U.Porto. Serve para encontrar PDF em acesso aberto. |
-| Reference checks (Starbuck) | Prima Enter (Off). |
+| Email | O seu email da U.Porto. Serve para encontrar PDF em acesso aberto. |
+| Reference checks | Prima Enter (Off). |
 | Models | Prima Enter (Choose later). |
 
 </div>

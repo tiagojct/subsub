@@ -56,7 +56,7 @@ The installer puts everything in `~/.subsub` (on Windows, `.subsub` in your user
 - It installs Node.js 22 in `~/.subsub/node`, if your Node.js is missing or older than 22.19. It checks the download against the checksums that nodejs.org publishes.
 - It installs Sub-Sub (the npm package [@tiagojct/subsub](https://www.npmjs.com/package/@tiagojct/subsub)).
 - It adds `~/.subsub/bin` to your PATH, so that the `subsub` command works in new terminal windows.
-- It starts `subsub init`, which asks for your name, a notes folder, a profile, a starter tag list and if you want reference checks (Starbuck).
+- It starts `subsub init`, which asks for your name, a Sub-Sub folder, a profile, a starter tag list and if you want reference checks (Starbuck).
 - It adds a Sub-Sub shortcut (`subsub shortcut`): in Applications on macOS, in the Start menu and on the desktop on Windows, in the applications menu on Linux. The shortcut opens Sub-Sub in your browser.
 - It opens Sub-Sub in your browser.
 
@@ -75,8 +75,8 @@ If you already use [pi](https://pi.dev), you can also add Sub-Sub to pi: `pi ins
 ## What `subsub init` creates
 
 - A settings file: `~/.config/subsub/config.json`.
-- The Zotero server settings: `~/.config/zotero-local-mcp/env` (notes folder, tag list, contact email).
-- In your notes folder: `Inbox/`, `Systems/Zotero tags.md` (a starter tag list) and `Systems/Zotero agent.md` (the note formats). You can edit both files.
+- The Zotero server settings: `~/.config/zotero-local-mcp/env` (the Sub-Sub folder, the tag list, the contact email).
+- The Sub-Sub folder, by default `~/Documents/Sub-Sub`, or `Sub-Sub` inside your Obsidian vault. In it: `Inbox/`, `Literature/`, `Syntheses/`, `Research/`, and `Zotero/` with `Zotero tags.md` (a starter tag list) and `Zotero agent.md` (the note formats). You can edit both files.
 
 `subsub init` never replaces a file that exists. To change your settings later, type `subsub init` again.
 

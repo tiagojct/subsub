@@ -1,7 +1,7 @@
 /**
  * The Sub-Sub part of the system prompt: role text for the current mode, the
- * profile rules, the shared Zotero rules from the notes folder, the vault
- * conventions when pi runs inside the notes folder, and the language rule.
+ * profile rules, the shared Zotero rules from the Sub-Sub folder, the vault
+ * conventions when pi runs inside the Sub-Sub folder, and the language rule.
  *
  * Role and profile texts use placeholders: {{user}} / {{User}} (the user's name,
  * or "the user"), {{about}} (one line about the user) and {{batch}}.
@@ -63,7 +63,7 @@ export function systemAddition(mode: Mode, cfg: SubsubConfig, cwd: string): stri
 	const shared = readIf(cfg.sharedRules);
 	if (shared) {
 		parts.push(
-			"# Shared Zotero rules (from the notes folder)",
+			"# Shared Zotero rules (from the Sub-Sub folder)",
 			shared,
 			`Sub-Sub note: in Sub-Sub you do not need a separate dry run before a change. Call the write tool with dry_run=false; Sub-Sub shows ${user} the server's preview and applies it only on approval. This replaces the dry-run steps above.`,
 		);

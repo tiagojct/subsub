@@ -19,7 +19,7 @@ For a map of the parts (the apps, the servers, the modes, the profiles and the f
 
 ### In the terminal
 
-Type `subsub`. To start in the librarian mode, type `subsub --librarian`. When you start Sub-Sub from your home folder, it works in your notes folder. From another folder (for example a manuscript folder), it works in that folder. To stay in the home folder, type `subsub --here`.
+Type `subsub`. To start in the librarian mode, type `subsub --librarian`. When you start Sub-Sub from your home folder, it works in your Sub-Sub folder. From another folder (for example a manuscript folder), it works in that folder. To stay in the home folder, type `subsub --here`.
 
 ## Tag your first items
 
@@ -30,7 +30,7 @@ Type `subsub`. To start in the librarian mode, type `subsub --librarian`. When y
 5. Type: `apply the tag review Inbox/Zotero tag review 01.md`.
 6. Read the preview. To apply it, select Yes. To stop, select No and say what to change.
 
-The tags must be in your tag list, `Systems/Zotero tags.md`. Sub-Sub refuses other tags. To add a tag, edit that file.
+The tags must be in your tag list, `Zotero/Zotero tags.md`. Sub-Sub refuses other tags. To add a tag, edit that file.
 
 To apply many review notes at once, type this in a terminal: `subsub review apply 1-5` (the note numbers).
 
@@ -52,12 +52,12 @@ Undo skips items that you changed in Zotero after the change.
 
 1. Type `/researcher`.
 2. Ask: `What do I have on home spirometry?`. The answer lists citekeys from your library.
-3. Type `/lit-note smith2021`. The researcher reads the full text (or the abstract, and says so) and writes `Literature/smith2021.md` in your notes folder.
+3. Type `/lit-note smith2021`. The researcher reads the full text (or the abstract, and says so) and writes `Literature/smith2021.md` in your Sub-Sub folder.
 4. Type `/synthesis <topic>` for a note on several items, or `/gaps <topic>` to search PubMed and OpenAlex for works you do not have.
 
 Each literature note says what Sub-Sub read: the full text, the abstract or only the metadata. Page numbers come only from the full text. Sub-Sub refuses a note that breaks this rule.
 
-What the researcher writes depends on your [profile](/profiles/). The note formats are in `Systems/Zotero agent.md`. You can edit them.
+What the researcher writes depends on your [profile](/profiles/). The note formats are in `Zotero/Zotero agent.md`. You can edit them.
 
 ## Review the literature
 
@@ -103,7 +103,9 @@ Sub-Sub does not change the manuscript. Starbuck writes an HTML report in a `_st
 | `subsub web` | Open Sub-Sub in the browser |
 | `subsub shortcut` | Add the Sub-Sub shortcut again, for example after a move |
 
-## Your notes folder
+## Your Sub-Sub folder
+
+Everything Sub-Sub writes is in one folder, `Sub-Sub`. By default it is in your Documents folder. If you use Obsidian, `subsub init` puts it inside your vault, and Sub-Sub leaves the rest of the vault alone.
 
 | Path | Contents |
 |---|---|
@@ -111,5 +113,8 @@ Sub-Sub does not change the manuscript. Starbuck writes an HTML report in a `_st
 | `Literature/` | One note per item, named after the citekey |
 | `Syntheses/` | Notes on several items |
 | `Research/` | Literature reviews, comparisons, digests; plans and screening logs in `Research/.plans/` |
-| `Systems/Zotero tags.md` | Your tag list |
-| `Systems/Zotero agent.md` | Note formats and shared rules |
+| `Zotero/Zotero tags.md` | Your tag list |
+| `Zotero/Zotero agent.md` | Note formats and shared rules |
+| `Zotero/Literature alerts.md` | The searches for weekly alerts (optional) |
+
+Before version 0.9, the files of `Zotero/` were in `Systems/`, and the folder could be a whole vault. Type `subsub init` to move them. It moves only the files that Sub-Sub made, and never replaces a file.

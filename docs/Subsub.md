@@ -12,7 +12,7 @@ Sub-Sub is a Zotero librarian and research assistant that runs in pi. It uses th
 - The model does not need to do a dry run first. You see one dialog per change.
 - Library tools run one at a time, so each preview includes the effect of earlier changes in the same step.
 - The researcher does not have the library write tools at all. It can only add a linked note (with a dialog) and add works to the import queue.
-- bash is off in both modes. File writes outside the vault, and writes to the rule files, config folders and code folders, need a Yes.
+- bash is off in both modes. File writes outside the Sub-Sub folder, and writes to the rule files, config folders and code folders, need a Yes.
 
 ## Install
 
@@ -22,7 +22,7 @@ Sub-Sub is a Zotero librarian and research assistant that runs in pi. It uses th
 4. Optional: type `pi remove ~/Projects/subsub`. Then plain `pi` stays a plain coding agent without Sub-Sub.
 5. Type `subsub`. If pi already has your OpenCode Go key, Sub-Sub uses the same key. If not, type `/login`, select OpenCode Zen and Go, and paste the key.
 6. Type `/subsub`. Make sure that the result shows "Zotero: reachable" and the model mimo-v2.6-pro.
-7. Type `subsub init` once. Keep the notes folder (the vault), the tag list, the email and the models. For the profile, select Editor.
+7. Type `subsub init` once. Keep the Sub-Sub folder, the tag list, the email and the models. For the profile, select Editor.
 8. Type `subsub doctor`. Make sure that no line shows FIX.
 
 If you change the Node version with fnm, do step 3 again.
@@ -30,7 +30,7 @@ If you change the Node version with fnm, do step 3 again.
 ## Use
 
 1. Start Zotero.
-2. Type `subsub`. From the home folder, Sub-Sub starts in the vault. From a different folder (for example a manuscript folder), it starts in that folder. To stay in the home folder, type `subsub --here`.
+2. Type `subsub`. From the home folder, Sub-Sub starts in the Sub-Sub folder. From a different folder (for example a manuscript folder), it starts in that folder. To stay in the home folder, type `subsub --here`.
 3. Sub-Sub starts in the researcher mode. To start in the librarian mode, type `subsub --librarian`.
 4. To change the mode, type `/librarian` or `/researcher`. The mode also changes the model.
 5. When a dialog shows a preview, read it. Select Yes to apply the change, or No to stop it. After No, tell Sub-Sub what to change.
@@ -105,7 +105,7 @@ The themes are in ~/Projects/subsub/themes. To make them again after a change in
 
 ## Model test
 
-The model test runs several models on the same tasks against your library and compares them. Nothing in the library changes: each library change is recorded with its preview and then blocked. Notes go to ~/Projects/subsub/bench-results/<date>/, not to the vault.
+The model test runs several models on the same tasks against your library and compares them. Nothing in the library changes: each library change is recorded with its preview and then blocked. Notes go to ~/Projects/subsub/bench-results/<date>/, not to the Sub-Sub folder.
 
 Tasks:
 
@@ -131,7 +131,7 @@ Each model gets a code (for example M417), so the notes can be judged blind. key
 - "command not found: subsub": type `cd ~/Projects/subsub && npm link`.
 - To update Sub-Sub after new code arrives, type `cd ~/Projects/subsub && npm install --omit=dev`. Do not use `subsub update`.
 - A tool call is refused with "not available in researcher mode": type `/librarian`.
-- `subsub review` says "No note matches": check the note numbers in Inbox/. A path is written from the vault folder, in quotes (for example "Inbox/Zotero tag review 13.md").
+- `subsub review` says "No note matches": check the note numbers in Inbox/. A path is written from the Sub-Sub folder, in quotes (for example "Inbox/Zotero tag review 13.md").
 
 ## Tests
 

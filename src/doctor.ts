@@ -21,6 +21,7 @@ import {
 	starbuckEnabled,
 	type SubsubConfig,
 } from "./config.ts";
+import { isObsidianVault, LEGACY_SETTINGS_DIR, SETTINGS_FILES, settingsFile } from "./layout.ts";
 import { profileSpec } from "./profiles.ts";
 
 export interface Check {
@@ -137,11 +138,7 @@ export function runChecks(
 					: undefined,
 		});
 	}
-	out.push(
-		cfg.vault && existsSync(cfg.vault)
-			? { name: "Notes folder", ok: true, detail: cfg.vault }
-			: { name: "Notes folder", ok: false, detail: cfg.vault ? `${cfg.vault} does not exist` : "not set", fix: "Type subsub init." },
-	);
+	out.push(folderCheck(cfg.vault));
 	out.push(
 		st.contact_email_set
 			? { name: "Contact email", ok: true, detail: "set" }
@@ -198,4 +195,20 @@ export async function doctorMain(env: NodeJS.ProcessEnv = process.env): Promise<
 	const bad = checks.filter((c) => !c.ok).length;
 	console.log(bad ? `\n${bad} problem(s) to fix.` : "\nEverything needed is in place.");
 	return bad ? 1 : 0;
+}
+
+/** The Sub-Sub folder: it exists, it is not a whole vault, and its settings files are in Zotero/. */
+export function folderCheck(folder: string | undefined): Check {
+	const name = "Sub-Sub folder";
+	if (!folder || !existsSync(folder)) {
+		return { name, ok: false, detail: folder ? `${folder} does not exist` : "not set", fix: "Type subsub init." };
+	}
+	if (isObsidianVault(folder)) {
+		return { name, ok: true, warn: true, detail: `${folder} is a whole Obsidian vault`, fix: "Type subsub init: it moves Sub-Sub's files into a Sub-Sub folder inside the vault." };
+	}
+	const legacy = (["rules", "tags", "alerts"] as const).some((w) => settingsFile(folder, w) === join(folder, LEGACY_SETTINGS_DIR, SETTINGS_FILES[w]));
+	if (legacy) {
+		return { name, ok: true, warn: true, detail: `${folder}; the settings files are still in ${LEGACY_SETTINGS_DIR}/`, fix: "Type subsub init: it moves them to Zotero/." };
+	}
+	return { name, ok: true, detail: folder };
 }

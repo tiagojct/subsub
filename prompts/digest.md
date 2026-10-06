@@ -4,7 +4,7 @@ argument-hint: "[days, default 7] [topic]"
 ---
 Write a digest of the last ${1:-7} days. Topic, if given: ${@:2}
 
-1. Collect, in the notes folder:
+1. Collect, in the Sub-Sub folder:
    - the alert notes `Inbox/Literature alerts YYYY-MM-DD.md` dated in the period (the date is in the file name);
    - the notes in `Research/` whose front matter `date:` is in the period;
    - the literature notes whose front matter `created:` is in the period.

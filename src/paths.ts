@@ -10,6 +10,7 @@ import { existsSync, realpathSync } from "node:fs";
 import { homedir } from "node:os";
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { settingsPaths } from "./layout.ts";
 
 export function normalizeToolPath(raw: string, cwd: string): string {
 	let p = String(raw ?? "").trim();
@@ -80,11 +81,7 @@ export function buildPolicy(opts: { vault?: string; cwd: string; serverDir: stri
 			join(v, ".claude"),
 			join(v, ".opencode"),
 			join(v, ".obsidian"),
-			join(v, "Systems", "Zotero agent.md"),
-			join(v, "Systems", "Zotero tags.md"),
-			join(v, "Systems", "Zotero librarian.md"),
-			join(v, "Systems", "Zotero researcher.md"),
-			join(v, "Systems", "Literature alerts.md"),
+			...settingsPaths(v),
 		);
 	}
 	return { allowed, protectedPaths };

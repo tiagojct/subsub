@@ -6,14 +6,20 @@
  * - the settings file (~/.config/subsub/config.json): profile, name, language,
  *   notes folder, models;
  * - the server settings file (~/.config/zotero-local-mcp/env, or the one that
- *   already exists): notes folder, tag list, contact email. Other lines stay;
- * - in the notes folder: Inbox/, Systems/Zotero tags.md (a starter list) and
- *   Systems/Zotero agent.md (note formats). Existing files are never replaced.
+ *   already exists): the Sub-Sub folder, tag list, alerts file, contact email.
+ *   Other lines stay;
+ * - the Sub-Sub folder (see layout.ts): Inbox/, Literature/, Syntheses/,
+ *   Research/, and Zotero/ with Zotero tags.md (a starter list) and Zotero
+ *   agent.md (note formats). Existing files are never replaced.
+ *
+ * An Obsidian vault given as the folder becomes <vault>/Sub-Sub. Files of the old
+ * layout (Systems/, or Sub-Sub's notes in the Inbox/ of a whole vault) are moved
+ * when the user agrees.
  *
  * Flags (for scripts and tests): --yes (take every default), --setup
- * standard|fmup, --name, --about, --language, --notes, --profile, --tags
- * health-sciences|health-informatics|any-field, --email, --starbuck on|off,
- * --models keep|later|opencode-go.
+ * standard|fmup, --name, --about, --language, --folder (or --notes), --move
+ * yes|no, --profile, --tags health-sciences|health-informatics|any-field,
+ * --email, --starbuck on|off, --models keep|later|opencode-go.
  */
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -35,6 +41,7 @@ import {
 	withStarbuck,
 } from "./config.ts";
 import { defaultRunner, starbuckCheck } from "./doctor.ts";
+import { applyMoves, FOLDER_NAME, leftBehind, NOTE_DIRS, planMoves, SETTINGS_DIR, SETTINGS_FILES, subsubFolder } from "./layout.ts";
 import { PROFILE_SPECS } from "./profiles.ts";
 
 const TEMPLATES = resolve(dirname(fileURLToPath(import.meta.url)), "..", "templates");
@@ -58,6 +65,7 @@ export interface InitResult {
 	envFile: string;
 	notes: string;
 	created: string[];
+	moved: number;
 	zotero: boolean;
 }
 
@@ -108,8 +116,18 @@ export async function runInit(
 	const envValues = existsSync(envFile) ? parseEnvFile(envFile) : {};
 	const created: string[] = [];
 
-	io.say(existsSync(configFile) ? `Sub-Sub settings (${configFile}). Press Enter to keep the value in brackets.` : "Sub-Sub setup. Press Enter to take the value in brackets.");
+	const first = !existsSync(configFile);
+	io.say(
+		first
+			? "Sub-Sub setup. A few questions; press Enter to take the value in brackets. To change an answer later, type subsub init again."
+			: `Sub-Sub settings (${configFile}). Press Enter to keep the value in brackets.`,
+	);
+	const explain = (title: string, text: string) => {
+		io.say("");
+		io.say(`${title}. ${text}`);
+	};
 
+	explain("Setup", "Standard works for any field. FMUP / U.Porto starts with health-sciences tags and the Reader profile.");
 	const setup = await io.choose(
 		"Setup",
 		[
@@ -119,45 +137,92 @@ export async function runInit(
 		flags.setup ?? existing.setup ?? "standard",
 	);
 	const fmup = setup === "fmup";
-	const userName = (await io.ask("Your name, for Sub-Sub's replies (Enter for none)", flags.name ?? existing.userName ?? "")).trim();
+
+	explain("About you", "Sub-Sub uses your name and one line about you in its replies. Both are optional and stay on this computer, except in the messages to the model provider.");
+	const userName = (await io.ask("Your name (Enter for none)", flags.name ?? existing.userName ?? "")).trim();
 	const about = (await io.ask('One line about you, e.g. "a master\'s student in health informatics" (optional)', flags.about ?? existing.about ?? "")).trim();
 	const language = (await io.ask("Language for replies and notes (a language, or auto for the language you write in)", flags.language ?? existing.language ?? "English")).trim() || "English";
-	const notes = expand(
-		(await io.ask("Notes folder (Markdown files; an Obsidian vault works)", flags.notes ?? current.vault ?? envValues.ZOTERO_VAULT ?? join(home, "Documents", "Sub-Sub"))).trim(),
-		home,
+
+	explain(
+		"Sub-Sub folder",
+		`Sub-Sub keeps everything it writes in one folder: Inbox/ (review notes, the import queue, alerts), Literature/, Syntheses/, Research/, and ${SETTINGS_DIR}/ (your tag list and note formats). If you use Obsidian, give the vault folder: Sub-Sub then works in a ${FOLDER_NAME} folder inside the vault and leaves the rest of the vault alone.`,
 	);
+	const oldFolder = current.vault;
+	// Without questions (--yes), an existing folder stays exactly as it is.
+	const keepAsIs = Boolean(flags.yes) && !flags.folder && !flags.notes && oldFolder !== undefined;
+	const folderDefault = flags.folder ?? flags.notes ?? (oldFolder ? (keepAsIs ? oldFolder : subsubFolder(oldFolder)) : join(home, "Documents", FOLDER_NAME));
+	const answer = expand((await io.ask("Sub-Sub folder (or an Obsidian vault)", folderDefault)).trim() || folderDefault, home);
+	const notes = keepAsIs && answer === oldFolder ? answer : subsubFolder(answer);
+	if (notes !== answer) io.say(`That is an Obsidian vault. Sub-Sub will use ${notes}.`);
+
+	// ---- files of the old layout
+	const from = oldFolder && existsSync(oldFolder) ? oldFolder : notes;
+	const moves = planMoves(from, notes);
+	let move = "no";
+	if (moves.length) {
+		explain(
+			"Earlier files",
+			`${moves.length} file(s) from an earlier Sub-Sub layout can move into ${notes}: the settings files go to ${SETTINGS_DIR}/, and Sub-Sub's review notes, alerts and import queue go to Inbox/. Nothing is replaced.`,
+		);
+		for (const m of moves.slice(0, 6)) io.say(`  ${m.from}`);
+		if (moves.length > 6) io.say(`  and ${moves.length - 6} more`);
+		move = await io.choose(
+			"Move them",
+			[
+				{ value: "yes", label: "Move them (recommended)" },
+				{ value: "no", label: from === notes ? "Leave them; Sub-Sub still reads them from Systems/" : "Leave them where they are" },
+			],
+			flags.move ?? (flags.yes ? "no" : "yes"),
+		);
+	}
+
+	explain("Profile", "The profile sets how much Sub-Sub writes for you and which tools it offers. Change it at any time with /profile.");
 	const profileDefault = flags.profile ?? existing.profile ?? (fmup ? "reader" : "scholar");
 	const profile = await io.choose(
-		"Profile (change it later with /profile)",
+		"Profile",
 		PROFILES.map((p) => ({ value: p, label: `${PROFILE_SPECS[p].label}: ${PROFILE_SPECS[p].summary}` })),
 		isProfile(profileDefault) ? profileDefault : "scholar",
 	);
 
-	const vocab = envValues.ZOTERO_VOCAB ? expand(envValues.ZOTERO_VOCAB, home) : join(notes, "Systems", "Zotero tags.md");
+	// The tag list: a custom path in the server settings stays; otherwise Zotero/Zotero tags.md (moved, kept or new).
+	const vocabTarget = join(notes, SETTINGS_DIR, SETTINGS_FILES.tags);
+	const oldDefaults = new Set([join(from, "Systems", SETTINGS_FILES.tags), join(from, SETTINGS_DIR, SETTINGS_FILES.tags)]);
+	const envVocab = envValues.ZOTERO_VOCAB ? expand(envValues.ZOTERO_VOCAB, home) : undefined;
+	const customVocab = envVocab && existsSync(envVocab) && !oldDefaults.has(envVocab) && envVocab !== vocabTarget ? envVocab : undefined;
+	const movingVocab = move === "yes" && moves.some((m) => m.to === vocabTarget);
+	// An old tag list counts only in the same folder; a new folder gets the moved list or a new one.
+	const legacyVocab = !movingVocab && from === notes && [...oldDefaults].find((p) => existsSync(p));
+	const vocab = customVocab ?? (movingVocab || existsSync(vocabTarget) ? vocabTarget : legacyVocab || vocabTarget);
 	let tags = "keep";
-	if (existsSync(vocab)) {
+	if (existsSync(vocab) || movingVocab) {
+		io.say("");
 		io.say(`Tag list: keeping ${vocab}.`);
 	} else {
+		explain("Tag list", `The librarian tags items only with the tags in this list. Pick a start; you edit the list later in ${SETTINGS_DIR}/${SETTINGS_FILES.tags}.`);
 		tags = await io.choose(
-			"Starter tag list (edit it later in the notes folder)",
+			"Starter tag list",
 			Object.entries(STARTER_TAGS).map(([value, label]) => ({ value, label })),
 			flags.tags ?? (fmup ? "health-sciences" : "any-field"),
 		);
 	}
-	const email = (
-		await io.ask("Email for Unpaywall and Crossref, to find open-access PDFs (optional)", flags.email ?? envValues.ZOTERO_CONTACT_EMAIL ?? "")
-	).trim();
+
+	explain("Contact email", "Unpaywall needs an email address to find open-access PDFs. Sub-Sub sends it only to Unpaywall, Crossref, OpenAlex and PubMed, as they ask.");
+	const email = (await io.ask("Email (optional)", flags.email ?? envValues.ZOTERO_CONTACT_EMAIL ?? "")).trim();
+
+	explain("Reference checks (Starbuck)", "An optional add-on for manuscripts: it checks that each cited work exists, matches its citation and was not retracted. The researcher then has /verify.");
 	const starbuck = await io.choose(
-		"Reference checks (Starbuck): check that cited works exist, match their citation and were not retracted",
+		"Reference checks",
 		[
 			{ value: "off", label: "Off" },
-			{ value: "on", label: "On (the researcher gets /verify; uses the email above)" },
+			{ value: "on", label: "On (downloads Starbuck now; uses the email above)" },
 		],
 		flags.starbuck ?? (starbuckEnabled(current) ? "on" : "off"),
 	);
+
+	explain("Models", "Sub-Sub needs an account with a model provider. You can connect one later in Sub-Sub with the model button (or /login in the terminal).");
 	const modelOptions = [
 		...(existing.models ? [{ value: "keep", label: `Keep: ${JSON.stringify(existing.models)}` }] : []),
-		{ value: "later", label: "Choose later in Sub-Sub (/login, then /model)" },
+		{ value: "later", label: "Choose later in Sub-Sub" },
 		{ value: "opencode-go", label: `OpenCode Go, tested: ${TESTED_MODELS.librarian} for the librarian, ${TESTED_MODELS.researcher} for the researcher` },
 	];
 	const agentDir = initEnv.SUBSUB_AGENT_DIR ? expand(initEnv.SUBSUB_AGENT_DIR, home) : join(home, ".subsub", "agent");
@@ -165,7 +230,8 @@ export async function runInit(
 	const models = await io.choose("Models", modelOptions, flags.models ?? modelDefault);
 
 	// ---- write
-	for (const dir of [notes, join(notes, "Inbox"), join(notes, "Systems")]) {
+	if (move === "yes") applyMoves(moves);
+	for (const dir of [notes, ...NOTE_DIRS.map((d) => join(notes, d)), join(notes, SETTINGS_DIR)]) {
 		if (!existsSync(dir)) {
 			mkdirSync(dir, { recursive: true });
 			created.push(dir);
@@ -176,14 +242,18 @@ export async function runInit(
 		copyFileSync(join(TEMPLATES, "vocabularies", `${tags}.md`), vocab);
 		created.push(vocab);
 	}
-	const rules = join(notes, "Systems", "Zotero agent.md");
-	if (!existsSync(rules)) {
-		copyFileSync(join(TEMPLATES, "Zotero agent.md"), rules);
-		created.push(rules);
+	const rulesTarget = join(notes, SETTINGS_DIR, SETTINGS_FILES.rules);
+	const legacyRules = join(notes, "Systems", SETTINGS_FILES.rules);
+	if (!existsSync(rulesTarget) && !existsSync(legacyRules)) {
+		copyFileSync(join(TEMPLATES, "Zotero agent.md"), rulesTarget);
+		created.push(rulesTarget);
 	}
+	const alertsTarget = join(notes, SETTINGS_DIR, SETTINGS_FILES.alerts);
+	const legacyAlerts = join(notes, "Systems", SETTINGS_FILES.alerts);
+	const alerts = !existsSync(alertsTarget) && existsSync(legacyAlerts) ? legacyAlerts : alertsTarget;
 	mkdirSync(dirname(envFile), { recursive: true });
 	const before = existsSync(envFile) ? readFileSync(envFile, "utf8") : "# Settings for the Sub-Sub Zotero servers (zotero-local-mcp). Written by subsub init.\n";
-	writeFileSync(envFile, upsertEnv(before, { ZOTERO_VAULT: notes, ZOTERO_VOCAB: vocab, ZOTERO_CONTACT_EMAIL: email || undefined }));
+	writeFileSync(envFile, upsertEnv(before, { ZOTERO_VAULT: notes, ZOTERO_VOCAB: vocab, ZOTERO_ALERTS: alerts, ZOTERO_CONTACT_EMAIL: email || undefined }));
 
 	const patch: Record<string, unknown> = {
 		profile,
@@ -205,6 +275,8 @@ export async function runInit(
 	io.say(`Saved: ${configFile}`);
 	io.say(`Saved: ${envFile}`);
 	for (const c of created) io.say(`Created: ${c}`);
+	if (move === "yes") io.say(`Moved: ${moves.length} file(s) into ${notes}`);
+	for (const d of leftBehind(from, notes)) io.say(`Not moved: ${d}. If Sub-Sub wrote these notes, move them into ${notes} yourself.`);
 	io.say(
 		zotero
 			? "Zotero: reachable."
@@ -213,7 +285,7 @@ export async function runInit(
 	if (starbuck === "on") io.say(starbuckNote || "Reference checks: on. The first start downloads Starbuck.");
 	if (fmup) io.say("FMUP / U.Porto: the FMUP model service will come in a later version. Until then, connect a model provider yourself.");
 	io.say("Next: type subsub web to open Sub-Sub in your browser (or subsub for the terminal). Connect a model provider with the model button (or /login in the terminal). To check the setup, type subsub doctor.");
-	return { configFile, envFile, notes, created, zotero };
+	return { configFile, envFile, notes, created, moved: move === "yes" ? moves.length : 0, zotero };
 }
 
 export function parseFlags(args: string[]): Record<string, string> {
@@ -266,7 +338,8 @@ function terminalIO(): InitIO & { close(): void } {
 
 export async function initMain(args: string[], env: NodeJS.ProcessEnv = process.env): Promise<number> {
 	const flags = parseFlags(args);
-	const io = flags.yes || !process.stdin.isTTY ? defaultsIO((l) => console.log(l)) : terminalIO();
+	if (!process.stdin.isTTY) flags.yes ??= "true";
+	const io = flags.yes ? defaultsIO((l) => console.log(l)) : terminalIO();
 	try {
 		await runInit(io, flags, env, { prepareStarbuck: (cfg) => {
 			// Download Starbuck now, so that the first start of Sub-Sub does not wait for it.

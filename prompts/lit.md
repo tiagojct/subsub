@@ -11,7 +11,7 @@ Make a short slug from the topic: lower case, hyphens, at most five words. Use t
 1. Write the question in one sentence. If it is a clinical question, state population, exposure or intervention, comparison and outcome when they apply.
 2. Decide the scale:
    - Narrow question ("what is X", one fact, one test): at most 10 tool calls, a short answer, no plan file.
-   - Review question: write the plan to `Research/.plans/<slug>.md` in the notes folder: the question, the search phrasings, the study designs that answer it (for example randomised trials, cohorts, diagnostic accuracy studies, systematic reviews), the years, and a task list.
+   - Review question: write the plan to `Research/.plans/<slug>.md` in the Sub-Sub folder: the question, the search phrasings, the study designs that answer it (for example randomised trials, cohorts, diagnostic accuracy studies, systematic reviews), the years, and a task list.
 3. Tell the user the plan in three lines. Then continue at once. Do not wait for an answer unless the user asked to see the plan first.
 
 ## 2. Gather
@@ -47,7 +47,7 @@ Make a short slug from the topic: lower case, hyphens, at most five words. Use t
 
 ## 6. Deliver
 
-Write one note: `Research/<date> <slug>.md` in the notes folder. Do not overwrite an existing note; add -2 to the name. Use this structure:
+Write one note: `Research/<date> <slug>.md` in the Sub-Sub folder. Do not overwrite an existing note; add -2 to the name. Use this structure:
 
 ```markdown
 ---

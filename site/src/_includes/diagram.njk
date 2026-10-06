@@ -2,7 +2,7 @@
 <div class="diagram-scroll">
 <svg class="dg" viewBox="0 0 1100 712" role="img" aria-labelledby="dg-title dg-desc">
 <title id="dg-title">How Sub-Sub works</title>
-<desc id="dg-desc">You use Sub-Sub in the browser view or in the terminal. Sub-Sub runs in pi on your computer and sends your messages to the model provider that you choose. The mode decides which servers it may use: the librarian reads and changes the library through the zotero server; the researcher reads the library through the zotero server and uses the scholar server and, if it is on, the verify server (Starbuck). The profile removes tools from either mode. Every library change goes through the approval gate. The zotero server talks to Zotero on 127.0.0.1 and keeps a journal of changes for undo. The servers use online services such as PubMed, Europe PMC, OpenAlex, Crossref, Unpaywall and Open Library. Sub-Sub writes notes in your notes folder and reads its settings from your configuration folder.</desc>
+<desc id="dg-desc">You use Sub-Sub in the browser view or in the terminal. Sub-Sub runs in pi on your computer and sends your messages to the model provider that you choose. The mode decides which servers it may use: the librarian reads and changes the library through the zotero server; the researcher reads the library through the zotero server and uses the scholar server and, if it is on, the verify server (Starbuck). The profile removes tools from either mode. Every library change goes through the approval gate. The zotero server talks to Zotero on 127.0.0.1 and keeps a journal of changes for undo. The servers use online services such as PubMed, Europe PMC, OpenAlex, Crossref, Unpaywall and Open Library. Sub-Sub writes everything in one Sub-Sub folder, which can sit inside an Obsidian vault, and reads its settings from your configuration folder.</desc>
 <defs>
 	<marker id="dg-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0 1 L9 5 L0 9 Z"/></marker>
 	<marker id="dg-al" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah lib" d="M0 1 L9 5 L0 9 Z"/></marker>
@@ -47,7 +47,7 @@
 <rect class="soft" x="270" y="290" width="300" height="120" rx="8"/>
 <text class="t" x="286" y="317">Approval gate</text>
 <text class="s" x="286" y="342">Library change: a preview, then Yes or No</text>
-<text class="s" x="286" y="364">File outside the notes folder: Yes or No</text>
+<text class="s" x="286" y="364">File outside the Sub-Sub folder: Yes or No</text>
 <text class="s" x="286" y="386">Every change is journaled; /undo reverts it</text>
 
 <!-- mode lanes -->
@@ -96,24 +96,24 @@
 <!-- files -->
 <text class="cap" x="20" y="466">FILES ON YOUR COMPUTER</text>
 <path class="ln" d="M330 430 V474" marker-end="url(#dg-a)"/>
-<text class="s" x="340" y="457">reads and writes notes</text>
+<text class="s" x="340" y="457">reads and writes notes, only here</text>
 <path class="ln" d="M580 430 V474" marker-end="url(#dg-a)"/>
 <text class="s" x="590" y="457">reads settings</text>
 
 <rect class="box" x="20" y="476" width="530" height="220" rx="10"/>
-<text class="t" x="40" y="504">Notes folder</text>
-<text class="s" x="132" y="504">plain Markdown; an Obsidian vault works</text>
+<text class="t m" x="40" y="504">Sub-Sub/</text>
+<text class="s" x="124" y="504">one folder; it can sit inside an Obsidian vault</text>
 <text class="m" x="40" y="536">Inbox/</text><text class="s" x="270" y="536">tag review notes, the import queue</text>
 <text class="m" x="40" y="562">Literature/</text><text class="s" x="270" y="562">one note per item, by citekey</text>
 <text class="m" x="40" y="588">Syntheses/</text><text class="s" x="270" y="588">notes on several items</text>
 <text class="m" x="40" y="614">Research/</text><text class="s" x="270" y="614">reviews, comparisons, digests</text>
-<text class="m" x="40" y="640">Systems/Zotero tags.md</text><text class="s" x="270" y="640">your tag list</text>
-<text class="m" x="40" y="666">Systems/Zotero agent.md</text><text class="s" x="270" y="666">note formats and shared rules</text>
+<text class="m" x="40" y="640">Zotero/Zotero tags.md</text><text class="s" x="270" y="640">your tag list</text>
+<text class="m" x="40" y="666">Zotero/Zotero agent.md</text><text class="s" x="270" y="666">note formats and shared rules</text>
 
 <rect class="box" x="570" y="476" width="280" height="220" rx="10"/>
 <text class="t" x="590" y="504">Settings</text>
 <text class="m" x="590" y="536">~/.config/subsub/config.json</text>
-<text class="s" x="590" y="555">profile, models, notes folder, add-ons</text>
+<text class="s" x="590" y="555">profile, models, Sub-Sub folder, add-ons</text>
 <text class="m" x="590" y="590">~/.config/zotero-local-mcp/env</text>
 <text class="s" x="590" y="609">tag list, contact email</text>
 <text class="m" x="590" y="644">~/.subsub/agent/auth.json</text>
