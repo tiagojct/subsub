@@ -36,7 +36,7 @@ import {
 	who,
 } from "./config.ts";
 import { profileList, profileSpec, promptBlocked } from "./profiles.ts";
-import { coerceArgs, loosenArrays } from "./args.ts";
+import { coerceArgs, loosenArrays, resolvePathArgs } from "./args.ts";
 import { applyEdits, checkLiteratureNote } from "./notes.ts";
 import { buildPolicy, judgePath, normalizeToolPath, realish, within } from "./paths.ts";
 import { describeArgs, formatPreview } from "./preview.ts";
@@ -321,6 +321,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		// Previews and the real call must see the same, repaired arguments.
 		const schema = schemas.get(name);
 		if (schema) coerceArgs(schema, input);
+		resolvePathArgs(name, input, (p) => normalizeToolPath(p, ctx.cwd));
 		if (SERVER_PREFIXES.some((p) => name.startsWith(p))) {
 			const why = unavailableReason(name, mode, registered(), profile);
 			if (why) {

@@ -29,7 +29,7 @@ export type Profile = "reader" | "scholar" | "author" | "editor";
 export const PROFILES: Profile[] = ["reader", "scholar", "author", "editor"];
 
 /** The Zotero server release that this Sub-Sub version runs when there is no local server folder. */
-export const SERVER_VERSION = "0.5.0";
+export const SERVER_VERSION = "0.5.1";
 
 /** The Starbuck release (PyPI) that this Sub-Sub version runs when there is no local Starbuck folder. */
 export const STARBUCK_VERSION = "0.2.0";

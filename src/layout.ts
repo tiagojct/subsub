@@ -30,6 +30,14 @@ export function isObsidianVault(dir: string): boolean {
 	return existsSync(join(dir, ".obsidian"));
 }
 
+/** The Obsidian vault that holds a folder: the folder itself or the nearest parent with .obsidian/. */
+export function obsidianRoot(dir: string): string | undefined {
+	for (let d = dir; ; d = dirname(d)) {
+		if (isObsidianVault(d)) return d;
+		if (dirname(d) === d) return undefined;
+	}
+}
+
 /** The folder that a user's answer means: a vault root becomes <vault>/Sub-Sub. */
 export function subsubFolder(answer: string): string {
 	return isObsidianVault(answer) && basename(answer) !== FOLDER_NAME ? join(answer, FOLDER_NAME) : answer;

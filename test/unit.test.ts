@@ -914,3 +914,18 @@ test("layout: a vault gets a Sub-Sub folder; files of the old layout move only o
 	assert.equal(readFileSync(join(old, "Zotero", "Zotero tags.md"), "utf8"), "T");
 	assert.ok(!existsSync(join(old, "Systems")));
 });
+
+test("paths: manuscript arguments become absolute in the working folder; note paths stay", async () => {
+	const { resolvePathArgs } = await import("../src/args.ts");
+	const { obsidianRoot } = await import("../src/layout.ts");
+	const abs = (p: string) => join("/work", p);
+	assert.deepEqual(resolvePathArgs("verify_check_manuscript", { path: "draft.qmd", report_dir: "out" }, abs), { path: join("/work", "draft.qmd"), report_dir: join("/work", "out") });
+	assert.deepEqual(resolvePathArgs("scholar_export_bibliography", { output_path: "refs.bib", citekeys: ["a"] }, abs), { output_path: join("/work", "refs.bib"), citekeys: ["a"] });
+	assert.deepEqual(resolvePathArgs("zotero_import_queue", { path: "Inbox/Zotero import queue.md" }, abs), { path: "Inbox/Zotero import queue.md" });
+	assert.deepEqual(resolvePathArgs("zotero_write_tag_review", { path: "Zotero tag review 33" }, abs), { path: "Zotero tag review 33" });
+	const v = mkdtempSync(join(tmpdir(), "vault-"));
+	mkdirSync(join(v, ".obsidian"));
+	mkdirSync(join(v, "Sub-Sub", "Literature"), { recursive: true });
+	assert.equal(obsidianRoot(join(v, "Sub-Sub")), v);
+	assert.equal(obsidianRoot(tmpdir()), undefined);
+});

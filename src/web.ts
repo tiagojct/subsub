@@ -24,6 +24,7 @@ import { StringDecoder } from "node:string_decoder";
 import { agentDirFor, chooseCwd, PACKAGE_DIR, packageVersion } from "./cli.ts";
 import { expand, loadConfig, saveConfig, type SubsubConfig, withStarbuck } from "./config.ts";
 import { TESTED_MODELS } from "./init.ts";
+import { obsidianRoot } from "./layout.ts";
 import { realish, within } from "./paths.ts";
 
 // ---------------------------------------------------------------- options
@@ -610,7 +611,7 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 					if (!inside || !existsSync(target)) return send(res, 404, { error: "not found in the Sub-Sub folder" });
 					// Documents only: a file that the model wrote must never be run.
 					if (!OPENABLE.has(extname(target).toLowerCase())) return send(res, 403, { error: "Sub-Sub opens only notes and documents (.md, .txt, .pdf, .bib, .csv, .qmd)." });
-					if (vault && within(target, vault) && existsSync(join(vault, ".obsidian"))) openExternal(`obsidian://open?path=${encodeURIComponent(target)}`);
+					if (vault && within(target, vault) && obsidianRoot(vault)) openExternal(`obsidian://open?path=${encodeURIComponent(target)}`);
 					else openExternal(target);
 					return send(res, 200, { ok: true });
 				}

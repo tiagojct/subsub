@@ -62,3 +62,27 @@ export function coerceArgs(original: Schema, input: Record<string, unknown>): Re
 	}
 	return input;
 }
+
+/**
+ * Arguments that name a file in the user's working folder (a manuscript, a report
+ * folder, a bibliography to write). The servers run in their own working folder, so
+ * Sub-Sub makes these paths absolute against its own, as pi's file tools read them.
+ * Note paths (tag reviews, the import queue, linked notes) are not here: the servers
+ * read those from the Sub-Sub folder.
+ */
+export const CWD_PATH_ARGS: Record<string, string[]> = {
+	scholar_check_manuscript: ["path"],
+	scholar_export_bibliography: ["output_path"],
+	verify_check_manuscript: ["path", "report_dir"],
+	verify_prepare_claims: ["path", "report_dir"],
+	verify_record_claims: ["path", "report_dir"],
+};
+
+/** Make the working-folder paths of a tool call absolute. Changes input in place. */
+export function resolvePathArgs(tool: string, input: Record<string, unknown>, toAbsolute: (p: string) => string): Record<string, unknown> {
+	for (const k of CWD_PATH_ARGS[tool] ?? []) {
+		const v = input[k];
+		if (typeof v === "string" && v.trim()) input[k] = toAbsolute(v);
+	}
+	return input;
+}
