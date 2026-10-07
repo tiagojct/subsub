@@ -27,6 +27,9 @@ const WORDS = {
 		wouldImport: (n: number) => `${n} item(s) would be imported:`,
 		noAbstract: "(no abstract)",
 		wouldAttach: (n: number) => `${n} PDF(s) would be attached:`,
+		wouldParent: (n: number) => `${n} file(s) or note(s) would get a parent item:`,
+		newItem: "new",
+		existingItem: "existing item",
 		newCollection: "New collection",
 		inside: "inside",
 		noteOn: "Note on",
@@ -52,6 +55,9 @@ const WORDS = {
 		wouldImport: (n: number) => `${n} item(ns) vão ser importados:`,
 		noAbstract: "(sem resumo)",
 		wouldAttach: (n: number) => `${n} PDF(s) vão ser anexados:`,
+		wouldParent: (n: number) => `${n} ficheiro(s) ou nota(s) vão ter um item principal:`,
+		newItem: "novo",
+		existingItem: "item existente",
 		newCollection: "Nova coleção",
 		inside: "dentro de",
 		noteOn: "Nota sobre",
@@ -157,6 +163,26 @@ export function formatPreview(tool: string, preview: unknown, lang: Lang = "en")
 				w,
 			),
 		);
+	}
+	if (Array.isArray(p.would_set_parent)) {
+		lines.push(w.wouldParent(p.would_set_parent.length));
+		const rows: string[] = [];
+		for (const r of (p.would_set_parent as Obj[]).slice(0, 6)) {
+			rows.push(`${s(r.file, 60)}`);
+			if (r.parent === "new") {
+				const f = (r.fields as Obj | undefined) ?? {};
+				const where = ["publicationTitle", "date", "issue", "volume", "pages", "publisher", "ISBN", "DOI"]
+					.filter((k) => f[k])
+					.map((k) => `${k}: ${s(f[k], 40)}`)
+					.join(", ");
+				rows.push(`  -> ${w.newItem} ${r.type} ${r.citekey}: ${s(r.item, 80)}`);
+				if (where) rows.push(`     ${where}`);
+			} else {
+				rows.push(`  -> ${w.existingItem} ${r.parent_key}: ${s(r.item, 70)}`);
+			}
+		}
+		lines.push(...rows);
+		if (p.would_set_parent.length > 6) lines.push(w.more(p.would_set_parent.length - 6));
 	}
 	if (p.would_create && typeof p.would_create === "object") {
 		const nc = p.would_create as Obj;

@@ -32,6 +32,8 @@ Type `subsub doctor`. Each line starts with `ok`, `NOTE` or `FIX`. Do the fix th
 - On Windows, the shortcut also opens a minimised window in the taskbar. That window is Sub-Sub itself: closing it stops Sub-Sub.
 - The page says "Sub-Sub stopped": select Start again. If it stops again, type `subsub doctor`.
 - Zotero asks for permission when Sub-Sub first changes something: select Always Allow.
+- "This Go model requires Global regions": your OpenCode workspace allows only some regions. In OpenCode, open the workspace's Privacy settings and select Global, or choose another model.
+- Sub-Sub says that web search is not set up: it still finds references in Crossref, Google Books, Internet Archive, Open Library and Wikidata. For web search, get a key at [brave.com/search/api](https://brave.com/search/api/) and type `subsub init`.
 - "cannot use opencode-go/…": you are not logged in to that provider, or the model name is wrong. Type `/login`, or change `models` in the settings file.
 - A tool or a command is "not part of the Reader profile": type `/profile` to see the profile, and `/profile scholar` to change it. The message names the profiles that have it. For example, `/lit` is not in Reader, and `/review` is only in Author and Editor.
 - A search tool is "part of the Researcher": type `/researcher`, or select Researcher at the top of the browser view.

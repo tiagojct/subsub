@@ -14,6 +14,7 @@ export const ZOTERO_READ = [
 	"status",
 	"library_overview",
 	"find_items",
+	"standalone_items",
 	"get_item",
 	"get_fulltext",
 	"list_tags",
@@ -41,6 +42,7 @@ export const PREVIEW_WRITES = new Set([
 		"import_queue",
 		"repair_metadata",
 		"attach_oa_pdfs",
+		"set_parent_items",
 	].map((n) => `zotero_${n}`),
 	"scholar_attach_note",
 ]);
@@ -49,7 +51,16 @@ export const PREVIEW_WRITES = new Set([
 export const CONFIRM_WRITES = new Set(["scholar_export_bibliography"]);
 
 /** Zotero tools that look at the library or write only a note in the Sub-Sub folder. */
-export const ZOTERO_CHECKS = ["tag_audit", "audit_metadata", "find_duplicates", "check_retractions", "missing_pdfs", "write_tag_review"].map(
+export const ZOTERO_CHECKS = [
+	"tag_audit",
+	"audit_metadata",
+	"find_duplicates",
+	"check_retractions",
+	"missing_pdfs",
+	"write_tag_review",
+	"find_reference",
+	"web_search",
+].map(
 	(n) => `zotero_${n}`,
 );
 

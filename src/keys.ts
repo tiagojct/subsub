@@ -38,11 +38,12 @@ export function saveApiKey(agentDir: string, provider: string, key: string): voi
 }
 
 
-export type Trouble = "quota" | "busy" | "blocked" | "key";
+export type Trouble = "quota" | "busy" | "blocked" | "key" | "region";
 
 /** What a provider's error means for the user, or undefined when it is something else. */
 export function providerTrouble(text: string | undefined): Trouble | undefined {
 	if (!text) return undefined;
+	if (/requires Global regions|not available in your region|region.{0,40}not (supported|allowed)/i.test(text)) return "region";
 	if (/RESOURCE_EXHAUSTED|\b429\b|quota|rate.?limit|too many requests|usage limit/i.test(text)) return "quota";
 	if (/\b(503|529)\b|UNAVAILABLE|high demand|overloaded/i.test(text)) return "busy";
 	if (/RECITATION|SAFETY|PROHIBITED_CONTENT/.test(text)) return "blocked";
@@ -56,12 +57,14 @@ export const TROUBLE_TEXT_PT: Record<Trouble, string> = {
 	busy: "O fornecedor do modelo está sobrecarregado neste momento. Tente outra vez dentro de alguns minutos ou use outro modelo (/model).",
 	blocked: "O fornecedor do modelo interrompeu a resposta (por exemplo, por repetir uma fonte palavra por palavra). Peça outra vez por outras palavras ou use outro modelo (/model).",
 	key: "O fornecedor do modelo não aceitou a chave da API. Verifique-a ou introduza uma nova com /login.",
+	region: "O fornecedor recusa este modelo com a definição de região da sua conta. No OpenCode, permita as regiões globais (Global) nas definições de privacidade do workspace, ou escolha um modelo que a sua região permita (/model).",
 };
 export const TROUBLE_TEXT: Record<Trouble, string> = {
 	quota: "The model provider refused the request: a limit of your account was reached. Free tiers limit the text sent each minute and the requests each day. Wait a minute and ask Sub-Sub to continue; if it happens again, the daily limit is used up (it resets the next day). Or use another model (/model).",
 	busy: "The model provider is busy at the moment. Try again in a few minutes, or use another model (/model).",
 	blocked: "The model provider stopped the reply (for example, because it repeated a source word for word). Ask again in other words, or use another model (/model).",
 	key: "The model provider did not accept the API key. Check it, or enter a new one with /login.",
+	region: "The provider refuses this model with your account's region setting. In OpenCode, allow Global regions in the workspace's Privacy settings, or choose a model your region allows (/model).",
 };
 
 /**

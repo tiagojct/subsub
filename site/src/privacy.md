@@ -28,13 +28,15 @@ The AI model runs at the provider you choose. It receives your messages and what
 | OpenAlex | Your search terms, DOIs | Searches, citation graph, alerts, retraction checks |
 | Crossref | DOIs, titles | Imports, metadata repair, retraction checks |
 | Unpaywall | DOIs | Open-access PDFs |
-| Open Library | ISBNs | Book imports |
+| Open Library | ISBNs; titles and authors | Book imports; finding the reference of a file without a parent item |
+| Google Books, Internet Archive, Wikidata | Titles, publication names and dates | Finding the reference of a file without a parent item |
+| Brave Search (United States) | Titles, publication names and dates | The same, only when you saved a Brave Search key in `subsub init` |
 | Crossref, DataCite, PubMed, OpenAlex, arXiv, Open Library, Europe PMC | The identifiers and titles of the cited works, and your contact email | Reference checks (Starbuck), only when you turn the add-on on |
 | npm, PyPI | Package downloads | Install and update |
 
 These services receive identifiers and search terms, not your notes or your library. If you give a contact email in `subsub init`, every request to them carries it, as these services ask (Unpaywall requires it). Without it, Sub-Sub cannot find open-access PDFs.
 
-Searches happen only in the Researcher. The Librarian also contacts these services, but only to import, repair and check the items you work on.
+Searches happen only in the Researcher. The Librarian also contacts these services, but only to import, repair and check the items you work on, and to find the reference of a file without a parent item. For those files Sub-Sub sends the title, the publication and the date it read in the file, never other text from it.
 
 Sub-Sub sends no email. `/request-copy` writes a draft in your Sub-Sub folder; you decide whether to send it.
 

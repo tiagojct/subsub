@@ -2,6 +2,20 @@
 
 Sub-Sub follows the version numbers of npm: a change in the second number (0.12) can change how you use it; a change in the third (0.12.1) only fixes. Until the pilot results are in, new versions are fixes only, apart from changes that the pilot asks for.
 
+## 0.12.1 (2026-10-07)
+
+Files and notes without a parent item (Zotero server 0.5.5):
+
+- Sub-Sub lists them, reads each file, finds the reference and makes the parent item: from a DOI, PMID or ISBN, or from the file's own text (magazines, reports, books). An item already in the library is used instead of a copy. One preview for up to 25 files; undo puts the files back and moves the new items to the trash.
+- Reference search for these files in Crossref, Google Books, Internet Archive, Open Library and Wikidata, without a key. Web search through Brave Search when you save a key in `subsub init`.
+- A search of the library for attachments or notes now says that it covers regular items only, instead of finding nothing.
+
+Also:
+
+- Sub-Sub no longer offers to change its own programs; it says what it cannot do.
+- Citekeys for long organisation names are shorter (europeancommission2026), and an item without creators takes the first main word of its title (economist2026, not the2026). Existing keys do not change.
+- OpenCode's "requires Global regions" error is explained in plain words.
+
 ## 0.12.0 (2026-10-07)
 
 For new users:

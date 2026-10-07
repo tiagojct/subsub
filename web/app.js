@@ -370,6 +370,7 @@ function scrollDown(force = false) {
 
 // A provider error in plain words (keep in step with providerTrouble in src/keys.ts), with the raw text below.
 function troubleOf(text) {
+	if (/requires Global regions|not available in your region|region.{0,40}not (supported|allowed)/i.test(text)) return "region";
 	if (/RESOURCE_EXHAUSTED|\b429\b|quota|rate.?limit|too many requests|usage limit/i.test(text)) return "quota";
 	if (/\b(503|529)\b|UNAVAILABLE|high demand|overloaded/i.test(text)) return "busy";
 	if (/RECITATION|SAFETY|PROHIBITED_CONTENT/.test(text)) return "blocked";

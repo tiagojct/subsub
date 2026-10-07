@@ -61,7 +61,17 @@ Undo skips items that you changed in Zotero after the change. A new collection g
 2. Read the preview. It shows the new citekey and says if the work is already in your library.
 3. Select Yes. The item gets the review marker `_agent`, so the next tag batch includes it.
 
-## Read and write notes
+## Files without a parent item
+
+A PDF or a note that you added to Zotero on its own has no parent item: no title, authors or date in the library, and no citekey. Sub-Sub can make the parent item for you.
+
+1. In either mode, type `give my files without a parent item a proper parent item`. To start with a few, name them or say "the first five".
+2. Sub-Sub reads each file. It looks the work up in Crossref, Google Books, Internet Archive, Open Library and Wikidata, and on the web if you saved a Brave Search key in `subsub init`. It keeps a result only when it agrees with the file.
+3. Read the preview. For each file it shows a new item (type, citekey, publication, date, issue) or an item that is already in your library.
+4. Select Yes. The file moves under its parent item; a new item takes the file's collections and gets the review marker `_agent`.
+
+Undo puts the files back where they were and moves the new items to the Zotero trash. A scan without a text layer cannot be read: Sub-Sub then uses the file name, and says so. In Zotero, right-click a file and choose Reindex Item if it has text that Zotero has not indexed yet.
+
 
 Use the Researcher for this part. The Librarian does not search or write notes.
 

@@ -68,6 +68,7 @@ export const STRINGS = {
 		trouble_busy: "The model provider is busy at the moment. Try again in a few minutes, or choose another model with the model button.",
 		trouble_blocked: "The model provider stopped the reply (for example, because it repeated a source word for word). Ask again in other words, or choose another model.",
 		trouble_key: "The model provider did not accept the API key. Enter it again with the model button.",
+		trouble_region: "The provider refuses this model with your account's region setting. In OpenCode, allow Global regions in the workspace's Privacy settings, or choose a model your region allows with the model button.",
 		details: "Details",
 		undo: "Undo",
 		where_eu: "Where your data goes: servers in the European Union. Covered by the GDPR, the choice for material you would not send outside the EU.",
@@ -192,6 +193,7 @@ export const STRINGS = {
 		trouble_busy: "O fornecedor do modelo está sobrecarregado neste momento. Tente outra vez dentro de alguns minutos ou escolha outro modelo no botão do modelo.",
 		trouble_blocked: "O fornecedor do modelo interrompeu a resposta (por exemplo, por repetir uma fonte palavra por palavra). Peça outra vez por outras palavras ou escolha outro modelo.",
 		trouble_key: "O fornecedor do modelo não aceitou a chave da API. Volte a introduzi-la no botão do modelo.",
+		trouble_region: "O fornecedor recusa este modelo com a definição de região da sua conta. No OpenCode, permita as regiões globais (Global) nas definições de privacidade do workspace, ou escolha no botão do modelo um modelo que a sua região permita.",
 		details: "Detalhes",
 		undo: "Anular",
 		where_eu: "Para onde vão os seus dados: servidores na União Europeia. Abrangidos pelo RGPD; a escolha para material que não enviaria para fora da UE.",
@@ -298,6 +300,10 @@ export const SUGGESTIONS = {
 export const TOOLS = {
 	en: {
 		find_items: "search the library",
+		standalone_items: "list files without a parent item",
+		set_parent_items: "give files a parent item",
+		find_reference: "look up a reference",
+		web_search: "search the web",
 		get_item: "read an item",
 		get_fulltext: "read the full text",
 		library_overview: "library overview",
@@ -354,6 +360,10 @@ export const TOOLS = {
 	},
 	pt: {
 		find_items: "pesquisar na biblioteca",
+		standalone_items: "listar ficheiros sem item principal",
+		set_parent_items: "dar um item principal aos ficheiros",
+		find_reference: "procurar uma referência",
+		web_search: "pesquisar na web",
 		get_item: "ler um item",
 		get_fulltext: "ler o texto completo",
 		library_overview: "resumo da biblioteca",

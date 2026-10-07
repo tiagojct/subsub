@@ -22,7 +22,7 @@
  * --email, --starbuck on|off, --models keep|later|opencode-go|mistral-eu|google-free.
  */
 
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { chmodSync, copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { createInterface } from "node:readline/promises";
@@ -235,6 +235,13 @@ export async function runInit(
 	explain("Contact email", "Unpaywall needs an email address to find open-access PDFs. Sub-Sub sends it with its requests to PubMed, Europe PMC, OpenAlex, Crossref and Unpaywall, as they ask, and to nobody else.");
 	const email = (await io.ask("Email (optional)", flags.email ?? envValues.ZOTERO_CONTACT_EMAIL ?? "")).trim();
 
+	explain(
+		"Web search",
+		"Optional. To identify files without a parent item, such as magazines and reports, Sub-Sub can search the web through Brave Search. Brave needs a key: https://brave.com/search/api/ (free tier; a card is asked at sign-up). Searches then go to Brave, in the United States. Without a key Sub-Sub uses Crossref, Google Books, Internet Archive, Open Library and Wikidata.",
+	);
+	const hadBrave = Boolean(envValues.BRAVE_API_KEY);
+	const brave = (await io.ask(hadBrave ? "Brave Search key (Enter keeps the saved key)" : "Brave Search key (Enter for none)", flags.brave ?? "")).trim();
+
 	explain("Reference checks (Starbuck)", "An optional add-on for manuscripts: it checks that each cited work exists, matches its citation and was not retracted. Sub-Sub then has /verify.");
 	const starbuck = await io.choose(
 		"Reference checks",
@@ -308,7 +315,11 @@ export async function runInit(
 	const alerts = !existsSync(alertsTarget) && existsSync(legacyAlerts) ? legacyAlerts : alertsTarget;
 	mkdirSync(dirname(envFile), { recursive: true });
 	const before = existsSync(envFile) ? readFileSync(envFile, "utf8") : "# Settings for the Sub-Sub Zotero servers (zotero-local-mcp). Written by subsub init.\n";
-	writeFileSync(envFile, upsertEnv(before, { ZOTERO_VAULT: notes, ZOTERO_VOCAB: vocab, ZOTERO_ALERTS: alerts, ZOTERO_CONTACT_EMAIL: email || undefined }));
+	writeFileSync(
+		envFile,
+		upsertEnv(before, { ZOTERO_VAULT: notes, ZOTERO_VOCAB: vocab, ZOTERO_ALERTS: alerts, ZOTERO_CONTACT_EMAIL: email || undefined, BRAVE_API_KEY: brave || undefined }),
+	);
+	if (brave || hadBrave) chmodSync(envFile, 0o600); // the file holds a key
 
 	const patch: Record<string, unknown> = {
 		profile,

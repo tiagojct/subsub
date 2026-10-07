@@ -1,6 +1,6 @@
 import { homedir } from "node:os";
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, writeFileSync, mkdirSync, readFileSync, realpathSync, rmSync, symlinkSync } from "node:fs";
+import { existsSync, mkdtempSync, writeFileSync, mkdirSync, readFileSync, realpathSync, rmSync, statSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { test } from "node:test";
@@ -761,6 +761,7 @@ test("provider errors in plain words", async () => {
 	assert.equal(providerTrouble('{"code":503,"message":"This model is currently experiencing high demand.","status":"UNAVAILABLE"}'), "busy");
 	assert.equal(providerTrouble("Provider stopped with: RECITATION"), "blocked");
 	assert.equal(providerTrouble("API key not valid. Please pass a valid API key."), "key");
+	assert.equal(providerTrouble('400: {"type":"server_error","message":"Upstream request failed: This Go model requires Global regions. Select Global in your workspace\'s Privacy settings to use it."}'), "region");
 	assert.equal(providerTrouble("fetch failed"), undefined);
 	assert.equal(providerTrouble(undefined), undefined);
 	// a per-minute limit: wait what Google says (35 s, plus a margin); a daily one: no wait
@@ -1098,4 +1099,37 @@ test("uv: a pinned version missing from uv's cached index is retried once with a
 	assert.equal(refreshedArgs(refreshedArgs(args, stale)!, stale), undefined, "only once");
 	assert.equal(refreshedArgs(args, "connection refused"), undefined);
 	assert.equal(refreshedArgs(["run", "--directory", "/x", "zotero-local-mcp"], stale), undefined, "a local checkout needs no index");
+});
+
+test("files without a parent item: tools in every mode and profile, the preview, the Brave key", async () => {
+	const registered = ["zotero_standalone_items", "zotero_set_parent_items", "zotero_find_reference", "zotero_web_search", "zotero_find_items"];
+	for (const mode of ["librarian", "researcher"] as const) {
+		for (const profile of ["reader", "scholar", "author", "editor"] as const) {
+			assert.deepEqual(toolsFor(mode, registered, { profile }).sort(), [...registered].sort(), `${mode}/${profile}`);
+		}
+	}
+	assert.equal(gateKind("zotero_set_parent_items", { dry_run: false }), "preview");
+	assert.equal(gateKind("zotero_set_parent_items", {}), null);
+	assert.equal(gateKind("zotero_web_search", {}), null);
+	const preview = {
+		would_set_parent: [
+			{ file: "visao-1500.pdf", key: "F1", parent: "new", item: "Silva 2022: O ano da vacina", type: "magazineArticle", citekey: "silva2022", fields: { publicationTitle: "Visão", date: "2022-01-13", issue: "1500" } },
+			{ file: "note: Loose thoughts", key: "N1", parent: "existing", parent_key: "BBBB2222", item: "Jacinto 2026: Asthma control" },
+		],
+		errors: { C1: "not a file or a note" },
+	};
+	const en = formatPreview("zotero_set_parent_items", preview);
+	assert.match(en, /^2 file\(s\) or note\(s\) would get a parent item:\nvisao-1500\.pdf\n  -> new magazineArticle silva2022: Silva 2022: O ano da vacina\n     publicationTitle: Visão, date: 2022-01-13, issue: 1500\nnote: Loose thoughts\n  -> existing item BBBB2222: Jacinto 2026: Asthma control\nErrors: 1/);
+	assert.match(formatPreview("zotero_set_parent_items", preview, "pt"), /vão ter um item principal[\s\S]*-> novo magazineArticle[\s\S]*-> item existente BBBB2222/);
+	// init: an optional Brave key goes to the server settings file, which is then private
+	const home = mkdtempSync(join(tmpdir(), "subsub-brave-"));
+	const env = { SUBSUB_CONFIG: join(home, "c.json"), ZOTERO_MCP_ENV: join(home, "env") } as any;
+	const notFound = (async () => { throw new Error("no zotero"); }) as unknown as typeof fetch;
+	const io = { ask: async (q: string, d: string) => (/Brave Search key/.test(q) ? " BSA-key " : d), choose: async (_q: string, _o: unknown, d: string) => d, say: () => {} };
+	await runInit(io, {}, env, { home, fetch: notFound });
+	assert.match(readFileSync(join(home, "env"), "utf8"), /^BRAVE_API_KEY=BSA-key$/m);
+	if (process.platform !== "win32") assert.equal(statSync(join(home, "env")).mode & 0o777, 0o600);
+	const keep = { ...io, ask: async (q: string, d: string) => { if (/Brave/.test(q)) assert.match(q, /Enter keeps the saved key/); return /Brave/.test(q) ? "" : d; } };
+	await runInit(keep, {}, env, { home, fetch: notFound });
+	assert.match(readFileSync(join(home, "env"), "utf8"), /^BRAVE_API_KEY=BSA-key$/m);
 });
