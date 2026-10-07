@@ -14,7 +14,7 @@
  */
 
 import { spawn, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { expand, loadConfig, type Mode, starbuckCommand, starbuckEnabled } from "./config.ts";
@@ -463,7 +463,8 @@ export function scoreRun(task: string, dir: string, t: Tasks, index: IndexRow[],
 			dois: dois.length,
 			pmids: pmids.length,
 			ungrounded: [...dois.filter((d) => !seen.includes(d)), ...pmids.filter((p) => !seen.includes(p))],
-			screening_log: existsSync(plans) && readdirSync(plans).some((f) => /screening/i.test(f)),
+			// A model may write .plans as a file instead of a folder: then there is no screening log.
+			screening_log: existsSync(plans) && statSync(plans).isDirectory() && readdirSync(plans).some((f) => /screening/i.test(f)),
 			multi_searches: calls.filter((c) => c.name === "scholar_search_multi").length,
 			fulltext_reads: calls.filter((c) => c.name === "scholar_read_oa_fulltext" || c.name === "zotero_get_fulltext").length,
 			starbuck: text && starbuck ? starbuck(join(dir, "Lit.md")) : undefined,

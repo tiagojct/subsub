@@ -8,7 +8,7 @@
 #     The download is checked against the SHA-256 sums that nodejs.org publishes.
 #  3. Sub-Sub (@tiagojct/subsub from npm), in ~\.subsub.
 #  4. ~\.subsub and ~\.subsub\node on your user PATH.
-#  5. subsub init, which asks a few questions.
+#  5. subsub init, which asks a few questions, then subsub doctor, which checks the set-up.
 #  6. A Sub-Sub shortcut in the Start menu and on the desktop (subsub shortcut).
 #
 # Settings (environment variables): SUBSUB_HOME, SUBSUB_VERSION (default latest),
@@ -130,6 +130,13 @@ try {
         Say ''
         & $Subsub init
         if ($LASTEXITCODE -ne 0) { Say 'subsub init did not finish. Type subsub init later.' } else { $Asked = $true }
+        # The check also downloads the Zotero server now, so the first start in the browser is quick.
+        if ($Asked) {
+            Say ''
+            Say 'Checking the set-up (the first check downloads the Zotero server; this takes a minute).'
+            & $Subsub doctor
+            if ($LASTEXITCODE -ne 0) { Say 'Some checks need attention: each line marked FIX says what to do. Sub-Sub also shows them when it opens.' }
+        }
     }
 
     # The web view and the shortcut came with Sub-Sub 0.6.

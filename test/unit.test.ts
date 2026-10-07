@@ -1,6 +1,6 @@
 import { homedir } from "node:os";
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, writeFileSync, mkdirSync, readFileSync, realpathSync, symlinkSync } from "node:fs";
+import { existsSync, mkdtempSync, writeFileSync, mkdirSync, readFileSync, realpathSync, rmSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { test } from "node:test";
@@ -154,6 +154,14 @@ test("preview text", () => {
 	assert.match(t, /Item 0: \+ topic\/feno; - Asthma/);
 	assert.match(t, /\.\.\. and 6 more/);
 	assert.match(t, /Skipped: 1/);
+	// more than 10 items: a tally first
+	assert.match(t, /In short:\n  \+ topic\/feno: 20 item\(s\)\n  - Asthma: 20 item\(s\)\nItems:\nItem 0/);
+	const few = formatPreview("zotero_tag_items", { would_change: 2, changes: [{ key: "A", item: "A", added: ["x"] }, { key: "B", item: "B", added: ["x"] }] });
+	assert.doesNotMatch(few, /In short/);
+	// in Portuguese: the words change, tags and titles stay
+	const pt = formatPreview("zotero_tag_items", { would_change: 12, changes: Array.from({ length: 12 }, (_, i) => ({ key: `K${i}`, item: `Item ${i}`, added: ["topic/feno"] })), skipped: { Z: "not found" } }, "pt");
+	assert.match(pt, /^12 item\(ns\) vão mudar\.\nEm resumo:\n  \+ topic\/feno: 12 item\(ns\)\nItens:\nItem 0: \+ topic\/feno/);
+	assert.match(pt, /Ignorados: 1/);
 	const f = formatPreview("zotero_update_fields", { would_change: 1, changes: [{ key: "K", item: "A 2019: T", date: { before: "", after: "2019-05" } }] });
 	assert.match(f, /date: \(empty\) -> 2019-05/);
 	const imp = formatPreview("zotero_import_identifiers", { would_import: [{ citekey: "jacinto2026", item: "Jacinto 2026: FeNO", has_abstract: false }] });
@@ -701,6 +709,14 @@ test("init: new user with defaults, then again without replacing files", async (
 	const env3 = { SUBSUB_CONFIG: join(home3, "c.json"), ZOTERO_MCP_ENV: join(home3, "env"), SUBSUB_AGENT_DIR: join(home3, "agent") } as any;
 	await runInit(io, {}, env3, { home: home3, fetch: notFound });
 	assert.equal(JSON.parse(readFileSync(join(home3, "c.json"), "utf8")).models.researcher, "opencode-go/mimo-v2.6-pro");
+	// a new user: students start in Reader, others in Scholar
+	const home5 = mkdtempSync(join(tmpdir(), "subsub-init5-"));
+	const env5 = { SUBSUB_CONFIG: join(home5, "c.json"), ZOTERO_MCP_ENV: join(home5, "env"), SUBSUB_AGENT_DIR: join(home5, "agent") } as any;
+	await runInit(io, { student: "no" }, env5, { home: home5, fetch: notFound });
+	assert.equal(JSON.parse(readFileSync(join(home5, "c.json"), "utf8")).profile, "scholar");
+	rmSync(join(home5, "c.json"));
+	await runInit(io, {}, env5, { home: home5, fetch: notFound });
+	assert.equal(JSON.parse(readFileSync(join(home5, "c.json"), "utf8")).profile, "reader");
 	// the free choice: the free model in both modes, and the Google key saved like /login does
 	const home4 = mkdtempSync(join(tmpdir(), "subsub-init4-"));
 	const env4 = { SUBSUB_CONFIG: join(home4, "c.json"), ZOTERO_MCP_ENV: join(home4, "env"), SUBSUB_AGENT_DIR: join(home4, "agent") } as any;
@@ -716,6 +732,28 @@ test("init: new user with defaults, then again without replacing files", async (
 	assert.ok(!asked.some((q) => /Google API key/.test(q)));
 });
 
+test("usage log: off by default, counts only, and a summary", async () => {
+	const { logUsage, summarizeUsage, usageFile } = await import("../src/usage.ts");
+	const home = mkdtempSync(join(tmpdir(), "subsub-usage-"));
+	const env = { HOME: home } as NodeJS.ProcessEnv;
+	logUsage(false, { ev: "ask", kind: "message", words: 3 }, env);
+	assert.ok(!existsSync(usageFile(env)), "nothing is written when the log is off");
+	logUsage(true, { ev: "session", mode: "researcher", profile: "reader" }, env);
+	logUsage(true, { ev: "ask", kind: "/lit-note", words: 2 }, env);
+	logUsage(true, { ev: "ask", kind: "message", words: 12 }, env);
+	logUsage(true, { ev: "turn", seconds: 90, tools: 4 }, env);
+	logUsage(true, { ev: "turn", seconds: 30, tools: 1, error: "quota" }, env);
+	logUsage(true, { ev: "change", tool: "zotero_tag_items", approved: true }, env);
+	logUsage(true, { ev: "change", tool: "zotero_tag_items", approved: false }, env);
+	const text = readFileSync(usageFile(env), "utf8");
+	const sum = summarizeUsage(text);
+	assert.match(sum, /used on 1 day\(s\), in 1 session\(s\)/);
+	assert.match(sum, /Requests: 2 \(\/lit-note 1, message 1\)|Requests: 2 \(message 1, \/lit-note 1\)/);
+	assert.match(sum, /2 minute\(s\), with 5 tool call\(s\) and 1 error\(s\)/);
+	assert.match(sum, /1 approved, 1 declined/);
+	assert.equal(summarizeUsage(""), "The usage log is empty.");
+});
+
 test("provider errors in plain words", async () => {
 	const { providerTrouble } = await import("../src/keys.ts");
 	assert.equal(providerTrouble('{"error":{"code":429,"message":"You exceeded your current quota","status":"RESOURCE_EXHAUSTED"}}'), "quota");
@@ -725,6 +763,15 @@ test("provider errors in plain words", async () => {
 	assert.equal(providerTrouble("API key not valid. Please pass a valid API key."), "key");
 	assert.equal(providerTrouble("fetch failed"), undefined);
 	assert.equal(providerTrouble(undefined), undefined);
+	// a per-minute limit: wait what Google says (35 s, plus a margin); a daily one: no wait
+	const { perMinuteWait } = await import("../src/keys.ts");
+	const google429 = readFileSync(join(import.meta.dirname, "fixtures", "google-429.txt"), "utf8");
+	assert.equal(providerTrouble(google429), "quota");
+	assert.equal(perMinuteWait(google429), 37);
+	assert.equal(perMinuteWait(google429.replaceAll("PerModelPerMinute", "PerModelPerDay")), undefined);
+	assert.equal(perMinuteWait("Rate limit exceeded: free-models-per-day"), undefined);
+	assert.equal(perMinuteWait("429 Too Many Requests (requests per minute)"), 60);
+	assert.equal(perMinuteWait("fetch failed"), undefined);
 });
 
 test("doctor: checks and fixes", () => {

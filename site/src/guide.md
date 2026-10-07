@@ -45,11 +45,15 @@ To apply many review notes at once, type this in a terminal: `subsub review appl
 
 ## Undo a change
 
+In the browser view, each applied change has an Undo button on its line. Select it, read the preview, then select Yes.
+
+Or type the commands:
+
 1. Type `/history`. You see the recent changes, each with an ID.
 2. Type `/undo` to revert the last change, or `/undo <ID>` for an earlier one.
 3. Read the preview, then select Yes.
 
-Undo skips items that you changed in Zotero after the change.
+Undo skips items that you changed in Zotero after the change. A new collection goes to the Zotero trash; the items in it stay in the library.
 
 ## Import a paper
 

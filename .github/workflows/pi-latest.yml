@@ -1,0 +1,30 @@
+name: pi-latest
+# Sub-Sub accepts pi patch releases only (~1.0.x). Each week, run the tests against pi's latest
+# release too, so that a change in pi shows here before Sub-Sub widens the range.
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: tiagojct/zotero-local-mcp
+          path: zotero-local-mcp
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: astral-sh/setup-uv@v6
+      - run: npm ci
+      - run: npm install --no-save @earendil-works/pi-coding-agent@latest
+      - run: npm ls @earendil-works/pi-coding-agent
+      - run: npm run build
+      - run: npm test
+      - run: uv sync
+        working-directory: zotero-local-mcp
+      - run: npm run test:e2e
+        env:
+          ZLM_DIR: ${{ github.workspace }}/zotero-local-mcp

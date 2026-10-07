@@ -26,12 +26,12 @@ Every library change works the same way in both modes:
 
 - The Zotero server computes the change first. Sub-Sub shows it to you (added tags in green, removed tags in red) and applies it only when you select Yes. The check is in the program, so the model cannot skip it.
 - If you edit an item in Zotero while the preview is open, Sub-Sub shows you the new preview before it changes anything. Each change also sends the item's version, so a field you edit at the moment of writing is not overwritten.
-- Every change to an item is journaled. `/undo` reverts it. (A new collection is not; remove it in Zotero if you do not want it.)
+- Every change is journaled, including new collections. `/undo` reverts the last one, and the browser view shows an Undo button under each change.
 - Nothing is deleted: items go to the Zotero trash. Only tags from your tag list can be added.
 
 ## Profiles
 
-The profile sets how much Sub-Sub writes for you and which tools it offers. Choose it in `subsub init`, or change it with `/profile`.
+The profile sets how much Sub-Sub writes for you and which tools it offers. Choose it in `subsub init`, or change it with `/profile`. Students start with Reader.
 
 | Profile | What Sub-Sub does |
 |---|---|
@@ -129,13 +129,14 @@ subsub review apply 13-31
 
 | Setting | Meaning | Default |
 |---|---|---|
-| `profile` | `reader`, `scholar`, `author` or `editor` | `scholar` |
+| `profile` | `reader`, `scholar`, `author` or `editor` | `reader` for students, `scholar` for others (`subsub init` asks) |
 | `userName`, `about` | Your name and one line about you, for the replies | none |
 | `language` | Language of replies and notes, or `auto` for the language you write in | `English` |
 | `vault` | The Sub-Sub folder | from the server settings |
 | `models` | The model for each mode, as provider/id: `{"librarian": "...", "researcher": "..."}`. `{}` means you choose in Sub-Sub. The free choice in `subsub init` sets `google/gemini-3.1-flash-lite` for both | `opencode-go/mimo-v2.6-flash` and `opencode-go/mimo-v2.6-pro` |
 | `defaultMode` | `researcher` or `librarian` | `researcher` |
 | `addons` | `["starbuck"]` adds reference checks | `[]` |
+| `usageLog` | `true` keeps the pilot's usage log on this computer (`subsub usage`) | off |
 | `serverDir` | A local copy of zotero-local-mcp, for development | the PyPI release |
 | `starbuckDir` | A local copy of Starbuck, for development | the pinned release |
 | `look`, `quotes`, `themes` | The terminal header, the Moby-Dick quotations, and the terminal colours (`subsub-glauca`, `subsub-try-works`, or `false` for your pi theme) | on, on, `subsub-glauca` |
@@ -171,6 +172,10 @@ npm run build
 ```
 
 End-to-end tests (real pi and Python servers, a fake Zotero, a scripted model): `ZLM_DIR=/path/to/zotero-local-mcp npm run test:e2e`.
+
+## Changes
+
+See [CHANGELOG.md](CHANGELOG.md).
 
 ## Licence
 

@@ -133,6 +133,26 @@ Faça as tarefas por esta ordem. Durante as tarefas, anote o que correu mal e o 
 1. No painel da esquerda, selecione Alterações recentes.
 2. Selecione Desfazer a última alteração. Leia a pré-visualização e selecione Sim.
 
+### 6. Comparar com e sem o Sub-Sub
+
+Esta tarefa mede se o Sub-Sub lhe poupa tempo. Faça-a depois de instalar e antes das outras tarefas, se puder.
+
+1. Escolha um tema com pelo menos cinco artigos na sua biblioteca.
+2. Sem o Sub-Sub, cronometre o tempo que demora a:
+   - etiquetar cinco itens desse tema no Zotero;
+   - encontrar três artigos recentes sobre o tema que ainda não estão na biblioteca.
+3. Com o Sub-Sub, faça o mesmo com outros cinco itens e outra pergunta sobre o mesmo tema. Cronometre também.
+4. Verifique os resultados do Sub-Sub: as etiquetas estão certas? Os artigos existem e são sobre o tema?
+5. Registe os quatro tempos e o que estava errado. O formulário pede-os.
+
+### Registo de utilização (opcional)
+
+O Sub-Sub pode guardar um registo de utilização no seu computador: quando o usou, que comandos, quanto tempo trabalhou e quantas alterações aprovou. Não guarda o que escreveu nem o que o Sub-Sub respondeu. Não envia nada.
+
+1. Para o ligar, num terminal, escreva `subsub init` e, em Usage log, escolha On.
+2. No fim do piloto, escreva `subsub usage`. O Sub-Sub mostra um resumo e o local do ficheiro.
+3. Se quiser, anexe o ficheiro ao formulário.
+
 ## Formulário
 
 No fim das tarefas, responda ao formulário. Demora cerca de 10 minutos. Responda mesmo que não tenha conseguido instalar: essa é a informação mais útil. O formulário pede a sua conta da U.Porto.
@@ -141,7 +161,8 @@ Tenha à mão:
 
 - as notas que tirou durante as tarefas;
 - o texto exato das mensagens de erro;
-- o resultado de `subsub doctor`, se houve linhas FIX.
+- o resultado de `subsub doctor`, se houve linhas FIX;
+- os quatro tempos da tarefa 6, se a fez.
 
 Não escreva chaves de API, palavras-passe nem dados de doentes no formulário.
 

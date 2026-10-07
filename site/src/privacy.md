@@ -13,6 +13,8 @@ lead: Sub-Sub runs on your computer. Your library stays in Zotero. You choose th
 
 Sub-Sub sends no usage data, statistics or crash reports anywhere. It also turns off the install report of pi, the program it is built on.
 
+For the pilot, you can turn on a usage log (`subsub init`, Usage log). It stays on your computer, in `~/.subsub/usage-log.jsonl`, and holds times, counts, commands and tool names, never what you wrote or what Sub-Sub replied. `subsub usage` shows it. Sub-Sub does not send it; you decide whether to share it.
+
 ## What goes to the model provider
 
 The AI model runs at the provider you choose. It receives your messages and what the tools return to it: titles, authors, abstracts, tags, and parts of a full text when you ask for a note on it. When you check claims with `/verify <file> claims`, it also receives the citing sentences of your manuscript and the passages of the sources. Choose a provider whose terms suit your material. For confidential work, use an institutional model service or a local model (see [Models](/models/)). Free tiers have their own terms: outside the European Union, the United Kingdom and Switzerland, Google may use prompts sent with a free key to improve its products, and the providers of some free models on OpenRouter may keep prompts.
@@ -40,7 +42,7 @@ Sub-Sub sends no email. `/request-copy` writes a draft in your Sub-Sub folder; y
 
 - Every library change is shown as a preview first and runs only after you approve it. The check is in the program; the model cannot skip it.
 - If you edit an item in Zotero while the preview is open, Sub-Sub shows you the new preview before it changes anything. Each change also sends the item's version, so a field you edit at the moment of writing is not overwritten.
-- Every change to an item is journaled and can be undone. A new collection is the exception: remove it in Zotero if you do not want it.
+- Every change is journaled and can be undone, including a new collection (undo moves it to the Zotero trash).
 - Nothing is deleted. Items go to the Zotero trash; tags are removed from items.
 - Only tags from your tag list can be added.
 - The Librarian has no search tools.

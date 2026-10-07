@@ -40,22 +40,32 @@ export const FREE_MODELS: Record<Mode, string> = {
 	librarian: "google/gemini-3.1-flash-lite",
 	researcher: "google/gemini-3.1-flash-lite",
 };
+/** The tested EU-hosted models (Mistral, servers in the EU; see the Models page). */
+export const EU_MODELS: Record<Mode, string> = {
+	librarian: "mistral/mistral-medium-3.5",
+	researcher: "mistral/mistral-medium-3.5",
+};
 /**
  * Models marked in the model dialog, from the model tests (see the Models page). `why` is a
  * key into the web view's strings: tested (a default), cheaper (tested, same quality, lower cost),
- * free (tested, works on a free tier).
+ * free (tested, works on a free tier), eu (tested, servers in the EU).
  */
-export const RECOMMENDED_MODELS: Array<{ spec: string; modes: Mode[]; why: "tested" | "cheaper" | "free" }> = [
+export const RECOMMENDED_MODELS: Array<{ spec: string; modes: Mode[]; why: "tested" | "cheaper" | "free" | "eu" }> = [
 	{ spec: DEFAULT_MODELS.librarian, modes: ["librarian"], why: "tested" },
 	{ spec: DEFAULT_MODELS.researcher, modes: ["researcher"], why: "tested" },
 	{ spec: "opencode-go/qwen3.8-flash", modes: ["researcher"], why: "cheaper" },
+	{ spec: EU_MODELS.researcher, modes: ["librarian", "researcher"], why: "eu" },
 	{ spec: FREE_MODELS.librarian, modes: ["librarian", "researcher"], why: "free" },
 ];
+/** "pt" when the language setting is Portuguese, else "en": the language of the interface. */
+export function uiLanguage(language: string | undefined): "pt" | "en" {
+	return /portug|^pt\b|^pt-/i.test(language ?? "") ? "pt" : "en";
+}
 export type Profile = "reader" | "scholar" | "author" | "editor";
 export const PROFILES: Profile[] = ["reader", "scholar", "author", "editor"];
 
 /** The Zotero server release that this Sub-Sub version runs when there is no local server folder. */
-export const SERVER_VERSION = "0.5.3";
+export const SERVER_VERSION = "0.5.4";
 
 /** The Starbuck release (PyPI) that this Sub-Sub version runs when there is no local Starbuck folder. */
 export const STARBUCK_VERSION = "0.2.0";
@@ -98,6 +108,8 @@ export interface SubsubConfig {
 	addons?: string[];
 	/** Local Starbuck folder (used when it has a pyproject.toml). */
 	starbuckDir?: string;
+	/** The pilot's usage log, kept on this computer only (see usage.ts). Off by default. */
+	usageLog?: boolean;
 }
 
 export function expand(p: string, home?: string): string {
@@ -209,6 +221,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): SubsubConfig {
 		themes,
 		addons: Array.isArray(user.addons) ? user.addons.filter((a): a is string => typeof a === "string") : [],
 		starbuckDir: expand(user.starbuckDir ?? "~/Projects/starbuck", home),
+		usageLog: user.usageLog === true,
 	};
 }
 

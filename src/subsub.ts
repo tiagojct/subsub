@@ -34,6 +34,7 @@ import {
 	starbuckCommand,
 	starbuckEnabled,
 	type SubsubConfig,
+	uiLanguage,
 	who,
 } from "./config.ts";
 import { profileList, profileSpec, promptBlocked } from "./profiles.ts";
@@ -41,9 +42,10 @@ import { coerceArgs, loosenArrays, resolvePathArgs } from "./args.ts";
 import { applyEdits, checkLiteratureNote } from "./notes.ts";
 import { buildPolicy, isSecret, judgePath, normalizeToolPath, realish, within } from "./paths.ts";
 import { describeArgs, formatPreview } from "./preview.ts";
-import { providerTrouble, TROUBLE_TEXT } from "./keys.ts";
+import { perMinuteWait, providerTrouble, TROUBLE_TEXT, TROUBLE_TEXT_PT } from "./keys.ts";
 import { headerLines, type LibraryState, paintPreview, QUOTES, type Scheme, schemeFromAnsi, themeName } from "./look.ts";
 import { systemAddition } from "./prompt.ts";
+import { logUsage } from "./usage.ts";
 import { gateKind, SERVER_PREFIXES, toolsFor, unavailableReason } from "./roles.ts";
 
 const MODE_ENTRY = "subsub-mode";
@@ -96,6 +98,10 @@ export function starbuckEnv(cfg: Pick<SubsubConfig, "envFile">, processEnv: Node
 
 export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Promise<void> {
 	const cfg = deps.config ?? loadConfig();
+	// Notices, dialogs and previews in the language of the interface (English or European Portuguese).
+	const lang = uiLanguage(cfg.language);
+	const L = (en: string, pt: string) => (lang === "pt" ? pt : en);
+	const trouble = lang === "pt" ? TROUBLE_TEXT_PT : TROUBLE_TEXT;
 	let bridge: Bridge | undefined = deps.bridge;
 	const toolNames = new Set<string>();
 	/** Original input schemas, to turn "[...]" strings back into lists. */
@@ -151,6 +157,11 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	const lookOn = (ctx: ExtensionContext) => standalone && cfg.look !== false && ctx.mode === "tui";
 	/** True under `subsub web`: pi runs in RPC mode and the web view shows the state that the terminal header shows. */
 	const webView = process.env.SUBSUB_WEB === "1";
+	let lastError: string | undefined;
+	let resumes = 0;
+	let resumeTimer: ReturnType<typeof setTimeout> | undefined;
+	let turnStart = 0;
+	let turnTools = 0;
 	let webCtx: ExtensionContext | undefined;
 	function emitWeb(): void {
 		const ctx = webCtx;
@@ -292,19 +303,21 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		if (lookOn(ctx)) scheme ??= schemeFromAnsi(ctx.ui.theme.getFgAnsi("text"), ctx.ui.theme.name);
 		applyTheme(ctx);
 		await applyMode(ctx, restored ?? (pi.getFlag("librarian") ? "librarian" : pi.getFlag("researcher") ? "researcher" : cfg.defaultMode), false, !modelChosen);
+		logUsage(cfg.usageLog, { ev: "session", mode, profile, model: ctx.model ? `${ctx.model.provider}/${ctx.model.id}` : undefined });
 		if (lookOn(ctx)) {
 			setHeader(ctx);
 			void refreshLibrary();
 		} else if (webView) {
 			void refreshLibrary();
 		}
-		if (!ctx.model && !webView) ctx.ui.notify("Sub-Sub: no model is connected yet. Type /login and select a provider (or use the model button in subsub web).", "warning");
+		if (!ctx.model && !webView) ctx.ui.notify(L("Sub-Sub: no model is connected yet. Type /login and select a provider (or use the model button in subsub web).", "Sub-Sub: ainda não há um modelo ligado. Escreva /login e selecione um fornecedor (ou use o botão do modelo em subsub web)."), "warning");
 		for (const [name, err] of Object.entries(bridge.errors)) {
 			ctx.ui.notify(`Sub-Sub: the ${name} server did not start: ${err.split("\n")[0]}`, "error");
 		}
 	});
 
 	pi.on("session_shutdown", async () => {
+		if (resumeTimer) clearTimeout(resumeTimer);
 		if (deps.bridge) return;
 		const b = bridge;
 		bridge = undefined;
@@ -328,24 +341,59 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	// A provider error in plain words (quota, busy, blocked, key); the web view words its own.
 	pi.on("message_end", async (event, ctx) => {
 		const m = event.message as { role?: string; stopReason?: string; errorMessage?: string };
-		if (webView || m.role !== "assistant" || m.stopReason !== "error") return;
+		if (m.role !== "assistant" || m.stopReason !== "error") return;
+		lastError = m.errorMessage;
+		if (webView || perMinuteWait(m.errorMessage) !== undefined) return;
 		const kind = providerTrouble(m.errorMessage);
-		if (kind) ctx.ui.notify(`Sub-Sub: ${TROUBLE_TEXT[kind]}`, "warning");
+		if (kind) ctx.ui.notify(`Sub-Sub: ${trouble[kind]}`, "warning");
+	});
+
+	// A per-minute limit (free tiers): wait as long as the provider says, then continue the task,
+	// up to three times per request of the user. Anything the user types cancels the wait.
+	pi.on("agent_end", async (_event, ctx) => {
+		if (turnStart) logUsage(cfg.usageLog, { ev: "turn", seconds: Math.round((Date.now() - turnStart) / 1000), tools: turnTools, error: providerTrouble(lastError) ?? (lastError ? "other" : undefined) });
+		turnStart = 0;
+		const wait = perMinuteWait(lastError);
+		lastError = undefined;
+		if (wait === undefined) return;
+		if (resumes >= 3) {
+			ctx.ui.notify(`Sub-Sub: ${trouble.quota}`, "warning");
+			return;
+		}
+		resumes++;
+		ctx.ui.notify(L(`Sub-Sub: the provider's per-minute limit was reached. Continuing in ${wait} seconds (type anything to stop waiting).`, `Sub-Sub: atingiu o limite por minuto do fornecedor. Continua dentro de ${wait} segundos (escreva qualquer coisa para deixar de esperar).`), "info");
+		resumeTimer = setTimeout(() => {
+			resumeTimer = undefined;
+			pi.sendMessage(
+				{ customType: "subsub-resume", content: "The model provider's per-minute limit was reached and has now passed. Continue the task where you stopped; do not repeat finished steps.", display: false },
+				{ triggerTurn: true },
+			);
+		}, wait * 1000);
 	});
 
 
 	// Prompt commands that the profile does not run (/lit for Reader, /review for Reader and Scholar).
 	// The input event comes before pi expands a prompt template.
 	pi.on("input", async (event, ctx) => {
+		if (resumeTimer) clearTimeout(resumeTimer);
+		resumeTimer = undefined;
+		resumes = 0;
 		const cmd = /^\/([\w-]+)(?:\s|$)/.exec(event.text.trim())?.[1];
+		// The usage log keeps the kind of request and its length, never its text.
+		if (cmd !== "subsub-refresh") logUsage(cfg.usageLog, { ev: "ask", kind: cmd ? `/${cmd}` : "message", words: event.text.trim().split(/\s+/).filter(Boolean).length });
 		if (mode === "librarian" && cmd && RESEARCH_PROMPTS.includes(cmd)) {
-			ctx.ui.notify(`Sub-Sub: /${cmd} is part of the Researcher. Switch with /researcher.`, "warning");
+			ctx.ui.notify(L(`Sub-Sub: /${cmd} is part of the Researcher. Switch with /researcher.`, `Sub-Sub: /${cmd} faz parte do Investigador. Mude com /researcher.`), "warning");
 			return { action: "handled" };
 		}
 		const why = promptBlocked(event.text, profile);
 		if (!why) return { action: "continue" };
 		ctx.ui.notify(`Sub-Sub: ${why}`, "warning");
 		return { action: "handled" };
+	});
+
+	pi.on("agent_start", async () => {
+		turnStart = Date.now();
+		turnTools = 0;
 	});
 
 	pi.on("before_agent_start", async (event, ctx) => ({
@@ -357,6 +405,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	const record = (data: Record<string, unknown>) => pi.appendEntry(BENCH_ENTRY, data);
 
 	pi.on("tool_call", async (event, ctx) => {
+		turnTools++;
 		const name = event.toolName;
 		const input = (event.input ?? {}) as Record<string, unknown>;
 		// Previews and the real call must see the same, repaired arguments.
@@ -385,7 +434,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			const verdict = judgePath(target, buildPolicy({ vault: cfg.vault, cwd: ctx.cwd, serverDir: cfg.serverDir, packageDir: PACKAGE_DIR }));
 			if (verdict.ok) return undefined;
 			if (!ctx.hasUI) return { block: true, reason: `Writing ${target} needs ${user}'s approval: ${verdict.why}.` };
-			const ok = await ctx.ui.confirm(`Sub-Sub: ${name} ${target}?`, `Asking because ${verdict.why}.`);
+			const ok = await ctx.ui.confirm(`Sub-Sub: ${name} ${target}?`, L(`Asking because ${verdict.why}.`, `Pergunto porque: ${verdict.why}.`));
 			return ok ? undefined : { block: true, reason: `${user} did not allow writing to that file.` };
 		}
 		if (!ctx.hasUI) {
@@ -397,7 +446,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 				const verdict = judgePath(normalizeToolPath(input.output_path, ctx.cwd), buildPolicy({ vault: cfg.vault, cwd: ctx.cwd, serverDir: cfg.serverDir, packageDir: PACKAGE_DIR }));
 				if (!verdict.ok && /protected|hidden/.test(verdict.why)) return { block: true, reason: `Sub-Sub does not write there: ${verdict.why}.` };
 			}
-			const ok = await ctx.ui.confirm(`Sub-Sub: run ${name}?`, describeArgs(input));
+			const ok = await ctx.ui.confirm(L(`Sub-Sub: run ${name}?`, `Sub-Sub: executar ${name}?`), describeArgs(input));
 			return ok ? undefined : { block: true, reason: `${user} did not approve. Ask what to change.` };
 		}
 		// kind === "preview": the server computes the change first, then the user decides.
@@ -410,12 +459,13 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			return { block: true, reason: `Preview failed: ${(err as Error).message}` };
 		}
 		if (preview.isError) return { block: true, reason: preview.text };
-		const title = `Sub-Sub: apply ${name.replace(/^(zotero|scholar)_/, "")}?`;
-		let shown = formatPreview(name, preview.data ?? preview.text);
+		const title = L(`Sub-Sub: apply ${name.replace(/^(zotero|scholar)_/, "")}?`, `Sub-Sub: aplicar ${name.replace(/^(zotero|scholar)_/, "")}?`);
+		let shown = formatPreview(name, preview.data ?? preview.text, lang);
 		// The dialog may stay open for minutes. Before applying, compute the preview again: if the
 		// library changed meanwhile (an edit in Zotero, new items), show the new preview instead.
 		for (let round = 0; round < 3; round++) {
-			const ok = await ctx.ui.confirm(round ? `${title} (the library changed; this is the new preview)` : title, paintFor(ctx)(shown));
+			const ok = await ctx.ui.confirm(round ? `${title} ${L("(the library changed; this is the new preview)", "(a biblioteca mudou; esta é a nova pré-visualização)")}` : title, paintFor(ctx)(shown));
+			logUsage(cfg.usageLog, { ev: "change", tool: name, approved: ok });
 			if (!ok) return { block: true, reason: `${user} did not approve this change. Ask what to change; do not retry the same call.` };
 			let again;
 			try {
@@ -424,7 +474,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 				return { block: true, reason: `Preview failed: ${(err as Error).message}` };
 			}
 			if (again.isError) return { block: true, reason: again.text };
-			const now = formatPreview(name, again.data ?? again.text);
+			const now = formatPreview(name, again.data ?? again.text, lang);
 			if (now === shown) return undefined;
 			shown = now;
 		}
@@ -465,7 +515,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			return { block: true, reason: `Model test: Starbuck reports only inside the vault or ${benchOut}.` };
 		}
 		if (!ctx.hasUI) return { block: true, reason: `Writing a Starbuck report to ${dir} needs ${user}'s approval: ${verdict.why}.` };
-		const ok = await ctx.ui.confirm(`Sub-Sub: write the Starbuck report to ${dir}?`, `Asking because ${verdict.why}.`);
+		const ok = await ctx.ui.confirm(L(`Sub-Sub: write the Starbuck report to ${dir}?`, `Sub-Sub: escrever o relatório do Starbuck em ${dir}?`), L(`Asking because ${verdict.why}.`, `Pergunto porque: ${verdict.why}.`));
 		return ok ? undefined : { block: true, reason: `${user} did not allow writing the report there. Ask where to put it (report_dir).` };
 	}
 
@@ -505,7 +555,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		description: "Sub-Sub: switch to the Librarian (manages the library: tags, imports, metadata, PDFs)",
 		handler: async (_args, ctx) => {
 			await applyMode(ctx, "librarian", true);
-			ctx.ui.notify("Sub-Sub: Librarian mode. For searches and notes, switch to /researcher.", "info");
+			ctx.ui.notify(L("Sub-Sub: Librarian mode. For searches and notes, switch to /researcher.", "Sub-Sub: modo Bibliotecário. Para pesquisas e notas, mude para /researcher."), "info");
 		},
 	});
 
@@ -513,7 +563,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		description: "Sub-Sub: switch to the Researcher (searches, notes, reviews, and everything the Librarian does)",
 		handler: async (_args, ctx) => {
 			await applyMode(ctx, "researcher", true);
-			ctx.ui.notify("Sub-Sub: Researcher mode. It searches, writes notes and also changes the library, with a preview.", "info");
+			ctx.ui.notify(L("Sub-Sub: Researcher mode. It searches, writes notes and also changes the library, with a preview.", "Sub-Sub: modo Investigador. Pesquisa, escreve notas e também altera a biblioteca, com pré-visualização."), "info");
 		},
 	});
 
@@ -617,11 +667,11 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 				ctx.ui.notify(preview.text, "warning");
 				return;
 			}
-			const ok = await ctx.ui.confirm("Sub-Sub: undo?", paintFor(ctx)(formatPreview("zotero_undo", preview.data)));
+			const ok = await ctx.ui.confirm(L("Sub-Sub: undo?", "Sub-Sub: anular?"), paintFor(ctx)(formatPreview("zotero_undo", preview.data, lang)));
 			if (!ok) return;
 			const res = await current().call("zotero_undo", { ...input, dry_run: false });
 			const d = (res.data ?? {}) as Record<string, unknown>;
-			ctx.ui.notify(res.isError ? res.text : `Undone: ${d.applied} item(s).`, res.isError ? "error" : "info");
+			ctx.ui.notify(res.isError ? res.text : L(`Undone: ${d.applied} item(s).`, `Anulado: ${d.applied} item(ns).`), res.isError ? "error" : "info");
 		},
 	});
 }

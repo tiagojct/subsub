@@ -422,7 +422,7 @@ test("subsub init and subsub doctor from the command line", { timeout: 180_000 }
 	assert.ok(existsSync(join(home, "Notes", "Zotero", "Zotero agent.md")));
 	const cfg = JSON.parse(readFileSync(join(home, "config.json"), "utf8"));
 	assert.equal(cfg.userName, "Ana");
-	assert.equal(cfg.profile, "scholar");
+	assert.equal(cfg.profile, "reader", "without questions, a new user starts as a student, in Reader");
 	// run the server from this checkout, not from PyPI
 	writeFileSync(join(home, "config.json"), JSON.stringify({ ...cfg, serverDir: ZLM }));
 	const doc = spawnSync(process.execPath, [cli, "doctor"], { env, encoding: "utf8", timeout: 120_000 });

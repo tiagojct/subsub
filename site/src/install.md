@@ -56,7 +56,7 @@ The installer puts everything in `~/.subsub` (on Windows, `.subsub` in your user
 - It installs Node.js 22 in `~/.subsub/node`, if your Node.js is missing or older than 22.19. It checks the download against the checksums that nodejs.org publishes.
 - It installs Sub-Sub (the npm package [@tiagojct/subsub](https://www.npmjs.com/package/@tiagojct/subsub)).
 - It adds `~/.subsub/bin` to your PATH, so that the `subsub` command works in new terminal windows.
-- It starts `subsub init`, which asks a few questions: your name and one line about you, the language, the Sub-Sub folder, the set-up (standard, or FMUP for the Faculty of Medicine in Porto), the profile, a starter tag list, a contact email, reference checks (Starbuck) and the models. Press Enter to accept each default.
+- It starts `subsub init`, which asks a few questions: your name and one line about you, the language, the Sub-Sub folder, the set-up (standard, or FMUP for the Faculty of Medicine in Porto), whether you are a student (students start with the Reader profile), the profile, a starter tag list, a contact email, reference checks (Starbuck), the usage log for the pilot (off by default) and the models. Press Enter to accept each default. At the end, the installer runs `subsub doctor` to check the set-up.
 - It adds a Sub-Sub shortcut (`subsub shortcut`): in Applications on macOS, in the Start menu and on the desktop on Windows, in the applications menu on Linux. The shortcut opens Sub-Sub in your browser.
 - It opens Sub-Sub in your browser.
 

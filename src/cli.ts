@@ -142,6 +142,7 @@ Usage:
   subsub web             Open Sub-Sub in the browser
   subsub init            Set up or change the settings (folder, tag list, profile, models)
   subsub doctor          Check the set-up; each line marked FIX says what to do
+  subsub usage           The pilot's usage log (if turned on): a summary and where the file is
   subsub shortcut        Add a Sub-Sub shortcut (--remove takes it away)
   subsub review preview|apply <note>
                          Check or apply a tag review note from Inbox/
@@ -189,6 +190,11 @@ export async function run(argv: string[] = process.argv.slice(2)): Promise<void>
 	if (args[0] === "doctor") {
 		const { doctorMain } = await import("./doctor.ts");
 		process.exitCode = await doctorMain(env);
+		return;
+	}
+	if (args[0] === "usage") {
+		const { usageMain } = await import("./usage.ts");
+		process.exitCode = usageMain(env);
 		return;
 	}
 	if (args[0] === "review") {

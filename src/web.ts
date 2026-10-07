@@ -22,7 +22,7 @@ import { homedir } from "node:os";
 import { extname, join, normalize, resolve, sep } from "node:path";
 import { StringDecoder } from "node:string_decoder";
 import { agentDirFor, chooseCwd, PACKAGE_DIR, packageVersion } from "./cli.ts";
-import { configPath, expand, loadConfig, RECOMMENDED_MODELS, readConfigFile, saveConfig, type SubsubConfig, withStarbuck } from "./config.ts";
+import { configPath, expand, loadConfig, RECOMMENDED_MODELS, readConfigFile, saveConfig, type SubsubConfig, uiLanguage, withStarbuck } from "./config.ts";
 import { TESTED_MODELS } from "./init.ts";
 import { KEY_PROVIDERS, saveApiKey } from "./keys.ts";
 import { obsidianRoot } from "./layout.ts";
@@ -56,10 +56,7 @@ export function parseWebArgs(args: string[]): WebOptions {
 	return o;
 }
 
-/** "pt" when the language setting is Portuguese, else "en". */
-export function uiLanguage(language: string | undefined): "pt" | "en" {
-	return /portug|^pt\b|^pt-/i.test(language ?? "") ? "pt" : "en";
-}
+export { uiLanguage } from "./config.ts";
 
 // ---------------------------------------------------------------- providers (API keys)
 

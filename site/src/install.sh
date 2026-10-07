@@ -9,7 +9,7 @@
 #     The download is checked against the SHA-256 sums that nodejs.org publishes.
 #  3. Sub-Sub (@tiagojct/subsub from npm), in ~/.subsub.
 #  4. A line in your shell start file that puts ~/.subsub/bin on the PATH.
-#  5. subsub init, which asks a few questions.
+#  5. subsub init, which asks a few questions, then subsub doctor, which checks the set-up.
 #  6. A Sub-Sub shortcut that opens Sub-Sub in the browser (subsub shortcut).
 #
 # Settings (environment variables): SUBSUB_HOME (default ~/.subsub),
@@ -126,6 +126,12 @@ if [ "${SUBSUB_SKIP_INIT:-0}" = 1 ]; then
 elif [ -r /dev/tty ] && (exec </dev/tty) 2>/dev/null; then
 	say ""
 	if "$SUBSUB_HOME/bin/subsub" init </dev/tty; then ASKED=1; else say "subsub init did not finish. Type subsub init later."; fi
+	# The check also downloads the Zotero server now, so the first start in the browser is quick.
+	if [ "$ASKED" = 1 ]; then
+		say ""
+		say "Checking the set-up (the first check downloads the Zotero server; this takes a minute)."
+		"$SUBSUB_HOME/bin/subsub" doctor || say "Some checks need attention: each line marked FIX says what to do. Sub-Sub also shows them when it opens."
+	fi
 else
 	say "No terminal for questions: type subsub init after the installer."
 fi

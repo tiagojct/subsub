@@ -395,6 +395,36 @@ function clearEmpty() {
 	log.querySelector(".empty")?.remove();
 }
 
+/** First run: what is still missing (Zotero, a model, the servers), each with its fix. Hidden when all is ready. */
+function setupList() {
+	const L = state?.library;
+	const m = state?.model ?? session?.model;
+	const steps = [
+		{ ok: L?.zotero === "reachable", wait: !L || L.zotero === "checking", text: t("stepZotero") },
+		{ ok: Boolean(m && m.id && m.id !== "unknown"), text: t("stepModel"), action: { label: t("connect"), run: openModels } },
+		{ ok: !state?.down?.length, text: t("stepServers", { x: (state?.down ?? []).join(", ") }) },
+	];
+	if (steps.every((x) => x.ok || x.wait)) return null;
+	return el(
+		"div",
+		{ class: "setup" },
+		el("h2", { text: t("setupTitle") }),
+		el(
+			"ol",
+			{},
+			steps.map((x) =>
+				el(
+					"li",
+					{ class: x.ok ? "ok" : x.wait ? "wait" : "todo" },
+					el("span", { class: "mark", text: x.ok ? t("stepDone") : x.wait ? "…" : t("stepTodo") }),
+					el("span", { class: "step-text", text: x.ok ? x.text.split(". ")[0] : x.text }),
+					!x.ok && x.action ? el("button", { type: "button", class: "primary small-btn", text: x.action.label, onclick: x.action.run }) : null,
+				),
+			),
+		),
+	);
+}
+
 function renderEmpty() {
 	if (log.children.length) return;
 	const s = SUGGESTIONS[mode()].map((x) => x[lang] ?? x.en);
@@ -405,6 +435,7 @@ function renderEmpty() {
 			el("p", { class: "kicker", text: t(mode()) }),
 			el("h1", { text: t("emptyTitle") }),
 			el("p", { class: "lede", text: t(mode() === "librarian" ? "emptyLibrarian" : "emptyResearcher") }),
+			setupList(),
 			el(
 				"div",
 				{ class: "chips" },
@@ -505,6 +536,23 @@ function finishTool(id, result, isError) {
 	row.querySelector("pre")?.remove();
 	if (text) row.append(el("pre", { text: text.length > 6000 ? `${text.slice(0, 6000)}\n...` : text }));
 	if (isError) row.querySelector(".label").textContent = `${toolLabel(row.dataset.name)} (${t("failed")})`;
+	// An applied library change gets an Undo button; it runs /undo with its id, which previews first.
+	const jid = !isError && !/undo/.test(row.dataset.name) && /"journal_id":\s*"(\d{8}-\d{6}-\d{2}-[a-z_]+)"/.exec(text ?? "")?.[1];
+	if (jid && !row.querySelector(".undo")) {
+		row.querySelector("summary").append(
+			el("button", {
+				type: "button",
+				class: "open undo",
+				text: t("undo"),
+				title: t("undoTitle"),
+				onclick: (e) => {
+					e.preventDefault();
+					if (busy) return note(t("busy"), "warning");
+					sendMessage(`/undo ${jid}`);
+				},
+			}),
+		);
+	}
 }
 
 function attachCopyButtons(root) {
@@ -925,6 +973,7 @@ async function openModels() {
 		const free = { google: "freeGoogle", openrouter: "freeOpenRouter" }[sel.value];
 		$("login-free").hidden = !free;
 		$("login-free").textContent = free ? t(free) : "";
+		$("login-where").textContent = p?.where ? t(`where_${p.where}`) : "";
 	};
 	sel.onchange = setLink;
 	setLink();

@@ -19,7 +19,7 @@
  * Flags (for scripts and tests): --yes (take every default), --setup
  * standard|fmup, --name, --about, --language, --folder (or --notes), --move
  * yes|no, --profile, --tags health-sciences|health-informatics|any-field,
- * --email, --starbuck on|off, --models keep|later|opencode-go|google-free.
+ * --email, --starbuck on|off, --models keep|later|opencode-go|mistral-eu|google-free.
  */
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -30,6 +30,7 @@ import { fileURLToPath } from "node:url";
 import {
 	configPath,
 	DEFAULT_MODELS,
+	EU_MODELS,
 	FREE_MODELS,
 	expand,
 	isProfile,
@@ -187,8 +188,22 @@ export async function runInit(
 	);
 	const fmup = setup === "fmup";
 
+	// Students start in Reader: Sub-Sub helps them read and does not write syntheses for them unless asked.
+	let student = fmup;
+	if (!flags.profile && !existing.profile && !fmup) {
+		explain("Who you are", "Students start with the Reader profile: Sub-Sub helps you read (notes with quotations, page numbers and questions) and does not write summaries or syntheses unless you ask. You can change the profile at any time.");
+		student = (await io.choose(
+			"You are",
+			[
+				{ value: "student", label: "A student" },
+				{ value: "researcher", label: "A researcher, teacher or clinician" },
+			],
+			flags.student === "no" ? "researcher" : "student",
+		)) === "student";
+	}
+
 	explain("Profile", "The profile sets how much Sub-Sub writes for you and which tools it offers. Change it at any time with /profile.");
-	const profileDefault = flags.profile ?? existing.profile ?? (fmup ? "reader" : "scholar");
+	const profileDefault = flags.profile ?? existing.profile ?? (student ? "reader" : "scholar");
 	const profile = await io.choose(
 		"Profile",
 		PROFILES.map((p) => ({ value: p, label: `${PROFILE_SPECS[p].label}: ${PROFILE_SPECS[p].summary}` })),
@@ -231,6 +246,19 @@ export async function runInit(
 	);
 
 	explain(
+		"Usage log for the pilot",
+		"If you take part in the Sub-Sub pilot, Sub-Sub can keep a log on this computer: when you used it, which commands, how long it worked and how many library changes you approved. Never what you wrote or what it replied. Nothing is sent; subsub usage shows the log, and you decide whether to send it.",
+	);
+	const usage = await io.choose(
+		"Usage log",
+		[
+			{ value: "off", label: "Off" },
+			{ value: "on", label: "On (for the pilot)" },
+		],
+		flags.usage ?? (existing.usageLog === true ? "on" : "off"),
+	);
+
+	explain(
 		"Models",
 		"Sub-Sub needs an account with a model provider. Each mode can use its own model: the Librarian a fast, cheap one for tags and imports, the Researcher a stronger one for reading. You can connect a provider later in Sub-Sub with the model button (or /login in the terminal).",
 	);
@@ -240,6 +268,7 @@ export async function runInit(
 		...(hadModel ? [{ value: "keep", label: `Keep: ${show(current.models)}` }] : []),
 		{ value: "later", label: "Choose later in Sub-Sub" },
 		{ value: "opencode-go", label: `OpenCode Go, tested: ${TESTED_MODELS.librarian} for the Librarian, ${TESTED_MODELS.researcher} for the Researcher` },
+		{ value: "mistral-eu", label: `Mistral, servers in the EU (GDPR): ${EU_MODELS.researcher} in both modes; about six times the cost of OpenCode Go` },
 		{ value: "google-free", label: `Free, to try Sub-Sub: Google AI Studio, ${FREE_MODELS.researcher} in both modes (a free key, no card; limits per minute and per day; 18 or older)` },
 	];
 	const agentDir = initEnv.SUBSUB_AGENT_DIR ? expand(initEnv.SUBSUB_AGENT_DIR, home) : join(home, ".subsub", "agent");
@@ -291,6 +320,7 @@ export async function runInit(
 		envFile,
 		libraryChanges: undefined,
 		addons: withStarbuck(current.addons, starbuck === "on"),
+		usageLog: usage === "on" ? true : undefined,
 	};
 	// A model per mode; "model" (0.10, one for both) is replaced.
 	patch.model = undefined;
@@ -298,6 +328,7 @@ export async function runInit(
 	if (models === "later") patch.models = {};
 	if (models === "opencode-go") patch.models = TESTED_MODELS;
 	if (models === "google-free") patch.models = FREE_MODELS;
+	if (models === "mistral-eu") patch.models = EU_MODELS;
 	saveConfig(patch, initEnv);
 	let keyNote = "";
 	if (googleKey) {
@@ -307,6 +338,8 @@ export async function runInit(
 		} catch (err) {
 			keyNote = `The Google key was not saved (${(err as Error).message}). Add it in Sub-Sub with the model button or /login.`;
 		}
+	} else if (models === "mistral-eu" && !hasProvider(agentDir, "mistral")) {
+		keyNote = `No Mistral key yet. Get one at ${KEY_PROVIDERS.find((p) => p.id === "mistral")?.url}, then add it in Sub-Sub with the model button (subsub web) or /login (in the terminal).`;
 	} else if (models === "google-free" && !hasProvider(agentDir, "google")) {
 		keyNote = "No Google key yet. Add it in Sub-Sub with the model button (subsub web) or /login (in the terminal), with the provider Google Gemini.";
 	}
