@@ -128,17 +128,6 @@ export async function runInit(
 		io.say(`${title}. ${text}`);
 	};
 
-	explain("Setup", "Standard works for any field. FMUP / U.Porto starts with health-sciences tags and the Reader profile.");
-	const setup = await io.choose(
-		"Setup",
-		[
-			{ value: "standard", label: "Standard" },
-			{ value: "fmup", label: "FMUP / U.Porto: health-sciences tags, Reader profile (the FMUP model service is coming soon)" },
-		],
-		flags.setup ?? existing.setup ?? "standard",
-	);
-	const fmup = setup === "fmup";
-
 	explain("About you", "Sub-Sub uses your name and one line about you in its replies. Both are optional and stay on this computer, except in the messages to the model provider.");
 	const userName = (await io.ask("Your name (Enter for none)", flags.name ?? existing.userName ?? "")).trim();
 	const about = (await io.ask('One line about you, e.g. "a master\'s student in health informatics" (optional)', flags.about ?? existing.about ?? "")).trim();
@@ -183,6 +172,18 @@ export async function runInit(
 			io.say(`Sub-Sub keeps using ${notes}.`);
 		}
 	}
+
+	// Asked here, not first: it only changes the defaults of the next two questions.
+	explain("Faculty of Medicine, Porto", "Sub-Sub has a set-up for the Faculty of Medicine of the University of Porto (FMUP): health-sciences tags and the Reader profile. Everyone else keeps the standard set-up.");
+	const setup = await io.choose(
+		"Set-up",
+		[
+			{ value: "standard", label: "Standard (any field, any institution)" },
+			{ value: "fmup", label: "FMUP / U.Porto: health-sciences tags, Reader profile (the FMUP model service is coming soon)" },
+		],
+		flags.setup ?? existing.setup ?? "standard",
+	);
+	const fmup = setup === "fmup";
 
 	explain("Profile", "The profile sets how much Sub-Sub writes for you and which tools it offers. Change it at any time with /profile.");
 	const profileDefault = flags.profile ?? existing.profile ?? (fmup ? "reader" : "scholar");

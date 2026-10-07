@@ -53,11 +53,11 @@ O instalador instala o uv, o Node.js (se for preciso) e o Sub-Sub na sua pasta p
 
 | Pergunta | Resposta |
 |---|---|
-| Setup | Escreva 2 (FMUP / U.Porto) e prima Enter. |
 | Your name | O seu primeiro nome. |
 | One line about you | Por exemplo: estudante do 4.º ano de Medicina. Pode deixar em branco. |
 | Language for replies and notes | Escreva European Portuguese. |
 | Sub-Sub folder | Prima Enter para aceitar a pasta proposta. Se usa o Obsidian, escreva o caminho do seu cofre: o Sub-Sub cria lá dentro uma pasta Sub-Sub e não mexe no resto do cofre. |
+| Set-up | Escreva 2 (FMUP / U.Porto) e prima Enter. |
 | Profile | Prima Enter (Reader). |
 | Starter tag list | Prima Enter (health sciences). |
 | Email | O seu email da U.Porto. Serve para encontrar PDF em acesso aberto. |

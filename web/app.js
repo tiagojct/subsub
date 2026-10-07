@@ -207,8 +207,10 @@ function renderHeader() {
 		txt.textContent += ` · ${t("serversDown", { x: state.down.join(", ") })}`;
 		lib.classList.add("down");
 	}
-	lib.title = txt.textContent;
-	$("input").placeholder = mode() === "librarian" ? t("placeholderLibrarian") : t("placeholderResearcher");
+	lib.title = L?.toReview ? `${txt.textContent}\n${t("toReviewHint")}` : txt.textContent;
+	// On a phone the long hint does not fit in the box.
+	const narrow = window.matchMedia("(max-width: 560px)").matches;
+	$("input").placeholder = narrow ? t("placeholderShort") : mode() === "librarian" ? t("placeholderLibrarian") : t("placeholderResearcher");
 	if (log.querySelector(".empty")) {
 		clearEmpty();
 		renderEmpty();
