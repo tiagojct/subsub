@@ -207,6 +207,20 @@ export function formatPreview(tool: string, preview: unknown, lang: Lang = "en")
 	return lines.join("\n");
 }
 
+/**
+ * True when a preview has nothing to apply: every count it gives is zero and it creates,
+ * writes or undoes nothing. Such a change is not offered for approval.
+ */
+export function isEmptyPreview(preview: unknown): boolean {
+	if (!preview || typeof preview !== "object") return false;
+	const p = preview as Obj;
+	const counts = ["would_import", "would_attach", "would_set_parent"].filter((k) => Array.isArray(p[k]));
+	if (typeof p.would_change !== "number" && !counts.length) return false;
+	if (typeof p.would_change === "number" && p.would_change > 0) return false;
+	if (counts.some((k) => (p[k] as unknown[]).length > 0)) return false;
+	return !["would_create", "undoing", "summary", "note_preview"].some((k) => p[k]);
+}
+
 export function describeArgs(input: Record<string, unknown>): string {
 	return Object.entries(input)
 		.map(([k, v]) => `${k}: ${s(v, 120)}`)

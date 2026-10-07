@@ -14,7 +14,7 @@ import { unavailableReason } from "../src/roles.ts";
 import { runInit, upsertEnv } from "../src/init.ts";
 import { formatChecks, runChecks } from "../src/doctor.ts";
 import { expand, loadConfig, parseEnvFile, type SubsubConfig } from "../src/config.ts";
-import { formatPreview } from "../src/preview.ts";
+import { formatPreview, isEmptyPreview } from "../src/preview.ts";
 import { systemAddition } from "../src/prompt.ts";
 import { gateKind, toolsFor } from "../src/roles.ts";
 import { createSubsub, serverSpecs, starbuckEnv } from "../src/subsub.ts";
@@ -320,6 +320,24 @@ test("a preview that changed while the dialog was open is shown again before any
 	assert.equal(asked.length, 2, "asked again with the new preview");
 	assert.match(asked[1].title, /library changed/);
 	assert.match(asked[1].message, /topic\/asthma/);
+});
+
+test("a preview that changes nothing is not offered for approval", async () => {
+	const { fp, ctx, bridge, asked } = await setup(true);
+	await fp.commands.librarian.handler("", ctx);
+	bridge.call = async (name, args) => {
+		bridge.calls.push({ name, args });
+		return { isError: false, text: "{}", data: { dry_run: true, would_change: 0, changes: [], kept_existing_keys: 3 } };
+	};
+	const r = await fp.handlers.tool_call[0]({ toolName: "zotero_tag_items", input: { changes: [{ key: "A", add: ["x"] }], dry_run: false } }, ctx);
+	assert.equal(r.block, true);
+	assert.match(r.reason, /Nothing to apply[\s\S]*kept_existing_keys":3/);
+	assert.equal(asked.length, 0);
+	assert.equal(bridge.calls.length, 1, "only the preview ran");
+	assert.ok(isEmptyPreview({ would_set_parent: [] }));
+	assert.ok(!isEmptyPreview({ would_change: 0, would_create: { name: "x" } }));
+	assert.ok(!isEmptyPreview({ would_import: [{ citekey: "a" }] }));
+	assert.ok(!isEmptyPreview({ item: "x", summary: "note" }));
 });
 
 test("declined, no UI and failed previews block", async () => {

@@ -41,7 +41,7 @@ import { profileList, profileSpec, promptBlocked } from "./profiles.ts";
 import { coerceArgs, loosenArrays, resolvePathArgs } from "./args.ts";
 import { applyEdits, checkLiteratureNote } from "./notes.ts";
 import { buildPolicy, isSecret, judgePath, normalizeToolPath, realish, within } from "./paths.ts";
-import { describeArgs, formatPreview } from "./preview.ts";
+import { describeArgs, formatPreview, isEmptyPreview } from "./preview.ts";
 import { perMinuteWait, providerTrouble, TROUBLE_TEXT, TROUBLE_TEXT_PT } from "./keys.ts";
 import { headerLines, type LibraryState, paintPreview, QUOTES, type Scheme, schemeFromAnsi, themeName } from "./look.ts";
 import { systemAddition } from "./prompt.ts";
@@ -459,6 +459,12 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			return { block: true, reason: `Preview failed: ${(err as Error).message}` };
 		}
 		if (preview.isError) return { block: true, reason: preview.text };
+		if (isEmptyPreview(preview.data)) {
+			return {
+				block: true,
+				reason: `Nothing to apply: the preview changes no item, so ${user} was not asked. Tell ${user} why in plain words; do not call ${name} again with the same input. Preview: ${JSON.stringify(preview.data).slice(0, 2000)}`,
+			};
+		}
 		const title = L(`Sub-Sub: apply ${name.replace(/^(zotero|scholar)_/, "")}?`, `Sub-Sub: aplicar ${name.replace(/^(zotero|scholar)_/, "")}?`);
 		let shown = formatPreview(name, preview.data ?? preview.text, lang);
 		// The dialog may stay open for minutes. Before applying, compute the preview again: if the
