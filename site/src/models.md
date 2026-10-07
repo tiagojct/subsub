@@ -57,11 +57,42 @@ In October 2026, 15 models on OpenCode Go did the same seven tasks on a real lib
 How to read the table:
 
 - Tagging is close for all models (F1 0.66 to 0.72 against the tags already in the library, which its owner had approved in tag reviews). The models differ in the import and in the research notes.
-- mimo-v2.6-pro is the Researcher's default: it scored 4.8 in September and again now, invented no references and did both library tasks. qwen3.8-flash scored a little higher at lower cost, but in September it sent malformed tool calls; it needs one more good test before it becomes the default. kimi-k3 wrote the best notes at about 15 times the cost.
+- mimo-v2.6-pro is the Researcher's default. qwen3.8-flash scored a little higher in this test at lower cost, so both were tested three more times: see [The defaults, tested again](#the-defaults-tested-again). kimi-k3 wrote the best notes at about 15 times the cost.
 - mimo-v2.6-flash is the Librarian's default: both imports right, the lowest cost, and in September its tagging matched the best. glm-5.3-flash, the Librarian's default until now, missed an identifier in the import in two tests in a row.
 - An invented reference is a citekey that is not in the library, or a DOI or PMID that no search returned. One test per model is a small sample: treat differences under 0.3 as noise.
 
 `subsub init` offers mimo-v2.6-flash for the Librarian and mimo-v2.6-pro for the Researcher when you use OpenCode Go.
+
+## The defaults, tested again
+
+In the first test, qwen3.8-flash scored a little higher than mimo-v2.6-pro and cost less. One run per task is a small sample, so the candidates for each mode did the same tasks three more times. A blind judge then scored all four runs of each model on one scale (the October notes too, so these numbers differ slightly from the table above).
+
+| Researcher | mimo-v2.6-pro | qwen3.8-flash |
+|---|---|---|
+| Research, mean of 16 notes (lowest to highest) | 4.34 (3 to 5) | 4.31 (3.5 to 5) |
+| Literature note | 4.0 | 4.25 |
+| Synthesis | 3.75 | 4.0 |
+| Search | 4.75 | 4.25 |
+| Literature review (`/lit`) | 4.88 | 4.75 |
+| Invented references | 1 | 1 |
+| Tool calls refused for wrong arguments | 1 of 288 | 14 of 285 |
+| Cost per task | $0.032 | $0.025 |
+| Minutes per task | 4.7 | 3.4 |
+
+| Librarian | mimo-v2.6-flash | qwen3.8-flash |
+|---|---|---|
+| Tagging F1, four runs | 0.69 to 0.74 | 0.70 to 0.72 |
+| Imports right | 4 of 4 | 4 of 4 |
+| Tool calls refused for wrong arguments | 0 | 4 (all on a tool that exists only in the test) |
+| Cost per task | $0.003 | $0.007 |
+
+What this shows:
+
+- The research quality is the same. The difference, 0.03, is much smaller than the spread between runs of the same model (up to 1.5 points).
+- qwen3.8-flash is about a quarter cheaper and faster as the Researcher. But in every `/lit` it sent the reference check arguments that the tool does not accept: it guessed field names, up to seven times, before it got through. It always got through, and the cost above includes the retries. mimo-v2.6-pro got the arguments right the first time.
+- As the Librarian, qwen3.8-flash costs twice as much as mimo-v2.6-flash for the same tags and imports.
+
+So the defaults stay: mimo-v2.6-flash for the Librarian, mimo-v2.6-pro for the Researcher. A model that guesses arguments is a risk with tools that are used less often. If you want a lower cost for research, qwen3.8-flash is a good choice: select it with the model button in the Researcher.
 
 ## Local models
 
