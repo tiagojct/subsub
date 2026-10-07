@@ -30,7 +30,7 @@ jobs:
           export PATH="$HOME/.subsub/bin:$HOME/.subsub/node/bin:$PATH"
           subsub --version
           subsub init --yes --notes "$RUNNER_TEMP/Notes" --tags health-sciences
-          test -f "$RUNNER_TEMP/Notes/Systems/Zotero tags.md"
+          test -f "$RUNNER_TEMP/Notes/Zotero/Zotero tags.md"
       - name: Shortcut and web view (Sub-Sub 0.6 and later)
         run: |
           export PATH="$HOME/.subsub/bin:$HOME/.subsub/node/bin:$PATH"
@@ -61,7 +61,7 @@ jobs:
           subsub --version
           if ($LASTEXITCODE -ne 0) { exit 1 }
           subsub init --yes --notes "$env:RUNNER_TEMP\Notes" --tags health-sciences
-          if (-not (Test-Path "$env:RUNNER_TEMP\Notes\Systems\Zotero tags.md")) { exit 1 }
+          if (-not (Test-Path "$env:RUNNER_TEMP\Notes\Zotero\Zotero tags.md")) { exit 1 }
       - name: Shortcut and web view (Sub-Sub 0.6 and later)
         shell: powershell
         run: |

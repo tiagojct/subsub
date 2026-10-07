@@ -332,7 +332,7 @@ test("researcher: attach_note previews, export asks, queue passes", async () => 
 	assert.equal(await toolCall("scholar_attach_note", { key: "K", summary: "s", note_path: "a.md", dry_run: false }), undefined);
 	assert.match(asked.at(-1)!.title, /apply attach_note/);
 	assert.equal(await toolCall("scholar_export_bibliography", { output_path: "/vault/refs.json" }), undefined);
-	assert.match(asked.at(-1)!.message, /output_path: \/vault\/refs\.json/);
+	assert.match(asked.at(-1)!.message, /output_path: .*vault[\\/]refs\.json/, "absolute on every system (D:\\vault\\refs.json on Windows)");
 	const n = asked.length;
 	assert.equal(await toolCall("scholar_queue_imports", { entries: [] }), undefined);
 	assert.equal(asked.length, n);
