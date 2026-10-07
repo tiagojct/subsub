@@ -152,8 +152,8 @@ export async function runInit(
 	// Without questions (--yes), an existing folder stays exactly as it is.
 	const keepAsIs = Boolean(flags.yes) && !flags.folder && !flags.notes && oldFolder !== undefined;
 	const folderDefault = flags.folder ?? flags.notes ?? (oldFolder ? (keepAsIs ? oldFolder : subsubFolder(oldFolder)) : join(home, "Documents", FOLDER_NAME));
-	const answer = expand((await io.ask("Sub-Sub folder (or an Obsidian vault)", folderDefault)).trim() || folderDefault, home);
-	const notes = keepAsIs && answer === oldFolder ? answer : subsubFolder(answer);
+	const answer = expand(cleanPath(await io.ask("Sub-Sub folder (or an Obsidian vault)", folderDefault)) || folderDefault, home);
+	let notes = keepAsIs && answer === oldFolder ? answer : subsubFolder(answer);
 	if (notes !== answer) io.say(`That is an Obsidian vault. Sub-Sub will use ${notes}.`);
 
 	// ---- files of the old layout
@@ -171,10 +171,16 @@ export async function runInit(
 			"Move them",
 			[
 				{ value: "yes", label: "Move them (recommended)" },
-				{ value: "no", label: from === notes ? "Leave them; Sub-Sub still reads them from Systems/" : "Leave them where they are" },
+				// In a new folder, files left behind would not be read: then "no" means keeping the old folder.
+				{ value: "no", label: from === notes ? "Leave them; Sub-Sub still reads them from Systems/" : flags.folder || flags.notes ? "Leave them where they are" : `Leave them, and keep using ${from}` },
 			],
 			flags.move ?? (flags.yes ? "no" : "yes"),
 		);
+		// A folder given on the command line (--folder, --notes) is a deliberate choice and stays.
+		if (move === "no" && from !== notes && !flags.folder && !flags.notes) {
+			notes = from;
+			io.say(`Sub-Sub keeps using ${notes}.`);
+		}
 	}
 
 	explain("Profile", "The profile sets how much Sub-Sub writes for you and which tools it offers. Change it at any time with /profile.");
@@ -207,7 +213,7 @@ export async function runInit(
 		);
 	}
 
-	explain("Contact email", "Unpaywall needs an email address to find open-access PDFs. Sub-Sub sends it only to Unpaywall, Crossref, OpenAlex and PubMed, as they ask.");
+	explain("Contact email", "Unpaywall needs an email address to find open-access PDFs. Sub-Sub sends it with its requests to PubMed, Europe PMC, OpenAlex, Crossref and Unpaywall, as they ask, and to nobody else.");
 	const email = (await io.ask("Email (optional)", flags.email ?? envValues.ZOTERO_CONTACT_EMAIL ?? "")).trim();
 
 	explain("Reference checks (Starbuck)", "An optional add-on for manuscripts: it checks that each cited work exists, matches its citation and was not retracted. Sub-Sub then has /verify.");
@@ -363,4 +369,12 @@ export async function initMain(args: string[], env: NodeJS.ProcessEnv = process.
 	} finally {
 		(io as { close?: () => void }).close?.();
 	}
+}
+
+/** A path as typed, dragged from Finder (spaces escaped) or copied from Explorer (in quotes). */
+export function cleanPath(raw: string): string {
+	let p = raw.trim();
+	if (p.length > 1 && (p[0] === '"' || p[0] === "'") && p.at(-1) === p[0]) return p.slice(1, -1);
+	if (process.platform !== "win32") p = p.replace(/\\([ '"()&])/g, "$1");
+	return p;
 }

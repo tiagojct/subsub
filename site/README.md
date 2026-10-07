@@ -17,8 +17,6 @@ The footer shows the Sub-Sub version (from `../package.json`), the Zotero server
 
 The site is static and is served by Caddy on the VPS, like the other sites there.
 
-First time only, on the VPS: add the hostname with `~/add-site.py`, as a static site with the root `/srv/subsub.tiagojacinto.eu/current` inside the Caddy container. This adds the Caddy route, the tunnel ingress and the DNS record.
-
 Each deploy:
 
 ```sh

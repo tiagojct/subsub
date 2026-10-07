@@ -134,12 +134,38 @@ export function reviewCommand(args: string[], cfg: SubsubConfig, env: NodeJS.Pro
 	};
 }
 
+const HELP = `Sub-Sub: your research assistant, working from your own Zotero library.
+
+Usage:
+  subsub                 Start Sub-Sub in the terminal
+  subsub --librarian     Start in the Librarian, which only manages the library
+  subsub web             Open Sub-Sub in the browser
+  subsub init            Set up or change the settings (folder, tag list, profile, models)
+  subsub doctor          Check the set-up; each line marked FIX says what to do
+  subsub shortcut        Add a Sub-Sub shortcut (--remove takes it away)
+  subsub review preview|apply <note>
+                         Check or apply a tag review note from Inbox/
+  subsub --version       Show the versions
+
+Options:
+  --here                 Work in the current folder, not in the Sub-Sub folder
+
+In Sub-Sub, type /subsub for the state, /researcher or /librarian to switch modes,
+/profile to change the profile, /undo to undo the last change, and / for all commands.
+Sub-Sub runs on pi: pi's options (for example --model, --resume) also work.
+
+Docs: https://subsub.tiagojacinto.eu`;
+
 export async function run(argv: string[] = process.argv.slice(2)): Promise<void> {
 	const env = process.env;
 	const home = homedir();
 	const here = argv.includes("--here");
 	const args = argv.filter((a) => a !== "--here");
 
+	if (args[0] === "--help" || args[0] === "-h" || args[0] === "help") {
+		console.log(HELP);
+		return;
+	}
 	if (args[0] === "--version" || args[0] === "-v") {
 		const piPkg = join(dirname(fileURLToPath(import.meta.resolve("@earendil-works/pi-coding-agent"))), "..");
 		console.log(`subsub ${packageVersion()} (pi ${packageVersion(piPkg)})`);
@@ -173,7 +199,12 @@ export async function run(argv: string[] = process.argv.slice(2)): Promise<void>
 		return;
 	}
 	if (isSelfUpdate(args)) {
-		console.log(`Sub-Sub is not updated with "update". Its code is in ${PACKAGE_DIR}; after new code arrives, run "npm install" there.`);
+		if (PACKAGE_DIR.split(/[\\/]/).includes("node_modules")) {
+			console.log("Sub-Sub is not updated with \"update\". To update it, run the installer again (https://subsub.tiagojacinto.eu/install/);");
+			console.log("if you installed it with npm, type: npm install -g @tiagojct/subsub");
+		} else {
+			console.log(`Sub-Sub is not updated with "update". Its code is in ${PACKAGE_DIR}; after new code arrives, run "npm install" there.`);
+		}
 		console.log('To update packages added to Sub-Sub, use "subsub update --extensions".');
 		process.exitCode = 1;
 		return;
@@ -206,6 +237,8 @@ export async function run(argv: string[] = process.argv.slice(2)): Promise<void>
 	env.SUBSUB_CLI = "1";
 	// pi's update notice would point to the global pi, not to this copy.
 	env.PI_SKIP_VERSION_CHECK ??= "1";
+	// pi reports a first install to pi.dev and names itself to some providers; Sub-Sub sends no usage data.
+	env.PI_TELEMETRY ??= "0";
 
 	process.argv = [process.argv[0], process.argv[1], ...args];
 	const index = fileURLToPath(import.meta.resolve("@earendil-works/pi-coding-agent"));

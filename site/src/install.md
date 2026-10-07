@@ -95,8 +95,9 @@ Type the install command again. Or, if you installed with npm, type `npm install
 
 ## Remove
 
-1. Delete the folder `~/.subsub`.
-2. Remove the line that starts with `export PATH` and names `.subsub` from `~/.zshrc`, `~/.bashrc` or `~/.profile`. (On Windows: remove the two `.subsub` entries from your user PATH.)
-3. If you do not want the settings any more, delete `~/.config/subsub` and `~/.config/zotero-local-mcp`.
+1. Type `subsub shortcut --remove`. This removes the shortcut from Applications, the Start menu or the applications menu, and from the desktop.
+2. Delete the folder `~/.subsub`.
+3. Remove the line that starts with `export PATH` and names `.subsub` from `~/.zshrc`, `~/.bashrc` or `~/.profile`. (On Windows: remove the two `.subsub` entries from your user PATH.)
+4. If you do not want the settings any more, delete `~/.config/subsub` and `~/.config/zotero-local-mcp`. The journal of changes, which `/undo` uses, is in `~/.local/share/zotero-local-mcp`.
 
 Your Zotero library and your notes do not change.

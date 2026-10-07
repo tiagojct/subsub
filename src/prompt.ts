@@ -60,6 +60,12 @@ export function roleText(mode: Mode, cfg?: Pick<SubsubConfig, "userName" | "abou
 export function systemAddition(mode: Mode, cfg: SubsubConfig, cwd: string): string {
 	const user = who(cfg);
 	const parts = [`# Sub-Sub: ${mode === "librarian" ? "Librarian" : "Researcher"} mode`, roleText(mode, cfg)];
+	if (cfg.vault) {
+		parts.push(
+			"# The Sub-Sub folder",
+			`The Sub-Sub folder is ${cfg.vault}. Folder names in these instructions (Inbox/, Literature/, Syntheses/, Research/, Zotero/) are inside it. Write notes there with absolute paths, even when the working folder is somewhere else.`,
+		);
+	}
 	const shared = readIf(cfg.sharedRules);
 	if (shared) {
 		parts.push(

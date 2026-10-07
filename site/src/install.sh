@@ -45,6 +45,9 @@ node_ok() { # true when the node on PATH is 22.19 or later
 	[ "$major" -gt 22 ] || { [ "$major" -eq 22 ] && [ "$minor" -ge 19 ]; }
 }
 
+# Everything runs from main, called on the last line: if the download stops part-way,
+# the shell has read no complete command and runs nothing.
+main() {
 case "$(uname -s)" in
 	Darwin) os=darwin ;;
 	Linux) os=linux ;;
@@ -102,10 +105,11 @@ say "Sub-Sub: $("$SUBSUB_HOME/bin/subsub" --version)."
 
 # 4. PATH in the shell start files
 if [ "${SUBSUB_NO_MODIFY_PATH:-0}" != 1 ]; then
-	for rc in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.profile"; do
+	# bash login shells (the macOS Terminal) read .bash_profile and then skip .profile.
+	for rc in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile"; do
 		case "$rc" in
 			*/.zshrc) [ -f "$rc" ] || [ "$os" = darwin ] || continue ;;
-			*/.profile) [ -f "$rc" ] || [ ! -f "$HOME/.bashrc" ] || continue ;;
+			*/.profile) [ -f "$rc" ] || { [ ! -f "$HOME/.bashrc" ] && [ ! -f "$HOME/.bash_profile" ]; } || continue ;;
 			*) [ -f "$rc" ] || continue ;;
 		esac
 		if ! grep -qsF "$SUBSUB_HOME/bin" "$rc"; then
@@ -154,3 +158,6 @@ if [ "$WEB" = 1 ] && [ "$ASKED" = 1 ] && [ "${SUBSUB_NO_OPEN:-0}" != 1 ]; then
 	nohup "$SUBSUB_HOME/bin/subsub" web >/dev/null 2>&1 &
 	say "Sub-Sub is opening in your browser."
 fi
+}
+
+main "$@"

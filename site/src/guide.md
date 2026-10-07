@@ -109,7 +109,7 @@ Sub-Sub does not change the manuscript. Starbuck writes an HTML report in a `_st
 
 ## Your Sub-Sub folder
 
-Everything Sub-Sub writes is in one folder, `Sub-Sub`. By default it is in your Documents folder. If you use Obsidian, `subsub init` puts it inside your vault, and Sub-Sub leaves the rest of the vault alone.
+Sub-Sub keeps its notes and settings in one folder, `Sub-Sub`. Two things go elsewhere: a manuscript review (`/review`) goes next to the manuscript, and a Starbuck report goes in a `_starbuck` folder next to it. By default it is in your Documents folder. If you use Obsidian, `subsub init` puts it inside your vault, and Sub-Sub leaves the rest of the vault alone.
 
 | Path | Contents |
 |---|---|

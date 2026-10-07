@@ -39,7 +39,7 @@ import {
 import { profileList, profileSpec, promptBlocked } from "./profiles.ts";
 import { coerceArgs, loosenArrays, resolvePathArgs } from "./args.ts";
 import { applyEdits, checkLiteratureNote } from "./notes.ts";
-import { buildPolicy, judgePath, normalizeToolPath, realish, within } from "./paths.ts";
+import { buildPolicy, isSecret, judgePath, normalizeToolPath, realish, within } from "./paths.ts";
 import { describeArgs, formatPreview } from "./preview.ts";
 import { headerLines, type LibraryState, paintPreview, QUOTES, type Scheme, schemeFromAnsi, themeName } from "./look.ts";
 import { systemAddition } from "./prompt.ts";
@@ -130,6 +130,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	if (deps.bridge) registerTools(deps.bridge);
 
 	pi.registerFlag("librarian", { description: "Start Sub-Sub in the Librarian mode", type: "boolean", default: false });
+	pi.registerFlag("researcher", { description: "Start Sub-Sub in the Researcher mode", type: "boolean", default: false });
 
 	let mode: Mode = cfg.defaultMode;
 	const benchRun = Boolean(process.env.SUBSUB_BENCH_OUT);
@@ -252,11 +253,12 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		emitWeb();
 	}
 
-	async function applyMode(ctx: ExtensionContext, next: Mode, remember: boolean): Promise<void> {
+	/** Set the mode's tools and, unless `switchModel` is false, the mode's model. */
+	async function applyMode(ctx: ExtensionContext, next: Mode, remember: boolean, switchModel = true): Promise<void> {
 		mode = next;
 		pi.setActiveTools(toolsFor(mode, registered(), toolOpts()));
 		const spec = cfg.models[mode];
-		if (spec) {
+		if (spec && switchModel) {
 			const i = spec.indexOf("/");
 			const model = i > 0 ? ctx.modelRegistry.find(spec.slice(0, i), spec.slice(i + 1)) : undefined;
 			const ok = model ? await pi.setModel(model) : false;
@@ -274,14 +276,16 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			registerTools(b);
 		}
 		let restored: Mode | undefined;
-		for (const e of ctx.sessionManager.getBranch() as Array<{ customType?: string; data?: { mode?: unknown } }>) {
+		let modelChosen = false; // the session already has a model: a resumed conversation keeps it
+		for (const e of ctx.sessionManager.getBranch() as Array<{ type?: string; customType?: string; data?: { mode?: unknown } }>) {
 			const m = e.customType === MODE_ENTRY ? e.data?.mode : undefined;
 			if (m === "librarian" || m === "researcher") restored = m;
+			if (e.type === "model_change") modelChosen = true;
 		}
 		// Judge light or dark before Sub-Sub changes the theme.
 		if (lookOn(ctx)) scheme ??= schemeFromAnsi(ctx.ui.theme.getFgAnsi("text"), ctx.ui.theme.name);
 		applyTheme(ctx);
-		await applyMode(ctx, restored ?? (pi.getFlag("librarian") ? "librarian" : cfg.defaultMode), false);
+		await applyMode(ctx, restored ?? (pi.getFlag("librarian") ? "librarian" : pi.getFlag("researcher") ? "researcher" : cfg.defaultMode), false, !modelChosen);
 		if (lookOn(ctx)) {
 			setHeader(ctx);
 			void refreshLibrary();
@@ -300,11 +304,29 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		await b?.close();
 	});
 
+	/** Prompt commands for the Researcher; the Librarian has the library ones (tag-batch, clean-tags, import-queue). */
+	const RESEARCH_PROMPTS = ["lit", "compare", "lit-note", "synthesis", "gaps", "manuscript", "verify", "review", "alert", "request-copy", "digest"];
+
+	// /tree moves to another branch: take that branch's mode (pi restores its model itself).
+	pi.on("session_tree", async (_event, ctx) => {
+		let m: Mode | undefined;
+		for (const e of ctx.sessionManager.getBranch() as Array<{ customType?: string; data?: { mode?: unknown } }>) {
+			const x = e.customType === MODE_ENTRY ? e.data?.mode : undefined;
+			if (x === "librarian" || x === "researcher") m = x;
+		}
+		if (m && m !== mode) await applyMode(ctx, m, false, false);
+	});
+
 	pi.on("model_select", async (_event, ctx) => status(ctx));
 
 	// Prompt commands that the profile does not run (/lit for Reader, /review for Reader and Scholar).
 	// The input event comes before pi expands a prompt template.
 	pi.on("input", async (event, ctx) => {
+		const cmd = /^\/([\w-]+)(?:\s|$)/.exec(event.text.trim())?.[1];
+		if (mode === "librarian" && cmd && RESEARCH_PROMPTS.includes(cmd)) {
+			ctx.ui.notify(`Sub-Sub: /${cmd} is part of the Researcher. Switch with /researcher.`, "warning");
+			return { action: "handled" };
+		}
 		const why = promptBlocked(event.text, profile);
 		if (!why) return { action: "continue" };
 		ctx.ui.notify(`Sub-Sub: ${why}`, "warning");
@@ -332,6 +354,9 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 				if (benchOut) record({ kind: "wrong_mode", tool: name, input });
 				return { block: true, reason: why };
 			}
+		}
+		if (["read", "grep", "find", "ls"].includes(name) && typeof input.path === "string" && isSecret(normalizeToolPath(input.path, ctx.cwd), name === "grep")) {
+			return { block: true, reason: "That file holds keys or passwords. Sub-Sub does not read it." };
 		}
 		if (name.startsWith("verify_")) return verifyGate(name, input, ctx);
 		const kind = benchOut && name === "scholar_queue_imports" ? "confirm" : gateKind(name, input);
@@ -476,7 +501,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			} catch (err) {
 				saved = ` Not saved: ${(err as Error).message}`;
 			}
-			await applyMode(ctx, mode, false);
+			await applyMode(ctx, mode, false, false);
 			ctx.ui.notify(`Sub-Sub: ${profileSpec(profile).label} profile (${profileSpec(profile).summary}).${saved}`, "info");
 		},
 	});

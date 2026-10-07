@@ -11,7 +11,7 @@ lead: Sub-Sub runs on your computer. Your library stays in Zotero. You choose th
 - Your notes, your tag list and your settings.
 - The journal of changes (`~/.local/share/zotero-local-mcp`), which `/undo` uses.
 
-Sub-Sub sends no usage data, statistics or crash reports anywhere.
+Sub-Sub sends no usage data, statistics or crash reports anywhere. It also turns off the install report of pi, the program it is built on.
 
 ## What goes to the model provider
 
@@ -21,16 +21,18 @@ The AI model runs at the provider you choose. It receives your messages and what
 
 | Service | What it receives | When |
 |---|---|---|
-| PubMed (NCBI) | Your search terms; DOIs and PMIDs | Searches; the author's address for `/request-copy` (read from the PubMed record only) |
-| Europe PMC | Your search terms, DOIs and PMIDs | Searches, open-access full text |
-| OpenAlex | Your search terms, DOIs | Searches, citation graph, alerts |
-| Crossref | DOIs, titles | Imports and metadata repair |
-| Unpaywall | DOIs and your contact email | Open-access PDFs (the email is required by Unpaywall) |
+| PubMed (NCBI) | Your search terms; DOIs and PMIDs | Searches, imports, metadata repair; the author's address for `/request-copy` (read from the PubMed record only) |
+| Europe PMC | Your search terms, DOIs and PMIDs | Searches, imports, open-access full text |
+| OpenAlex | Your search terms, DOIs | Searches, citation graph, alerts, retraction checks |
+| Crossref | DOIs, titles | Imports, metadata repair, retraction checks |
+| Unpaywall | DOIs | Open-access PDFs |
 | Open Library | ISBNs | Book imports |
 | Crossref, DataCite, PubMed, OpenAlex, arXiv, Open Library, Europe PMC | The identifiers and titles of the cited works, and your contact email | Reference checks (Starbuck), only when you turn the add-on on |
 | npm, PyPI | Package downloads | Install and update |
 
-These services receive identifiers and search terms, not your notes or your library.
+These services receive identifiers and search terms, not your notes or your library. If you give a contact email in `subsub init`, every request to them carries it, as these services ask (Unpaywall requires it). Without it, Sub-Sub cannot find open-access PDFs.
+
+Searches happen only in the Researcher. The Librarian also contacts these services, but only to import, repair and check the items you work on.
 
 Sub-Sub sends no email. `/request-copy` writes a draft in your Sub-Sub folder; you decide whether to send it.
 
@@ -41,7 +43,7 @@ Sub-Sub sends no email. `/request-copy` writes a draft in your Sub-Sub folder; y
 - Every change is journaled and can be undone.
 - Nothing is deleted. Items go to the Zotero trash; tags are removed from items.
 - Only tags from your tag list can be added.
-- The Librarian has no search tools; only the Researcher contacts PubMed, Europe PMC and OpenAlex.
+- The Librarian has no search tools.
 - Text in abstracts, full texts and search results is treated as data. Sub-Sub's instructions tell the model never to follow instructions found in it.
 - Sub-Sub has no shell access. Writes outside your Sub-Sub folder and the current folder, and writes to settings and rule files, need your yes.
 - The browser view is a small server on your own computer. It listens only on 127.0.0.1, so other computers cannot reach it. The address that opens it contains a random key; other websites cannot read the page or answer an approval. It stops by itself 10 minutes after you close the page.

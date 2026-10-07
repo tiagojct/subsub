@@ -22,7 +22,7 @@ import { homedir } from "node:os";
 import { extname, join, normalize, resolve, sep } from "node:path";
 import { StringDecoder } from "node:string_decoder";
 import { agentDirFor, chooseCwd, PACKAGE_DIR, packageVersion } from "./cli.ts";
-import { expand, loadConfig, saveConfig, type SubsubConfig, withStarbuck } from "./config.ts";
+import { configPath, expand, loadConfig, readConfigFile, saveConfig, type SubsubConfig, withStarbuck } from "./config.ts";
 import { TESTED_MODELS } from "./init.ts";
 import { obsidianRoot } from "./layout.ts";
 import { realish, within } from "./paths.ts";
@@ -336,7 +336,7 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 	env.PI_CODING_AGENT_DIR = agentDir; // for the session list below
 
 	const childEnv: NodeJS.ProcessEnv = { ...env, SUBSUB_WEB: "1" };
-	const baseArgs = [bin, "--mode", "rpc", "--here", ...(opts.librarian ? ["--librarian"] : []), ...opts.piArgs];
+	const baseArgs = [bin, "--mode", "rpc", "--here", ...opts.piArgs];
 	const agent = new Agent(process.execPath, baseArgs, cwd, childEnv);
 
 	// ---- state shared with the pages
@@ -346,7 +346,19 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 	let busy = false;
 	let lastSeen = Date.now();
 	let restarting = false;
+	let switching = false; // a restart for a new model, add-on or key is under way
+	let lastSession: string | undefined;
 	let refreshAfterRun = false;
+
+	/** The mode to start pi in: the one on screen, else the --librarian flag. A session's own mode still wins. */
+	function modeArgs(): string[] {
+		const shown = (subsubState as { mode?: string } | null)?.mode;
+		if (shown === "librarian" || shown === "researcher") return [`--${shown}`];
+		return opts.librarian ? ["--librarian"] : [];
+	}
+	function startAgent(): void {
+		agent.start([...modeArgs(), ...(lastSession && existsSync(lastSession) ? ["--session", lastSession] : [])]);
+	}
 
 	function broadcast(ev: unknown): void {
 		const data = `data: ${JSON.stringify(ev)}\n\n`;
@@ -384,12 +396,13 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 	agent.onExit = (code) => {
 		if (restarting) return;
 		busy = false;
+		for (const id of dialogs.keys()) broadcast({ type: "dialog_closed", id });
 		dialogs.clear();
 		broadcast({ type: "agent_exit", code, stderr: agent.stderr.slice(-1500) });
 		log(`pi stopped (code ${code}).\n${agent.stderr.slice(-2000)}`);
 	};
 
-	agent.start();
+	startAgent();
 
 	async function snapshot(): Promise<Record<string, unknown>> {
 		const out: Record<string, unknown> = {
@@ -403,6 +416,7 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 		};
 		try {
 			out.session = await agent.request({ type: "get_state" });
+			lastSession = (out.session as { sessionFile?: string }).sessionFile ?? lastSession;
 			out.messages = ((await agent.request({ type: "get_messages" })) as { messages: unknown[] }).messages;
 			out.commands = ((await agent.request({ type: "get_commands" })) as { commands: unknown[] }).commands;
 		} catch (err) {
@@ -422,11 +436,10 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 	}
 
 	async function restartAgent(): Promise<void> {
-		let sessionFile: string | undefined;
 		try {
-			sessionFile = ((await agent.request({ type: "get_state" })) as { sessionFile?: string }).sessionFile;
+			lastSession = ((await agent.request({ type: "get_state" })) as { sessionFile?: string }).sessionFile ?? lastSession;
 		} catch {
-			/* start fresh */
+			/* keep the last one known */
 		}
 		restarting = true;
 		for (const id of dialogs.keys()) broadcast({ type: "dialog_closed", id });
@@ -434,8 +447,21 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 		await agent.stop();
 		restarting = false;
 		busy = false;
-		agent.start(sessionFile && existsSync(sessionFile) ? ["--session", sessionFile] : []);
+		startAgent();
 		broadcast(await snapshot());
+	}
+
+	/** Run a change that restarts pi, one at a time. */
+	async function withRestart(res: ServerResponse, change: () => Promise<void> | void): Promise<void> {
+		if (busy || switching) return send(res, 409, { error: "busy" });
+		switching = true;
+		try {
+			await change();
+			await restartAgent();
+		} finally {
+			switching = false;
+		}
+		return send(res, 200, { ok: true });
 	}
 
 	// ---- idle stop
@@ -565,40 +591,43 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 					return send(res, 200, { models: Array.isArray(data) ? data : (data.models ?? []) });
 				}
 				case "POST /api/model": {
-					if (busy) return send(res, 409, { error: "busy" });
+					if (busy || switching) return send(res, 409, { error: "busy" });
 					const body = await readJson(req);
 					const spec = `${String(body.provider)}/${String(body.id)}`;
 					// Remember the model for the current mode (or both), then restart pi so the extension reads it.
 					const mode = (subsubState as { mode?: string } | null)?.mode === "librarian" ? "librarian" : "researcher";
-					const models: Record<string, string> = { ...(loadConfig(env).models ?? {}), [mode]: spec };
+					// Start from what the file says, not from the built-in defaults, so a model the user never chose is not saved.
+					const raw = readConfigFile(configPath(env));
+					const saved = raw.models && typeof raw.models === "object" ? (raw.models as Record<string, string>) : typeof raw.model === "string" && raw.model ? { librarian: raw.model, researcher: raw.model } : {};
+					const models: Record<string, string> = { ...saved, [mode]: spec };
 					if (body.both) models[mode === "librarian" ? "researcher" : "librarian"] = spec;
 					saveConfig({ models, model: undefined }, env);
-					await agent.request({ type: "set_model", provider: String(body.provider), modelId: String(body.id) });
-					await restartAgent();
-					return send(res, 200, { ok: true });
+					return withRestart(res, async () => {
+						await agent.request({ type: "set_model", provider: String(body.provider), modelId: String(body.id) });
+					});
 				}
 				case "POST /api/addons": {
 					// Turn an add-on on or off, then restart pi so the extension starts or stops its server.
-					if (busy) return send(res, 409, { error: "busy" });
+					if (busy || switching) return send(res, 409, { error: "busy" });
 					const body = await readJson(req);
 					if (typeof body.starbuck !== "boolean") return send(res, 400, { error: "starbuck must be true or false" });
-					saveConfig({ addons: withStarbuck(loadConfig(env).addons, body.starbuck) }, env);
-					await restartAgent();
-					return send(res, 200, { ok: true });
+					return withRestart(res, () => {
+						saveConfig({ addons: withStarbuck(loadConfig(env).addons, body.starbuck) }, env);
+					});
 				}
 				case "POST /api/restart":
-					if (agent.proc) return send(res, 200, { ok: true });
-					agent.start();
+					if (agent.proc || switching) return send(res, 200, { ok: true });
+					startAgent();
 					broadcast(await snapshot());
 					return send(res, 200, { ok: true });
 				case "POST /api/login": {
-					if (busy) return send(res, 409, { error: "busy" });
+					if (busy || switching) return send(res, 409, { error: "busy" });
 					const body = await readJson(req);
-					saveApiKey(agentDir, String(body.provider ?? ""), String(body.key ?? ""));
-					const current = loadConfig(env);
-					if (body.provider === "opencode-go" && Object.keys(current.models).length === 0) saveConfig({ models: TESTED_MODELS, model: undefined }, env);
-					await restartAgent();
-					return send(res, 200, { ok: true });
+					return withRestart(res, () => {
+						saveApiKey(agentDir, String(body.provider ?? ""), String(body.key ?? ""));
+						const current = loadConfig(env);
+						if (body.provider === "opencode-go" && Object.keys(current.models).length === 0) saveConfig({ models: TESTED_MODELS, model: undefined }, env);
+					});
 				}
 				case "POST /api/open": {
 					const body = await readJson(req);

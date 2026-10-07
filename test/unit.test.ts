@@ -170,7 +170,9 @@ test("config defaults and env file", () => {
 	assert.equal(cfg.envFile, env);
 	assert.equal(cfg.vault, resolve("/Users/t/Notes"));
 	assert.equal(cfg.sharedRules, join(resolve("/Users/t/Notes"), "Zotero", "Zotero agent.md"));
-	assert.deepEqual(cfg.models, { librarian: "opencode-go/mimo-v2.6-flash", researcher: "opencode-go/mimo-v2.6-pro" });
+	assert.deepEqual(cfg.models, {}, "no settings file: the user chooses in pi");
+	writeFileSync(join(dir, "plain.json"), JSON.stringify({ profile: "reader" }));
+	assert.deepEqual(loadConfig({ SUBSUB_CONFIG: join(dir, "plain.json"), ZOTERO_MCP_ENV: env } as any).models, { librarian: "opencode-go/mimo-v2.6-flash", researcher: "opencode-go/mimo-v2.6-pro" });
 	assert.equal(cfg.defaultMode, "researcher");
 	assert.equal(expand("~/test", "/custom/home"), resolve("/custom/home/test"));
 	const isolated = loadConfig({ HOME: dir, SUBSUB_CONFIG: join(dir, "none.json"), ZOTERO_MCP_ENV: join(dir, "no-such-env") } as any);

@@ -32,10 +32,15 @@ $Version = EnvOr 'SUBSUB_VERSION' 'latest'
 $NodeDist = EnvOr 'SUBSUB_NODE_DIST' 'https://nodejs.org/dist/latest-v22.x'
 $UvInstaller = EnvOr 'SUBSUB_UV_INSTALLER' 'https://astral.sh/uv/install.ps1'
 
-function Test-NodeOk {
-    $node = Get-Command node -ErrorAction SilentlyContinue
-    if (-not $node) { return $false }
-    try { $v = (& $node.Source -p 'process.versions.node').Trim() } catch { return $false }
+# True if this node.exe (default: the one on PATH) is 22.19 or later.
+function Test-NodeOk([string]$Exe = '') {
+    if (-not $Exe) {
+        $node = Get-Command node -ErrorAction SilentlyContinue
+        if (-not $node) { return $false }
+        $Exe = $node.Source
+    }
+    if (-not (Test-Path $Exe)) { return $false }
+    try { $v = (& $Exe -p 'process.versions.node').Trim() } catch { return $false }
     $parts = $v.Split('.')
     $major = [int]$parts[0]; $minor = [int]$parts[1]
     return ($major -gt 22) -or ($major -eq 22 -and $minor -ge 19)
@@ -68,7 +73,7 @@ try {
     if ((EnvOr 'SUBSUB_OWN_NODE' '0') -ne '1' -and (Test-NodeOk)) {
         $Npm = 'npm.cmd'
         Say "Node.js: using $((Get-Command node).Source)."
-    } elseif ((EnvOr 'SUBSUB_OWN_NODE' '0') -ne '1' -and (Test-Path (Join-Path $OwnNode 'node.exe'))) {
+    } elseif (Test-NodeOk (Join-Path $OwnNode 'node.exe')) {
         $env:Path = "$OwnNode;$env:Path"
         $Npm = Join-Path $OwnNode 'npm.cmd'
         Say "Node.js: using $OwnNode."
@@ -95,18 +100,26 @@ try {
     if ($LASTEXITCODE -ne 0) { Fail 'npm could not install @tiagojct/subsub.' }
     $env:Path = "$SubsubHome;$env:Path"
     $Subsub = Join-Path $SubsubHome 'subsub.cmd'
+    # npm also writes subsub.ps1, which PowerShell prefers to subsub.cmd and which the default
+    # execution policy blocks ("running scripts is disabled"). subsub.cmd works everywhere.
+    foreach ($shim in 'subsub.ps1', 'subsub-bench.ps1') { Remove-Item -Force (Join-Path $SubsubHome $shim) -ErrorAction SilentlyContinue }
     Say "Sub-Sub: $(& $Subsub --version)."
 
     # 4. User PATH
     if ((EnvOr 'SUBSUB_NO_MODIFY_PATH' '0') -ne '1') {
-        $userPath = [Environment]::GetEnvironmentVariable('Path', 'User')
-        if ($null -eq $userPath) { $userPath = '' }
-        $parts = $userPath.Split(';') | Where-Object { $_ -ne '' }
-        $add = @($SubsubHome, $OwnNode) | Where-Object { $parts -notcontains $_ }
+        # Read and write the raw value, so entries such as %USERPROFILE%\bin stay as they are.
+        $key = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey('Environment', $true)
+        $userPath = [string]$key.GetValue('Path', '', [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames)
+        $parts = @($userPath.Split(';') | Where-Object { $_ -ne '' })
+        $add = @(@($SubsubHome, $OwnNode) | Where-Object { $parts -notcontains $_ })
         if ($add.Count -gt 0) {
-            [Environment]::SetEnvironmentVariable('Path', (($add + $parts) -join ';'), 'User')
+            $key.SetValue('Path', ((@($add) + @($parts)) -join ';'), [Microsoft.Win32.RegistryValueKind]::ExpandString)
+            # Tell Windows that the environment changed (new windows then see the new PATH).
+            [Environment]::SetEnvironmentVariable('SUBSUB_PATH_NOTICE', '1', 'User')
+            [Environment]::SetEnvironmentVariable('SUBSUB_PATH_NOTICE', $null, 'User')
             Say "PATH: added $($add -join ', ') to your user PATH."
         }
+        $key.Close()
     }
 
     # 5. Settings

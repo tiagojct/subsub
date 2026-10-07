@@ -123,7 +123,8 @@ export function runChecks(
 	);
 	const v = st.vocabulary ?? {};
 	if (v.loaded === false || !v.tags) {
-		out.push({ name: "Tag list", ok: false, detail: v.path ? `cannot read ${v.path}` : "not set", fix: "Type subsub init: it creates a starter tag list." });
+		const path = v.path && v.path !== "None" ? v.path : undefined; // the server writes Python's None when unset
+		out.push({ name: "Tag list", ok: false, detail: path ? `cannot read ${path}` : "not set", fix: "Type subsub init: it creates a starter tag list." });
 	} else {
 		const noTopics = Array.isArray(v.facets) && !v.facets.includes("topic");
 		out.push({

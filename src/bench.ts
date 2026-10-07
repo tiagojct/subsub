@@ -1,6 +1,6 @@
 /**
  * subsub-bench: the same tasks for several models, against the real library,
- * with no changes applied. See docs/Subsub.md ("Model test").
+ * with no changes applied. See docs/model-test.md.
  *
  *   subsub-bench prepare [--seed 7]        pick the tasks (read-only)
  *   subsub-bench run [--models a,b] [--librarian a,b] [--researcher c,d] [--parallel 3] [--only task]
@@ -79,7 +79,7 @@ export function promptFor(task: string, t: Tasks, code: string, out: string): st
 		case "lit_note":
 			return t.lit_note
 				? `Make a literature note for ${t.lit_note.citekey}, following the literature-note format in the shared rules. Read the full text. ` +
-						`This is a model test: save the note as ${join(out, `${t.lit_note.citekey}.md`)} instead of Resources/Zotero/, and do not attach anything to Zotero.`
+						`This is a model test: save the note as ${join(out, `${t.lit_note.citekey}.md`)} instead of Literature/ in the Sub-Sub folder, and do not attach anything to Zotero.`
 				: undefined;
 		case "synthesis":
 			return t.synthesis

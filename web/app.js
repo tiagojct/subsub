@@ -650,6 +650,7 @@ function onEvent(ev) {
 			setBusy(!!ev.busy);
 			dialogs.length = 0;
 			for (const d of ev.dialogs ?? []) dialogs.push(d);
+			dropStaleDialog();
 			nextDialog();
 			loadSessions();
 			break;
@@ -743,6 +744,8 @@ function onEvent(ev) {
 			break;
 		case "agent_exit":
 			setBusy(false);
+			dialogs.length = 0;
+			dropStaleDialog();
 			log.append(
 				el(
 					"div",
@@ -776,6 +779,7 @@ function dialogTitle(d) {
 	if ((m = raw.match(/^apply (\S+)\?$/))) return t("apply", { x: toolLabel(m[1]) });
 	if ((m = raw.match(/^run (\S+)\?$/))) return t("run", { x: toolLabel(m[1]) });
 	if (raw === "undo?") return t("undo");
+	if ((m = raw.match(/^write the Starbuck report to (.+)\?$/))) return t("starbuckReport", { x: m[1] });
 	if ((m = raw.match(/^(write|edit) (.+)\?$/))) return t("write", { x: m[2] });
 	return raw;
 }
@@ -794,6 +798,14 @@ function paintPreview(pre, text) {
 		}
 		if (last < line.length) pre.append(line.slice(last));
 		pre.append("\n");
+	}
+}
+
+/** Close the dialog on screen if Sub-Sub no longer waits for it (pi restarted, or another tab answered). */
+function dropStaleDialog() {
+	if (shownDialog && !dialogs.some((d) => d.id === shownDialog.id)) {
+		shownDialog = null;
+		if ($("dialog").open) $("dialog").close();
 	}
 }
 
@@ -821,6 +833,7 @@ function nextDialog() {
 			note(err.message, "error");
 		}
 	};
+	$("dialog-form").onsubmit = (e) => e.preventDefault();
 	if (d.method === "confirm") {
 		buttons.append(
 			el("span", { class: "modal-shortcut-hint", text: t("confirmShortcutHint") }),
@@ -834,14 +847,25 @@ function nextDialog() {
 		const field = d.method === "editor" ? el("textarea", {}) : el("input", { type: "text", placeholder: d.placeholder ?? "" });
 		field.value = d.prefill ?? "";
 		body.append(field);
+		$("dialog-form").onsubmit = (e) => {
+			e.preventDefault();
+			answer({ value: field.value });
+		};
 		buttons.append(
 			el("button", { type: "button", class: "ghost", text: t("cancel"), onclick: () => answer({ cancelled: true }) }),
 			el("button", { type: "button", class: "primary", text: t("ok"), onclick: () => answer({ value: field.value }) }),
 		);
 	}
+	// Keys typed just before the dialog opened (the user was writing a message) must not answer it.
+	const openedAt = performance.now();
+	const yesKeys = lang === "pt" ? ["s", "S", "y", "Y"] : ["y", "Y"];
 	dlg.onkeydown = (e) => {
 		if (d.method === "confirm") {
-			if (e.key === "y" || e.key === "Y" || (e.key === "Enter" && (e.metaKey || e.ctrlKey))) {
+			if (e.repeat || performance.now() - openedAt < 700) {
+				if (!e.metaKey && !e.ctrlKey && e.key.length === 1) e.preventDefault();
+				return;
+			}
+			if (yesKeys.includes(e.key) || (e.key === "Enter" && (e.metaKey || e.ctrlKey))) {
 				e.preventDefault();
 				answer({ confirmed: true });
 			} else if (e.key === "n" || e.key === "N") {
@@ -867,6 +891,9 @@ function showModels() {
 
 async function openModels() {
 	const dlg = $("model-dialog");
+	// Name the mode the choice is saved for; "both modes" is a choice for this time only.
+	dlg.querySelector("h2").textContent = t(mode() === "librarian" ? "modelTitleLibrarian" : "modelTitleResearcher");
+	$("model-both").checked = false;
 	const ul = $("models");
 	ul.replaceChildren(el("li", { class: "empty-models", text: "…" }));
 	const sel = $("login-provider");

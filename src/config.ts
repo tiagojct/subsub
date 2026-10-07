@@ -159,7 +159,9 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): SubsubConfig {
 	// "models" per mode; "model" (0.10) for both; {} or "" means: the user chooses in pi (/login, /model).
 	const one = typeof user.model === "string" ? user.model : undefined;
 	const given = user.models && typeof user.models === "object" ? (user.models as Record<string, string>) : undefined;
-	const models: Partial<Record<Mode, string>> = given ?? (one !== undefined ? { librarian: one || undefined, researcher: one || undefined } : { ...DEFAULT_MODELS });
+	// Without a settings file (no subsub init yet), the user chooses in pi: no default that may lack a key.
+	const fallback = existsSync(file) ? { ...DEFAULT_MODELS } : {};
+	const models: Partial<Record<Mode, string>> = given ?? (one !== undefined ? { librarian: one || undefined, researcher: one || undefined } : fallback);
 	for (const k of Object.keys(models) as Mode[]) if (!models[k]) delete models[k];
 	const themes = user.themes === false ? false : typeof user.themes === "string" ? user.themes : user.themes?.researcher;
 	return {

@@ -92,6 +92,27 @@ export type PathVerdict = { ok: true } | { ok: false; why: string };
 export function judgePath(target: string, policy: PathPolicy): PathVerdict {
 	const hit = policy.protectedPaths.find((p) => within(target, p));
 	if (hit) return { ok: false, why: `it changes a protected file or folder (${hit})` };
+	// Notes never live in hidden folders; .git/hooks, .obsidian/plugins or .vscode can run code.
+	const hidden = target.split(/[\\/]/).find((part) => part.startsWith(".") && part !== "." && part !== "..");
+	if (hidden) return { ok: false, why: `it is in a hidden folder or file (${hidden})` };
 	if (policy.allowed.some((a) => within(target, a))) return { ok: true };
 	return { ok: false, why: "it is outside the vault and the working folder" };
+}
+
+/** Files with keys and passwords: the model may not read them, even when you ask. */
+export function secretPaths(): string[] {
+	const home = realish(homedir());
+	return [
+		join(home, ".subsub", "agent", "auth.json"),
+		join(home, ".pi", "agent", "auth.json"),
+		join(home, ".config", "zotero-local-mcp", "env"),
+		join(home, ".ssh"),
+		join(home, ".aws"),
+		join(home, ".netrc"),
+	];
+}
+
+/** True if reading `target` would read a secret; for grep, also a folder that holds one. */
+export function isSecret(target: string, recursive = false): boolean {
+	return secretPaths().some((p) => within(target, p) || (recursive && within(p, target)));
 }

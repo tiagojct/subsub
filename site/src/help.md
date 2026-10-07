@@ -26,6 +26,7 @@ Type `subsub doctor`. Each line starts with `ok`, `NOTE` or `FIX`. Do the fix th
 ## Other problems
 
 - "command not found: subsub": open a new terminal window. If the problem continues, type the install command again.
+- On Windows, PowerShell says "running scripts is disabled on this system": type `subsub.cmd` in place of `subsub` (for example `subsub.cmd doctor`), or type the install command again, which fixes it.
 - The shortcut does nothing, or the page says "Open Sub-Sub with its shortcut": open Sub-Sub from the shortcut again (the page address changes each time Sub-Sub starts). If the problem continues, type `subsub web` in a terminal and read the message. The browser view writes a log to `~/.subsub/web.log`.
 - The shortcut stopped working after an update or a move: type `subsub shortcut`.
 - On Windows, the shortcut also opens a minimised window in the taskbar. That window is Sub-Sub itself: closing it stops Sub-Sub.
