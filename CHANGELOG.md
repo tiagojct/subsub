@@ -1,8 +1,10 @@
 # Changes
 
-Sub-Sub follows the version numbers of npm: a change in the second number (0.12) can change how you use it; a change in the third (0.12.1) only fixes. Until the pilot results are in, new versions are fixes only, apart from changes that the pilot asks for.
+Sub-Sub follows the version numbers of npm: a change in the second number (0.13) adds features or changes how you use it; a change in the third (0.13.1) only fixes.
 
-## 0.12.1 (2026-10-07)
+## 0.13.0 (2026-10-07)
+
+The same changes were published first as 0.12.1.
 
 Files and notes without a parent item (Zotero server 0.5.5):
 
