@@ -158,6 +158,7 @@ button:disabled { opacity: 0.45; cursor: default; }
 .icon-btn:hover { color: var(--text); background: var(--surface); }
 .icon-btn[aria-pressed="true"] { color: var(--accent); background: var(--accent-soft); }
 
+.model-btn.needs { color: var(--warn); border-color: var(--warn); font-family: var(--sans); }
 .chip-btn {
 	max-width: 16rem;
 	overflow: hidden;

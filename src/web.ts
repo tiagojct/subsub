@@ -444,8 +444,11 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 		restarting = true;
 		for (const id of dialogs.keys()) broadcast({ type: "dialog_closed", id });
 		dialogs.clear();
-		await agent.stop();
-		restarting = false;
+		try {
+			await agent.stop();
+		} finally {
+			restarting = false;
+		}
 		busy = false;
 		startAgent();
 		broadcast(await snapshot());
@@ -547,7 +550,13 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 					const body = await readJson(req);
 					const message = String(body.message ?? "").trim();
 					if (!message) return send(res, 400, { error: "empty message" });
-					await agent.request({ type: "prompt", message, ...(busy ? { streamingBehavior: "followUp" } : {}) });
+					try {
+						await agent.request({ type: "prompt", message, ...(busy ? { streamingBehavior: "followUp" } : {}) });
+					} catch (err) {
+						// No provider yet: the page opens the model dialog instead of showing pi's text.
+						if (/no api key|no model|no models available/i.test((err as Error).message)) return send(res, 409, { error: "nomodel" });
+						throw err;
+					}
 					return send(res, 200, { ok: true });
 				}
 				case "POST /api/abort":
@@ -601,9 +610,10 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 					const saved = raw.models && typeof raw.models === "object" ? (raw.models as Record<string, string>) : typeof raw.model === "string" && raw.model ? { librarian: raw.model, researcher: raw.model } : {};
 					const models: Record<string, string> = { ...saved, [mode]: spec };
 					if (body.both) models[mode === "librarian" ? "researcher" : "librarian"] = spec;
-					saveConfig({ models, model: undefined }, env);
 					return withRestart(res, async () => {
-						await agent.request({ type: "set_model", provider: String(body.provider), modelId: String(body.id) });
+						saveConfig({ models, model: undefined }, env);
+						// The open conversation records the new model, so it keeps it after the restart.
+						await agent.request({ type: "set_model", provider: String(body.provider), modelId: String(body.id) }).catch(() => {});
 					});
 				}
 				case "POST /api/addons": {

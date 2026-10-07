@@ -1,3 +1,4 @@
+import { homedir } from "node:os";
 import assert from "node:assert/strict";
 import { existsSync, mkdtempSync, writeFileSync, mkdirSync, readFileSync, realpathSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -6,7 +7,7 @@ import { test } from "node:test";
 
 import type { Bridge, BridgeTool, CallResult } from "../src/bridge.ts";
 import { agentDirFor, chooseCwd, ensureSettings, isSelfUpdate, reviewCommand, shareAuth } from "../src/cli.ts";
-import { findUv, loadConfig as loadCfg, SERVER_VERSION } from "../src/config.ts";
+import { findUv, loadConfig as loadCfg, refreshedArgs, SERVER_VERSION } from "../src/config.ts";
 import { profileSpec, promptBlocked } from "../src/profiles.ts";
 import { fill, languageRule } from "../src/prompt.ts";
 import { unavailableReason } from "../src/roles.ts";
@@ -297,6 +298,22 @@ test("preview gate asks with the server's preview and applies on yes", async () 
 	assert.match(asked.at(-1)!.message, /2 item\(s\) would change[\s\S]*Jacinto 2026: FeNO: \+ topic\/feno/);
 });
 
+test("a preview that changed while the dialog was open is shown again before anything runs", async () => {
+	const { fp, ctx, bridge, asked } = await setup(true);
+	let n = 0;
+	bridge.call = async (name, args) => {
+		bridge.calls.push({ name, args });
+		n++;
+		const added = n === 1 ? ["topic/feno"] : ["topic/asthma"]; // someone edited the item after the first preview
+		return { isError: false, text: "{}", data: { dry_run: true, would_change: 1, changes: [{ key: "K1", item: "Jacinto 2026: FeNO", added, removed: [] }] } };
+	};
+	const r = await fp.handlers.tool_call[0]({ toolName: "zotero_tag_items", input: { changes: [], dry_run: false } }, ctx);
+	assert.equal(r, undefined);
+	assert.equal(asked.length, 2, "asked again with the new preview");
+	assert.match(asked[1].title, /library changed/);
+	assert.match(asked[1].message, /topic\/asthma/);
+});
+
 test("declined, no UI and failed previews block", async () => {
 	const no = await setup(false);
 	await no.fp.commands.librarian.handler("", no.ctx);
@@ -384,6 +401,45 @@ test("the start mode: the session entry, then --librarian, then defaultMode", as
 	assert.equal(await start(CFG, { librarian: true }), "librarian");
 	const branch = [{ customType: "subsub-mode", data: { mode: "librarian" } }, { customType: "subsub-mode", data: { mode: "bogus" } }];
 	assert.equal(await start(CFG, {}, branch), "librarian");
+});
+
+test("the mode's model: set in a new session (pi records its default model there), kept in a resumed one", async () => {
+	const startModel = async (branch: unknown[]) => {
+		const fp = fakePi();
+		await createSubsub(fp.pi as any, { config: CFG, bridge: new FakeBridge() as unknown as Bridge });
+		const { ctx } = fakeCtx({ branch } as any);
+		for (const h of fp.handlers.session_start) await h({ reason: "startup" }, ctx);
+		return (fp.pi as any).model?.id;
+	};
+	const piDefault = { type: "model_change", provider: "other", modelId: "x" };
+	assert.equal(await startModel([piDefault]), "mimo-v2.6-pro", "a new session gets the Researcher's model");
+	assert.equal(await startModel([piDefault, { type: "message", message: { role: "user", content: "hi" } }]), undefined, "a resumed conversation keeps its model");
+});
+
+test("secrets: reads of key files are refused, also in other case and by a grep of home", async () => {
+	const { toolCall } = await setup();
+	const home = homedir();
+	for (const [tool, path] of [["read", "~/.ssh/id_ed25519"], ["read", join(home, ".subsub", "agent", "auth.json")], ["grep", "~"], ["ls", "~/.ssh"]] as const) {
+		assert.equal((await toolCall(tool, { path, pattern: "KEY" }))?.block, true, `${tool} ${path}`);
+	}
+	if (process.platform === "darwin" || process.platform === "win32") assert.equal((await toolCall("read", { path: "~/.SSH/id_ed25519" }))?.block, true, "case does not matter");
+	assert.equal(await toolCall("read", { path: "/vault/Inbox/a.md" }), undefined);
+	assert.equal(await toolCall("grep", { pattern: "x" }), undefined, "grep of the working folder (/vault) is fine");
+});
+
+test("hidden folders: inside the vault they need a yes; a vault under a hidden folder still works", async () => {
+	const base = mkdtempSync(join(tmpdir(), "subsub-hidden-"));
+	const vault = join(base, ".vaults", "Notes");
+	mkdirSync(join(vault, "Inbox"), { recursive: true });
+	const fp = fakePi();
+	await createSubsub(fp.pi as any, { config: { ...CFG, vault }, bridge: new FakeBridge() as unknown as Bridge });
+	const { ctx, asked } = fakeCtx({ confirm: false, cwd: vault });
+	for (const h of fp.handlers.session_start) await h({ reason: "startup" }, ctx);
+	const call = (path: string) => fp.handlers.tool_call[0]({ toolName: "write", input: { path, content: "x" } }, ctx);
+	assert.equal(await call(join(vault, "Inbox", "a.md")), undefined);
+	for (const p of [".git/hooks/pre-commit", ".obsidian/plugins/x/main.js", "Inbox/.hidden.md"]) assert.equal((await call(p))?.block, true, p);
+	assert.equal(asked.length, 3);
+	assert.match(asked.at(-1)!.message, /hidden/);
 });
 
 test("setModel failure is reported", async () => {
@@ -962,4 +1018,13 @@ test("paths: manuscript arguments become absolute in the working folder; note pa
 	mkdirSync(join(v, "Sub-Sub", "Literature"), { recursive: true });
 	assert.equal(obsidianRoot(join(v, "Sub-Sub")), v);
 	assert.equal(obsidianRoot(tmpdir()), undefined);
+});
+
+test("uv: a pinned version missing from uv's cached index is retried once with a fresh index", () => {
+	const args = ["tool", "run", "--quiet", "--from", "zotero-local-mcp==0.5.2", "zotero-local-mcp"];
+	const stale = "error: No solution found when resolving tool dependencies\n  cause: Because there is no version of zotero-local-mcp==0.5.2";
+	assert.deepEqual(refreshedArgs(args, stale), ["tool", "run", "--refresh-package", "zotero-local-mcp", "--quiet", "--from", "zotero-local-mcp==0.5.2", "zotero-local-mcp"]);
+	assert.equal(refreshedArgs(refreshedArgs(args, stale)!, stale), undefined, "only once");
+	assert.equal(refreshedArgs(args, "connection refused"), undefined);
+	assert.equal(refreshedArgs(["run", "--directory", "/x", "zotero-local-mcp"], stale), undefined, "a local checkout needs no index");
 });

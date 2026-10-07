@@ -7,11 +7,19 @@ lead: Sub-Sub works with any model provider that pi supports. You need your own 
 
 ## Connect a provider
 
+In the browser:
+
+1. Open Sub-Sub (the shortcut, or `subsub web`).
+2. Select the model button at the top. Choose the provider, paste its API key and select Save.
+3. Select a model in the list.
+
+In the terminal:
+
 1. Type `subsub`.
 2. Type `/login` and select the provider: for example OpenCode Go, OpenRouter, Anthropic, OpenAI or Google.
 3. Type `/model` to select a model.
 
-Each mode can have its own model. `/model` and the model button set the model for the current mode. In the browser, select "Use it in both modes" to set the same model for the Librarian and the Researcher. To set the models in the settings file `~/.config/subsub/config.json`:
+Each mode can have its own model. The model button saves the model for the current mode; select "Use it in both modes" to set the same model for the Librarian and the Researcher. In the terminal, `/model` changes the model for the open conversation only; `subsub init` or the settings file sets it for a mode. To set the models in the settings file `~/.config/subsub/config.json`:
 
 ```json
 {

@@ -276,12 +276,17 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			registerTools(b);
 		}
 		let restored: Mode | undefined;
-		let modelChosen = false; // the session already has a model: a resumed conversation keeps it
+		// A resumed conversation keeps its model. pi records a model for every new session too,
+		// so only a session with messages counts (pi's own test for an existing session).
+		let hasModel = false;
+		let hasMessages = false;
 		for (const e of ctx.sessionManager.getBranch() as Array<{ type?: string; customType?: string; data?: { mode?: unknown } }>) {
 			const m = e.customType === MODE_ENTRY ? e.data?.mode : undefined;
 			if (m === "librarian" || m === "researcher") restored = m;
-			if (e.type === "model_change") modelChosen = true;
+			if (e.type === "model_change") hasModel = true;
+			if (e.type === "message") hasMessages = true;
 		}
+		const modelChosen = hasModel && hasMessages;
 		// Judge light or dark before Sub-Sub changes the theme.
 		if (lookOn(ctx)) scheme ??= schemeFromAnsi(ctx.ui.theme.getFgAnsi("text"), ctx.ui.theme.name);
 		applyTheme(ctx);
@@ -292,6 +297,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		} else if (webView) {
 			void refreshLibrary();
 		}
+		if (!ctx.model && !webView) ctx.ui.notify("Sub-Sub: no model is connected yet. Type /login and select a provider (or use the model button in subsub web).", "warning");
 		for (const [name, err] of Object.entries(bridge.errors)) {
 			ctx.ui.notify(`Sub-Sub: the ${name} server did not start: ${err.split("\n")[0]}`, "error");
 		}
@@ -355,7 +361,8 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 				return { block: true, reason: why };
 			}
 		}
-		if (["read", "grep", "find", "ls"].includes(name) && typeof input.path === "string" && isSecret(normalizeToolPath(input.path, ctx.cwd), name === "grep")) {
+		// grep, find and ls search the working folder when no path is given.
+		if (["read", "grep", "find", "ls"].includes(name) && isSecret(normalizeToolPath(typeof input.path === "string" ? input.path : ".", ctx.cwd), name === "grep", cfg.envFile)) {
 			return { block: true, reason: "That file holds keys or passwords. Sub-Sub does not read it." };
 		}
 		if (name.startsWith("verify_")) return verifyGate(name, input, ctx);
@@ -376,6 +383,11 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			return { block: true, reason: `Library changes need ${user}'s approval, which needs an interactive session.` };
 		}
 		if (kind === "confirm") {
+			// A file the tool writes is judged like any file write: protected files stay protected.
+			if (typeof input.output_path === "string") {
+				const verdict = judgePath(normalizeToolPath(input.output_path, ctx.cwd), buildPolicy({ vault: cfg.vault, cwd: ctx.cwd, serverDir: cfg.serverDir, packageDir: PACKAGE_DIR }));
+				if (!verdict.ok && /protected|hidden/.test(verdict.why)) return { block: true, reason: `Sub-Sub does not write there: ${verdict.why}.` };
+			}
 			const ok = await ctx.ui.confirm(`Sub-Sub: run ${name}?`, describeArgs(input));
 			return ok ? undefined : { block: true, reason: `${user} did not approve. Ask what to change.` };
 		}
@@ -389,11 +401,25 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			return { block: true, reason: `Preview failed: ${(err as Error).message}` };
 		}
 		if (preview.isError) return { block: true, reason: preview.text };
-		const ok = await ctx.ui.confirm(
-			`Sub-Sub: apply ${name.replace(/^(zotero|scholar)_/, "")}?`,
-			paintFor(ctx)(formatPreview(name, preview.data ?? preview.text)),
-		);
-		return ok ? undefined : { block: true, reason: `${user} did not approve this change. Ask what to change; do not retry the same call.` };
+		const title = `Sub-Sub: apply ${name.replace(/^(zotero|scholar)_/, "")}?`;
+		let shown = formatPreview(name, preview.data ?? preview.text);
+		// The dialog may stay open for minutes. Before applying, compute the preview again: if the
+		// library changed meanwhile (an edit in Zotero, new items), show the new preview instead.
+		for (let round = 0; round < 3; round++) {
+			const ok = await ctx.ui.confirm(round ? `${title} (the library changed; this is the new preview)` : title, paintFor(ctx)(shown));
+			if (!ok) return { block: true, reason: `${user} did not approve this change. Ask what to change; do not retry the same call.` };
+			let again;
+			try {
+				again = await current().call(name, { ...input, dry_run: true }, ctx.signal);
+			} catch (err) {
+				return { block: true, reason: `Preview failed: ${(err as Error).message}` };
+			}
+			if (again.isError) return { block: true, reason: again.text };
+			const now = formatPreview(name, again.data ?? again.text);
+			if (now === shown) return undefined;
+			shown = now;
+		}
+		return { block: true, reason: "The library kept changing while the preview was open. Nothing was applied; try again." };
 	});
 
 	/** A literature note (front matter with a citekey) must state its evidence; see notes.ts. */

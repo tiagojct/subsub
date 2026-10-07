@@ -25,6 +25,13 @@ Type `subsub`. It starts in the Researcher. To start in the Librarian, type `sub
 
 ## Tag your first items
 
+Sub-Sub tags only with the tags in your tag list. The starter list for any field has no topics yet, because your topics depend on your library. The health-sciences list has some. If your list has no `topic/` tags, start here:
+
+1. Type: `propose topics for my tag list`. Sub-Sub reads the titles of your items and writes `Inbox/Zotero topic proposal.md` with 15 to 30 topics.
+2. Copy the topics you want into `Zotero/Zotero tags.md`, in the format of that file.
+
+Then tag:
+
 1. Type `/librarian` (or stay in the Researcher: it can tag too).
 2. Type `/tag-batch 10`. Sub-Sub reads ten items without a topic and writes a review note: `Inbox/Zotero tag review 01.md`.
 3. Open the note. Each row has the item, its current tags, the proposed tags and a reason.

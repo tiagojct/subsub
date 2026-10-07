@@ -7,6 +7,7 @@
 
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import { refreshedArgs } from "./config.ts";
 
 export interface ServerSpec {
 	name: string; // tool prefix: "zotero" or "scholar"
@@ -85,12 +86,14 @@ export class Bridge {
 				});
 			}
 		} catch (err) {
-			this.errors[spec.name] = `${(err as Error).message}${stderr ? `\n${stderr.trim()}` : ""}`;
 			try {
 				await client.close();
 			} catch {
 				/* ignore */
 			}
+			const retry = refreshedArgs(spec.args, stderr);
+			if (retry) return this.startOne({ ...spec, args: retry }, timeoutMs);
+			this.errors[spec.name] = `${(err as Error).message}${stderr ? `\n${stderr.trim()}` : ""}`;
 		}
 	}
 

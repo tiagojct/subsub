@@ -12,6 +12,12 @@ function s(v: unknown, n = 90): string {
 	return t.length > n ? `${t.slice(0, n - 3)}...` : t;
 }
 
+/** What will be written: shown whole up to a large limit, and the rest is counted, never silently cut. */
+function whole(v: unknown, n = 3000): string {
+	const t = typeof v === "string" ? v : JSON.stringify(v);
+	return t.length > n ? `${t.slice(0, n)} [${t.length - n} more characters not shown]` : t;
+}
+
 function list(rows: string[], total?: number): string[] {
 	const out = rows.slice(0, MAX_LINES);
 	const rest = (total ?? rows.length) - out.length;
@@ -27,7 +33,7 @@ function describeChange(c: Obj): string {
 		if (["key", "item", "added", "removed", "tags_after"].includes(k)) continue;
 		if (v && typeof v === "object" && "after" in (v as Obj)) {
 			const b = (v as Obj).before;
-			parts.push(`${k}: ${s(b || "(empty)", 40)} -> ${s((v as Obj).after, 60)}`);
+			parts.push(`${k}: ${s(b || "(empty)", 40)} -> ${whole((v as Obj).after)}`);
 		}
 	}
 	return `${s(c.item ?? c.key, 60)}: ${parts.join("; ") || "(change)"}`;
@@ -83,7 +89,7 @@ export function formatPreview(tool: string, preview: unknown): string {
 	}
 	if (tool.endsWith("attach_note") || tool.endsWith("create_note")) {
 		if (p.item || p.parent) lines.push(`Note on: ${s(p.item ?? p.parent, 90)}`);
-		if (p.summary || p.note_preview) lines.push(s(p.summary ?? p.note_preview, 600));
+		if (p.summary || p.note_preview) lines.push(whole(p.summary ?? p.note_preview));
 		if (p.link) lines.push(`Link: ${p.link}`);
 	}
 	const skipped = p.skipped as Obj | undefined;

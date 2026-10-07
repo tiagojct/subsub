@@ -20,6 +20,7 @@ import {
 	starbuckCommand,
 	starbuckEnabled,
 	type SubsubConfig,
+	refreshedArgs,
 } from "./config.ts";
 import { isObsidianVault, LEGACY_SETTINGS_DIR, SETTINGS_FILES, settingsFile } from "./layout.ts";
 import { profileSpec } from "./profiles.ts";
@@ -92,7 +93,10 @@ export function runChecks(
 
 	const cmd = serverCommand(cfg, "zotero-local-mcp", ["--check"], env);
 	const local = cmd.args.includes("--directory");
-	const res = run(cmd.command, cmd.args, { ...env, ...(cfg.envFile ? { ZOTERO_MCP_ENV: cfg.envFile } : {}) });
+	const serverEnv = { ...env, ...(cfg.envFile ? { ZOTERO_MCP_ENV: cfg.envFile } : {}) };
+	let res = run(cmd.command, cmd.args, serverEnv);
+	const retry = res.status !== 0 ? refreshedArgs(cmd.args, res.stderr) : undefined;
+	if (retry) res = run(cmd.command, retry, serverEnv);
 	let st: Record<string, any> | undefined;
 	try {
 		st = JSON.parse(res.stdout);
@@ -150,7 +154,7 @@ export function runChecks(
 	out.push(
 		hasLogin(agentDir)
 			? { name: "Model login", ok: true, detail: Object.keys(cfg.models).length ? Object.entries(cfg.models).map(([m, id]) => `${m} ${id}`).join(", ") : "pi's default model" }
-			: { name: "Model login", ok: false, detail: "no model provider yet", fix: "Type subsub, then /login." },
+			: { name: "Model login", ok: false, detail: "no model provider yet", fix: "Open Sub-Sub (subsub web), select the model button and save an API key. In the terminal: type subsub, then /login." },
 	);
 	return out;
 }

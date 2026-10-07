@@ -25,8 +25,8 @@ Each mode can have its own model. Switch with `/researcher` and `/librarian`, or
 Every library change works the same way in both modes:
 
 - The Zotero server computes the change first. Sub-Sub shows it to you (added tags in green, removed tags in red) and applies it only when you select Yes. The check is in the program, so the model cannot skip it.
-- Each change sends the item's version, so an edit you make in Zotero at the same time is not overwritten.
-- Every change is journaled. `/undo` reverts it.
+- If you edit an item in Zotero while the preview is open, Sub-Sub shows you the new preview before it changes anything. Each change also sends the item's version, so a field you edit at the moment of writing is not overwritten.
+- Every change to an item is journaled. `/undo` reverts it. (A new collection is not; remove it in Zotero if you do not want it.)
 - Nothing is deleted: items go to the Zotero trash. Only tags from your tag list can be added.
 
 ## Profiles

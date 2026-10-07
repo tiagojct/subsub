@@ -39,7 +39,7 @@ export type Profile = "reader" | "scholar" | "author" | "editor";
 export const PROFILES: Profile[] = ["reader", "scholar", "author", "editor"];
 
 /** The Zotero server release that this Sub-Sub version runs when there is no local server folder. */
-export const SERVER_VERSION = "0.5.1";
+export const SERVER_VERSION = "0.5.2";
 
 /** The Starbuck release (PyPI) that this Sub-Sub version runs when there is no local Starbuck folder. */
 export const STARBUCK_VERSION = "0.2.0";
@@ -223,6 +223,19 @@ export function serverCommand(
 		return { command: uv, args: ["run", "--quiet", "--directory", cfg.serverDir, program, ...args] };
 	}
 	return { command: uv, args: ["tool", "run", "--quiet", "--from", `zotero-local-mcp==${SERVER_VERSION}`, program, ...args] };
+}
+
+/**
+ * uv caches the PyPI index; right after a release it may not know the pinned version yet
+ * ("there is no version of zotero-local-mcp==0.5.2"). Then the same command runs again with
+ * the index for that package refreshed. Returns undefined when a retry would not help.
+ */
+export function refreshedArgs(args: string[], stderr: string): string[] | undefined {
+	if (!/there is no version of|no solution found/i.test(stderr)) return undefined;
+	const i = args.indexOf("--from");
+	if (args[0] !== "tool" || args[1] !== "run" || i < 0 || args.includes("--refresh-package")) return undefined;
+	const pkg = args[i + 1].split(/[=<>!~]/)[0];
+	return [...args.slice(0, 2), "--refresh-package", pkg, ...args.slice(2)];
 }
 
 export function starbuckEnabled(cfg: Pick<SubsubConfig, "addons">): boolean {

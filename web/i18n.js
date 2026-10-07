@@ -5,7 +5,8 @@ export const STRINGS = {
 	en: {
 		profile: "Profile",
 		model: "Model",
-		noModel: "No model",
+		noModel: "Connect a model",
+		noModelSend: "No model is connected yet. Choose a provider and save its key; your message is still in the box.",
 		newConversation: "New conversation",
 		actions: "Actions",
 		conversations: "Conversations",
@@ -97,7 +98,8 @@ export const STRINGS = {
 	pt: {
 		profile: "Perfil",
 		model: "Modelo",
-		noModel: "Sem modelo",
+		noModel: "Ligar um modelo",
+		noModelSend: "Ainda não há um modelo ligado. Escolha um fornecedor e guarde a chave; a sua mensagem continua na caixa.",
 		newConversation: "Nova conversa",
 		actions: "Ações",
 		conversations: "Conversas",

@@ -39,8 +39,8 @@ Sub-Sub sends no email. `/request-copy` writes a draft in your Sub-Sub folder; y
 ## Safety
 
 - Every library change is shown as a preview first and runs only after you approve it. The check is in the program; the model cannot skip it.
-- Each change sends the item's version, so an edit you make in Zotero at the same time is never overwritten.
-- Every change is journaled and can be undone.
+- If you edit an item in Zotero while the preview is open, Sub-Sub shows you the new preview before it changes anything. Each change also sends the item's version, so a field you edit at the moment of writing is not overwritten.
+- Every change to an item is journaled and can be undone. A new collection is the exception: remove it in Zotero if you do not want it.
 - Nothing is deleted. Items go to the Zotero trash; tags are removed from items.
 - Only tags from your tag list can be added.
 - The Librarian has no search tools.

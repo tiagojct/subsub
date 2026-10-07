@@ -183,7 +183,9 @@ function renderHeader() {
 	$("starbuck-toggle").checked = Boolean(state?.starbuck);
 	$("starbuck-label").title = t("starbuckHint");
 	const m = state?.model ?? session?.model;
-	$("model-btn").textContent = $("model-btn-side").textContent = m ? m.id : t("noModel");
+	const none = !m || !m.id || m.id === "unknown";
+	$("model-btn").textContent = $("model-btn-side").textContent = none ? t("noModel") : m.id;
+	for (const b of [$("model-btn"), $("model-btn-side")]) b.classList.toggle("needs", none);
 	const lib = $("library");
 	const txt = lib.querySelector(".library-text") ?? lib;
 	const L = state?.library;
@@ -862,7 +864,8 @@ function nextDialog() {
 	dlg.onkeydown = (e) => {
 		if (d.method === "confirm") {
 			if (e.repeat || performance.now() - openedAt < 700) {
-				if (!e.metaKey && !e.ctrlKey && e.key.length === 1) e.preventDefault();
+				// Escape still declines (through oncancel); Enter and Space would press the focused button.
+				if (e.key !== "Escape" && e.key !== "Tab") e.preventDefault();
 				return;
 			}
 			if (yesKeys.includes(e.key) || (e.key === "Enter" && (e.metaKey || e.ctrlKey))) {
@@ -981,6 +984,16 @@ async function sendMessage(text) {
 		return true;
 	} catch (err) {
 		if (isTemplate) sentTemplates.pop();
+		if (err.message === "nomodel") {
+			// Keep what the user wrote, and show where to connect a provider.
+			if (!input.value.trim()) {
+				input.value = message;
+				autosize();
+			}
+			note(t("noModelSend"), "warning");
+			showModels();
+			return false;
+		}
 		note(err.message, "error");
 		return false;
 	}

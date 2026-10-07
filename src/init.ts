@@ -155,6 +155,7 @@ export async function runInit(
 	const answer = expand(cleanPath(await io.ask("Sub-Sub folder (or an Obsidian vault)", folderDefault)) || folderDefault, home);
 	let notes = keepAsIs && answer === oldFolder ? answer : subsubFolder(answer);
 	if (notes !== answer) io.say(`That is an Obsidian vault. Sub-Sub will use ${notes}.`);
+	else if (notes !== folderDefault) io.say(`Sub-Sub folder: ${notes}`);
 
 	// ---- files of the old layout
 	const from = oldFolder && existsSync(oldFolder) ? oldFolder : notes;
@@ -301,6 +302,7 @@ export async function runInit(
 	if (starbuck === "on") io.say(starbuckNote || "Reference checks: on. The first start downloads Starbuck.");
 	if (fmup) io.say("FMUP / U.Porto: the FMUP model service will come in a later version. Until then, connect a model provider yourself.");
 	io.say("Next: type subsub web to open Sub-Sub in your browser (or subsub for the terminal). Connect a model provider with the model button (or /login in the terminal). To check the setup, type subsub doctor.");
+	if (tags === "any-field") io.say('The tag list has no topics yet. Before you tag, ask Sub-Sub: "propose topics for my tag list".');
 	return { configFile, envFile, notes, created, moved: move === "yes" ? moves.length : 0, zotero };
 }
 
@@ -354,7 +356,10 @@ function terminalIO(): InitIO & { close(): void } {
 
 export async function initMain(args: string[], env: NodeJS.ProcessEnv = process.env): Promise<number> {
 	const flags = parseFlags(args);
-	if (!process.stdin.isTTY) flags.yes ??= "true";
+	if (!process.stdin.isTTY && flags.yes === undefined) {
+		flags.yes = "true";
+		console.log("Not a terminal: Sub-Sub takes the default answers (as with --yes).");
+	}
 	const io = flags.yes ? defaultsIO((l) => console.log(l)) : terminalIO();
 	try {
 		await runInit(io, flags, env, { prepareStarbuck: (cfg) => {
