@@ -46,7 +46,7 @@ The [Profiles page](https://subsub.tiagojacinto.eu/profiles/) lists the tools an
 
 - Zotero 10 or later, running, with Settings > Advanced > "Allow other applications on this computer to communicate with Zotero" on.
 - Node.js 22.19 or later, and [uv](https://docs.astral.sh/uv/). The installers add both if they are missing.
-- An account with a model provider that pi supports (for example OpenCode Go, OpenRouter, Anthropic, OpenAI, Mistral, Google), or a local model.
+- An account with a model provider that pi supports (for example OpenCode Go, OpenRouter, Anthropic, OpenAI, Mistral, Google), or a local model. To try Sub-Sub without paying, a free Google AI Studio key is enough (see [Use Sub-Sub for free](https://subsub.tiagojacinto.eu/models/#use-sub-sub-for-free)).
 - macOS, Linux or Windows.
 
 ## Install
@@ -133,7 +133,7 @@ subsub review apply 13-31
 | `userName`, `about` | Your name and one line about you, for the replies | none |
 | `language` | Language of replies and notes, or `auto` for the language you write in | `English` |
 | `vault` | The Sub-Sub folder | from the server settings |
-| `models` | The model for each mode, as provider/id: `{"librarian": "...", "researcher": "..."}`. `{}` means you choose in Sub-Sub | `opencode-go/mimo-v2.6-flash` and `opencode-go/mimo-v2.6-pro` |
+| `models` | The model for each mode, as provider/id: `{"librarian": "...", "researcher": "..."}`. `{}` means you choose in Sub-Sub. The free choice in `subsub init` sets `google/gemini-3.1-flash-lite` for both | `opencode-go/mimo-v2.6-flash` and `opencode-go/mimo-v2.6-pro` |
 | `defaultMode` | `researcher` or `librarian` | `researcher` |
 | `addons` | `["starbuck"]` adds reference checks | `[]` |
 | `serverDir` | A local copy of zotero-local-mcp, for development | the PyPI release |

@@ -368,6 +368,21 @@ function scrollDown(force = false) {
 	if (force || near) log.scrollTop = log.scrollHeight;
 }
 
+// A provider error in plain words (keep in step with providerTrouble in src/keys.ts), with the raw text below.
+function troubleOf(text) {
+	if (/RESOURCE_EXHAUSTED|\b429\b|quota|rate.?limit|too many requests|usage limit/i.test(text)) return "quota";
+	if (/\b(503|529)\b|UNAVAILABLE|high demand|overloaded/i.test(text)) return "busy";
+	if (/RECITATION|SAFETY|PROHIBITED_CONTENT/.test(text)) return "blocked";
+	if (/\b(401|403)\b|API key not valid|invalid api key|PERMISSION_DENIED|UNAUTHENTICATED/i.test(text)) return "key";
+	return null;
+}
+
+function errorNote(text) {
+	const kind = troubleOf(text);
+	if (!kind) return el("div", { class: "note error", text });
+	return el("div", { class: "note error" }, el("p", { text: t(`trouble_${kind}`) }), el("details", {}, el("summary", { text: t("details") }), el("pre", { text })));
+}
+
 function note(text, kind = "info", mono = false) {
 	clearEmpty();
 	const n = el("div", { class: `note ${kind}${mono ? " mono" : ""}`, text });
@@ -596,7 +611,7 @@ function renderAssistantFinal(message, msg = startAssistant()) {
 		);
 		msg.box.append(actions);
 	}
-	if (message.stopReason === "error" && message.errorMessage) msg.box.append(el("div", { class: "note error", text: message.errorMessage }));
+	if (message.stopReason === "error" && message.errorMessage) msg.box.append(errorNote(message.errorMessage));
 	if (message.stopReason === "aborted") msg.box.append(el("div", { class: "note", text: t("stopped") }));
 	if (!msg.box.children.length) msg.box.remove();
 	scrollDown();
@@ -907,44 +922,93 @@ async function openModels() {
 	const setLink = () => {
 		const p = providers.find((x) => x.id === sel.value);
 		link.href = p?.url ?? "#";
+		const free = { google: "freeGoogle", openrouter: "freeOpenRouter" }[sel.value];
+		$("login-free").hidden = !free;
+		$("login-free").textContent = free ? t(free) : "";
 	};
 	sel.onchange = setLink;
 	setLink();
 	if (!dlg.open) dlg.showModal();
 	let models = [];
+	let recommended = [];
 	try {
-		models = (await api("/api/models")).models ?? [];
+		const data = await api("/api/models");
+		models = data.models ?? [];
+		recommended = data.recommended ?? [];
 	} catch (err) {
 		note(err.message, "error");
 	}
-	ul.replaceChildren();
-	if (!models.length) ul.append(el("li", { class: "empty-models", text: t("noModels") }));
 	const cur = state?.model ?? session?.model;
+	const specOf = (m) => `${m.provider}/${m.id}`;
 	const isCurrent = (m) => cur && cur.provider === m.provider && cur.id === m.id;
-	models.sort((a, b) => Number(isCurrent(b)) - Number(isCurrent(a)) || `${a.provider}/${a.id}`.localeCompare(`${b.provider}/${b.id}`));
-	for (const m of models) {
-		const isCur = cur && cur.provider === m.provider && cur.id === m.id;
-		ul.append(
+	const available = new Set(models.map(specOf));
+	// Recommended for this mode first (also when the provider has no key yet), then the rest.
+	const mine = recommended.filter((r) => r.modes.includes(mode()));
+	const recSpecs = new Set(mine.map((r) => r.spec));
+	const others = models
+		.filter((m) => !recSpecs.has(specOf(m)))
+		.sort((a, b) => Number(isCurrent(b)) - Number(isCurrent(a)) || specOf(a).localeCompare(specOf(b)));
+	const choose = async (m) => {
+		if (busy) return note(t("busy"), "warning");
+		try {
+			await api("/api/model", { provider: m.provider, id: m.id, both: $("model-both").checked });
+			dlg.close();
+		} catch (err) {
+			note(err.message, "error");
+		}
+	};
+	const row = (m, rec) => {
+		const spec = specOf(m);
+		const can = available.has(spec);
+		const label = providers.find((p) => p.id === m.provider)?.label ?? m.provider;
+		return el(
+			"li",
+			{ "data-spec": spec.toLowerCase() },
 			el(
-				"li",
-				{},
-				el("button", {
+				"button",
+				{
 					type: "button",
-					class: isCur ? "current" : "",
-					text: `${m.provider}/${m.id}`,
-					onclick: async () => {
-						if (busy) return note(t("busy"), "warning");
-						try {
-							await api("/api/model", { provider: m.provider, id: m.id, both: $("model-both").checked });
-							dlg.close();
-						} catch (err) {
-							note(err.message, "error");
+					class: [isCurrent(m) ? "current" : "", rec ? "rec" : "", can ? "" : "needs-key"].join(" ").trim(),
+					// Without a key, the click goes to the form below: that provider, and the key field.
+					onclick: () => {
+						if (can) return choose(m);
+						if (providers.some((p) => p.id === m.provider)) {
+							sel.value = m.provider;
+							setLink();
 						}
+						$("login-key").focus();
 					},
-				}),
+				},
+				el("span", { class: "model-name", text: spec }),
+				rec ? el("span", { class: "model-tag", text: t(`rec_${rec.why}`) }) : null,
+				rec && !can ? el("span", { class: "model-why", text: t("needsKey", { x: label }) }) : null,
 			),
 		);
-	}
+	};
+	const search = $("model-search");
+	const render = () => {
+		const q = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+		const hit = (spec) => q.every((w) => spec.toLowerCase().includes(w));
+		const recRows = mine.filter((r) => hit(r.spec)).map((r) => {
+			const i = r.spec.indexOf("/");
+			return row({ provider: r.spec.slice(0, i), id: r.spec.slice(i + 1) }, r);
+		});
+		const rest = others.filter((m) => hit(specOf(m))).map((m) => row(m, null));
+		ul.replaceChildren();
+		if (recRows.length) ul.append(el("li", { class: "models-group", text: t("recommended") }), ...recRows);
+		if (rest.length) ul.append(el("li", { class: "models-group", text: t(recRows.length ? "otherModels" : "allModels") }), ...rest);
+		if (!recRows.length && !rest.length) ul.append(el("li", { class: "empty-models", text: models.length ? t("noMatch") : t("noModels") }));
+	};
+	search.value = "";
+	search.oninput = render;
+	search.onkeydown = (e) => {
+		if (e.key === "Enter") {
+			e.preventDefault();
+			ul.querySelector("button:not(.needs-key)")?.click();
+		}
+	};
+	render();
+	search.focus();
 }
 
 $("login-form")?.addEventListener("submit", async (e) => {

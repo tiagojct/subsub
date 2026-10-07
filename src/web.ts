@@ -22,8 +22,9 @@ import { homedir } from "node:os";
 import { extname, join, normalize, resolve, sep } from "node:path";
 import { StringDecoder } from "node:string_decoder";
 import { agentDirFor, chooseCwd, PACKAGE_DIR, packageVersion } from "./cli.ts";
-import { configPath, expand, loadConfig, readConfigFile, saveConfig, type SubsubConfig, withStarbuck } from "./config.ts";
+import { configPath, expand, loadConfig, RECOMMENDED_MODELS, readConfigFile, saveConfig, type SubsubConfig, withStarbuck } from "./config.ts";
 import { TESTED_MODELS } from "./init.ts";
+import { KEY_PROVIDERS, saveApiKey } from "./keys.ts";
 import { obsidianRoot } from "./layout.ts";
 import { realish, within } from "./paths.ts";
 
@@ -62,35 +63,7 @@ export function uiLanguage(language: string | undefined): "pt" | "en" {
 
 // ---------------------------------------------------------------- providers (API keys)
 
-export const KEY_PROVIDERS: Array<{ id: string; label: string; url: string }> = [
-	{ id: "opencode-go", label: "OpenCode Go", url: "https://opencode.ai/auth" },
-	{ id: "openrouter", label: "OpenRouter", url: "https://openrouter.ai/keys" },
-	{ id: "anthropic", label: "Anthropic", url: "https://console.anthropic.com/settings/keys" },
-	{ id: "openai", label: "OpenAI", url: "https://platform.openai.com/api-keys" },
-	{ id: "google", label: "Google Gemini", url: "https://aistudio.google.com/apikey" },
-	{ id: "mistral", label: "Mistral", url: "https://console.mistral.ai/api-keys" },
-	{ id: "deepseek", label: "DeepSeek", url: "https://platform.deepseek.com/api_keys" },
-];
-
-/** Save an API key the way pi's /login does: auth.json in the agent folder, readable only by the user. */
-export function saveApiKey(agentDir: string, provider: string, key: string): void {
-	if (!KEY_PROVIDERS.some((p) => p.id === provider)) throw new Error(`Unknown provider: ${provider}`);
-	const clean = key.trim();
-	if (!clean || /\s/.test(clean) || clean.length > 400) throw new Error("That does not look like an API key.");
-	mkdirSync(agentDir, { recursive: true });
-	const file = join(agentDir, "auth.json");
-	let data: Record<string, unknown> = {};
-	if (existsSync(file)) {
-		try {
-			data = JSON.parse(readFileSync(file, "utf8")) ?? {};
-		} catch {
-			throw new Error(`${file} is not valid JSON; fix it or type /login in the terminal.`);
-		}
-	}
-	data[provider] = { type: "api_key", key: clean };
-	// Write through a symlink (a shared pi auth.json) rather than replacing it.
-	writeFileSync(file, `${JSON.stringify(data, null, 2)}\n`, { mode: 0o600 });
-}
+export { KEY_PROVIDERS, saveApiKey } from "./keys.ts";
 
 // ---------------------------------------------------------------- pi in RPC mode
 
@@ -597,7 +570,7 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 				}
 				case "GET /api/models": {
 					const data = (await agent.request({ type: "get_available_models" })) as { models?: unknown[] } | unknown[];
-					return send(res, 200, { models: Array.isArray(data) ? data : (data.models ?? []) });
+					return send(res, 200, { models: Array.isArray(data) ? data : (data.models ?? []), recommended: RECOMMENDED_MODELS });
 				}
 				case "POST /api/model": {
 					if (busy || switching) return send(res, 409, { error: "busy" });

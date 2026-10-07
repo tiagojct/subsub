@@ -29,7 +29,7 @@ Nenhuma alteração à biblioteca acontece sem a sua aprovação. Com a língua 
 1. Instale o [Zotero 10](https://www.zotero.org/download/), se ainda não o tiver.
 2. Faça uma cópia de segurança da biblioteca. No Zotero, abra Definições (Settings) > Avançado (Advanced) > Ficheiros e pastas (Files and Folders) e clique em Mostrar pasta de dados (Show Data Directory). Feche o Zotero. Copie essa pasta para outro local.
 3. Abra o Zotero. Em Definições > Avançado, ative a opção "Allow other applications on this computer to communicate with Zotero" (permitir que outras aplicações deste computador comuniquem com o Zotero).
-4. Tenha à mão os dados de acesso ao modelo de IA indicado para o piloto.
+4. Tenha à mão os dados de acesso ao modelo de IA indicado para o piloto. Se não tiver um, pode experimentar sem pagar com uma chave gratuita da Google: veja [Use Sub-Sub for free](/models/#use-sub-sub-for-free), em inglês.
 
 ## Instalar
 

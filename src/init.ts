@@ -19,7 +19,7 @@
  * Flags (for scripts and tests): --yes (take every default), --setup
  * standard|fmup, --name, --about, --language, --folder (or --notes), --move
  * yes|no, --profile, --tags health-sciences|health-informatics|any-field,
- * --email, --starbuck on|off, --models keep|later|opencode-go.
+ * --email, --starbuck on|off, --models keep|later|opencode-go|google-free.
  */
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -30,6 +30,7 @@ import { fileURLToPath } from "node:url";
 import {
 	configPath,
 	DEFAULT_MODELS,
+	FREE_MODELS,
 	expand,
 	isProfile,
 	loadConfig,
@@ -43,6 +44,7 @@ import {
 } from "./config.ts";
 import { defaultRunner, starbuckCheck } from "./doctor.ts";
 import { applyMoves, FOLDER_NAME, leftBehind, NOTE_DIRS, planMoves, SETTINGS_DIR, SETTINGS_FILES, subsubFolder } from "./layout.ts";
+import { KEY_PROVIDERS, saveApiKey } from "./keys.ts";
 import { PROFILE_SPECS } from "./profiles.ts";
 
 const TEMPLATES = resolve(dirname(fileURLToPath(import.meta.url)), "..", "templates");
@@ -238,10 +240,20 @@ export async function runInit(
 		...(hadModel ? [{ value: "keep", label: `Keep: ${show(current.models)}` }] : []),
 		{ value: "later", label: "Choose later in Sub-Sub" },
 		{ value: "opencode-go", label: `OpenCode Go, tested: ${TESTED_MODELS.librarian} for the Librarian, ${TESTED_MODELS.researcher} for the Researcher` },
+		{ value: "google-free", label: `Free, to try Sub-Sub: Google AI Studio, ${FREE_MODELS.researcher} in both modes (a free key, no card; limits per minute and per day; 18 or older)` },
 	];
 	const agentDir = initEnv.SUBSUB_AGENT_DIR ? expand(initEnv.SUBSUB_AGENT_DIR, home) : join(home, ".subsub", "agent");
 	const modelDefault = hadModel ? "keep" : hasProvider(agentDir, "opencode") ? "opencode-go" : "later";
 	const models = await io.choose("Models", modelOptions, flags.models ?? modelDefault);
+	let googleKey = "";
+	if (models === "google-free" && !hasProvider(agentDir, "google")) {
+		const url = KEY_PROVIDERS.find((p) => p.id === "google")?.url;
+		explain(
+			"Free Google key",
+			`Open ${url}, sign in with a Google account, and select "Create API key". Copy the key and paste it here. Sub-Sub saves it in ${join(agentDir, "auth.json")}, readable only by you. In the EU, the UK and Switzerland, Google does not use your prompts to improve its products; elsewhere, on the free tier, it may. When a limit is reached, Sub-Sub says so.`,
+		);
+		googleKey = (await io.ask("Google API key (Enter to add it later with the model button or /login)", "")).trim();
+	}
 
 	// ---- write
 	if (move === "yes") applyMoves(moves);
@@ -285,7 +297,19 @@ export async function runInit(
 	if (models === "keep") patch.models = current.models;
 	if (models === "later") patch.models = {};
 	if (models === "opencode-go") patch.models = TESTED_MODELS;
+	if (models === "google-free") patch.models = FREE_MODELS;
 	saveConfig(patch, initEnv);
+	let keyNote = "";
+	if (googleKey) {
+		try {
+			saveApiKey(agentDir, "google", googleKey);
+			keyNote = `Saved: the Google key, in ${join(agentDir, "auth.json")}`;
+		} catch (err) {
+			keyNote = `The Google key was not saved (${(err as Error).message}). Add it in Sub-Sub with the model button or /login.`;
+		}
+	} else if (models === "google-free" && !hasProvider(agentDir, "google")) {
+		keyNote = "No Google key yet. Add it in Sub-Sub with the model button (subsub web) or /login (in the terminal), with the provider Google Gemini.";
+	}
 
 	const zotero = await zoteroReachable(deps.fetch);
 	const starbuckNote = starbuck === "on" && deps.prepareStarbuck ? deps.prepareStarbuck(loadConfig(initEnv)) : "";
@@ -293,6 +317,7 @@ export async function runInit(
 	io.say(`Saved: ${configFile}`);
 	io.say(`Saved: ${envFile}`);
 	for (const c of created) io.say(`Created: ${c}`);
+	if (keyNote) io.say(keyNote);
 	if (move === "yes") io.say(`Moved: ${moves.length} file(s) into ${notes}`);
 	for (const d of leftBehind(from, notes)) io.say(`Not moved: ${d}. If Sub-Sub wrote these notes, move them into ${notes} yourself.`);
 	io.say(

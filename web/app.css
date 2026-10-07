@@ -631,6 +631,11 @@ body.layout-full { --measure: 72rem; }
 .note.mono { font-family: var(--mono); font-size: 0.76rem; line-height: 1.55; }
 .note pre { font-family: var(--mono); font-size: 0.74rem; white-space: pre-wrap; }
 .note button { margin-top: 0.5rem; }
+.note p { margin: 0; }
+.note details { margin-top: 0.4rem; color: var(--muted); }
+.note details summary { cursor: pointer; font-size: 0.78rem; }
+.note details pre { margin: 0.3rem 0 0; overflow-wrap: anywhere; }
+.free-note { border-left: 3px solid var(--accent); padding-left: 0.6rem; }
 
 .working {
 	margin-top: 1rem;
@@ -826,6 +831,14 @@ body > p.empty { text-align: center; color: var(--muted); padding: 30vh 1rem 0; 
 .models button:hover { background: var(--bg); }
 .models .current { color: var(--accent); font-weight: 600; background: var(--accent-soft); }
 .models .empty-models { padding: 0.65rem 0.8rem; color: var(--muted); font-size: 0.88rem; }
+.model-search { width: 100%; margin-bottom: 0.5rem; }
+.models { max-height: 20rem; }
+.models .models-group { padding: 0.45rem 0.8rem 0.3rem; font-size: 0.78rem; font-weight: 600; color: var(--muted); background: var(--surface); }
+.models button { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.25rem 0.6rem; }
+.models .needs-key { opacity: 0.65; }
+.models .model-name { min-width: 0; overflow-wrap: anywhere; }
+.models .model-tag { font-family: var(--sans); font-size: 0.72rem; font-weight: 600; color: var(--accent); border: 1px solid currentColor; border-radius: 999px; padding: 0 0.45rem; }
+.models .model-why { font-family: var(--sans); font-size: 0.75rem; color: var(--muted); }
 
 /* ---------------------------------------------------------------- narrow screens */
 

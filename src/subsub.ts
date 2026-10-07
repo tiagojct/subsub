@@ -41,6 +41,7 @@ import { coerceArgs, loosenArrays, resolvePathArgs } from "./args.ts";
 import { applyEdits, checkLiteratureNote } from "./notes.ts";
 import { buildPolicy, isSecret, judgePath, normalizeToolPath, realish, within } from "./paths.ts";
 import { describeArgs, formatPreview } from "./preview.ts";
+import { providerTrouble, TROUBLE_TEXT } from "./keys.ts";
 import { headerLines, type LibraryState, paintPreview, QUOTES, type Scheme, schemeFromAnsi, themeName } from "./look.ts";
 import { systemAddition } from "./prompt.ts";
 import { gateKind, SERVER_PREFIXES, toolsFor, unavailableReason } from "./roles.ts";
@@ -324,6 +325,14 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	});
 
 	pi.on("model_select", async (_event, ctx) => status(ctx));
+	// A provider error in plain words (quota, busy, blocked, key); the web view words its own.
+	pi.on("message_end", async (event, ctx) => {
+		const m = event.message as { role?: string; stopReason?: string; errorMessage?: string };
+		if (webView || m.role !== "assistant" || m.stopReason !== "error") return;
+		const kind = providerTrouble(m.errorMessage);
+		if (kind) ctx.ui.notify(`Sub-Sub: ${TROUBLE_TEXT[kind]}`, "warning");
+	});
+
 
 	// Prompt commands that the profile does not run (/lit for Reader, /review for Reader and Scholar).
 	// The input event comes before pi expands a prompt template.

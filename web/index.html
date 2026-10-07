@@ -111,6 +111,7 @@
 		</div>
 		<h3 data-i18n="chooseModel">Choose a model</h3>
 		<label class="check"><input type="checkbox" id="model-both"> <span data-i18n="forBoth">Use it in both modes</span></label>
+		<input type="search" id="model-search" class="model-search" data-i18n-placeholder="searchModels" placeholder="Search models" autocomplete="off" spellcheck="false">
 		<ul class="models" id="models"></ul>
 		<h3 data-i18n="connectProvider">Connect a provider</h3>
 		<form id="login-form" class="login">
@@ -121,6 +122,7 @@
 				<input type="password" id="login-key" autocomplete="off" spellcheck="false" required>
 			</label>
 			<p class="small"><a id="login-link" href="#" target="_blank" rel="noopener noreferrer" data-i18n="getKey">Get a key</a></p>
+			<p class="small free-note" id="login-free" hidden></p>
 			<p class="small muted" data-i18n="keyNote"></p>
 			<div class="modal-buttons"><button type="submit" class="primary" id="login-save" data-i18n="save">Save</button></div>
 			<p class="small muted" data-i18n="oauthNote"></p>

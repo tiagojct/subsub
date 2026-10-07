@@ -11,7 +11,7 @@ lead: One command installs everything Sub-Sub needs, in your own user folder. Yo
 2. Start Zotero.
 3. In Zotero, open Settings > Advanced.
 4. Turn on "Allow other applications on this computer to communicate with Zotero".
-5. Get an account with an AI model provider. See [Models](/models/).
+5. Get an account with an AI model provider. See [Models](/models/). To try Sub-Sub without paying, a free Google key is enough: see [Use Sub-Sub for free](/models/#use-sub-sub-for-free).
 
 ## Install on macOS or Linux
 

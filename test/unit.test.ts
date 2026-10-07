@@ -701,6 +701,30 @@ test("init: new user with defaults, then again without replacing files", async (
 	const env3 = { SUBSUB_CONFIG: join(home3, "c.json"), ZOTERO_MCP_ENV: join(home3, "env"), SUBSUB_AGENT_DIR: join(home3, "agent") } as any;
 	await runInit(io, {}, env3, { home: home3, fetch: notFound });
 	assert.equal(JSON.parse(readFileSync(join(home3, "c.json"), "utf8")).models.researcher, "opencode-go/mimo-v2.6-pro");
+	// the free choice: the free model in both modes, and the Google key saved like /login does
+	const home4 = mkdtempSync(join(tmpdir(), "subsub-init4-"));
+	const env4 = { SUBSUB_CONFIG: join(home4, "c.json"), ZOTERO_MCP_ENV: join(home4, "env"), SUBSUB_AGENT_DIR: join(home4, "agent") } as any;
+	const said4: string[] = [];
+	const io4 = { ask: async (q: string, def: string) => (/Google API key/.test(q) ? " AIza-free-key " : def), choose: async (_q: string, _o: unknown, def: string) => def, say: (l: string) => said4.push(l) };
+	await runInit(io4, { models: "google-free" }, env4, { home: home4, fetch: notFound });
+	assert.deepEqual(JSON.parse(readFileSync(join(home4, "c.json"), "utf8")).models, { librarian: "google/gemini-3.1-flash-lite", researcher: "google/gemini-3.1-flash-lite" });
+	assert.deepEqual(JSON.parse(readFileSync(join(home4, "agent", "auth.json"), "utf8")).google, { type: "api_key", key: "AIza-free-key" });
+	assert.ok(said4.some((l) => /aistudio\.google\.com\/apikey/.test(l)) && said4.some((l) => /Saved: the Google key/.test(l)));
+	// with a key already there, it does not ask again
+	const asked: string[] = [];
+	await runInit({ ...io4, ask: async (q: string, def: string) => (asked.push(q), def) }, { models: "google-free" }, env4, { home: home4, fetch: notFound });
+	assert.ok(!asked.some((q) => /Google API key/.test(q)));
+});
+
+test("provider errors in plain words", async () => {
+	const { providerTrouble } = await import("../src/keys.ts");
+	assert.equal(providerTrouble('{"error":{"code":429,"message":"You exceeded your current quota","status":"RESOURCE_EXHAUSTED"}}'), "quota");
+	assert.equal(providerTrouble("Rate limit exceeded: free-models-per-day"), "quota");
+	assert.equal(providerTrouble('{"code":503,"message":"This model is currently experiencing high demand.","status":"UNAVAILABLE"}'), "busy");
+	assert.equal(providerTrouble("Provider stopped with: RECITATION"), "blocked");
+	assert.equal(providerTrouble("API key not valid. Please pass a valid API key."), "key");
+	assert.equal(providerTrouble("fetch failed"), undefined);
+	assert.equal(providerTrouble(undefined), undefined);
 });
 
 test("doctor: checks and fixes", () => {

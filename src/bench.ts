@@ -134,7 +134,10 @@ export function runOne(opts: {
 	provider?: string;
 }): Promise<RunSummary> {
 	mkdirSync(opts.out, { recursive: true });
-	const args = ["--mode", "rpc", "--no-session", "--provider", opts.provider ?? "opencode-go", "--model", opts.model];
+	// "google/gemini-x" or "openrouter/vendor/model:free" name their provider; a bare name is OpenCode Go.
+	const slash = opts.model.indexOf("/");
+	const [provider, model] = slash > 0 && !opts.provider ? [opts.model.slice(0, slash), opts.model.slice(slash + 1)] : [opts.provider ?? "opencode-go", opts.model];
+	const args = ["--mode", "rpc", "--no-session", "--provider", provider, "--model", model];
 	if (opts.role === "librarian") args.push("--librarian");
 	const env = { ...process.env, ...opts.extraEnv, SUBSUB_BENCH_OUT: opts.out, SUBSUB_CONFIG: opts.configFile };
 	const proc = spawn(process.execPath, [opts.cli ?? join(PACKAGE_DIR, "bin", "subsub.js"), ...args], { cwd: opts.cwd, env });
@@ -608,7 +611,9 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
 			const prompt = promptFor(j.task, t, j.code, out);
 			if (!prompt) return;
 			const cf = join(cfgDir, `${j.code}.json`);
-			writeFileSync(cf, JSON.stringify({ ...userCfg, profile: "editor", models: { librarian: `opencode-go/${j.model}`, researcher: `opencode-go/${j.model}` }, model: undefined, libraryChanges: undefined }));
+			// A bare name is an OpenCode Go model; provider/id (google/gemini-..., openrouter/x/y:free) is any provider.
+			const spec = j.model.includes("/") ? j.model : `opencode-go/${j.model}`;
+			writeFileSync(cf, JSON.stringify({ ...userCfg, profile: "editor", models: { librarian: spec, researcher: spec }, model: undefined, libraryChanges: undefined }));
 			const s = await runOne({ ...j, prompt, out, cwd: cfg.vault!, configFile: cf, timeoutSec });
 			n++;
 			console.log(`${n}/${jobs.length}  ${j.code}  ${j.task}  ${s.seconds}s  ${s.error ?? (s.settled ? "done" : "?")}`);

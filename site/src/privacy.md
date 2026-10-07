@@ -15,7 +15,7 @@ Sub-Sub sends no usage data, statistics or crash reports anywhere. It also turns
 
 ## What goes to the model provider
 
-The AI model runs at the provider you choose. It receives your messages and what the tools return to it: titles, authors, abstracts, tags, and parts of a full text when you ask for a note on it. When you check claims with `/verify <file> claims`, it also receives the citing sentences of your manuscript and the passages of the sources. Choose a provider whose terms suit your material. For confidential work, use an institutional model service or a local model (see [Models](/models/)).
+The AI model runs at the provider you choose. It receives your messages and what the tools return to it: titles, authors, abstracts, tags, and parts of a full text when you ask for a note on it. When you check claims with `/verify <file> claims`, it also receives the citing sentences of your manuscript and the passages of the sources. Choose a provider whose terms suit your material. For confidential work, use an institutional model service or a local model (see [Models](/models/)). Free tiers have their own terms: outside the European Union, the United Kingdom and Switzerland, Google may use prompts sent with a free key to improve its products, and the providers of some free models on OpenRouter may keep prompts.
 
 ## What goes to other services
 

@@ -35,6 +35,22 @@ export const DEFAULT_MODELS: Record<Mode, string> = {
 	librarian: "opencode-go/mimo-v2.6-flash",
 	researcher: "opencode-go/mimo-v2.6-pro",
 };
+/** The tested free models (Google AI Studio free tier; see the Models page): enough to try Sub-Sub. */
+export const FREE_MODELS: Record<Mode, string> = {
+	librarian: "google/gemini-3.1-flash-lite",
+	researcher: "google/gemini-3.1-flash-lite",
+};
+/**
+ * Models marked in the model dialog, from the model tests (see the Models page). `why` is a
+ * key into the web view's strings: tested (a default), cheaper (tested, same quality, lower cost),
+ * free (tested, works on a free tier).
+ */
+export const RECOMMENDED_MODELS: Array<{ spec: string; modes: Mode[]; why: "tested" | "cheaper" | "free" }> = [
+	{ spec: DEFAULT_MODELS.librarian, modes: ["librarian"], why: "tested" },
+	{ spec: DEFAULT_MODELS.researcher, modes: ["researcher"], why: "tested" },
+	{ spec: "opencode-go/qwen3.8-flash", modes: ["researcher"], why: "cheaper" },
+	{ spec: FREE_MODELS.librarian, modes: ["librarian", "researcher"], why: "free" },
+];
 export type Profile = "reader" | "scholar" | "author" | "editor";
 export const PROFILES: Profile[] = ["reader", "scholar", "author", "editor"];
 

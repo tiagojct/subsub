@@ -32,6 +32,26 @@ Each mode can have its own model. The model button saves the model for the curre
 
 Version 0.10 used one model for all work (`"model"`). That setting still works: Sub-Sub uses that model in both modes.
 
+## Use Sub-Sub for free
+
+To try Sub-Sub, or for light use, a free Google key is enough.
+
+1. Open [aistudio.google.com/apikey](https://aistudio.google.com/apikey) and sign in with a Google account. You must be 18 or older.
+2. Select "Create API key" and copy the key. Google does not ask for a card.
+3. In Sub-Sub, select the model button. Choose Google Gemini, paste the key and select Save.
+4. Select `google/gemini-3.1-flash-lite`. The model list marks it "tested, free".
+
+`subsub init` does the same: in Models, choose "Free, to try Sub-Sub". It sets `gemini-3.1-flash-lite` for both modes and asks for the key.
+
+Know the limits before you rely on it:
+
+- The free tier limits how much text you can send each minute, and how many requests you can make each day. Long tasks reach the per-minute limit first, for example a literature note from a full text, or a synthesis of many items. When that happens, Sub-Sub says so: wait a minute and ask it to continue. The daily limit resets at midnight, Pacific time.
+- When many people use a model, Google sometimes refuses requests for a few minutes ("high demand"). Try again later.
+- In the European Union, the United Kingdom and Switzerland, Google does not use free-tier prompts to improve its products. In other countries it may, so do not send unpublished work through a free key there.
+- In our test (October 2026), `gemini-3.1-flash-lite` tagged with F1 0.63, imported correctly, and wrote a synthesis that cites all 15 items. The newer `gemini-3.5-flash-lite` tagged as well, but Google often refused it for "high demand"; `gemini-3.8-flash` did not finish a task on the free tier. The tested OpenCode Go models tag better (F1 0.69 to 0.74) and have no daily limit, for a few cents a task.
+
+OpenRouter also has free models: their names end in `:free`. They allow 50 requests a day (1000 after you buy 10 dollars of credit), and the providers of some of them may keep your prompts. In our test they were less reliable than the Google free tier: `gemma-4-31b-it:free` refused every request (rate limit), and `nemotron-3-ultra-550b-a55b:free` was often overloaded, tagged with F1 0.58 and did not finish a literature note.
+
 ## Tested models
 
 In October 2026, 15 models on OpenCode Go did the same seven tasks on a real library of about 1000 items. Library tasks: tag 20 items, and import two works, one of them already in the library. Research tasks: a literature note, a synthesis of 15 items, a search for recent work, and a literature review with `/lit`. The research notes were judged blind (the judge saw codes, not names), from 1 to 5. Every library change was recorded and blocked.
