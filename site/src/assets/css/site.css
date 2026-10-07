@@ -121,14 +121,15 @@ code, pre, kbd { font-family: var(--mono); }
 }
 .skip:focus { top: 1rem; }
 
+/* Section labels: a section mark and plain words, as in a printed reference. */
 .eyebrow {
-	margin: 0 0 0.75rem;
-	font-size: 0.78rem;
-	font-weight: 600;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
+	margin: 0 0 0.6rem;
+	font-family: var(--serif);
+	font-size: 1rem;
+	font-weight: 500;
 	color: var(--accent);
 }
+.eyebrow::before { content: "\00a7"; margin-right: 0.45em; color: var(--faint); font-weight: 400; }
 .eyebrow a { color: inherit; text-decoration: none; }
 .eyebrow a:hover { text-decoration: underline; }
 
@@ -233,6 +234,10 @@ code, pre, kbd { font-family: var(--mono); }
 }
 .hero .lead { font-size: clamp(1.05rem, 1.6vw, 1.2rem); color: var(--muted); margin: 0 0 2rem; max-width: 40rem; text-wrap: pretty; }
 .hero-links { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1.5rem 0 0; }
+/* The hero's small print is a reference entry, Vancouver style, as the reader would cite it. */
+.cite { margin: 2rem 0 0; padding-left: 1.5rem; text-indent: -1.5rem; max-width: 40rem; font-family: var(--serif); font-size: 0.92rem; line-height: 1.55; color: var(--muted); }
+.cite-label { font-family: var(--sans); font-size: 0.8rem; font-weight: 600; color: var(--faint); margin-right: 0.35em; }
+.cite a { color: inherit; }
 
 .install {
 	border: 1px solid var(--rule-strong);
@@ -390,8 +395,9 @@ code, pre, kbd { font-family: var(--mono); }
 .dg .m { font-family: var(--mono); font-size: 12px; }
 .dg .m.t { font-size: 14px; }
 .dg .c { font-size: 12px; }
-.dg .cap { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; fill: var(--faint); }
-.dg .cap.acc { fill: var(--text); }
+.dg .cap { font-family: var(--serif); font-size: 14px; font-weight: 500; fill: var(--accent); }
+.dg .cap .sect { fill: var(--faint); font-weight: 400; }
+.dg .cap.acc { fill: var(--text); font-weight: 600; }
 .dg .chip { fill: var(--surface); stroke: var(--rule-strong); }
 .dg .pill.lib { fill: var(--librarian-soft); stroke: var(--librarian); }
 .dg .pill.res { fill: var(--accent-soft); stroke: var(--accent); }
