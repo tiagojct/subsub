@@ -2,6 +2,10 @@
 
 Sub-Sub follows the version numbers of npm: a change in the second number (0.13) adds features or changes how you use it; a change in the third (0.13.1) only fixes.
 
+## 0.13.1 (2026-10-07)
+
+- A change that would change nothing (for example, citekeys for items that already have one) is no longer offered for approval. Sub-Sub says why instead.
+
 ## 0.13.0 (2026-10-07)
 
 The same changes were published first as 0.12.1.
