@@ -1,0 +1,135 @@
+<figure class="diagram">
+<div class="diagram-scroll">
+<svg class="dg" viewBox="0 0 1100 712" role="img" aria-labelledby="dg-title dg-desc">
+<title id="dg-title">Como funciona o Sub-Sub</title>
+<desc id="dg-desc">Usa o Sub-Sub na vista no navegador ou no terminal. O Sub-Sub corre no pi, no seu computador, e envia as suas mensagens ao fornecedor do modelo que escolher. Trabalha com a biblioteca através do servidor zotero, pesquisa através do servidor scholar e, se estiver ligado, verifica referências através do servidor verify (Starbuck). O modo decide que servidores pode usar. O Bibliotecário usa só o servidor zotero e gere a biblioteca. O Investigador usa os servidores zotero, scholar e verify: lê, pesquisa, escreve notas e também altera a biblioteca. O perfil retira algumas ferramentas. Cada alteração à biblioteca passa pelo controlo de aprovação. O servidor zotero comunica com o Zotero em 127.0.0.1 e guarda um registo de alterações para as poder anular. Os servidores usam serviços online como a PubMed, a Europe PMC, o OpenAlex, a Crossref, o Unpaywall e a Open Library. O Sub-Sub escreve tudo numa só pasta, Sub-Sub, que pode ficar dentro de um cofre do Obsidian, e lê as definições da sua pasta de configuração.</desc>
+<defs>
+	<marker id="dg-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0 1 L9 5 L0 9 Z"/></marker>
+	<marker id="dg-al" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah lib" d="M0 1 L9 5 L0 9 Z"/></marker>
+	<marker id="dg-ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah res" d="M0 1 L9 5 L0 9 Z"/></marker>
+</defs>
+
+<!-- model provider -->
+<rect class="box" x="330" y="8" width="200" height="56" rx="8"/>
+<text class="t" x="430" y="32" text-anchor="middle">Fornecedor do modelo</text>
+<text class="s" x="430" y="51" text-anchor="middle">a sua conta ou modelo local</text>
+<path class="ln" d="M430 66 V98" marker-start="url(#dg-a)" marker-end="url(#dg-a)"/>
+<text class="s" x="442" y="87">mensagens e resultados das ferramentas</text>
+
+<!-- you -->
+<text class="cap" x="20" y="120"><tspan class="sect">§ </tspan>Utilizador</text>
+<rect class="box" x="20" y="130" width="170" height="66" rx="8"/>
+<text class="t" x="36" y="157">Vista no navegador</text>
+<text class="m s" x="36" y="180">atalho, subsub web</text>
+<rect class="box" x="20" y="216" width="170" height="66" rx="8"/>
+<text class="t" x="36" y="243">Terminal</text>
+<text class="m s" x="36" y="266">subsub</text>
+<path class="ln" d="M190 163 H248" marker-end="url(#dg-a)"/>
+<path class="ln" d="M190 249 H248" marker-end="url(#dg-a)"/>
+
+<!-- sub-sub -->
+<rect class="box strong" x="250" y="100" width="340" height="330" rx="12"/>
+<text class="cap acc" x="270" y="128">Sub-Sub</text>
+<text class="s" x="336" y="128">extensão do pi, no seu computador</text>
+
+<text class="s" x="270" y="158">Modo: que ferramentas pode usar</text>
+<rect class="pill res" x="270" y="166" width="145" height="34" rx="6"/>
+<text class="t res" x="342" y="188" text-anchor="middle">Investigador</text>
+<rect class="pill lib" x="425" y="166" width="145" height="34" rx="6"/>
+<text class="t lib" x="497" y="188" text-anchor="middle">Bibliotecário</text>
+
+<text class="s" x="270" y="228">Perfil: o que escreve por si</text>
+<rect class="chip" x="270" y="236" width="70" height="28" rx="5"/><text class="c" x="305" y="255" text-anchor="middle">Reader</text>
+<rect class="chip" x="346" y="236" width="70" height="28" rx="5"/><text class="c" x="381" y="255" text-anchor="middle">Scholar</text>
+<rect class="chip" x="422" y="236" width="70" height="28" rx="5"/><text class="c" x="457" y="255" text-anchor="middle">Author</text>
+<rect class="chip" x="498" y="236" width="72" height="28" rx="5"/><text class="c" x="534" y="255" text-anchor="middle">Editor</text>
+
+<rect class="soft" x="270" y="290" width="300" height="120" rx="8"/>
+<text class="t" x="286" y="317">Controlo de aprovação</text>
+<text class="s" x="286" y="342">Biblioteca: pré-visualização e Sim/Não</text>
+<text class="s" x="286" y="364">Ficheiros: Sim/Não, fora da pasta atual</text>
+<text class="s" x="286" y="386">Alterações registadas; /undo anula-as</text>
+
+<!-- tool lanes: rust is the Librarian (zotero only), blue is the Researcher (zotero, scholar, verify). Portuguese copy of diagram.njk. -->
+<path class="ln lib w" d="M590 152 H648" marker-end="url(#dg-al)"/>
+<path class="ln res w" d="M590 184 H648" marker-end="url(#dg-ar)"/>
+<path class="ln res w" d="M590 266 H648" marker-end="url(#dg-ar)"/>
+<path class="ln res w dash" d="M590 366 H648" marker-end="url(#dg-ar)"/>
+
+<!-- servers -->
+<text class="cap" x="650" y="120"><tspan class="sect">§ </tspan>Servidores, iniciados pelo uv</text>
+<rect class="box" x="650" y="130" width="200" height="72" rx="8"/>
+<text class="m t" x="666" y="156">zotero</text>
+<text class="s" x="666" y="176">ferramentas da biblioteca</text>
+<text class="s f" x="666" y="194">Ambos os modos</text>
+<rect class="box" x="650" y="230" width="200" height="72" rx="8"/>
+<text class="m t" x="666" y="256">scholar</text>
+<text class="s" x="666" y="276">pesquisa, notas, textos</text>
+<text class="s f" x="666" y="294">Investigador</text>
+<rect class="box dash" x="650" y="330" width="200" height="72" rx="8"/>
+<text class="m t" x="666" y="356">verify</text>
+<text class="s" x="666" y="376">referências (Starbuck)</text>
+<text class="s f" x="666" y="394">Investigador; opcional</text>
+
+<!-- zotero, journal, web -->
+<text class="cap" x="910" y="120"><tspan class="sect">§ </tspan>Zotero e a web</text>
+<rect class="box" x="910" y="130" width="170" height="60" rx="8"/>
+<text class="t" x="926" y="156">Zotero</text>
+<text class="s" x="926" y="176">API local, 127.0.0.1</text>
+<rect class="soft" x="910" y="204" width="170" height="74" rx="8"/>
+<text class="t" x="926" y="228">Registo</text>
+<text class="m s" x="926" y="248">~/.local/share/</text>
+<text class="m s" x="926" y="266">zotero-local-mcp</text>
+<rect class="box" x="910" y="294" width="170" height="136" rx="8"/>
+<text class="t" x="926" y="320">Serviços online</text>
+<text class="s" x="926" y="343">PubMed</text><text class="s" x="1000" y="343">Crossref</text>
+<text class="s" x="926" y="362">Europe PMC</text><text class="s" x="1000" y="362">Unpaywall</text>
+<text class="s" x="926" y="381">OpenAlex</text><text class="s" x="1000" y="381">Open Library</text>
+<text class="s f" x="926" y="410">termos e DOI/PMID</text>
+
+<path class="ln" d="M850 160 H908" marker-end="url(#dg-a)"/>
+<path class="ln" d="M850 186 L908 236" marker-end="url(#dg-a)"/>
+<path class="ln" d="M850 198 L908 318" marker-end="url(#dg-a)"/>
+<path class="ln" d="M850 266 L908 344" marker-end="url(#dg-a)"/>
+<path class="ln dash" d="M850 366 L908 372" marker-end="url(#dg-a)"/>
+
+<!-- files -->
+<text class="cap" x="20" y="466"><tspan class="sect">§ </tspan>Ficheiros no seu computador</text>
+<path class="ln" d="M330 430 V474" marker-end="url(#dg-a)"/>
+<text class="s" x="340" y="457">lê e escreve notas</text>
+<path class="ln" d="M580 430 V474" marker-end="url(#dg-a)"/>
+<text class="s" x="590" y="457">lê as definições</text>
+
+<rect class="box" x="20" y="476" width="530" height="220" rx="10"/>
+<text class="t m" x="40" y="504">Sub-Sub/</text>
+<text class="s" x="124" y="504">uma pasta; pode ficar num cofre do Obsidian</text>
+<text class="m" x="40" y="536">Inbox/</text><text class="s" x="270" y="536">revisão de etiquetas, importações</text>
+<text class="m" x="40" y="562">Literature/</text><text class="s" x="270" y="562">uma nota por item, pela citekey</text>
+<text class="m" x="40" y="588">Syntheses/</text><text class="s" x="270" y="588">notas sobre vários itens</text>
+<text class="m" x="40" y="614">Research/</text><text class="s" x="270" y="614">revisões, comparações, resumos</text>
+<text class="m" x="40" y="640">Zotero/Zotero tags.md</text><text class="s" x="270" y="640">a sua lista de etiquetas</text>
+<text class="m" x="40" y="666">Zotero/Zotero agent.md</text><text class="s" x="270" y="666">formatos das notas e regras comuns</text>
+
+<rect class="box" x="570" y="476" width="280" height="220" rx="10"/>
+<text class="t" x="590" y="504">Definições</text>
+<text class="m" x="590" y="536">~/.config/subsub/config.json</text>
+<text class="s" x="590" y="555">perfil, modelos, modo, complementos</text>
+<text class="m" x="590" y="590">~/.config/zotero-local-mcp/env</text>
+<text class="s" x="590" y="609">lista de etiquetas, e-mail</text>
+<text class="m" x="590" y="644">~/.subsub/agent/auth.json</text>
+<text class="s" x="590" y="663">chaves de API, só legíveis por si</text>
+
+<!-- key -->
+<rect class="soft" x="870" y="476" width="210" height="220" rx="10"/>
+<text class="cap" x="888" y="504">Legenda</text>
+<path class="ln lib w" d="M888 532 H928"/><text class="s" x="938" y="536">Bibliotecário</text>
+<text class="s f" x="938" y="554">gere a biblioteca</text>
+<path class="ln res w" d="M888 584 H928"/><text class="s" x="938" y="588">Investigador</text>
+<text class="s f" x="938" y="606">lê, pesquisa,</text>
+<text class="s f" x="938" y="622">escreve notas e</text>
+<text class="s f" x="938" y="638">altera a biblioteca</text>
+<path class="ln res w dash" d="M888 664 H928"/><text class="s" x="938" y="668">complemento</text>
+<text class="s f" x="938" y="686">opcional</text>
+</svg>
+</div>
+</figure>

@@ -19,6 +19,7 @@ if ! git diff --quiet || ! git diff --cached --quiet; then
 fi
 
 npm run build
+node scripts/check.mjs
 
 SHA=$(git rev-parse --short HEAD)
 # The next number is one more than the highest number in use, so deleting old

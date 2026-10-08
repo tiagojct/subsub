@@ -1,4 +1,5 @@
 ---
+alt: /pt/perfis/
 layout: base.njk
 title: Profiles
 eyebrow: How much Sub-Sub does

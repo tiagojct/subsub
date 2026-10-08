@@ -1,4 +1,4 @@
-// Sub-Sub website: theme switch, install tabs, copy buttons, page contents.
+// Sub-Sub website: theme switch, menu, install tabs, copy buttons, page contents.
 
 (function () {
 	"use strict";
@@ -24,6 +24,23 @@
 			});
 		}
 
+		// ---- menu: on narrow screens the button shows and hides the page list
+		var menuBtn = document.getElementById("menu-toggle");
+		var nav = document.getElementById("site-nav");
+		if (menuBtn && nav) {
+			menuBtn.addEventListener("click", function () {
+				var open = menuBtn.getAttribute("aria-expanded") !== "true";
+				menuBtn.setAttribute("aria-expanded", String(open));
+				document.body.classList.toggle("menu-open", open);
+			});
+			document.addEventListener("keydown", function (e) {
+				if (e.key !== "Escape" || menuBtn.getAttribute("aria-expanded") !== "true") return;
+				menuBtn.setAttribute("aria-expanded", "false");
+				document.body.classList.remove("menu-open");
+				menuBtn.focus();
+			});
+		}
+
 		// ---- install tabs (arrow keys move between tabs)
 		document.querySelectorAll("[data-tabs]").forEach(function (box) {
 			var tabs = Array.prototype.slice.call(box.querySelectorAll('[role="tab"]'));
@@ -35,6 +52,12 @@
 					document.getElementById(t.getAttribute("aria-controls")).hidden = !on;
 				});
 			}
+			// Start on the visitor's system: Windows gets the PowerShell command.
+			var platform = ((navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || navigator.userAgent || "").toLowerCase();
+			var win = tabs.filter(function (t) {
+				return t.dataset.os === "windows";
+			})[0];
+			if (win && platform.indexOf("win") === 0) select(win);
 			tabs.forEach(function (tab, i) {
 				tab.addEventListener("click", function () {
 					select(tab);
@@ -89,13 +112,14 @@
 				wrap.appendChild(table);
 			}
 			var cells = table.querySelectorAll("td:not(:first-child)");
+			// A table of short marks (yes, sim, a number, a word or two) is a matrix with centred cells.
 			var marks = Array.prototype.filter.call(cells, function (td) {
-				return /^(yes|\d+|)$/.test(td.textContent.trim());
+				return td.textContent.trim().length <= 14 && !td.querySelector("code, a");
 			});
 			if (cells.length > 8 && marks.length === cells.length) {
 				table.classList.add("matrix");
 				cells.forEach(function (td) {
-					if (td.textContent.trim() === "yes") td.classList.add("yes");
+					if (/^(yes|sim)$/.test(td.textContent.trim())) td.classList.add("yes");
 				});
 			}
 		});

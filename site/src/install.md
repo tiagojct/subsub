@@ -1,11 +1,12 @@
 ---
+alt: /pt/instalar/
 layout: base.njk
 title: Install
 eyebrow: Get started
 lead: One command installs everything Sub-Sub needs, in your own user folder. You do not need administrator rights.
 ---
 
-New to Zotero, AI models or the terminal? Read [For students](/students/) first ([em português](/estudantes/)).
+New to Zotero, AI models or the terminal? Read [For students](/students/) first ([em português](/pt/estudantes/)).
 
 ## Before you start
 

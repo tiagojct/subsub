@@ -1,0 +1,34 @@
+{
+  "en": {
+    "tagline": "your research assistant, working from your own Zotero library",
+    "mainMenu": "Main",
+    "menu": "Menu",
+    "theme": "Switch theme",
+    "skip": "Skip to content",
+    "onThisPage": "On this page",
+    "footer": "Footer",
+    "footerAbout": "A research assistant that works from your own Zotero library. Open source, MIT licence. Made by <a href=\"/about/\">Tiago Jacinto</a> at the Faculty of Medicine of the University of Porto.",
+    "citeAs": "Cite as",
+    "citeTitle": "a research assistant for Zotero",
+    "version": "Version",
+    "licence": "MIT licence.",
+    "zoteroServer": "Zotero server",
+    "report": "Report a problem"
+  },
+  "pt": {
+    "tagline": "o seu assistente de investigação, a trabalhar a partir da sua biblioteca do Zotero",
+    "mainMenu": "Menu principal",
+    "menu": "Menu",
+    "theme": "Mudar tema",
+    "skip": "Saltar para o conteúdo",
+    "onThisPage": "Nesta página",
+    "footer": "Rodapé",
+    "footerAbout": "Um assistente de investigação que trabalha a partir da sua biblioteca do Zotero. Código aberto, licença MIT. Feito por <a href=\"/pt/sobre/\">Tiago Jacinto</a> na Faculdade de Medicina da Universidade do Porto.",
+    "citeAs": "Citar como",
+    "citeTitle": "a research assistant for Zotero",
+    "version": "Versão",
+    "licence": "Licença MIT.",
+    "zoteroServer": "Servidor do Zotero",
+    "report": "Comunicar um problema"
+  }
+}

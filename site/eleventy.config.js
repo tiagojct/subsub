@@ -41,6 +41,11 @@ export default function (eleventyConfig) {
 	eleventyConfig.setLibrary("md", md);
 
 	eleventyConfig.addFilter("isoDate", (d) => new Date(d).toISOString().slice(0, 10));
+	// "October 2026" or "outubro de 2026", for the date when prices were last checked.
+	eleventyConfig.addFilter("monthYear", (d, lang = "en") => {
+		const date = new Date(d);
+		return lang === "pt" ? date.toLocaleDateString("pt-PT", { month: "long", year: "numeric" }) : date.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+	});
 
 	return {
 		dir: { input: "src", output: "_site", includes: "_includes", data: "_data" },

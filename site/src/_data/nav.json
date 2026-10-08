@@ -1,11 +1,12 @@
 [
-  { "url": "/students/", "label": "Students" },
-  { "url": "/install/", "label": "Install" },
-  { "url": "/guide/", "label": "Guide" },
-  { "url": "/profiles/", "label": "Profiles" },
-  { "url": "/privacy/", "label": "Privacy" },
-  { "url": "/models/", "label": "Models" },
-  { "url": "/fmup/", "label": "FMUP" },
-  { "url": "/help/", "label": "Help" },
-  { "url": "/about/", "label": "About" }
+  { "url": "/students/", "label": "Students", "ptUrl": "/pt/estudantes/", "ptLabel": "Estudantes" },
+  { "url": "/install/", "label": "Install", "ptUrl": "/pt/instalar/", "ptLabel": "Instalar" },
+  { "url": "/guide/", "label": "Guide", "ptUrl": "/pt/guia/", "ptLabel": "Guia" },
+  { "url": "/how-it-works/", "label": "How it works", "ptUrl": "/pt/como-funciona/", "ptLabel": "Como funciona" },
+  { "url": "/profiles/", "label": "Profiles", "ptUrl": "/pt/perfis/", "ptLabel": "Perfis" },
+  { "url": "/models/", "label": "Models", "ptUrl": "/pt/modelos/", "ptLabel": "Modelos" },
+  { "url": "/privacy/", "label": "Privacy", "ptUrl": "/pt/privacidade/", "ptLabel": "Privacidade" },
+  { "url": "/fmup/", "label": "FMUP", "ptUrl": "/pt/fmup/", "ptLabel": "FMUP" },
+  { "url": "/help/", "label": "Help", "ptUrl": "/pt/ajuda/", "ptLabel": "Ajuda" },
+  { "url": "/about/", "label": "About", "ptUrl": "/pt/sobre/", "ptLabel": "Sobre" }
 ]

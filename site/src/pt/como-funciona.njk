@@ -1,0 +1,96 @@
+---
+layout: base.njk
+title: Como funciona
+bodyClass: home
+lang: pt-PT
+alt: /how-it-works/
+description: O que corre onde, os dois modos, o navegador e o terminal, e aquilo de que o Sub-Sub precisa.
+---
+
+<header class="page-head">
+	<div class="wrap">
+		<p class="eyebrow">Como funciona</p>
+		<h1>O que corre onde, e quem pode fazer o quê.</h1>
+		<p class="lead">O Sub-Sub corre no seu computador. O modelo e os serviços de literatura estão online. O modo decide aquilo em que o Sub-Sub trabalha; o perfil decide quanto escreve por si; cada alteração à biblioteca espera pelo seu Sim.</p>
+	</div>
+</header>
+
+<section class="section" id="what-runs-where">
+	<div class="wrap">
+		<p class="eyebrow">Como se articula</p>
+		<h2>O que corre onde.</h2>
+		<p class="section-lead">Tudo corre no seu computador, exceto o modelo e os serviços online. O modo decide que servidores o Sub-Sub pode usar: o Bibliotecário usa só o zotero; o Investigador usa o zotero, o scholar e o verify. O perfil retira ferramentas ao que resta.</p>
+		{% include "diagram-pt.njk" %}
+	</div>
+</section>
+
+<section class="section">
+	<div class="wrap">
+		<p class="eyebrow">Dois modos</p>
+		<h2>O Investigador faz tudo. O Bibliotecário só mantém a biblioteca.</h2>
+		<p class="section-lead">O Investigador é o modo predefinido: investigue um tema e arquive o que encontrar na mesma conversa. Use o Bibliotecário para sessões de etiquetagem com um modelo rápido e barato.</p>
+		<div class="modes">
+			<article class="mode researcher">
+				<h3>Investigador</h3>
+				<p class="mode-lead">Lê a sua biblioteca e a literatura, e também altera a biblioteca.</p>
+				<ul>
+					<li>Responde a "o que tenho sobre…?" a partir da sua biblioteca, com citekeys.</li>
+					<li>Pesquisa na PubMed, na Europe PMC e no OpenAlex obras que não estão na sua biblioteca.</li>
+					<li>Escreve notas de literatura, sínteses e revisões da literatura com um registo de triagem. Cada nota diz o que o Sub-Sub leu: o texto completo, o resumo ou só os metadados.</li>
+					<li>Verifica as referências de um manuscrito com o Starbuck, um complemento opcional.</li>
+					<li>Importa, etiqueta e corrige o que encontra, com uma pré-visualização de cada alteração.</li>
+				</ul>
+				<p class="mode-cmds"><code>/lit</code> <code>/lit-note</code> <code>/synthesis</code> <code>/gaps</code> <code>/compare</code> <code>/verify</code> <code>/researcher</code></p>
+			</article>
+			<article class="mode librarian">
+				<h3>Bibliotecário</h3>
+				<p class="mode-lead">Só gere a biblioteca.</p>
+				<ul>
+					<li>Etiqueta itens com as etiquetas da sua própria lista, <code>Zotero/Zotero tags.md</code>. Recusa outras etiquetas.</li>
+					<li>Escreve as propostas de etiquetas numa nota de revisão, que pode editar antes de a aplicar.</li>
+					<li>Importa por DOI, PMID ou ISBN, com o resumo e uma citekey.</li>
+					<li>Corrige metadados, encontra duplicados, assinala retratações e anexa PDF de acesso aberto.</li>
+				</ul>
+				<p class="mode-cmds"><code>/tag-batch</code> <code>/clean-tags</code> <code>/import-queue</code> <code>/history</code> <code>/undo</code> <code>/librarian</code></p>
+			</article>
+		</div>
+	</div>
+</section>
+
+<section class="section">
+	<div class="wrap split terminal-split">
+		<div>
+			<p class="eyebrow">Navegador ou terminal</p>
+			<h2>O mesmo Sub-Sub nos dois.</h2>
+			<p>Abra o Sub-Sub a partir do atalho e ele abre no navegador. Escreva <code>subsub</code> e ele abre no terminal. Os modos, os perfis e as aprovações são os mesmos.</p>
+			<p>A vista no navegador é um pequeno servidor no seu próprio computador. Só escuta em 127.0.0.1 e desliga-se 10 minutos depois de fechar a página.</p>
+		</div>
+<div class="terminal" role="img" aria-label="O Sub-Sub no terminal: mostra a pré-visualização de uma alteração de etiquetas e pergunta Yes ou No.">
+<pre><span class="t-dim">$</span> subsub --librarian
+<span class="t-acc">Sub-Sub {{ release.version }}</span>  <span class="t-dim">Librarian, Scholar · Zotero: 1,024 items</span>
+
+<span class="t-acc">&gt;</span> Etiquete os próximos 10 itens sem tópico.</pre>
+<div class="t-box"><span class="t-box-title">Sub-Sub: aplicar tag_items?</span>
+<pre>2 item(ns) vão mudar.
+Smith 2021: Home spirometry in children with asthma
+  <span class="t-add">+ topic/respiratory, topic/pediatrics, type/cohort</span>
+Costa 2019: A decision aid for inhaler choice
+  <span class="t-add">+ topic/clinical-decision-support</span>; <span class="t-rem">- type/rct</span></pre>
+<span class="t-box-keys"><span class="t-on">Yes</span> <span class="t-dim">No</span></span></div>
+</div>
+	</div>
+</section>
+
+<section class="section">
+	<div class="wrap split">
+		<div>
+			<p class="eyebrow">O que precisa</p>
+			<h2>Três coisas. O instalador faz o resto.</h2>
+		</div>
+		<dl class="needs">
+			<div><dt>Zotero 10 ou posterior</dt><dd>Aberto, com a opção "Allow other applications on this computer to communicate with Zotero" ligada. Esta opção permite a outras aplicações deste computador comunicar com o Zotero.</dd></div>
+			<div><dt>Uma conta num fornecedor de modelos</dt><dd>Qualquer fornecedor que o pi suporte, ou um modelo local. Veja os modelos testados em <a href="/pt/modelos/">Modelos</a>.</dd></div>
+			<div><dt>Um lugar para as notas</dt><dd>O Sub-Sub guarda as notas em Markdown numa só pasta, Sub-Sub. Essa pasta pode ficar dentro do seu cofre do Obsidian.</dd></div>
+		</dl>
+	</div>
+</section>

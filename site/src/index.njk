@@ -3,53 +3,70 @@ layout: base.njk
 title: Sub-Sub
 hideTitle: true
 bodyClass: home
-description: A research assistant that works from your own Zotero library. It searches PubMed, Europe PMC and OpenAlex, writes notes in Markdown, and keeps the library in order, with a preview of every change.
+description: A research assistant that works from your own Zotero library. It searches PubMed, Europe PMC and OpenAlex, writes notes that say what it read, and keeps the library in order, with a preview of every change.
+alt: /pt/
 ---
 
 <section class="hero">
 	<div class="wrap hero-grid">
 		<div class="hero-text">
 			<h1>Your research assistant, working from your own Zotero library.</h1>
-			<p class="lead">Sub-Sub reads the papers you keep in Zotero, finds the ones you are missing in PubMed, Europe PMC and OpenAlex, and writes notes that say what it read. It also keeps the library in order: it imports, tags and repairs references, and shows you each change before it happens. It runs on your computer and opens in your browser, in English or Portuguese.</p>
-			<p class="newcomer">New to Zotero or to AI tools? <a href="/students/">Start here</a> · <a href="/estudantes/" lang="pt-PT">Para estudantes, em português</a></p>
+			<p class="lead">Sub-Sub reads the papers in your Zotero library, finds the ones you are missing in PubMed, Europe PMC and OpenAlex, and writes notes that say what it read. You see every change to your library before it happens. It runs on your computer, in English or Portuguese.</p>
+			<p class="newcomer">New to Zotero or to AI tools? <a href="/students/">Start here</a> · <a href="/pt/estudantes/" lang="pt-PT" hreflang="pt-PT">Para estudantes, em português</a></p>
 
 			<div class="install" data-tabs>
 				<div class="install-tabs" role="tablist" aria-label="Install">
-					<button type="button" role="tab" id="tab-unix" aria-controls="panel-unix" aria-selected="true">macOS and Linux</button>
-					<button type="button" role="tab" id="tab-win" aria-controls="panel-win" aria-selected="false" tabindex="-1">Windows</button>
+					<button type="button" role="tab" id="tab-unix" data-os="unix" aria-controls="panel-unix" aria-selected="true">macOS and Linux</button>
+					<button type="button" role="tab" id="tab-win" data-os="windows" aria-controls="panel-win" aria-selected="false" tabindex="-1">Windows</button>
 					<button type="button" role="tab" id="tab-npm" aria-controls="panel-npm" aria-selected="false" tabindex="-1">npm</button>
 				</div>
 				<div class="install-panel" role="tabpanel" id="panel-unix" aria-labelledby="tab-unix">
 					<pre class="cmd"><code>curl -fsSL https://subsub.tiagojacinto.eu/install.sh | sh</code></pre>
-					<p>Paste in Terminal. The installer adds uv and Node.js if they are missing. You do not need administrator rights. <a href="/install/#about-the-install-command">What this command does</a>.</p>
+					<p>Paste in Terminal. It installs in your user folder; no administrator rights. <a href="/install/#about-the-install-command">What this command does</a>.</p>
 				</div>
 				<div class="install-panel" role="tabpanel" id="panel-win" aria-labelledby="tab-win" hidden>
 					<pre class="cmd ps"><code>powershell -ExecutionPolicy ByPass -c "irm https://subsub.tiagojacinto.eu/install.ps1 | iex"</code></pre>
-					<p>Paste in PowerShell. The installer adds a shortcut to the Start menu and the desktop. <a href="/install/#about-the-install-command">What this command does</a>.</p>
+					<p>Paste in PowerShell. It installs in your user folder and adds a shortcut. <a href="/install/#about-the-install-command">What this command does</a>.</p>
 				</div>
 				<div class="install-panel" role="tabpanel" id="panel-npm" aria-labelledby="tab-npm" hidden>
 					<pre class="cmd"><code>npm install -g @tiagojct/subsub && subsub init</code></pre>
 					<p>Needs Node.js 22.19 or later and uv. In pi: <code>pi install npm:@tiagojct/subsub</code>.</p>
 				</div>
 			</div>
-			<p class="hero-links"><a class="button" href="/install/">Install guide</a> <a class="button quiet" href="/guide/">The first half hour</a></p>
-			<p class="cite"><span class="cite-label">Cite as</span> Jacinto T. Sub-Sub: a research assistant for Zotero [software]. <a href="{{ site.npm }}" rel="noopener">Version {{ release.version }}</a>. Porto: Faculdade de Medicina da Universidade do Porto; 2026. MIT licence.</p>
+			<p class="hero-alt">You need Zotero and an account with a model provider; <a href="/models/#use-sub-sub-for-free">a free one is enough to try</a>. <a href="/install/">Install guide</a> · <a href="/guide/">The first half hour</a></p>
 		</div>
-	</div>
-	<div class="wrap">
 		<figure class="shot hero-shot">
-			<img class="only-light" src="/assets/img/web-view-light.webp?v={{ assetVersion }}" width="1600" height="1000" alt="The Sub-Sub web view. Sub-Sub answers a question about home spirometry with a table of four items from the library and three recent works that are not in it.">
-			<img class="only-dark" src="/assets/img/web-view-dark.webp?v={{ assetVersion }}" width="1600" height="1000" alt="" loading="lazy">
+			<img class="only-light" src="/assets/img/web-view-light.webp?v={{ assetVersion }}" width="1600" height="1100" alt="The Sub-Sub web view. Asked what the library has on home spirometry, Sub-Sub lists four items from the library and three recent works from PubMed that are not in it, and offers to import them.">
+			<img class="only-dark" src="/assets/img/web-view-dark.webp?v={{ assetVersion }}" width="1600" height="1100" alt="" loading="lazy">
 		</figure>
 	</div>
 </section>
 
-<section class="section" id="how-it-fits">
-	<div class="wrap">
-		<p class="eyebrow">How it fits together</p>
-		<h2>What runs where.</h2>
-		<p class="section-lead">Everything except the model and the online services runs on your computer. The mode decides which servers Sub-Sub may use: the Librarian uses zotero only, the Researcher uses zotero, scholar and verify. The profile removes tools from what is left.</p>
-		{% include "diagram.njk" %}
+<section class="section">
+	<div class="wrap result">
+		<div>
+			<p class="eyebrow">What you get</p>
+			<h2>Notes you can check, in plain text files.</h2>
+			<p class="section-lead">Each note is a Markdown file in your Sub-Sub folder. Obsidian shows it well; any editor opens it.</p>
+			<ul class="result-points">
+				<li><strong>It says what it read.</strong> The full text, the abstract or only the metadata. Page numbers come only from a full text.</li>
+				<li><strong>It cites only works it found.</strong> Library items by citekey; other works with their DOI or PMID.</li>
+				<li><strong>You decide how much it writes.</strong> In the Reader profile, for students, a note is quotes and questions; you write the summary.</li>
+			</ul>
+		</div>
+		<figure class="note-card">
+			<div class="note-bar"><span>Literature/smith2021.md</span><span>Reader</span></div>
+			<div class="note-body">
+<pre class="fm">citekey: smith2021
+type: reading-note
+evidence: full text</pre>
+				<h3>Smith 2021, Home spirometry in children with asthma</h3>
+				<blockquote><p>"Children did home spirometry twice a day for 12 weeks, with a parent, after one training session in the clinic." <span class="page">p. 3</span></p></blockquote>
+				<p class="q">How did the authors check technique between clinic visits?</p>
+				<blockquote><p>"Of 1,140 home manoeuvres, 71% met the ATS/ERS acceptability criteria." <span class="page">p. 5</span></p></blockquote>
+				<p class="q">Would that rate hold in children under six?</p>
+			</div>
+		</figure>
 	</div>
 </section>
 
@@ -66,66 +83,23 @@ description: A research assistant that works from your own Zotero library. It se
 			</ol>
 		</div>
 		<figure class="shot approval-shot">
-			<img class="only-light" src="/assets/img/web-approval.webp?v={{ assetVersion }}" width="1200" height="600" loading="lazy" alt="An approval dialog. It asks: Apply tag items? Two items would change. One gets three new topic tags; the other gets one new tag and loses type/rct. Buttons: No and Yes.">
-			<img class="only-dark" src="/assets/img/web-approval-dark.webp?v={{ assetVersion }}" width="1200" height="600" loading="lazy" alt="">
+			<img class="only-light" src="/assets/img/web-approval.webp?v={{ assetVersion }}" width="1280" height="640" loading="lazy" alt="An approval dialog. It asks: Apply tag items? Two items would change. One gets three new topic tags; the other gets one new tag and loses type/rct. Buttons: No and Yes.">
+			<img class="only-dark" src="/assets/img/web-approval-dark.webp?v={{ assetVersion }}" width="1280" height="640" loading="lazy" alt="">
 		</figure>
 	</div>
 </section>
 
 <section class="section">
-	<div class="wrap">
-		<p class="eyebrow">Two modes</p>
-		<h2>The Researcher does everything. The Librarian only keeps the library.</h2>
-		<p class="section-lead">The Researcher is the default: research a topic and file what you find in the same conversation. Use the Librarian for tagging sessions with a fast, cheap model.</p>
-		<div class="modes">
-			<article class="mode researcher">
-				<h3>Researcher</h3>
-				<p class="mode-lead">Reads your library and the literature, and changes the library too.</p>
-				<ul>
-					<li>Answers "what do I have on…?" from your library, with citekeys.</li>
-					<li>Searches PubMed, Europe PMC and OpenAlex for works that are not in your library.</li>
-					<li>Writes literature notes, syntheses and literature reviews with a screening log. Each note says what Sub-Sub read: the full text, the abstract or only the metadata.</li>
-					<li>Checks the references of a manuscript with Starbuck, an optional add-on.</li>
-					<li>Imports, tags and repairs what it finds, with a preview for each change.</li>
-				</ul>
-				<p class="mode-cmds"><code>/lit</code> <code>/lit-note</code> <code>/synthesis</code> <code>/gaps</code> <code>/compare</code> <code>/verify</code> <code>/researcher</code></p>
-			</article>
-			<article class="mode librarian">
-				<h3>Librarian</h3>
-				<p class="mode-lead">Manages the library only.</p>
-				<ul>
-					<li>Tags items with the tags in your own list, <code>Zotero/Zotero tags.md</code>. It refuses other tags.</li>
-					<li>Writes tag proposals into a review note that you can edit before you apply it.</li>
-					<li>Imports by DOI, PMID or ISBN, with the abstract and a citekey.</li>
-					<li>Repairs metadata, finds duplicates, flags retractions and attaches open-access PDFs.</li>
-				</ul>
-				<p class="mode-cmds"><code>/tag-batch</code> <code>/clean-tags</code> <code>/import-queue</code> <code>/history</code> <code>/undo</code> <code>/librarian</code></p>
-			</article>
-		</div>
-	</div>
-</section>
-
-<section class="section">
-	<div class="wrap split terminal-split">
+	<div class="wrap split">
 		<div>
-			<p class="eyebrow">Browser or terminal</p>
-			<h2>The same Sub-Sub in both.</h2>
-			<p>Open Sub-Sub from its shortcut and it opens in your browser. Type <code>subsub</code> and it opens in the terminal. The modes, the profiles and the approvals are the same.</p>
-			<p>The browser view is a small server on your own computer. It listens only on 127.0.0.1 and stops 10 minutes after you close the page.</p>
+			<p class="eyebrow">For students</p>
+			<h2>It helps you read. It does not write your work.</h2>
 		</div>
-<div class="terminal" role="img" aria-label="Sub-Sub in the terminal: it shows a preview of a tag change and asks Yes or No.">
-<pre><span class="t-dim">$</span> subsub --librarian
-<span class="t-acc">Sub-Sub {{ release.version }}</span>  <span class="t-dim">Librarian, Scholar · Zotero: 1,024 items</span>
-
-<span class="t-acc">&gt;</span> Tag the next 10 items without a topic.</pre>
-<div class="t-box"><span class="t-box-title">Sub-Sub: apply tag_items?</span>
-<pre>2 item(s) would change.
-Smith 2021: Home spirometry in children with asthma
-  <span class="t-add">+ topic/respiratory, topic/pediatrics, type/cohort</span>
-Costa 2019: A decision aid for inhaler choice
-  <span class="t-add">+ topic/clinical-decision-support</span>; <span class="t-rem">- type/rct</span></pre>
-<span class="t-box-keys"><span class="t-on">Yes</span> <span class="t-dim">No</span></span></div>
-</div>
+		<div class="prose-block">
+			<p>Students start with the Reader profile: reading notes with quotes and questions, and a reading list for a literature review. No summaries or conclusions to hand in. The rules of your course about AI still apply.</p>
+			<p>You can try it for free with a Google key, and an empty Zotero library is fine.</p>
+			<p><a href="/students/">For students</a> · <a href="/pt/estudantes/" lang="pt-PT" hreflang="pt-PT">Para estudantes</a></p>
+		</div>
 	</div>
 </section>
 
@@ -140,23 +114,26 @@ Costa 2019: A decision aid for inhaler choice
 			<div><h3>Author</h3><p>Scholar, plus help with your manuscripts: citation checks, a bibliography, comments on the argument, reviews against reporting guidelines.</p></div>
 			<div><h3>Editor</h3><p>Everything. When you ask, it drafts text for a manuscript and marks the drafted text so that you can check it.</p></div>
 		</div>
-		<p class="more"><a href="/profiles/">Compare the profiles</a></p>
+		<p class="more"><a href="/profiles/">Compare the profiles</a> · <a href="/how-it-works/">How modes and profiles fit together</a></p>
 	</div>
 </section>
 
+{%- if trust.items.length %}
 <section class="section">
-	<div class="wrap split">
-		<div>
-			<p class="eyebrow">What you need</p>
-			<h2>Three things. The installer does the rest.</h2>
+	<div class="wrap">
+		<p class="eyebrow">In use</p>
+		<h2>What people say.</h2>
+		<div class="trust">
+			{%- for q in trust.items %}
+			<figure><blockquote>{{ q.quote }}</blockquote><figcaption>{{ q.who }}</figcaption></figure>
+			{%- endfor %}
 		</div>
-		<dl class="needs">
-			<div><dt>Zotero 10 or later</dt><dd>Running, with "Allow other applications on this computer to communicate with Zotero" on.</dd></div>
-			<div><dt>An account with a model provider</dt><dd>Any provider that pi supports, or a local model. See <a href="/models/">Models</a> for the tested ones.</dd></div>
-			<div><dt>A place for notes</dt><dd>Sub-Sub keeps its Markdown notes in one folder, Sub-Sub. It can sit inside your Obsidian vault.</dd></div>
-		</dl>
+		{%- if trust.facts.length %}
+		<ul class="trust-facts">{% for f in trust.facts %}<li>{{ f }}</li>{% endfor %}</ul>
+		{%- endif %}
 	</div>
 </section>
+{%- endif %}
 
 <section class="section">
 	<div class="wrap split">

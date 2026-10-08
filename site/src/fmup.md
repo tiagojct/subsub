@@ -1,11 +1,12 @@
 ---
+alt: /pt/fmup/
 layout: base.njk
 title: For FMUP and U.Porto
 eyebrow: Faculdade de Medicina da Universidade do Porto
 lead: Students and staff of FMUP and the University of Porto get a set-up made for them.
 ---
 
-New to Sub-Sub? [Para estudantes](/estudantes/) explains it in Portuguese, from the start: what it does, what it does not do, and how to start for free.
+New to Sub-Sub? [Para estudantes](/pt/estudantes/) explains it in Portuguese, from the start: what it does, what it does not do, and how to start for free.
 
 ## Set up
 

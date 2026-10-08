@@ -143,7 +143,7 @@ export const STRINGS = {
 		ok: "OK",
 		cancel: "Cancelar",
 		close: "Fechar",
-		apply: "Aplicar {x}?",
+		apply: "Confirmar: {x}?",
 		run: "Executar {x}?",
 		undo: "Desfazer esta alteração?",
 		write: "Permitir escrever em {x}?",

@@ -1,4 +1,5 @@
 ---
+alt: /pt/ajuda/
 layout: base.njk
 title: Help
 eyebrow: When something does not work

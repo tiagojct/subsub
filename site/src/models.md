@@ -1,4 +1,5 @@
 ---
+alt: /pt/modelos/
 layout: base.njk
 title: Models
 eyebrow: Bring your own
@@ -9,11 +10,11 @@ lead: Sub-Sub works with any model provider that pi supports. You need your own 
 
 | You want to | Choose | Cost |
 |---|---|---|
-| Try Sub-Sub | Google, `gemini-3.1-flash-lite`, with a free key ([how](#use-sub-sub-for-free)) | Free, with limits per minute and per day |
-| Use it regularly | [OpenCode Go](https://opencode.ai/go), with the tested defaults (`subsub init` sets them) | A subscription: about 10 dollars a month, 5 the first month. The defaults use about 3 cents a task. |
-| Keep your data in the EU | Mistral, `mistral-medium-3.5` ([details](#where-your-data-goes)) | Pay per use: about 18 cents a task |
+| Try Sub-Sub | Google, `{{ facts.freeModel }}`, with a free key ([how](#use-sub-sub-for-free)) | Free, with limits per minute and per day |
+| Use it regularly | [OpenCode Go]({{ facts.opencodeGo.url }}), with the tested defaults (`subsub init` sets them) | A subscription: about {{ facts.opencodeGo.monthly }} dollars a month, {{ facts.opencodeGo.firstMonth }} the first month. The defaults use about {{ facts.defaultTaskCents }} cents a task. |
+| Keep your data in the EU | Mistral, `{{ facts.euModel }}` ([details](#where-your-data-goes)) | Pay per use: about {{ facts.euTaskCents }} cents a task |
 
-If you are not sure, start with the free Google key. Change later with the model button; your library and notes do not change. The rest of this page explains how the tests were done.
+Prices and plans checked {{ facts.checked | monthYear }}. Check the provider's page before you pay. If you are not sure, start with the free Google key. Change later with the model button; your library and notes do not change. The rest of this page explains how the tests were done.
 
 ## Connect a provider
 

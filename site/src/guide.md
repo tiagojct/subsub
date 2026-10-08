@@ -1,4 +1,5 @@
 ---
+alt: /pt/guia/
 layout: base.njk
 title: Guide
 eyebrow: The first half hour
@@ -17,7 +18,7 @@ The profile menu and the model button are at the top right. The panel on the lef
 
 This guide gives the commands that you type. In the browser, most of them are also buttons.
 
-For a map of the parts (the apps, the servers, the modes, the profiles and the folders), see [How it fits together](/#how-it-fits).
+For a map of the parts (the apps, the servers, the modes, the profiles and the folders), see [How it works](/how-it-works/).
 
 ### In the terminal
 
@@ -72,6 +73,8 @@ A PDF or a note that you added to Zotero on its own has no parent item: no title
 
 Undo puts the files back where they were and moves the new items to the Zotero trash. A scan without a text layer cannot be read: Sub-Sub then uses the file name, and says so. In Zotero, right-click a file and choose Reindex Item if it has text that Zotero has not indexed yet.
 
+
+## Write a literature note
 
 Use the Researcher for this part. The Librarian does not search or write notes.
 

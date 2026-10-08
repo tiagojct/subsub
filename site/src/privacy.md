@@ -1,4 +1,5 @@
 ---
+alt: /pt/privacidade/
 layout: base.njk
 title: Privacy and safety
 eyebrow: What stays, what leaves

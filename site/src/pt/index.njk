@@ -1,0 +1,160 @@
+---
+layout: base.njk
+title: Sub-Sub
+hideTitle: true
+bodyClass: home
+lang: pt-PT
+alt: /
+description: Um assistente de investigação que trabalha a partir da sua biblioteca do Zotero. Pesquisa na PubMed, na Europe PMC e no OpenAlex, escreve notas que dizem o que leu e mantém a biblioteca em ordem, com uma pré-visualização de cada alteração.
+---
+
+<section class="hero">
+	<div class="wrap hero-grid">
+		<div class="hero-text">
+			<h1>O seu assistente de investigação, a trabalhar a partir da sua biblioteca do Zotero.</h1>
+			<p class="lead">O Sub-Sub lê os artigos da sua biblioteca do Zotero, encontra na PubMed, na Europe PMC e no OpenAlex os que lhe faltam e escreve notas que dizem o que leu. Vê cada alteração à sua biblioteca antes de ela acontecer. Corre no seu computador, em português ou em inglês.</p>
+			<p class="newcomer">Novo no Zotero ou em ferramentas de IA? <a href="/pt/estudantes/">Comece aqui</a></p>
+
+			<div class="install" data-tabs>
+				<div class="install-tabs" role="tablist" aria-label="Instalar">
+					<button type="button" role="tab" id="tab-unix" data-os="unix" aria-controls="panel-unix" aria-selected="true">macOS e Linux</button>
+					<button type="button" role="tab" id="tab-win" data-os="windows" aria-controls="panel-win" aria-selected="false" tabindex="-1">Windows</button>
+					<button type="button" role="tab" id="tab-npm" aria-controls="panel-npm" aria-selected="false" tabindex="-1">npm</button>
+				</div>
+				<div class="install-panel" role="tabpanel" id="panel-unix" aria-labelledby="tab-unix">
+					<pre class="cmd"><code>curl -fsSL https://subsub.tiagojacinto.eu/install.sh | sh</code></pre>
+					<p>Cole no Terminal. Instala na sua pasta de utilizador, sem direitos de administrador. <a href="/pt/instalar/#sobre-o-comando-de-instalacao">O que este comando faz</a>.</p>
+				</div>
+				<div class="install-panel" role="tabpanel" id="panel-win" aria-labelledby="tab-win" hidden>
+					<pre class="cmd ps"><code>powershell -ExecutionPolicy ByPass -c "irm https://subsub.tiagojacinto.eu/install.ps1 | iex"</code></pre>
+					<p>Cole no PowerShell. Instala na sua pasta de utilizador e cria um atalho. <a href="/pt/instalar/#sobre-o-comando-de-instalacao">O que este comando faz</a>.</p>
+				</div>
+				<div class="install-panel" role="tabpanel" id="panel-npm" aria-labelledby="tab-npm" hidden>
+					<pre class="cmd"><code>npm install -g @tiagojct/subsub && subsub init</code></pre>
+					<p>Precisa do Node.js 22.19 ou posterior e do uv. No pi: <code>pi install npm:@tiagojct/subsub</code>.</p>
+				</div>
+			</div>
+			<p class="hero-alt">Precisa do Zotero e de uma conta num fornecedor de modelos; <a href="/pt/modelos/#usar-o-sub-sub-sem-pagar">uma conta gratuita chega para experimentar</a>. <a href="/pt/instalar/">Guia de instalação</a> · <a href="/pt/guia/">A primeira meia hora</a></p>
+		</div>
+		<figure class="shot hero-shot">
+			<img class="only-light" src="/assets/img/web-view-pt-light.webp?v={{ assetVersion }}" width="1600" height="1100" alt="A vista no navegador do Sub-Sub. À pergunta sobre o que a biblioteca tem sobre espirometria em casa, o Sub-Sub lista quatro itens da biblioteca e três obras recentes da PubMed que não estão nela, e propõe importá-las.">
+			<img class="only-dark" src="/assets/img/web-view-pt-dark.webp?v={{ assetVersion }}" width="1600" height="1100" alt="" loading="lazy">
+		</figure>
+	</div>
+</section>
+
+<section class="section">
+	<div class="wrap result">
+		<div>
+			<p class="eyebrow">O que recebe</p>
+			<h2>Notas que pode verificar, em ficheiros de texto simples.</h2>
+			<p class="section-lead">Cada nota é um ficheiro Markdown na sua pasta Sub-Sub. O Obsidian mostra-a bem; qualquer editor a abre.</p>
+			<ul class="result-points">
+				<li><strong>Diz o que leu.</strong> O texto completo, o resumo ou só os metadados. Os números de página vêm só de um texto completo.</li>
+				<li><strong>Cita só obras que encontrou.</strong> Os itens da biblioteca pela citekey; as outras obras com o DOI ou o PMID.</li>
+				<li><strong>Decide quanto o Sub-Sub escreve.</strong> No perfil Reader, para estudantes, uma nota tem citações e perguntas; o resumo fica a seu cargo.</li>
+			</ul>
+		</div>
+		<figure class="note-card">
+			<div class="note-bar"><span>Literature/smith2021.md</span><span>Reader</span></div>
+			<div class="note-body">
+<pre class="fm">citekey: smith2021
+type: reading-note
+evidence: full text</pre>
+				<h3>Smith 2021, Espirometria em casa em crianças com asma</h3>
+				<blockquote><p>"As crianças fizeram espirometria em casa duas vezes por dia durante 12 semanas, com um dos pais, depois de uma sessão de treino na consulta." <span class="page">p. 3</span></p></blockquote>
+				<p class="q">Como verificaram os autores a técnica entre as consultas?</p>
+				<blockquote><p>"Das 1140 manobras feitas em casa, 71% cumpriram os critérios de aceitabilidade da ATS/ERS." <span class="page">p. 5</span></p></blockquote>
+				<p class="q">Essa taxa manter-se-ia em crianças com menos de seis anos?</p>
+			</div>
+		</figure>
+	</div>
+</section>
+
+<section class="band">
+	<div class="wrap split">
+		<div>
+			<p class="eyebrow">Como acontece uma alteração</p>
+			<h2>Vê a alteração antes de ela acontecer. Pode anulá-la depois.</h2>
+			<ol class="steps">
+				<li><strong>Pede em linguagem corrente.</strong> Por exemplo: etiquete os próximos 10 itens sem tópico.</li>
+				<li><strong>O Sub-Sub prepara a alteração como uma simulação.</strong> A pré-visualização mostra cada item, com as etiquetas que acrescenta a verde e as que retira a vermelho.</li>
+				<li><strong>Seleciona Sim ou Não.</strong> A verificação está no programa, não nas instruções dadas ao modelo. O modelo não a pode saltar.</li>
+				<li><strong>A alteração entra num registo de alterações.</strong> <code>/undo</code> anula-a. Nada é apagado: os itens vão para o lixo do Zotero.</li>
+			</ol>
+		</div>
+		<figure class="shot approval-shot">
+			<img class="only-light" src="/assets/img/web-approval-pt.webp?v={{ assetVersion }}" width="1280" height="640" loading="lazy" alt="Uma janela de aprovação. Pergunta: Confirmar: etiquetar itens? Dois itens vão mudar. Um recebe três etiquetas de tópico novas; o outro recebe uma etiqueta nova e perde type/rct. Botões: Não e Sim.">
+			<img class="only-dark" src="/assets/img/web-approval-pt-dark.webp?v={{ assetVersion }}" width="1280" height="640" loading="lazy" alt="">
+		</figure>
+	</div>
+</section>
+
+<section class="section">
+	<div class="wrap split">
+		<div>
+			<p class="eyebrow">Para estudantes</p>
+			<h2>Ajuda a ler. Não escreve os seus trabalhos.</h2>
+		</div>
+		<div class="prose-block">
+			<p>Os estudantes começam no perfil Reader: notas de leitura com citações e perguntas, e uma lista de leitura para uma revisão da literatura. Não há resumos nem conclusões para entregar. As regras do seu curso sobre IA continuam a aplicar-se.</p>
+			<p>Pode experimentá-lo sem pagar, com uma chave da Google, e uma biblioteca do Zotero vazia não é problema.</p>
+			<p><a href="/pt/estudantes/">Para estudantes</a> · <a href="/students/" lang="en" hreflang="en">In English</a></p>
+		</div>
+	</div>
+</section>
+
+<section class="section">
+	<div class="wrap">
+		<p class="eyebrow">Perfis</p>
+		<h2>Decide quanto o Sub-Sub escreve por si.</h2>
+		<p class="section-lead">O modo (Investigador ou Bibliotecário) define aquilo em que o Sub-Sub trabalha. O perfil define quanto escreve por si, em qualquer dos modos. Os estudantes começam no Reader.</p>
+		<div class="profiles">
+			<div><h3>Reader</h3><p>Para estudantes. Explica cada passo. As notas de leitura são citações com o número da página e, debaixo de cada uma, uma pergunta para si. Uma pesquisa da literatura dá uma lista de leitura. Sem resumos.</p></div>
+			<div><h3>Scholar</h3><p>O perfil predefinido. Notas de literatura, sínteses, revisões da literatura e todas as alterações à biblioteca. Nenhum texto para os seus manuscritos.</p></div>
+			<div><h3>Author</h3><p>O Scholar e ainda ajuda com os seus manuscritos: verificação de citações, uma bibliografia, comentários ao argumento, revisões face às normas de relato.</p></div>
+			<div><h3>Editor</h3><p>Tudo. Quando pede, redige texto para um manuscrito e marca o texto redigido para que o possa verificar.</p></div>
+		</div>
+		<p class="more"><a href="/pt/perfis/">Comparar os perfis</a> · <a href="/pt/como-funciona/">Como se articulam os modos e os perfis</a></p>
+	</div>
+</section>
+
+{%- if trust.items.length %}
+<section class="section">
+	<div class="wrap">
+		<p class="eyebrow">Em uso</p>
+		<h2>O que dizem os utilizadores.</h2>
+		<div class="trust">
+			{%- for q in trust.items %}
+			<figure><blockquote>{{ q.quote }}</blockquote><figcaption>{{ q.who }}</figcaption></figure>
+			{%- endfor %}
+		</div>
+		{%- if trust.facts.length %}
+		<ul class="trust-facts">{% for f in trust.facts %}<li>{{ f }}</li>{% endfor %}</ul>
+		{%- endif %}
+	</div>
+</section>
+{%- endif %}
+
+<section class="section">
+	<div class="wrap split">
+		<div>
+			<p class="eyebrow">Privacidade</p>
+			<h2>A sua biblioteca fica no Zotero.</h2>
+		</div>
+		<div class="prose-block">
+			<p>O Sub-Sub comunica com o Zotero através da API local e nunca usa a sua conta em zotero.org. Não envia dados de utilização.</p>
+			<p>O fornecedor do modelo que escolher recebe as suas mensagens e o que as ferramentas devolvem: títulos, autores, resumos e partes de um texto completo quando pede uma nota. A PubMed, a Europe PMC, o OpenAlex, a Crossref e o Unpaywall recebem termos de pesquisa e identificadores, não as suas notas.</p>
+			<p><a href="/pt/privacidade/">Para onde vão os dados</a></p>
+		</div>
+	</div>
+</section>
+
+<section class="colophon">
+	<div class="wrap">
+		<blockquote>
+			<p lang="en">"It will be seen that this mere painstaking burrower and grub-worm of a poor devil of a Sub-Sub appears to have gone through the long Vaticans and street-stalls of the earth, picking up whatever random allusions to whales he could anyways find in any book whatsoever, sacred or profane."</p>
+			<footer>Herman Melville, <cite>Moby-Dick</cite> (1851), nos Extracts. <a href="/pt/sobre/">Sobre o nome</a></footer>
+		</blockquote>
+	</div>
+</section>

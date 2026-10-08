@@ -1,0 +1,9 @@
+{
+  "_comment": "Facts that go out of date: prices, plans and the recommended models. scripts/check.mjs warns when 'checked' is more than 60 days old and stops a deploy after 120 days. Check each value, then change 'checked'.",
+  "checked": "2026-10-08",
+  "freeModel": "gemini-3.1-flash-lite",
+  "euModel": "mistral-medium-3.5",
+  "opencodeGo": { "monthly": 10, "firstMonth": 5, "url": "https://opencode.ai/go" },
+  "defaultTaskCents": 3,
+  "euTaskCents": 18
+}

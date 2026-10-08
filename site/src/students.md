@@ -1,4 +1,5 @@
 ---
+alt: /pt/estudantes/
 layout: base.njk
 title: For students
 eyebrow: New to Zotero or to AI tools
@@ -6,7 +7,7 @@ description: What Sub-Sub is for a student, what it does not do, how to start fo
 lead: Sub-Sub helps you find, organise and read papers. It does not write your work. You can try it for free.
 ---
 
-Em português: [Para estudantes](/estudantes/).
+Em português: [Para estudantes](/pt/estudantes/).
 
 ## What it is, in plain words
 
@@ -32,7 +33,7 @@ It helps most when you do a literature review, prepare a seminar or a thesis, or
 | References | Can invent references | Cites only works it found; each note says what it read |
 | Your library | Not involved | Imports, tags and files papers, with your approval |
 | Set-up | None | About 15 minutes, once |
-| Cost | Free or a subscription | Free to try; about 10 dollars a month for regular use |
+| Cost | Free or a subscription | Free to try; about {{ facts.opencodeGo.monthly }} dollars a month for regular use |
 
 An empty Zotero library is fine. After you install Sub-Sub, type `/gaps` and your topic. Sub-Sub finds papers on it, and imports the ones you choose.
 
@@ -60,7 +61,7 @@ Then read the [Guide](/guide/).
 ## What it costs
 
 - To try it: free, with the Google key above. The free tier stops long tasks after a few minutes. Wait a minute, then ask Sub-Sub to continue.
-- For regular use: an [OpenCode Go](https://opencode.ai/go) subscription, about 10 dollars a month (5 dollars the first month; check the current terms there). The tested models cost about 3 cents a task, so the monthly allowance is much more than a student uses.
+- For regular use: an [OpenCode Go]({{ facts.opencodeGo.url }}) subscription, about {{ facts.opencodeGo.monthly }} dollars a month ({{ facts.opencodeGo.firstMonth }} dollars the first month; prices checked {{ facts.checked | monthYear }}, so check the current terms there). The tested models cost about {{ facts.defaultTaskCents }} cents a task, so the monthly allowance is much more than a student uses.
 - For unpublished or confidential material: Mistral, with servers in the European Union, or a model service of your institution. See [Where your data goes](/models/#where-your-data-goes).
 
 Sub-Sub itself is free and open source.

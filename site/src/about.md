@@ -1,4 +1,5 @@
 ---
+alt: /pt/sobre/
 layout: base.njk
 title: About
 eyebrow: The name, the author, the licence
