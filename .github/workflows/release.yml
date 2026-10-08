@@ -39,3 +39,12 @@ jobs:
         run: |
           v=${{ steps.version.outputs.version }}
           git ls-remote --exit-code --tags origin "refs/tags/v$v" > /dev/null || (git tag "v$v" && git push origin "v$v")
+      # A GitHub release, with the version's section of CHANGELOG.md as notes. Zenodo archives
+      # each release and gives it a DOI (the concept DOI in CITATION.cff covers all versions).
+      - if: steps.version.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          v=${{ steps.version.outputs.version }}
+          awk -v v="$v" '$0 ~ "^## "v" " {on=1; next} /^## / && on {exit} on' CHANGELOG.md > notes.md
+          gh release view "v$v" > /dev/null 2>&1 || gh release create "v$v" --title "Sub-Sub $v" --notes-file notes.md

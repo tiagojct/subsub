@@ -28,7 +28,7 @@
 	<meta property="og:image:height" content="630">
 	<meta name="twitter:card" content="summary_large_image">
 	{%- if bodyClass == "home" %}
-	<script type="application/ld+json">{{ { "@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Sub-Sub", "applicationCategory": "ResearchApplication", "operatingSystem": "macOS, Windows, Linux", "softwareVersion": release.version, "license": "https://opensource.org/licenses/MIT", "url": site.url, "description": description or site.description, "inLanguage": ["en", "pt-PT"], "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }, "author": { "@type": "Person", "name": "Tiago Jacinto", "affiliation": { "@type": "CollegeOrUniversity", "name": "Faculdade de Medicina da Universidade do Porto" } }, "codeRepository": site.repo } | dump | safe }}</script>
+	<script type="application/ld+json">{{ { "@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Sub-Sub", "applicationCategory": "ResearchApplication", "operatingSystem": "macOS, Windows, Linux", "softwareVersion": release.version, "license": "https://opensource.org/licenses/MIT", "url": site.url, "description": description or site.description, "inLanguage": ["en", "pt-PT"], "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }, "author": { "@type": "Person", "name": "Tiago Jacinto", "affiliation": { "@type": "CollegeOrUniversity", "name": "Faculdade de Medicina da Universidade do Porto" } }, "codeRepository": site.repo, "identifier": "https://doi.org/" + site.doi } | dump | safe }}</script>
 	{%- endif %}
 	<link rel="icon" href="/assets/favicon.svg?v={{ assetVersion }}" type="image/svg+xml">
 	<link rel="preload" href="/assets/fonts/IBMPlexSans.woff2" as="font" type="font/woff2" crossorigin>
@@ -109,7 +109,7 @@
 					<span>Sub<span class="hyphen">-</span>Sub</span>
 				</a>
 				<p>{{ L.footerAbout | safe }}</p>
-				<p class="cite"><span class="cite-label">{{ L.citeAs }}</span> Jacinto T. Sub-Sub: {{ L.citeTitle }} [software]. <a href="{{ site.npm }}" rel="noopener">{{ L.version }} {{ release.version }}</a>. Porto: Faculdade de Medicina da Universidade do Porto; 2026. {{ L.licence }}</p>
+				<p class="cite"><span class="cite-label">{{ L.citeAs }}</span> Jacinto T. Sub-Sub: {{ L.citeTitle }} [software]. <a href="{{ site.npm }}" rel="noopener">{{ L.version }} {{ release.version }}</a>. Porto: Faculdade de Medicina da Universidade do Porto; 2026. doi:<a href="https://doi.org/{{ site.doi }}" rel="noopener">{{ site.doi }}</a>. {{ L.licence }}</p>
 			</div>
 			<nav class="footer-nav" aria-label="{{ L.footer }}">
 				{%- for col in [nav.slice(0, 5), nav.slice(5)] %}

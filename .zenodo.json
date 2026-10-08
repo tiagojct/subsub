@@ -1,0 +1,14 @@
+{
+  "title": "Sub-Sub: a research assistant for Zotero",
+  "upload_type": "software",
+  "description": "A research assistant that works from your own Zotero library, on your computer, in your browser or in the terminal. It tags and imports items, writes literature notes and syntheses with a source for every claim, searches PubMed, Europe PMC and OpenAlex, and shows every library change as a preview before it applies it. The archive includes the published model-test results and blind judgements behind the site's Models page.",
+  "creators": [
+    { "name": "Jacinto, Tiago", "affiliation": "Faculdade de Medicina da Universidade do Porto" }
+  ],
+  "license": "MIT",
+  "keywords": ["Zotero", "literature review", "reference management", "research assistant", "large language models"],
+  "related_identifiers": [
+    { "identifier": "https://subsub.tiagojacinto.eu", "relation": "isDocumentedBy", "resource_type": "publication-softwaredocumentation" },
+    { "identifier": "https://www.npmjs.com/package/@tiagojct/subsub", "relation": "isIdenticalTo", "resource_type": "software" }
+  ]
+}

@@ -177,6 +177,12 @@ End-to-end tests (real pi and Python servers, a fake Zotero, a scripted model): 
 
 See [CHANGELOG.md](CHANGELOG.md).
 
+## Cite
+
+Jacinto T. Sub-Sub: a research assistant for Zotero [software]. Porto: Faculdade de Medicina da Universidade do Porto; 2026. doi:[10.5281/zenodo.23238602](https://doi.org/10.5281/zenodo.23238602)
+
+This DOI always points to the latest version; each version also has its own DOI on [Zenodo](https://doi.org/10.5281/zenodo.23238602). `CITATION.cff` has the same reference for citation managers.
+
 ## Licence
 
 [MIT](LICENSE), Tiago Jacinto. The `/lit`, `/compare` and `/review` prompts adapt text from [Feynman](https://github.com/Companion-Inc/feynman) (MIT); see [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES). IBM Plex fonts: SIL Open Font License.
