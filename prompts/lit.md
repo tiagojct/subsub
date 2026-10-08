@@ -84,4 +84,25 @@ reference_check: "<path of the Starbuck report, or none>"
 
 If a step fails (a service does not answer, a full text cannot be read), do not stop. Finish the note, mark the step "BLOCKED: <what failed>", and set verification: BLOCKED.
 
+## In the Reader profile: a reading list
+
+When the profile is Reader, do sections 1, 2, 4 and 5 as written, but do not synthesise (skip section 3). Write the note with `type: reading-list` and this body in place of Answer, Agreement, Disagreement and Open questions:
+
+```markdown
+## How to read this list
+(two or three lines: the order to read the works in, and why; for example the systematic review first, then the trials)
+
+## Reading list
+| # | Source | Design | Population | What it studies | Read | In library |
+|---|---|---|---|---|---|---|
+
+## Questions to read with
+(for each work, one or two questions that the user answers while reading, such as "How was asthma control measured, and when?")
+
+## Methods
+## Sources
+```
+
+"What it studies" says what the work asks and how, never what it found. Do not state results, effect sizes or conclusions anywhere in the note. Then give the user the path, the first work to read and why, and the works worth adding to the library.
+
 Before you answer, read the note back to confirm that it exists. Then give the user the path, the answer in three lines, and the works worth adding to the library (offer to import them).

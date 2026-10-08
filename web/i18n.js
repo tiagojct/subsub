@@ -260,7 +260,7 @@ export const STRINGS = {
  */
 export const ACTIONS = {
 	research: [
-		{ cmd: "lit", fill: true, profiles: ["scholar", "author", "editor"], en: "Literature review", pt: "Revisão da literatura" },
+		{ cmd: "lit", fill: true, en: "Literature review", pt: "Revisão da literatura" },
 		{ cmd: "compare", fill: true, profiles: ["scholar", "author", "editor"], en: "Compare sources", pt: "Comparar fontes" },
 		{ cmd: "lit-note", fill: true, en: "Literature note", pt: "Nota de leitura" },
 		{ cmd: "synthesis", fill: true, en: "Synthesis", pt: "Síntese" },

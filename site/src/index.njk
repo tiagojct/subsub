@@ -10,7 +10,8 @@ description: A research assistant that works from your own Zotero library. It se
 	<div class="wrap hero-grid">
 		<div class="hero-text">
 			<h1>Your research assistant, working from your own Zotero library.</h1>
-			<p class="lead">Sub-Sub reads what you already have, finds what you are missing in PubMed, Europe PMC and OpenAlex, and writes notes in Markdown. It also keeps the library in order: it imports, tags and repairs references, and shows you each change before it happens. It runs on your computer, in the browser or in the terminal.</p>
+			<p class="lead">Sub-Sub reads the papers you keep in Zotero, finds the ones you are missing in PubMed, Europe PMC and OpenAlex, and writes notes that say what it read. It also keeps the library in order: it imports, tags and repairs references, and shows you each change before it happens. It runs on your computer and opens in your browser, in English or Portuguese.</p>
+			<p class="newcomer">New to Zotero or to AI tools? <a href="/students/">Start here</a> · <a href="/estudantes/" lang="pt-PT">Para estudantes, em português</a></p>
 
 			<div class="install" data-tabs>
 				<div class="install-tabs" role="tablist" aria-label="Install">
@@ -20,11 +21,11 @@ description: A research assistant that works from your own Zotero library. It se
 				</div>
 				<div class="install-panel" role="tabpanel" id="panel-unix" aria-labelledby="tab-unix">
 					<pre class="cmd"><code>curl -fsSL https://subsub.tiagojacinto.eu/install.sh | sh</code></pre>
-					<p>Paste in Terminal. The installer adds uv and Node.js if they are missing. You do not need administrator rights.</p>
+					<p>Paste in Terminal. The installer adds uv and Node.js if they are missing. You do not need administrator rights. <a href="/install/#about-the-install-command">What this command does</a>.</p>
 				</div>
 				<div class="install-panel" role="tabpanel" id="panel-win" aria-labelledby="tab-win" hidden>
 					<pre class="cmd ps"><code>powershell -ExecutionPolicy ByPass -c "irm https://subsub.tiagojacinto.eu/install.ps1 | iex"</code></pre>
-					<p>Paste in PowerShell. The installer adds a shortcut to the Start menu and the desktop.</p>
+					<p>Paste in PowerShell. The installer adds a shortcut to the Start menu and the desktop. <a href="/install/#about-the-install-command">What this command does</a>.</p>
 				</div>
 				<div class="install-panel" role="tabpanel" id="panel-npm" aria-labelledby="tab-npm" hidden>
 					<pre class="cmd"><code>npm install -g @tiagojct/subsub && subsub init</code></pre>
@@ -132,8 +133,9 @@ Costa 2019: A decision aid for inhaler choice
 	<div class="wrap">
 		<p class="eyebrow">Profiles</p>
 		<h2>You decide how much it writes for you.</h2>
+		<p class="section-lead">The mode (Researcher or Librarian) sets what Sub-Sub works on. The profile sets how much it writes for you, in either mode. Students start with Reader.</p>
 		<div class="profiles">
-			<div><h3>Reader</h3><p>Explains each step. Reading notes are quotes with page numbers and a question for you under each quote. No summaries.</p></div>
+			<div><h3>Reader</h3><p>For students. Explains each step. Reading notes are quotes with page numbers and a question for you under each quote. A literature search gives a reading list. No summaries.</p></div>
 			<div><h3>Scholar</h3><p>The default. Literature notes, syntheses, literature reviews and all library changes. No text for your manuscripts.</p></div>
 			<div><h3>Author</h3><p>Scholar, plus help with your manuscripts: citation checks, a bibliography, comments on the argument, reviews against reporting guidelines.</p></div>
 			<div><h3>Editor</h3><p>Everything. When you ask, it drafts text for a manuscript and marks the drafted text so that you can check it.</p></div>

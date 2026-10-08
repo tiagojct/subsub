@@ -24,6 +24,17 @@ Sub-Sub is made by Tiago Jacinto, assistant professor at the Faculty of Medicine
 - [IBM Plex](https://www.ibm.com/plex/) type (SIL Open Font License), for this site and the browser view.
 - The Glauca and Try-Works design systems, for the terminal themes.
 
+## If Sub-Sub stops
+
+Sub-Sub is maintained by one person. If it is no longer updated, you lose nothing:
+
+- Your references, PDFs and tags are in Zotero, which does not need Sub-Sub.
+- Your notes, reading lists and reviews are Markdown files in your Sub-Sub folder. Any text editor opens them.
+- The journal of changes is in plain JSON files in `~/.local/share/zotero-local-mcp/journal`.
+- The source is open under the MIT licence, so anyone can continue it.
+
+An installed version keeps working until Zotero, pi or a model provider changes in a way that breaks it.
+
 ## Source and licence
 
 Sub-Sub and its Zotero server are open source under the MIT licence:

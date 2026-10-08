@@ -35,7 +35,7 @@ Type `subsub doctor`. Each line starts with `ok`, `NOTE` or `FIX`. Do the fix th
 - "This Go model requires Global regions": your OpenCode workspace allows only some regions. In OpenCode, open the workspace's Privacy settings and select Global, or choose another model.
 - Sub-Sub says that web search is not set up: it still finds references in Crossref, Google Books, Internet Archive, Open Library and Wikidata. For web search, get a key at [brave.com/search/api](https://brave.com/search/api/) and type `subsub init`.
 - "cannot use opencode-go/…": you are not logged in to that provider, or the model name is wrong. Type `/login`, or change `models` in the settings file.
-- A tool or a command is "not part of the Reader profile": type `/profile` to see the profile, and `/profile scholar` to change it. The message names the profiles that have it. For example, `/lit` is not in Reader, and `/review` is only in Author and Editor.
+- A tool or a command is "not part of the Reader profile": type `/profile` to see the profile, and `/profile scholar` to change it. The message names the profiles that have it. For example, `/compare` is not in Reader, and `/review` is only in Author and Editor. (`/lit` works in Reader: it gives a reading list.)
 - A search tool is "part of the Researcher": type `/researcher`, or select Researcher at the top of the browser view.
 - `/verify` says that reference checks need Starbuck: turn on "Reference checks (Starbuck)" in the panel on the left of the browser view, or type `subsub init --starbuck on`.
 - Sub-Sub refuses a literature note: the note must say what Sub-Sub read (evidence: full text, abstract or metadata), and it can give page numbers only when it read the full text. Ask Sub-Sub to correct the note.

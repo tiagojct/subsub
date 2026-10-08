@@ -2,6 +2,14 @@
 
 Sub-Sub follows the version numbers of npm: a change in the second number (0.13) adds features or changes how you use it; a change in the third (0.13.1) only fixes.
 
+## 0.14.0 (2026-10-08)
+
+For students:
+
+- `/lit` works in the Reader profile. It gives a reading list: the same search, screening and screening log, then the works to read, the order to read them in, what each one studies and questions to read it with. It states no results or conclusions.
+- The site has a page for students, in English and in European Portuguese: what Sub-Sub does and does not do, how to start for free, what it costs, and the words you will meet.
+- The Models page starts with which model to choose and what it costs. The Install page explains the install command. The About page says what you keep if Sub-Sub stops.
+
 ## 0.13.1 (2026-10-07)
 
 - A change that would change nothing (for example, citekeys for items that already have one) is no longer offered for approval. Sub-Sub says why instead.

@@ -233,6 +233,7 @@ code, pre, kbd { font-family: var(--mono); }
 	text-wrap: balance;
 }
 .hero .lead { font-size: clamp(1.05rem, 1.6vw, 1.2rem); color: var(--muted); margin: 0 0 2rem; max-width: 40rem; text-wrap: pretty; }
+.hero .newcomer { margin: -1.25rem 0 2rem; max-width: 40rem; font-weight: 500; }
 .hero-links { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1.5rem 0 0; }
 /* The hero's small print is a reference entry, Vancouver style, as the reader would cite it. */
 .cite { margin: 2rem 0 0; padding-left: 1.5rem; text-indent: -1.5rem; max-width: 40rem; font-family: var(--serif); font-size: 0.92rem; line-height: 1.55; color: var(--muted); }

@@ -5,6 +5,8 @@ eyebrow: Faculdade de Medicina da Universidade do Porto
 lead: Students and staff of FMUP and the University of Porto get a set-up made for them.
 ---
 
+New to Sub-Sub? [Para estudantes](/estudantes/) explains it in Portuguese, from the start: what it does, what it does not do, and how to start for free.
+
 ## Set up
 
 1. [Install Sub-Sub](/install/).
@@ -13,7 +15,7 @@ lead: Students and staff of FMUP and the University of Porto get a set-up made f
 This gives you:
 
 - A starter tag list for the health sciences: clinical areas, public health, methods and study designs.
-- The [Reader profile](/profiles/), which explains each step and writes reading notes with quotes and questions. You can change the profile at any time with `/profile`.
+- The [Reader profile](/profiles/), which explains each step and writes reading notes with quotes and questions. `/lit` gives a reading list with the screening log: the works to read and questions to read them with. You can change the profile at any time with `/profile`.
 
 ## Papers that are not open access
 

@@ -5,6 +5,8 @@ eyebrow: Get started
 lead: One command installs everything Sub-Sub needs, in your own user folder. You do not need administrator rights.
 ---
 
+New to Zotero, AI models or the terminal? Read [For students](/students/) first ([em português](/estudantes/)).
+
 ## Before you start
 
 1. Install [Zotero 10](https://www.zotero.org/download/) or later, if you do not have it.
@@ -32,6 +34,18 @@ lead: One command installs everything Sub-Sub needs, in your own user folder. Yo
 
 3. Answer the questions of the set-up. To keep the value in brackets, press Enter.
 4. Sub-Sub opens in your browser. Later, open it from the Start menu or from the Sub-Sub shortcut on the desktop.
+
+## About the install command
+
+The command downloads a script from this site and runs it. Security advice often warns against running scripts from the internet, and that is good advice for sites you do not trust. Here is what you can check:
+
+- You can read the script before you run it: [install.sh](/install.sh) and [install.ps1](/install.ps1). It is short and has comments.
+- It installs only in your own user folder (`~/.subsub`). It does not ask for an administrator password and does not change the system.
+- On Windows, `-ExecutionPolicy ByPass` lets this one command run the script. It does not change the setting for other scripts.
+- Everything it installs is open source: Sub-Sub, Node.js and uv. The source of Sub-Sub is on [GitHub]({{ site.repo }}).
+- To remove it all, see [Remove](#remove).
+
+If your institution manages your computer and blocks the command, ask its IT service, or use a computer of your own.
 
 ## Start Sub-Sub
 

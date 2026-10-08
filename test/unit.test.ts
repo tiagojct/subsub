@@ -952,7 +952,10 @@ test("web: Open judges the real file, not a link inside the notes folder", async
 });
 
 test("profiles: prompt commands per profile, blocked before the template is expanded", async () => {
-	assert.match(promptBlocked("/lit FeNO in children", "reader")!, /\/lit is not part of the Reader profile \(it is in: Scholar, Author, Editor\)/);
+	assert.equal(promptBlocked("/lit FeNO in children", "reader"), undefined, "Reader runs /lit as a reading list");
+	assert.match(profileSpec("reader").rules, /\/lit gives a reading list/);
+	assert.match(readFileSync(new URL("../prompts/lit.md", import.meta.url), "utf8"), /## In the Reader profile: a reading list[\s\S]*type: reading-list/);
+	assert.match(promptBlocked("/compare x", "reader")!, /\/compare is not part of the Reader profile \(it is in: Scholar, Author, Editor\)/);
 	assert.equal(promptBlocked("/lit FeNO", "scholar"), undefined);
 	assert.match(promptBlocked("/review draft.qmd", "scholar")!, /it is in: Author, Editor/);
 	assert.equal(promptBlocked("/review draft.qmd", "author"), undefined);
@@ -970,8 +973,9 @@ test("profiles: prompt commands per profile, blocked before the template is expa
 		const input = (text: string) => fp.handlers.input[0]({ type: "input", text, source: "interactive" }, ctx);
 		assert.deepEqual(await input("/lit FeNO"), { action: "continue" });
 		await fp.commands.profile.handler("reader", ctx);
-		assert.deepEqual(await input("/lit FeNO"), { action: "handled" });
-		assert.match(notes.at(-1)!, /Sub-Sub: \/lit is not part of the Reader profile/);
+		assert.deepEqual(await input("/lit FeNO"), { action: "continue" });
+		assert.deepEqual(await input("/compare FeNO"), { action: "handled" });
+		assert.match(notes.at(-1)!, /Sub-Sub: \/compare is not part of the Reader profile/);
 		assert.deepEqual(await input("/verify paper.qmd"), { action: "continue" });
 	} finally {
 		if (old === undefined) delete process.env.SUBSUB_CONFIG;

@@ -1,4 +1,5 @@
 [
+  { "url": "/students/", "label": "Students" },
   { "url": "/install/", "label": "Install" },
   { "url": "/guide/", "label": "Guide" },
   { "url": "/profiles/", "label": "Profiles" },

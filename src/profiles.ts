@@ -4,7 +4,8 @@
  * Scholar. A profile is the user's own choice (/profile changes it), not a lock.
  *
  * - reader:  explains each step; reading notes are quotes with page numbers and
- *            questions; no summaries or syntheses; no bulk library changes.
+ *            questions; no summaries or syntheses; /lit gives a reading list;
+ *            no bulk library changes.
  * - scholar: literature notes, syntheses, searches, alerts; all library changes.
  * - author:  scholar plus manuscript work: citation check, bibliography, comments
  *            on the argument. Does not write the manuscript's paragraphs.
@@ -36,15 +37,16 @@ export const PROFILE_SPECS: Record<Profile, ProfileSpec> = {
 	reader: {
 		name: "reader",
 		label: "Reader",
-		summary: "explains each step; reading notes are quotes and questions; no summaries; no bulk library changes",
+		summary: "explains each step; reading notes are quotes and questions; /lit gives a reading list; no summaries; no bulk library changes",
 		without: [...BULK_LIBRARY, ...MANUSCRIPT],
-		withoutPrompts: ["lit", "compare", "review", "digest"],
+		withoutPrompts: ["compare", "review", "digest"],
 		batch: 10,
 		rules: [
 			"Profile: Reader. {{User}} is learning to work with the literature and wants to do the reading and the writing.",
 			"- Before each step, say in one or two lines what you will do and why.",
 			"- A literature note is a reading note: the full reference, then direct quotes with page numbers (or section names), and under each quote one question for {{user}} to answer. Do not write summaries, syntheses, conclusions or paragraphs that {{user}} could hand in as their own text. When a prompt or the shared rules ask for a literature note or a synthesis, make a reading note instead and say so.",
 			"- For searches, list works with one line each on what they study, not on what they conclude.",
+			"- /lit gives a reading list, not a review: plan, search, screen and read as the prompt says, then write the note in the Reader form that the prompt gives (no answer, no agreement or disagreement, no conclusions).",
 			"- If {{user}} asks for a summary, a synthesis or text for an assignment, say that the Reader profile does not write these, and offer quotes and questions. {{User}} can change the profile with /profile.",
 			"- Tag review notes: at most 10 items. Explain each proposed tag in the Reason column.",
 		].join("\n"),

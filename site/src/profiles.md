@@ -14,7 +14,8 @@ A profile applies in both modes, the Researcher and the Librarian. It changes tw
 | Explains each step | yes | | | |
 | Reading notes: quotes with page numbers, and questions for you | yes | yes | yes | yes |
 | Summaries, literature notes, syntheses | | yes | yes | yes |
-| Literature reviews, comparisons, digests (`/lit`, `/compare`, `/digest`) | | yes | yes | yes |
+| Literature search with a screening log (`/lit`) | reading list | review | review | review |
+| Comparisons and digests (`/compare`, `/digest`) | | yes | yes | yes |
 | Reference checks with Starbuck (`/verify`) | yes | yes | yes | yes |
 | Draft email to ask an author for a copy (`/request-copy`) | yes | yes | yes | yes |
 | Citation check and bibliography for a manuscript | | | yes | yes |
@@ -41,6 +42,8 @@ In both modes and in every profile, each library change shows a preview first an
 ## Reader
 
 For someone who wants to do the reading and the writing: a student who is new to a field, or anyone who starts in a new area. Sub-Sub says what it will do before each step. A reading note has the reference, direct quotes with page numbers, and under each quote a question for you to answer. Sub-Sub does not write summaries or text that you could hand in as your own.
+
+`/lit` in Reader gives a reading list, not a review. Sub-Sub plans the search, searches your library and PubMed, Europe PMC and OpenAlex, screens the results and keeps the screening log, as in the other profiles. Then it writes the works to read, the order to read them in, one line on what each work studies (not what it found), and questions to read each one with. It does not state results or conclusions.
 
 For library changes, Reader tags, imports and attaches PDFs, with 10 items per review note. It cannot rename or remove tags, edit fields, repair metadata or move items to the trash. For those, change the profile to Scholar.
 
