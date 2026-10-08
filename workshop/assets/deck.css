@@ -255,3 +255,60 @@
 .note-card .h3 { font-family: var(--serif); font-weight: 500; font-size: 1.2em; margin: 0 0 0.6em; }
 .ex { display: block !important; }
 .cols.c3 .card { font-size: 0.84em; }
+
+/* ---------------------------------------------------------------- second pass */
+
+/* Content slides: the title at the top, the content centred in the space below it (and above the reference line). */
+.reveal .slides > section.slide:not(.sect):not(.title-slide-x) { display: flex !important; flex-direction: column; }
+.reveal .slides > section.slide:not(.sect):not(.title-slide-x) > h2 { flex: none; }
+.reveal .slides > section.slide:not(.sect):not(.title-slide-x) > h2 + * { margin-top: auto !important; }
+.reveal .slides > section.slide:not(.sect):not(.title-slide-x)::after { content: ""; display: block; flex: none; height: 1.6em; margin-top: auto; }
+
+/* Screenshots fill their frame. */
+.reveal .shot p, .reveal .shot figure { margin: 0 !important; }
+.reveal .shot img { width: 100% !important; max-width: 100% !important; }
+
+/* In a card, the label leads and the text follows. */
+.reveal .card { font-size: 0.8em; line-height: 1.45; }
+.reveal .cols.c3 .card { font-size: 0.8em; }
+.reveal .card .h3 { font-family: var(--serif); font-weight: 500; font-size: 1.22em; line-height: 1.2; margin: 0 0 0.45em; }
+.reveal .card li { margin: 0.3em 0; }
+.reveal .side { font-size: 0.78em; }
+.reveal .side .h3 { font-family: var(--serif); font-weight: 500; font-size: 1.25em; margin: 1em 0 0.25em; }
+.reveal .side p:first-child .h3 { margin-top: 0; }
+
+/* Code in a title reads as part of the title. */
+.reveal h2 code { background: none; border: 0; padding: 0; font-size: 0.86em; color: var(--accent); }
+
+/* Chart labels inside the bars. */
+.dg text.rust-t { fill: var(--rust); }
+.dg text.ok-t { fill: var(--green); }
+
+/* Numbered pins on a screenshot, and the same numbers in the labels. */
+.shot.pins { position: relative; }
+.pin, .pin-i { display: inline-grid; place-items: center; width: 1.6em; height: 1.6em; border-radius: 50%; background: var(--rust); color: #fff; font-family: var(--mono); font-weight: 400; line-height: 1; }
+.pin { position: absolute; font-size: 0.62em; box-shadow: 0 0 0 4px rgb(255 255 255 / 0.92), 0 4px 10px rgb(28 27 25 / 0.25); }
+.pin-i { font-size: 0.62em; margin-right: 0.5em; vertical-align: 0.2em; }
+
+/* Section slides: the four parts of the hour, this one marked. */
+.parts { position: absolute; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: 15fr 15fr 20fr 10fr; gap: 6px; font-size: 0.5em; }
+.parts span { border-top: 3px solid rgb(255 255 255 / 0.14); padding-top: 0.6em; color: var(--ink-dim); }
+.parts .done { border-top-color: rgb(127 176 222 / 0.45); }
+.parts .on { border-top-color: var(--ink-acc); color: #f2efe8; }
+
+/* The exercise timer: click the minutes. */
+.ex .min { cursor: pointer; user-select: none; font-variant-numeric: tabular-nums; transition: background 0.2s, color 0.2s; }
+.ex .min.running { background: var(--green); color: #fff; }
+.ex .min.over { background: var(--rust); border-color: var(--rust); color: #fff; }
+
+/* The QR code leaves room for the text beside it. */
+.qr img { width: 64%; }
+
+/* Adjustments after the second render. */
+.reveal .slides > section.slide:not(.sect):not(.title-slide-x)::after { height: 3.2em; }
+.parts { right: 90px; }
+.reveal .card p:not(:first-child):has(> .h3) { margin-top: 0.9em !important; }
+.reveal .side p:has(> .small) { margin-top: 1.1em; }
+.reveal .shot.bare { border: 0; background: none; box-shadow: none; overflow: visible; }
+.reveal .shot.bare img { border-radius: 14px; box-shadow: var(--shadow); }
+.reveal .slides > section.slide:not(.sect):not(.title-slide-x)::after { flex: 0 1 3.2em; height: auto; min-height: 0; }

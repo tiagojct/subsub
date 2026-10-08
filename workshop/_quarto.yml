@@ -9,6 +9,7 @@ project:
     - en/index.qmd
   resources:
     - assets/fonts/*.woff2
+    - assets/timer.js
 
 format:
   revealjs:
