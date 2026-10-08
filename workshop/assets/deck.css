@@ -342,3 +342,7 @@ html.print-pdf .reveal .slides .pdf-page > section { height: 846px !important; }
 html.print-pdf .reveal .slides .pdf-page > section.title-slide-x { display: grid !important; }
 html.print-pdf .reveal .slides .pdf-page > section.sect,
 html.print-pdf .reveal .slides .pdf-page > section.slide:not(.title-slide-x) { display: flex !important; flex-direction: column; }
+
+/* fourth pass */
+.cols.c3 > .card { align-self: stretch; }
+.card span.small { display: block; line-height: 1.45; }

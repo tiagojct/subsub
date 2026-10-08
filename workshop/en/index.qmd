@@ -413,7 +413,7 @@ This is what a reviewer or a supervisor will ask about. /lit is a good start for
 ## What you will see
 
 | You need to | Ask Sub-Sub | You get | |
-|---|---|---|---|
+|----------------------|---------------------------------|--------------------------------------|-------|
 | Add a paper | `import 10.1183/13993003.00289-2020` | the preview; Yes; then `/undo` | 3 min |
 | Read one paper well | `/lit-note` and title words | a note with checked quotes | 4 min |
 | Know what is published | `/lit` and the question | a rapid review with an evidence table | 5 min |
@@ -639,11 +639,11 @@ The ICMJE recommendations and most journals ask:
 
 - that authors **declare** how they used AI tools;
 - that an AI is **not an author**;
-- that authors **answer** for the content, the references included.
+- that authors **answer** for the content, including the references.
 
 [Sub-Sub drafts the statement:]{style="display:block;margin-top:0.8em"}
 
-[/ai-statement the literature search and reading notes]{.say}
+[/ai-statement the literature search and reading notes]{.say style="font-size:0.7em"}
 :::
 
 ::: {.card}

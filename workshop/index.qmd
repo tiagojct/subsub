@@ -413,7 +413,7 @@ Esta distinção é o que um revisor ou um orientador vai perguntar. O /lit é u
 ## O que vamos ver
 
 | Precisa de | Peça ao Sub-Sub | Recebe | |
-|---|---|---|---|
+|----------------------|---------------------------------|--------------------------------------|-------|
 | Acrescentar um artigo | `importa 10.1183/13993003.00289-2020` | a pré-visualização; Sim; depois `/undo` | 3 min |
 | Ler bem um artigo | `/lit-note` e palavras do título | uma nota com citações verificadas | 4 min |
 | Saber o que está publicado | `/lit` e a pergunta | uma revisão rápida com tabela de evidência | 5 min |
@@ -643,7 +643,7 @@ As recomendações do ICMJE e a maioria das revistas pedem:
 
 [O Sub-Sub prepara o rascunho da declaração:]{style="display:block;margin-top:0.8em"}
 
-[/ai-statement the literature search and reading notes]{.say}
+[/ai-statement the literature search and reading notes]{.say style="font-size:0.7em"}
 :::
 
 ::: {.card}
