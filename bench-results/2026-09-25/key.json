@@ -1,0 +1,12 @@
+{
+ "M741": "glm-5.3-flash",
+ "M328": "deepseek-v4.1-flash",
+ "M545": "qwen3.8-flash",
+ "M729": "mimo-v2.6-flash",
+ "M769": "minimax-m3",
+ "M511": "mimo-v2.6-pro",
+ "M240": "deepseek-v4-pro",
+ "M261": "kimi-k2.6",
+ "M192": "glm-5.3",
+ "M522": "qwen3.7-plus"
+}

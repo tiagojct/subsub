@@ -1,0 +1,426 @@
+{
+ "about": "The 15 OpenCode Go models, one run each. The judge saw run codes (M123), not model names.",
+ "scale": "1 to 5: support for every claim, coverage of the items, no invented references",
+ "scores": [
+  {
+   "label": "M123-lit_note",
+   "task": "lit_note",
+   "score": 4.5,
+   "invented_refs": 1,
+   "why": "Full text read in 5 chunks; 14 accurate page-cited key points (350,000 chemicals, filaggrin p.1861, Fab-arm exchange p.1852 verified); Methods section thin."
+  },
+  {
+   "label": "M123-synthesis",
+   "task": "synthesis",
+   "score": 4,
+   "invented_refs": 0,
+   "why": "All 15 tagged items, 10 full texts read, verified quotes with pages; several claims in Disagreements/Gaps lack a citekey and one quote ('legal accountability is still a grey area') is attributed to jenko2025 though it appears in the costa2026 text."
+  },
+  {
+   "label": "M123-search",
+   "task": "search",
+   "score": 4,
+   "invented_refs": 0,
+   "why": "5 traced DOIs, overlap stated (1 in library), but 2 of 5 picks (general AI-governance SLR, generative-AI governance) are not EU-specific; very brief."
+  },
+  {
+   "label": "M123-lit",
+   "task": "lit",
+   "score": 3.5,
+   "invented_refs": 0,
+   "why": "15 sources with evidence table and read levels, but FRA cited with invented citekey europeanagencyforfundamentalrights2025, verification BLOCKED, plan task list never updated, some unsourced claims ('policymakers maintain...')."
+  },
+  {
+   "label": "M191-lit_note",
+   "task": "lit_note",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "Full text read; accurate synthesis with page ranges, tag reasoning, biologics list; fewer granular figures than the best notes."
+  },
+  {
+   "label": "M191-synthesis",
+   "task": "synthesis",
+   "score": 3.5,
+   "invented_refs": 0,
+   "why": "15/15 items but mostly abstract-based (3 full texts); prose uses citekeys as nouns, calls MDCG 'mdgc2021' in text, kommusaar year mis-stated as 2025."
+  },
+  {
+   "label": "M191-search",
+   "task": "search",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "5 EU-specific 2024 works, all DOIs traced to scholar results, overlap stated (1: bignami2025a), clear relevance notes."
+  },
+  {
+   "label": "M191-lit",
+   "task": "lit",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "31 sources incl. 14 library items, plan + screening log, gap search on EHDS/CRA/Omnibus, verification run (25 pass); numbering skips [28], plan task list left unticked."
+  },
+  {
+   "label": "M226-lit_note",
+   "task": "lit_note",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "Rich, accurate full-text note (0.05% polysorbates, 10%/20% AD prevalence, 68 diseases all verified, pages correct); author list truncated to 4 of 28."
+  },
+  {
+   "label": "M226-synthesis",
+   "task": "synthesis",
+   "score": 4,
+   "invented_refs": 0,
+   "why": "15/15 cited, honest source labels (3 full texts, rest abstracts), good disagreements and gaps; depth limited by abstract reading."
+  },
+  {
+   "label": "M226-search",
+   "task": "search",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "5 relevant picks with DOIs and PMIDs, near misses listed, overlap (2 in library) in final text; minor author-initial error ('van Kolfschooten N')."
+  },
+  {
+   "label": "M226-lit",
+   "task": "lit",
+   "score": 5,
+   "invented_refs": 0,
+   "why": "24 sources, explicit read levels, verified references (20 pass), gap check that admits the GPAI gap as BLOCKED instead of filling it; clear agreement/disagreement/open questions."
+  },
+  {
+   "label": "M293-lit_note",
+   "task": "lit_note",
+   "score": 5,
+   "invented_refs": 0,
+   "why": "Most complete note: full text including tail, accurate numbers and page ranges, critical coverage note (CRS/drug allergy not covered); bold-first bullets only stylistic flaw."
+  },
+  {
+   "label": "M293-synthesis",
+   "task": "synthesis",
+   "score": 5,
+   "invented_refs": 0,
+   "why": "All 15 items read in full text (partial), dense and accurate synthesis, every claim cited, well-argued tensions and inferences labelled."
+  },
+  {
+   "label": "M293-search",
+   "task": "search",
+   "score": 5,
+   "invented_refs": 0,
+   "why": "5 well-chosen, diverse works (Brussels effect, experimentalism, DSA commentary) with traced DOIs/PMID, overlap 0 stated, full author lists."
+  },
+  {
+   "label": "M293-lit",
+   "task": "lit",
+   "score": 5,
+   "invented_refs": 0,
+   "why": "22 sources reaching beyond health (DSA/DMA, DPA enforcement, Brussels effect), gap round documented, verification 19 pass; plan task list unticked."
+  },
+  {
+   "label": "M308-lit_note",
+   "task": "lit_note",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "Accurate full-text note with 16 page-cited points (chemokines, HDAC inhibitors, rEos/iEos all verified); some page attributions approximate."
+  },
+  {
+   "label": "M308-synthesis",
+   "task": "synthesis",
+   "score": 3.5,
+   "invented_refs": 0,
+   "why": "Good content and all 15 items in table, but uses numbered references [1]-[15] instead of [@citekey] throughout, which breaks the citation contract."
+  },
+  {
+   "label": "M308-search",
+   "task": "search",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "5 relevant traced DOIs (Ebers, Busch, Smuha ILM, Gstrein, Eke), overlap 0 stated."
+  },
+  {
+   "label": "M308-lit",
+   "task": "lit",
+   "score": 3.5,
+   "invented_refs": 0,
+   "why": "15 sources, screening log present, but citekeys written as [schmidt2024] not [@...], no verify tool run, screening path wrong, some disagreements weakly sourced ('Commission framing implied')."
+  },
+  {
+   "label": "M408-lit_note",
+   "task": "lit_note",
+   "score": 4,
+   "invented_refs": 0,
+   "why": "Accurate but more generic; says 'six schematic figures' when the paper has 8; few specific numbers."
+  },
+  {
+   "label": "M408-synthesis",
+   "task": "synthesis",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "All 15 items, 13 full texts, careful hedging and labelled inferences; dual numbered+citekey citation style is clunky."
+  },
+  {
+   "label": "M408-search",
+   "task": "search",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "5 relevant traced DOIs, overlap 0 stated, clear notes on what was read."
+  },
+  {
+   "label": "M408-lit",
+   "task": "lit",
+   "score": 4,
+   "invented_refs": 0,
+   "why": "14 sources with good scholarly breadth (governance, copyright, sustainability) and gap searches, but onitiu2026 marked 'not in library', no formal verification, only 3 library items used."
+  },
+  {
+   "label": "M414-lit_note",
+   "task": "lit_note",
+   "score": 5,
+   "invented_refs": 0,
+   "why": "Best-documented note: verbatim quotes checked against full text, eosinophil phenotypes, funding/grant number, critical author-signature note; all verified."
+  },
+  {
+   "label": "M414-synthesis",
+   "task": "synthesis",
+   "score": 5,
+   "invented_refs": 0,
+   "why": "All 15 items with per-item read depth and page ranges; many specific facts verified (26,046 records, Court of Rome 18 March 2026, Doubao, Article 6(3)); not-in-library list."
+  },
+  {
+   "label": "M414-search",
+   "task": "search",
+   "score": 5,
+   "invented_refs": 0,
+   "why": "5 strong picks with DOIs and PMIDs, abstracts read via scholar_get_work, overlap 0 in final text, honest exclusion of an unverifiable candidate."
+  },
+  {
+   "label": "M414-lit",
+   "task": "lit",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "22 sources, verification run, gap pass on Digital Omnibus; confusing 'Note [12]' line and library items mostly abstract-level."
+  },
+  {
+   "label": "M430-lit_note",
+   "task": "lit_note",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "Accurate, well-structured full-text note with page ranges and critical inference note; fewer key points than the best."
+  },
+  {
+   "label": "M430-synthesis",
+   "task": "synthesis",
+   "score": 4,
+   "invented_refs": 0,
+   "why": "15/15 items, honest that 10 are abstract-only, accurate quotes; less depth than full-text syntheses."
+  },
+  {
+   "label": "M430-search",
+   "task": "search",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "5 relevant traced DOIs, overlap check described (1 in library in final text), good relevance notes."
+  },
+  {
+   "label": "M430-lit",
+   "task": "lit",
+   "score": 5,
+   "invented_refs": 0,
+   "why": "23 sources incl. empirical readiness data, documented gap check, identifier check per source, labelled inferences; very rigorous methods."
+  },
+  {
+   "label": "M479-lit_note",
+   "task": "lit_note",
+   "score": 1,
+   "invented_refs": 0,
+   "why": "No output."
+  },
+  {
+   "label": "M479-synthesis",
+   "task": "synthesis",
+   "score": 1,
+   "invented_refs": 0,
+   "why": "No output."
+  },
+  {
+   "label": "M479-search",
+   "task": "search",
+   "score": 1,
+   "invented_refs": 0,
+   "why": "No output."
+  },
+  {
+   "label": "M479-lit",
+   "task": "lit",
+   "score": 1,
+   "invented_refs": 0,
+   "why": "No output."
+  },
+  {
+   "label": "M494-lit_note",
+   "task": "lit_note",
+   "score": 4,
+   "invented_refs": 2,
+   "why": "Mostly accurate full-text note, but misattributes 'omalizumab is approved for peanut allergy' to p.1864 (paper says OIT approved, omalizumab under evaluation) and sets created date to 2025-07-17."
+  },
+  {
+   "label": "M494-synthesis",
+   "task": "synthesis",
+   "score": 3.5,
+   "invented_refs": 0,
+   "why": "Detailed and largely supported content, but FRA report cited 4 times with invented citekey @fra2025; table cites without brackets."
+  },
+  {
+   "label": "M494-search",
+   "task": "search",
+   "score": 4,
+   "invented_refs": 0,
+   "why": "5 traced DOIs including recent 2026 works and a Portuguese paper, but no count of library overlap."
+  },
+  {
+   "label": "M494-lit",
+   "task": "lit",
+   "score": 2.5,
+   "invented_refs": 0,
+   "why": "Numbering mismatches (Floridi cited as [5], Answer cites [7] for HIP), an invented source 'European Commission 2024 Communication C(2024) 1234' not in any tool result, no gap search, no verification."
+  },
+  {
+   "label": "M567-lit_note",
+   "task": "lit_note",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "Very detailed and accurate (NM_ variant IDs, grant numbers, figure list verified); author list truncated to 4, '>200 citations' understates 358."
+  },
+  {
+   "label": "M567-synthesis",
+   "task": "synthesis",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "15/15 items with 54 quotes, nearly all verified against full text; minor slips (EUR 10 bn attributed to purificato2025 but from floridi2026, numbering starts at 2, one garbled sentence)."
+  },
+  {
+   "label": "M567-search",
+   "task": "search",
+   "score": 4,
+   "invented_refs": 0,
+   "why": "5 relevant traced DOIs/PMIDs incl. 2026 work, but no overlap count reported."
+  },
+  {
+   "label": "M567-lit",
+   "task": "lit",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "22 sources plus supporting works, verification 22/22, gap searches on Omnibus/AI Office/GPAI; one wrong cross-reference ('Floridi's [13]')."
+  },
+  {
+   "label": "M645-lit_note",
+   "task": "lit_note",
+   "score": 4.5,
+   "invented_refs": 1,
+   "why": "Accurate full-text note with pages and figure list; authors truncated to 2-3 of 28; fewer details than top notes."
+  },
+  {
+   "label": "M645-synthesis",
+   "task": "synthesis",
+   "score": 4,
+   "invented_refs": 0,
+   "why": "15/15 cited, honest read-level table (mostly abstracts), clear disagreements and timeline."
+  },
+  {
+   "label": "M645-search",
+   "task": "search",
+   "score": 3.5,
+   "invented_refs": 0,
+   "why": "DOIs traced, but invents a co-author ('De Ruijter, A.') for van Kolfschooten 2024 not in any tool result, and one pick (Mennella broad review) is not EU-focused."
+  },
+  {
+   "label": "M645-lit",
+   "task": "lit",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "20 sources, gap searches on platforms/enforcement, verification run; screening log carries an untraced DOI (10.5281/zenodo.5083074) and several typos."
+  },
+  {
+   "label": "M739-lit_note",
+   "task": "lit_note",
+   "score": 5,
+   "invented_refs": 0,
+   "why": "Accurate, complete full-text note: numbers with pages verified, received/accepted dates, references for further reading, open questions flagged by the authors."
+  },
+  {
+   "label": "M739-synthesis",
+   "task": "synthesis",
+   "score": 4,
+   "invented_refs": 0,
+   "why": "15/15 cited cleanly with read levels; mostly abstract-based so thinner on detail than full-text syntheses."
+  },
+  {
+   "label": "M739-search",
+   "task": "search",
+   "score": 5,
+   "invented_refs": 0,
+   "why": "5 relevant works with DOIs and PMIDs, overlap named (schmidt2024, bignami2025a), sustainability pick tied to library item."
+  },
+  {
+   "label": "M739-lit",
+   "task": "lit",
+   "score": 5,
+   "invented_refs": 0,
+   "why": "25 sources incl. all 15 library items, gap check, verification 19 pass/0 fail, honest limitations; strongest overall structure."
+  },
+  {
+   "label": "M783-lit_note",
+   "task": "lit_note",
+   "score": 3,
+   "invented_refs": 0,
+   "why": "Has front matter and evidence field but is generic: no page numbers, no specific figures, authors truncated to 2-3; adds little beyond the abstract."
+  },
+  {
+   "label": "M783-synthesis",
+   "task": "synthesis",
+   "score": 1,
+   "invented_refs": 0,
+   "why": "No synthesis note written: stopped after listing the 15 items and asked the user to choose."
+  },
+  {
+   "label": "M783-search",
+   "task": "search",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "5 relevant 2024 works with traced DOIs, overlap reported (0 then 1), clear notes."
+  },
+  {
+   "label": "M783-lit",
+   "task": "lit",
+   "score": 4,
+   "invented_refs": 0,
+   "why": "12 sources, carefully documented screening of 145 works, gap search and verification, but thin synthesis and odd exclusion of floridi2026."
+  },
+  {
+   "label": "M803-lit_note",
+   "task": "lit_note",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "Accurate full-text note with pages and critical provenance note; filaggrin and dupilumab points verified."
+  },
+  {
+   "label": "M803-synthesis",
+   "task": "synthesis",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "15/15 cited, 5 full texts read, verified specifics (Austria request, military exclusion), not-in-library DOIs traced to tool output."
+  },
+  {
+   "label": "M803-search",
+   "task": "search",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "5 traced DOIs, overlap 0 stated, diverse angles (geopolitics, ordoliberal critique); a few low-citation picks."
+  },
+  {
+   "label": "M803-lit",
+   "task": "lit",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "17 sources, gap check on enforcement/liability, verification 16 pass; front-matter counts disagree with Methods and some author initials wrong."
+  }
+ ]
+}

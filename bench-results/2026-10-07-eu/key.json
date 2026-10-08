@@ -1,0 +1,5 @@
+{
+ "M206": "mistral/mistral-small-2603",
+ "M504": "mistral/mistral-medium-3.5",
+ "M767": "mistral/mistral-large-2512"
+}

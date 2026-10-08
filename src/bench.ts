@@ -5,7 +5,10 @@
  *   subsub-bench prepare [--seed 7]        pick the tasks (read-only)
  *   subsub-bench run [--models a,b] [--librarian a,b] [--researcher c,d] [--parallel 3] [--only task]
  *   (--models sets the models for both task groups.)
- *   subsub-bench score                     objective checks -> results.md
+ *   subsub-bench score [--no-starbuck]     objective checks -> results.md
+ *   subsub-bench summary [--out FILE]      the published figures -> site/src/_data/modeltest.json
+ *   subsub-bench sheet [--judging ID] [--n 12] [--out DIR]   a blind scoring sheet for people
+ *   subsub-bench agreement --sheet DIR     their scores against the AI judge's
  *
  * Results go to ~/Projects/subsub/bench-results/<date>/ (or --dir). Each model gets
  * an anonymous code; key.json maps codes to models. Library writes are recorded
@@ -267,6 +270,32 @@ function f1(tp: number, fp: number, fn: number) {
 
 const SCORED = /^(topic|method|type)\//;
 
+/** The item keys that zotero_bakeoff_items gave the model (the server's sample, which can differ from tasks.json). */
+export function servedKeys(calls: Array<{ name: string; result: string; isError: boolean }>): string[] {
+	const c = calls.filter((x) => x.name === "zotero_bakeoff_items" && !x.isError).at(-1);
+	if (!c) return [];
+	try {
+		return (JSON.parse(c.result).items ?? []).map((i: { key?: string }) => i.key).filter(Boolean);
+	} catch {
+		return [];
+	}
+}
+
+/**
+ * The reference that covers the items the model saw: the blind reference (reference.json) or the
+ * owner's reviewed tags (library-tags-reference.json). Scoring against a reference for other items
+ * gives F1 0 for every model, which looks like a result and is not one.
+ */
+export function pickReference(refs: Record<string, Record<string, string[]>>, served: string[]) {
+	let best: { name: string; gold: Record<string, string[]>; coverage: number } | undefined;
+	for (const [name, ref] of Object.entries(refs)) {
+		const keys = served.filter((k) => k in ref);
+		const coverage = served.length ? keys.length / served.length : 0;
+		if (!best || coverage > best.coverage) best = { name, gold: Object.fromEntries(keys.map((k) => [k, ref[k]])), coverage };
+	}
+	return best && best.coverage > 0 ? best : undefined;
+}
+
 export function scoreTags(proposals: Record<string, string[]>, gold: Record<string, string[]>) {
 	let tp = 0,
 		fp = 0,
@@ -335,7 +364,7 @@ export function starbuckScorer(cfg = loadConfig(), env: NodeJS.ProcessEnv = proc
 	};
 }
 
-export function scoreRun(task: string, dir: string, t: Tasks, index: IndexRow[], blindRef: Record<string, string[]>,
+export function scoreRun(task: string, dir: string, t: Tasks, index: IndexRow[], refs: Record<string, Record<string, string[]>>,
 	starbuck?: StarbuckScorer): Record<string, any> {
 	const events = readEvents(dir);
 	const calls = toolCalls(events);
@@ -347,6 +376,7 @@ export function scoreRun(task: string, dir: string, t: Tasks, index: IndexRow[],
 		seconds: summary.seconds,
 		tool_calls: calls.length,
 		tool_errors: calls.filter((c) => c.isError && !/Model test:/.test(c.result)).length,
+		refused_calls: refusedCalls(events).refused,
 		wrong_mode: entries.filter((e) => e.kind === "wrong_mode").length,
 		path_blocked: entries.filter((e) => e.kind === "path_blocked").length,
 		tokens_in: summary.stats?.tokens ? summary.stats.tokens.input + summary.stats.tokens.cacheRead : undefined,
@@ -370,14 +400,21 @@ export function scoreRun(task: string, dir: string, t: Tasks, index: IndexRow[],
 		}
 		const peeked = calls.filter((c) => ["zotero_get_item", "zotero_find_items"].includes(c.name)).length;
 		const status = Object.values(proposals).flat().filter((x) => x.startsWith("status/")).length;
+		// Score the items the model was given; a run without that call is scored on what it proposed.
+		const served = servedKeys(calls);
+		const ref = pickReference(refs, served.length ? served : Object.keys(proposals));
 		return {
 			...base,
 			submitted: !!sub,
+			items_served: served.length,
 			items_proposed: Object.keys(proposals).length,
 			invalid_tags: invalid,
 			status_tags: status,
 			peeked,
-			vs_reference: Object.keys(blindRef).length ? scoreTags(proposals, blindRef) : undefined,
+			reference: ref?.name,
+			reference_coverage: ref ? +ref.coverage.toFixed(3) : 0,
+			vs_reference: ref ? scoreTags(proposals, ref.gold) : undefined,
+			tasks_mismatch: served.length > 0 && served.some((k) => !t.tagging.keys.includes(k)),
 			proposals,
 		};
 	}
@@ -403,13 +440,19 @@ export function scoreRun(task: string, dir: string, t: Tasks, index: IndexRow[],
 			extra_items: [...touched.keys()].filter((k) => !expected.has(k)).length,
 			change_calls: changes.length,
 			preview_errors: previewErrors.length,
+			// Most items changed are not expected: tasks.json describes another state of the library.
+			tasks_mismatch: touched.size > 0 && [...touched.keys()].filter((k) => expected.has(k)).length < touched.size / 2,
 			proposed: Object.fromEntries(touched),
 		};
 	}
 	if (task === "import") {
 		const changes = entries.filter((e) => e.kind === "change" && e.tool === "zotero_import_identifiers");
 		const want = [t.import.in_library?.id, ...t.import.new.map((n) => n.id)].filter(Boolean).map((x) => normId(x!));
-		const sent = new Set(changes.flatMap((c) => (c.input?.identifiers ?? []).map((x: string) => normId(x))));
+		const sent = new Set(changes.flatMap((c) => identifierList(c.input?.identifiers).map(normId)));
+		// A model may preview the import itself (dry_run) and stop to ask: that counts as sent.
+		const asked = !changes.length && calls.some((c) => c.name === "zotero_import_identifiers" && /"dry_run":\s*true/.test(c.result));
+		for (const c of calls) if (c.name === "zotero_import_identifiers") for (const x of identifierList(c.args?.identifiers)) sent.add(normId(x));
+		const fresh = t.import.new.map((n) => normId(n.id));
 		const last = changes.at(-1)?.preview ?? {};
 		const final = summary.finalText ?? "";
 		const dup = t.import.in_library;
@@ -422,6 +465,10 @@ export function scoreRun(task: string, dir: string, t: Tasks, index: IndexRow[],
 			change_calls: changes.length,
 			would_import: Array.isArray(last.would_import) ? last.would_import.length : undefined,
 			duplicate_reported: reported,
+			// Right: every new work sent, and the one already in the library reported (sending it too is fine).
+			new_sent: fresh.filter((w) => sent.has(w)).length,
+			asked_first: asked,
+			import_right: fresh.every((w) => sent.has(w)) && (!dup || reported),
 		};
 	}
 	if (task === "lit_note" || task === "synthesis") {
@@ -489,6 +536,19 @@ export function scoreRun(task: string, dir: string, t: Tasks, index: IndexRow[],
 	return base;
 }
 
+/** Identifiers as a list: some models send the array as a JSON string, or as one comma-separated string. */
+export function identifierList(v: unknown): string[] {
+	if (Array.isArray(v)) return v.map(String);
+	if (typeof v !== "string") return [];
+	try {
+		const parsed = JSON.parse(v);
+		if (Array.isArray(parsed)) return parsed.map(String);
+	} catch {
+		/* not JSON */
+	}
+	return v.split(/[\s,;]+/).filter(Boolean);
+}
+
 export function normId(x: string): string {
 	const s = x.trim().toLowerCase().replace(/^https?:\/\/(dx\.)?doi\.org\//, "").replace(/^doi:\s*/, "");
 	const pm = s.match(/^pmid[:\s]*(\d+)$/);
@@ -504,12 +564,24 @@ function cell(v: unknown): string {
 	return String(v);
 }
 
+/** What makes a column of results meaningless: the tasks or the reference describe other items. */
+export function warnings(rows: Array<{ task: string; s: Record<string, any> }>): string[] {
+	const out: string[] = [];
+	const tag = rows.filter((r) => r.task === "tagging" && r.s.submitted);
+	if (tag.some((r) => !r.s.vs_reference)) out.push("tagging: no reference covers the items the models were given, so F1 is not computed for some runs.");
+	else if (tag.some((r) => r.s.reference_coverage < 1)) out.push("tagging: the reference covers only part of the items the models were given; F1 is over those items only.");
+	if (tag.some((r) => r.s.tasks_mismatch)) out.push("tagging: the server's sample differs from tasks.json (prepare ran again after tasks.json was made).");
+	if (rows.some((r) => r.task === "facet_fix" && r.s.tasks_mismatch))
+		out.push("facet_fix: the models changed only items that tasks.json does not expect; tasks.json describes another state of the library, so 'fixed' means nothing.");
+	return out;
+}
+
 export function renderResults(rows: Array<{ model: string; role: Mode; task: string; s: Record<string, any> }>): string {
 	const out: string[] = [`Model test results (${new Date().toISOString().slice(0, 10)}). Objective checks only; the quality judgement is separate.`, ""];
 	const cols: Record<string, string[]> = {
-		tagging: ["submitted", "items_proposed", "vs_reference.f1", "vs_reference.exact", "invalid_tags", "status_tags", "peeked"],
+		tagging: ["submitted", "items_proposed", "reference", "reference_coverage", "vs_reference.f1", "vs_reference.exact", "invalid_tags", "status_tags", "peeked"],
 		facet_fix: ["expected", "fixed", "extra_items", "change_calls", "preview_errors"],
-		import: ["ids_expected", "ids_sent", "extra_ids", "would_import", "duplicate_reported"],
+		import: ["import_right", "asked_first", "ids_expected", "ids_sent", "new_sent", "extra_ids", "would_import", "duplicate_reported"],
 		lit_note: ["written", "words", "read_fulltext", "cites_itself", "citekeys_unknown"],
 		synthesis: ["written", "words", "topic_items", "topic_items_cited", "citekeys_unknown"],
 		search: ["written", "dois", "pmids", "ungrounded", "already_in_library", "queued", "searches"],
@@ -518,6 +590,8 @@ export function renderResults(rows: Array<{ model: string; role: Mode; task: str
 			"starbuck.citation_recall", "starbuck.citation_precision"],
 	};
 	const common = ["seconds", "tool_calls", "tool_errors", "wrong_mode", "tokens_in", "tokens_out", "cost", "error"];
+	const warn = warnings(rows);
+	if (warn.length) out.push("## Warnings", "", ...warn.map((w) => `- ${w}`), "");
 	for (const task of Object.keys(cols)) {
 		const rs = rows.filter((r) => r.task === task);
 		if (!rs.length) continue;
@@ -530,6 +604,219 @@ export function renderResults(rows: Array<{ model: string; role: Mode; task: str
 		out.push("");
 	}
 	return out.join("\n");
+}
+
+// ---------------------------------------------------------------- published summary
+
+/** One published test: which run folders, which blind judging, which models and tasks (bench-results/published.json). */
+export interface PublishedTest {
+	id: string;
+	runs: string[];
+	judging: string;
+	models?: string[];
+	role?: Mode;
+	tasks?: string[];
+	free?: string[];
+}
+
+interface Judged {
+	label: string;
+	task: string;
+	score: number;
+	invented_refs?: number;
+}
+
+const round = (x: number, d = 2) => +x.toFixed(d);
+const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : NaN);
+
+/** Tool calls that the tool refused because the arguments did not match its schema. */
+export function refusedCalls(events: any[]): { refused: number; calls: number } {
+	let refused = 0;
+	let calls = 0;
+	for (const e of events) {
+		if (e.type === "tool_execution_start") calls++;
+		if (e.type === "tool_execution_end" && e.isError && /Validation failed/.test(resultText(e))) refused++;
+	}
+	return { refused, calls };
+}
+
+/**
+ * The figures on the site's Models page, computed from the committed runs and judgements, so
+ * that anyone can check them: subsub-bench summary writes them to site/src/_data/modeltest.json.
+ */
+export function summarise(root: string): Record<string, any> {
+	const tests: PublishedTest[] = JSON.parse(readFileSync(join(root, "published.json"), "utf8")).tests;
+	const out: Record<string, any> = {};
+	for (const test of tests) {
+		const judged: Judged[] = JSON.parse(readFileSync(join(root, "judging", test.judging, "scores.json"), "utf8")).scores;
+		const jkey: Record<string, { run: string; model: string; task: string }> = JSON.parse(readFileSync(join(root, "judging", test.judging, "key.json"), "utf8"));
+		const rows: Array<{ dir: string; model: string; role: Mode; task: string; s: Record<string, any> }> = [];
+		for (const dir of test.runs)
+			for (const r of JSON.parse(readFileSync(join(root, dir, "results.json"), "utf8"))) rows.push({ ...r, dir, model: r.model.split("/").pop() });
+		const names = test.models ?? [...new Set(rows.map((r) => r.model))];
+		const models: Record<string, any> = {};
+		for (const m of names) {
+			const all = rows.filter((r) => r.model === m && (!test.role || r.role === test.role) && (!test.tasks || test.tasks.includes(r.task)));
+			// A model tested in several folders (the default, beside the EU models) counts once: the first folder that has it.
+			const mine = test.runs.length > 1 && !test.role ? all.filter((r) => r.dir === all[0]?.dir) : all;
+			const tag = mine.filter((r) => r.task === "tagging" && r.s.vs_reference).map((r) => r.s.vs_reference.f1 as number);
+			const imp = mine.filter((r) => r.task === "import");
+			const scores = judged.filter((j) => jkey[j.label]?.model === m);
+			const byTask: Record<string, number> = {};
+			for (const t of [...new Set(scores.map((j) => j.task))]) byTask[t] = round(mean(scores.filter((j) => j.task === t).map((j) => j.score)));
+			// From results.json only: the run logs hold passages of full texts and stay private.
+			const refused = mine.reduce((a, r) => a + (r.s.refused_calls ?? 0), 0);
+			const calls = mine.reduce((a, r) => a + (r.s.tool_calls ?? 0), 0);
+			const cost = mine.reduce((a, r) => a + (r.s.cost ?? 0), 0);
+			models[m] = {
+				works: mine.some((r) => r.s.tool_calls > 0),
+				research: scores.length ? round(mean(scores.map((j) => j.score))) : null,
+				research_low: scores.length ? Math.min(...scores.map((j) => j.score)) : null,
+				research_high: scores.length ? Math.max(...scores.map((j) => j.score)) : null,
+				research_notes: scores.length,
+				research_by_task: byTask,
+				invented_refs: scores.reduce((a, j) => a + (j.invented_refs ?? 0), 0),
+				f1: tag.length ? round(mean(tag)) : null,
+				f1_low: tag.length ? round(Math.min(...tag)) : null,
+				f1_high: tag.length ? round(Math.max(...tag)) : null,
+				imports: imp.length,
+				imports_right: imp.filter((r) => r.s.import_right).length,
+				imports_asked: imp.filter((r) => r.s.import_right && r.s.asked_first).length,
+				// One import: "right", "asked" (previewed, then asked before applying), "one" or "none" of the identifiers sent.
+				import: imp.length !== 1 ? undefined : imp[0].s.import_right ? (imp[0].s.asked_first ? "asked" : "right") : imp[0].s.ids_sent ? "one" : "none",
+				refused_calls: refused,
+				tool_calls: calls,
+				free: test.free?.includes(m) ?? false,
+				cost: round(cost),
+				cost_per_task: mine.length ? round(cost / mine.length, 3) : null,
+				minutes_per_task: mine.length ? round(mean(mine.map((r) => r.s.seconds ?? 0)) / 60, 1) : null,
+			};
+		}
+		// The page lists the models by research score (the models that did not work last), then by name.
+		const order = Object.keys(models).sort((x, y) => Number(models[y].works) - Number(models[x].works) || (models[y].research ?? 0) - (models[x].research ?? 0) || x.localeCompare(y));
+		const f1s = order.filter((m) => models[m].f1 !== null).map((m) => models[m].f1 as number);
+		out[test.id] = { runs: test.runs, judging: test.judging, order, f1_low: f1s.length ? Math.min(...f1s) : null, f1_high: f1s.length ? Math.max(...f1s) : null, models };
+	}
+	return out;
+}
+
+// ---------------------------------------------------------------- calibration of the judge
+
+/** The file a run wrote for a research task (the note, the synthesis, the search list or the review). */
+export function outputFile(runDir: string): string | undefined {
+	if (!existsSync(runDir)) return undefined;
+	const md = readdirSync(runDir).filter((f) => f.endsWith(".md")).sort();
+	return md.length ? join(runDir, md[0]) : undefined;
+}
+
+/** A small random generator with a seed, so that a sheet can be made again the same way. */
+function seeded(seed: number): () => number {
+	let x = seed >>> 0 || 1;
+	return () => ((x = (x * 1664525 + 1013904223) >>> 0) / 2 ** 32);
+}
+
+/**
+ * A blind scoring sheet for people: n outputs from a judging, balanced over the tasks, under new
+ * labels, without the judge's scores or the model names. sheet-key.json maps the new labels to the
+ * judge's; keep it away from the people who score.
+ */
+export function makeSheet(root: string, judging: string, outDir: string, n = 12, seed = 1): number {
+	const judged: Judged[] = JSON.parse(readFileSync(join(root, "judging", judging, "scores.json"), "utf8")).scores;
+	const jkey: Record<string, { run: string; task: string }> = JSON.parse(readFileSync(join(root, "judging", judging, "key.json"), "utf8"));
+	const rand = seeded(seed);
+	const tasks = [...new Set(judged.map((j) => j.task))];
+	const pick: Judged[] = [];
+	const pools = tasks.map((t) => judged.filter((j) => j.task === t && outputFile(join(root, jkey[j.label].run, "runs", "", ""))!== null).sort(() => rand() - 0.5));
+	for (let i = 0; pick.length < n && pools.some((p) => p.length); i++) {
+		const p = pools[i % pools.length];
+		const j = p.shift();
+		if (!j) continue;
+		const [dir, code] = jkey[j.label].run.split("/");
+		if (outputFile(join(root, dir, "runs", code, j.task))) pick.push(j);
+	}
+	mkdirSync(outDir, { recursive: true });
+	// A judge's label can name a run with several tasks: the key keeps the label and the task.
+	const key: Record<string, { label: string; task: string }> = {};
+	const rows = ["label,task,score,invented_refs,notes"];
+	const used = new Set<string>();
+	for (const j of pick.sort(() => rand() - 0.5)) {
+		let label: string;
+		do label = `H${Math.floor(100 + rand() * 900)}`;
+		while (used.has(label));
+		used.add(label);
+		key[label] = { label: j.label, task: j.task };
+		const [dir, code] = jkey[j.label].run.split("/");
+		const file = outputFile(join(root, dir, "runs", code, j.task))!;
+		writeFileSync(join(outDir, `${label}.md`), readFileSync(file, "utf8"));
+		rows.push(`${label},${j.task},,,`);
+	}
+	writeFileSync(join(outDir, "scores.csv"), `${rows.join("\n")}\n`);
+	writeFileSync(join(outDir, "sheet-key.json"), JSON.stringify({ judging, key }, null, 1));
+	writeFileSync(join(outDir, "README.md"), [
+		"# Scoring sheet",
+		"",
+		"Score each file from 1 to 5 (halves allowed), without looking at the other scorers' sheets.",
+		"",
+		"- 5: every claim has a source the note read; the items are covered; quotes and numbers are right.",
+		"- 3: mostly right, with claims without a source or items left out.",
+		"- 1: wrong paper, invented references, or claims the sources do not make.",
+		"",
+		"Count invented references: a citekey not in the library, or a DOI or PMID that does not exist.",
+		"Write your scores in a copy of scores.csv named scores-<your initials>.csv. Do not open sheet-key.json.",
+		"Then: subsub-bench agreement --sheet <this folder>",
+		"",
+	].join("\n"));
+	return pick.length;
+}
+
+/** Quadratic-weighted kappa on the half-point scale 1, 1.5, ... 5 (0 = chance agreement, 1 = the same scores). */
+export function weightedKappa(a: number[], b: number[]): number {
+	const k = 9;
+	const idx = (x: number) => Math.min(k - 1, Math.max(0, Math.round((x - 1) * 2)));
+	const obs = Array.from({ length: k }, () => new Array(k).fill(0));
+	for (let i = 0; i < a.length; i++) obs[idx(a[i])][idx(b[i])]++;
+	const ra = obs.map((r) => r.reduce((x, y) => x + y, 0));
+	const cb = obs[0].map((_, j) => obs.reduce((x, r) => x + r[j], 0));
+	let num = 0;
+	let den = 0;
+	for (let i = 0; i < k; i++)
+		for (let j = 0; j < k; j++) {
+			const w = ((i - j) / (k - 1)) ** 2;
+			num += w * obs[i][j];
+			den += (w * ra[i] * cb[j]) / a.length;
+		}
+	return den ? round(1 - num / den, 3) : 1;
+}
+
+/** Agreement between each scorer and the judge, and between scorers. */
+export function agreement(root: string, sheetDir: string): Array<{ a: string; b: string; n: number; mean_abs_diff: number; within_half: number; kappa: number }> {
+	const { judging, key } = JSON.parse(readFileSync(join(sheetDir, "sheet-key.json"), "utf8")) as { judging: string; key: Record<string, { label: string; task: string }> };
+	const judged: Judged[] = JSON.parse(readFileSync(join(root, "judging", judging, "scores.json"), "utf8")).scores;
+	const raters: Record<string, Record<string, number>> = { judge: {} };
+	for (const [h, j] of Object.entries(key)) {
+		const s = judged.find((x) => x.label === j.label && x.task === j.task)?.score;
+		if (s !== undefined) raters.judge[h] = s;
+	}
+	for (const f of readdirSync(sheetDir).filter((f) => /^scores-.+\.csv$/.test(f))) {
+		const name = f.replace(/^scores-|\.csv$/g, "");
+		raters[name] = {};
+		for (const line of readFileSync(join(sheetDir, f), "utf8").split("\n").slice(1)) {
+			const [label, , score] = line.split(",");
+			if (label && score && !Number.isNaN(Number(score))) raters[name][label.trim()] = Number(score);
+		}
+	}
+	const names = Object.keys(raters);
+	const out = [];
+	for (let i = 0; i < names.length; i++)
+		for (let j = i + 1; j < names.length; j++) {
+			const common = Object.keys(raters[names[i]]).filter((l) => l in raters[names[j]]);
+			if (!common.length) continue;
+			const x = common.map((l) => raters[names[i]][l]);
+			const y = common.map((l) => raters[names[j]][l]);
+			const d = x.map((v, k) => Math.abs(v - y[k]));
+			out.push({ a: names[i], b: names[j], n: common.length, mean_abs_diff: round(mean(d)), within_half: round(d.filter((v) => v <= 0.5).length / d.length), kappa: weightedKappa(x, y) });
+		}
+	return out;
 }
 
 // ---------------------------------------------------------------- CLI
@@ -626,22 +913,52 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
 		const t: Tasks = JSON.parse(readFileSync(join(dir, "tasks.json"), "utf8"));
 		const index: IndexRow[] = JSON.parse(readFileSync(join(dir, "library-index.json"), "utf8"));
 		const key: Record<string, string> = JSON.parse(readFileSync(join(dir, "key.json"), "utf8"));
-		const blind = existsSync(join(dir, "reference.json")) ? JSON.parse(readFileSync(join(dir, "reference.json"), "utf8")) : {};
+		const refs: Record<string, Record<string, string[]>> = {};
+		for (const [name, file] of [["blind", "reference.json"], ["library", "library-tags-reference.json"]])
+			if (existsSync(join(dir, file))) refs[name] = JSON.parse(readFileSync(join(dir, file), "utf8"));
 		const rows: Array<{ model: string; role: Mode; task: string; s: Record<string, any> }> = [];
-		const scorer = starbuckScorer(cfg);
+		// --no-starbuck keeps the reference checks of the last score (they are slow and need the network).
+		const previous: Array<{ model: string; task: string; s: Record<string, any> }> =
+			argv.includes("--no-starbuck") && existsSync(join(dir, "results.json")) ? JSON.parse(readFileSync(join(dir, "results.json"), "utf8")) : [];
+		const scorer = argv.includes("--no-starbuck") ? undefined : starbuckScorer(cfg);
 		for (const code of Object.keys(key).sort()) {
 			for (const role of ["librarian", "researcher"] as Mode[])
 				for (const task of TASKS[role]) {
 					const d = join(dir, "runs", code, task);
 					if (!existsSync(join(d, "summary.json"))) continue;
-					rows.push({ model: key[code], role, task, s: scoreRun(task, d, t, index, blind, scorer) });
+					const kept = previous.find((r) => r.model === key[code] && r.task === task)?.s.starbuck;
+					rows.push({ model: key[code], role, task, s: scoreRun(task, d, t, index, refs, scorer ?? (kept ? () => kept : undefined)) });
 				}
 		}
 		writeFileSync(join(dir, "results.json"), JSON.stringify(rows, null, 1));
 		writeFileSync(join(dir, "results.md"), renderResults(rows));
+		for (const w of warnings(rows)) console.warn(`Warning: ${w}`);
 		console.log(`Wrote ${join(dir, "results.md")}`);
 		return;
 	}
-	console.log("Usage: subsub-bench prepare | run [--models a,b] [--librarian a,b] [--researcher c,d] [--only task] [--parallel 3] | score  [--dir DIR]");
+	if (cmd === "summary") {
+		const root = join(PACKAGE_DIR, "bench-results");
+		const file = arg(argv, "out") ?? join(PACKAGE_DIR, "site", "src", "_data", "modeltest.json");
+		writeFileSync(file, `${JSON.stringify(summarise(root), null, 1)}\n`);
+		console.log(`Wrote ${file}`);
+		return;
+	}
+	if (cmd === "sheet") {
+		const out = expand(arg(argv, "out") ?? join(process.cwd(), "scoring-sheet"));
+		const n = makeSheet(join(PACKAGE_DIR, "bench-results"), arg(argv, "judging") ?? "2026-10-07-repeats", out, Number(arg(argv, "n") ?? 12), Number(arg(argv, "seed") ?? 1));
+		console.log(`Wrote a sheet of ${n} outputs to ${out}. Give the scorers the .md files, README.md and scores.csv, not sheet-key.json.`);
+		return;
+	}
+	if (cmd === "agreement") {
+		const sheet = arg(argv, "sheet");
+		if (!sheet) throw new Error("Give the sheet folder: subsub-bench agreement --sheet DIR");
+		const rows = agreement(join(PACKAGE_DIR, "bench-results"), expand(sheet));
+		writeFileSync(join(expand(sheet), "agreement.json"), JSON.stringify(rows, null, 1));
+		console.log("| a | b | items | mean difference | within 0.5 | weighted kappa |\n|---|---|---|---|---|---|");
+		for (const r of rows) console.log(`| ${r.a} | ${r.b} | ${r.n} | ${r.mean_abs_diff} | ${r.within_half} | ${r.kappa} |`);
+		if (!rows.length) console.log("No scores yet: add scores-<initials>.csv files to the sheet folder.");
+		return;
+	}
+	console.log("Usage: subsub-bench prepare | run [--models a,b] [--librarian a,b] [--researcher c,d] [--only task] [--parallel 3] | score [--no-starbuck] | summary | sheet [--judging ID] [--n 12] [--out DIR] | agreement --sheet DIR  [--dir DIR]");
 }
 

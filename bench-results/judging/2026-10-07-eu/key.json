@@ -1,0 +1,102 @@
+{
+ "E158": {
+  "run": "2026-10-07/M739",
+  "model": "mimo-v2.6-pro",
+  "task": "lit_note"
+ },
+ "E749": {
+  "run": "2026-10-07-eu/M504",
+  "model": "mistral-medium-3.5",
+  "task": "lit_note"
+ },
+ "E301": {
+  "run": "2026-10-07-eu/M206",
+  "model": "mistral-small-2603",
+  "task": "lit_note"
+ },
+ "E633": {
+  "run": "2026-10-07-free2/M319",
+  "model": "gemini-3.1-flash-lite",
+  "task": "lit_note"
+ },
+ "E330": {
+  "run": "2026-10-07-eu/M767",
+  "model": "mistral-large-2512",
+  "task": "lit_note"
+ },
+ "E133": {
+  "run": "2026-10-07-eu/M504",
+  "model": "mistral-medium-3.5",
+  "task": "synthesis"
+ },
+ "E849": {
+  "run": "2026-10-07/M739",
+  "model": "mimo-v2.6-pro",
+  "task": "synthesis"
+ },
+ "E736": {
+  "run": "2026-10-07-eu/M767",
+  "model": "mistral-large-2512",
+  "task": "synthesis"
+ },
+ "E546": {
+  "run": "2026-10-07-free2/M319",
+  "model": "gemini-3.1-flash-lite",
+  "task": "synthesis"
+ },
+ "E134": {
+  "run": "2026-10-07-eu/M206",
+  "model": "mistral-small-2603",
+  "task": "synthesis"
+ },
+ "E223": {
+  "run": "2026-10-07/M739",
+  "model": "mimo-v2.6-pro",
+  "task": "search"
+ },
+ "E159": {
+  "run": "2026-10-07-eu/M504",
+  "model": "mistral-medium-3.5",
+  "task": "search"
+ },
+ "E989": {
+  "run": "2026-10-07-eu/M767",
+  "model": "mistral-large-2512",
+  "task": "search"
+ },
+ "E748": {
+  "run": "2026-10-07-free2/M319",
+  "model": "gemini-3.1-flash-lite",
+  "task": "search"
+ },
+ "E784": {
+  "run": "2026-10-07-eu/M206",
+  "model": "mistral-small-2603",
+  "task": "search"
+ },
+ "E684": {
+  "run": "2026-10-07/M739",
+  "model": "mimo-v2.6-pro",
+  "task": "lit"
+ },
+ "E440": {
+  "run": "2026-10-07-eu/M504",
+  "model": "mistral-medium-3.5",
+  "task": "lit"
+ },
+ "E431": {
+  "run": "2026-10-07-eu/M767",
+  "model": "mistral-large-2512",
+  "task": "lit"
+ },
+ "E333": {
+  "run": "2026-10-07-eu/M206",
+  "model": "mistral-small-2603",
+  "task": "lit"
+ },
+ "E127": {
+  "run": "2026-10-07-free2/M319",
+  "model": "gemini-3.1-flash-lite",
+  "task": "lit"
+ }
+}

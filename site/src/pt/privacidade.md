@@ -42,6 +42,15 @@ As pesquisas só acontecem no modo Investigador. O Bibliotecário também contac
 
 O Sub-Sub não envia emails. O `/request-copy` escreve um rascunho na sua pasta do Sub-Sub; decide se o envia.
 
+## Para um encarregado de proteção de dados
+
+- Responsável pelo tratamento: a pessoa que usa o Sub-Sub. O Sub-Sub é um programa no computador dessa pessoa, não um serviço; o seu autor não recebe dados.
+- Subcontratantes: o fornecedor do modelo que o utilizador escolhe, nos termos desse fornecedor (veja [Para onde vão os seus dados](/pt/modelos/#para-onde-vao-os-seus-dados)), e os serviços bibliográficos da tabela acima.
+- Dados enviados ao fornecedor do modelo: as mensagens do utilizador e o que as ferramentas devolvem (registos bibliográficos, resumos, etiquetas, passagens de textos completos, passagens do manuscrito do utilizador quando verifica afirmações). O Sub-Sub não se destina a dados de doentes, nem os procura.
+- Localização: a Mistral trata os dados na União Europeia; os outros fornecedores sobretudo nos Estados Unidos ou noutros países. Para material que tem de ficar na UE, use a Mistral, um serviço de modelos da instituição ou um modelo local.
+- Conservação: o Sub-Sub guarda as conversas, as notas e o registo de alterações apenas no computador do utilizador. A conservação no fornecedor do modelo segue os termos deste.
+- Registos: nenhum é enviado. O registo de utilização do piloto está desligado, a menos que o utilizador o ligue, fica no computador e não contém conteúdo.
+
 ## Segurança
 
 - Cada alteração à biblioteca aparece primeiro numa pré-visualização e só é executada depois de a aprovar. A verificação está no programa; o modelo não a pode saltar.
@@ -50,7 +59,9 @@ O Sub-Sub não envia emails. O `/request-copy` escreve um rascunho na sua pasta 
 - Nada é apagado. Os itens vão para o lixo do Zotero; as etiquetas são retiradas dos itens.
 - Só se podem acrescentar etiquetas da sua lista de etiquetas.
 - O Bibliotecário não tem ferramentas de pesquisa.
-- O texto dos resumos, dos textos completos e dos resultados de pesquisa é tratado como dados. As instruções do Sub-Sub dizem ao modelo que nunca siga instruções que encontre nesse texto.
+- O texto dos resumos, dos textos completos, das páginas web e dos resultados de pesquisa é tratado como dados. As instruções do Sub-Sub dizem ao modelo que nunca siga instruções que encontre nesse texto.
+- Uma pesquisa enviada a um serviço externo é verificada no programa: uma consulta com mais de 1500 carateres ou com mais de três linhas é recusada, para que passagens das suas notas ou dos textos completos não saiam como "pesquisa".
+- Uma nota de literatura escrita a partir do texto completo só pode citar o que o texto completo diz. O Sub-Sub compara cada citação com o texto do item no Zotero e recusa a nota quando uma citação não está lá.
 - O Sub-Sub não tem acesso à shell. A escrita fora da sua pasta do Sub-Sub e da pasta atual, e a escrita em ficheiros de definições e de regras, precisam do seu sim.
 - A vista no navegador é um pequeno servidor no seu próprio computador. Só escuta em 127.0.0.1, por isso outros computadores não lhe conseguem aceder. O endereço que a abre contém uma chave aleatória; outros sites não conseguem ler a página nem responder a uma aprovação. Desliga-se sozinha 10 minutos depois de fechar a página.
 - Uma chave de API que guarde na vista no navegador fica no seu computador, no mesmo ficheiro que o `/login` usa (`~/.subsub/agent/auth.json`, que só pode ser lido por si). Só é enviada a esse fornecedor.

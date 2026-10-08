@@ -1,6 +1,17 @@
 node_modules/
 *.log
-bench-results/
+# Model tests: the run logs hold passages of full texts and stay private. The derived
+# results, the blind judgements and the manifest are public, so the Models page can be checked.
+bench-results/**
+!bench-results/
+!bench-results/*/
+!bench-results/judging/*/
+!bench-results/published.json
+!bench-results/README.md
+!bench-results/*/results.json
+!bench-results/*/results.md
+!bench-results/*/key.json
+!bench-results/judging/*/*.json
 dist/
 .DS_Store
 site/_site/

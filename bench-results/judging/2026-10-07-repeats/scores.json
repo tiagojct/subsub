@@ -1,0 +1,230 @@
+{
+ "about": "The two candidates for each mode, four runs each (the first test and three repeats), judged again on one scale. Labels are random.",
+ "scale": "1 to 5: support for every claim, coverage of the items, no invented references",
+ "scores": [
+  {
+   "label": "J986",
+   "task": "lit_note",
+   "score": 5,
+   "invented_refs": 0,
+   "why": "Read the whole body (0-122k chars). The most detailed note, with correct pages: Löffler p.1849, 'most established' biomarkers p.1858, polysorbate 0.05% p.1859, crowding/extrusion p.1863, EoE p.1865, data availability p.1868; it also gets 8 figures, the funding grant and CCL37 right. Only slip: the IL-33 Th17-like shift is on p.1856, not p.1857."
+  },
+  {
+   "label": "J562",
+   "task": "lit_note",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "Read the full body. Accurate, broad key points: 1 billion/350 million on pp.1849/1867, 17q12-21 and One Health within pp.1858-1861, omalizumab/dupilumab for food allergy, conflict of interest on p.1868, cited-by 25 taken from the record. Minor error: '357 references', the paper has 358."
+  },
+  {
+   "label": "J563",
+   "task": "lit_note",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "Read the full text. Correct on 8 figures and 358 references, 110,000 chemicals p.1859, the helminth list p.1849, and refs 4/218/340, which are real. Small page slips: remission is on p.1863 (note says 1862) and CXCL8 on p.1852 (note says 1851)."
+  },
+  {
+   "label": "J576",
+   "task": "lit_note",
+   "score": 4,
+   "invented_refs": 0,
+   "why": "Read the full text. Pages check out (IL-33 dual role p.1851, Table 1 p.1859, IEI pp.1865-1867), and refs 214-217/358 are real detergent studies. Two errors: '7 figures' (the paper has 8), and 'EAACI-affiliated', which the body does not support (EAACI appears only in reference titles)."
+  },
+  {
+   "label": "J620",
+   "task": "lit_note",
+   "score": 4,
+   "invented_refs": 0,
+   "why": "Read the full body. Pages are mostly correct (remission p.1863, pDCs/IFN-α pp.1852-1853, 0.05% polysorbate p.1859) and coverage is good. Two errors: it calls STAT3 hyper-IgE 'gain-of-function', which the text does not say, and it counts 'seven' figures (there are 8)."
+  },
+  {
+   "label": "J899",
+   "task": "lit_note",
+   "score": 4,
+   "invented_refs": 0,
+   "why": "Read the body in full. Coverage is good, and correct details include the Siglec-8 eosinophil phenotypes p.1858 and Sun 2024 as ref 218. Errors: '~380 references' (the paper has 358), the 'most established' biomarkers cited to p.1857 (actually p.1858), and bronchoconstriction crowding placed in pp.1859-1861 (actually p.1863)."
+  },
+  {
+   "label": "J977",
+   "task": "lit_note",
+   "score": 3.5,
+   "invented_refs": 0,
+   "why": "Read the full body, and its pages are mostly accurate (IL-13 barrier damage p.1860, Table 2 p.1861, the 'revised 5 May' date). Coverage is thinner (9 key points), it calls the paper 'commissioned', which the text does not support, and it gives CXCL8 as p.1851 (actually p.1852)."
+  },
+  {
+   "label": "J673",
+   "task": "lit_note",
+   "score": 3.5,
+   "invented_refs": 0,
+   "why": "Read the full body with good content coverage, but many page numbers are off: Löffler p.1850 (actually 1849), food allergy/early introduction p.1865 (actually 1864), alopecia areata p.1866 (actually 1865), and the conclusion and 350 million figure p.1868 (actually 1867)."
+  },
+  {
+   "label": "J986",
+   "task": "synthesis",
+   "score": 5,
+   "invented_refs": 0,
+   "why": "Covers all 15 tagged items and reads full text for 10 of them (FRA pp. 1-12, Jenko, Costa, Kommusaar, Schmidt, White Paper, Floridi, MDCG, Nictiz flowchart, Smuha contents). Spot-checks all matched tool_results: 26,046 records, Art. 49(4), 'None of the providers or deployers', the Frankfurt quote, the €15 million fine, 'automatically corresponds', 2024/2853, C(2025) 924. The only slip is a typo, 'ALLEE' for ALLEA."
+  },
+  {
+   "label": "J673",
+   "task": "synthesis",
+   "score": 4,
+   "invented_refs": 0,
+   "why": "All 15 items covered, with full text for the White Paper, the Nictiz flowchart, MDCG, Purificato and Floridi (~30k chars). Checks matched: Nictiz/MEDDEV/Annex IX, 93/42, EuroLLM/SOOFI, COM(2020) 65. Two quoted phrases are paraphrases set in quotation marks: 'nominal access... but not effective control' and 'false sense of efficiency gains' (the source says 'on')."
+  },
+  {
+   "label": "J563",
+   "task": "synthesis",
+   "score": 4,
+   "invented_refs": 0,
+   "why": "All 15 items; full text for Floridi, Schmidt, Purificato and MDCG. Checks matched: 'function symbiotically', 'compliance costs are worth', EOSAI/OSAID, CLOUD Act, PIP, 'substantially driven'. Minor attribution slip: 'risk-based rules' is credited to the White Paper, which it read only as metadata (the phrase comes from Bignami/Purificato)."
+  },
+  {
+   "label": "J576",
+   "task": "synthesis",
+   "score": 4,
+   "invented_refs": 0,
+   "why": "All 15 items; full text for the White Paper, Floridi, Purificato and MDCG. Checks matched: 'promoting the uptake of AI...', environmental footprint across lifecycle and supply chain, 'regulation without infrastructure was insufficient', 'institutional framework that the legal one presupposes'. One misquote in Disagreements: 'a false sense of efficiency gains' (the source says 'on')."
+  },
+  {
+   "label": "J977",
+   "task": "synthesis",
+   "score": 4,
+   "invented_refs": 0,
+   "why": "All 15 items; full text for the White Paper, Floridi, MDCG and Purificato, and the rest from abstracts. Checks matched: demotion, non-domination, model-layer vs deployment-layer, 'epistemic drift', the 2026/1744 deferral, Chinese deliberations. No misattributions found, but many items were read at abstract level only."
+  },
+  {
+   "label": "J562",
+   "task": "synthesis",
+   "score": 3.5,
+   "invented_refs": 0,
+   "why": "All 15 items, accurately described; the Floridi footnote (2026/1744, 2 Dec 2027), 'still nascent and scarce', 18 March annulment and 'rigid, quickly outdated' all check out. Full-text reading was shallow, though: only 4000 chars each of Floridi, Purificato (TOC only) and MDCG, and it did not try full text for the other items, which had PDFs."
+  },
+  {
+   "label": "J899",
+   "task": "synthesis",
+   "score": 3.5,
+   "invented_refs": 0,
+   "why": "All 15 items, and the claims check out ('civitas sine suffragio', 'competitive advantage in regulated markets', 'No national binding policies', Malta; the external JRC brief does appear in its OpenAlex result). It used only an external abstract for Floridi and treated MDCG and the White Paper as metadata-only, although full text was available, so its reading was thinner than the others."
+  },
+  {
+   "label": "J620",
+   "task": "synthesis",
+   "score": 3,
+   "invented_refs": 1,
+   "why": "All 15 items, with full text for 4. It cites the FRA report several times under a non-existent citekey, 'europeanunionagencyforfundamentalrights' (the real key ends in 'nd'). It also claims Onitiu says PUE/WUE 'can mask growing absolute consumption', which is not in the source. Other checks matched: 'epistemic drift', AI Factories, 'appears misplaced', fragmentation."
+  },
+  {
+   "label": "J562",
+   "task": "search",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "All 7 DOIs and both citekeys (bignami2025a, schmidt2024) are in tool_results; citation counts 126/135/67/63 match, library lookup returned null for all five, and the two library hits are named. It read no abstracts and says so, so the reasons rest on titles only, and the article number is mistyped as 1001291 for 101291."
+  },
+  {
+   "label": "J563",
+   "task": "search",
+   "score": 5,
+   "invented_refs": 0,
+   "why": "All 5 DOIs and the citekeys are traceable; Hacker 63, Ebers 89, Aboy 214 and van Kolfschooten 250 match the records. It read each abstract with get_work, names the 2 library hits, and explains the Starbuck Warn correctly."
+  },
+  {
+   "label": "J576",
+   "task": "search",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "All DOIs and PMIDs (41385025, 39135367) and the library keys jenko2025 and lau2025 appear in tool_results, and the 1 library hit (bignami2025a) matches already_in_library=1. It read no abstracts. The Cuocolo radiology consensus and the GDPR automated-decision paper are acceptable but more peripheral picks."
+  },
+  {
+   "label": "J620",
+   "task": "search",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "All DOIs (including rego.12512, correctly excluded as 2023) and citekeys are traceable; Mantelero's 66 citations and Article 27 are supported, and the 2 library hits are named. Volume and issue details (248:105152, 52:106020, 32, 7) are not in the records, and it ran no DOI library lookup; it used the tag list and in_library=null instead."
+  },
+  {
+   "label": "J673",
+   "task": "search",
+   "score": 3.5,
+   "invented_refs": 1,
+   "why": "All DOIs and citekeys are traceable and the counts (250, 135, 92, 45) match; IPCC and 'trendsetter' are supported. The Ducret quotation drops 'and interwoven' inside quotation marks. 'Kostick-Okonkwo et al.' appears nowhere in tool_results, and the dentistry pick is peripheral."
+  },
+  {
+   "label": "J899",
+   "task": "search",
+   "score": 4,
+   "invented_refs": 0,
+   "why": "All 7 DOIs, PMID 42825232 and the counts (250, 24, 19) are traceable, and it notes that Bublitz has no abstract. The reply says it verified all five DOIs with scholar_get_work, but it never called get_work on Golpayegani (10.1007/978-3-031-68024-3_3). It does not name the 1 library hit."
+  },
+  {
+   "label": "J977",
+   "task": "search",
+   "score": 5,
+   "invented_refs": 0,
+   "why": "All 8 DOIs are traceable; Laux 81, Ebers 10 and 'ethical disclosure by default' match the records, all five were read with get_work, and Starbuck gave 5 Pass. The two library hits are named and excluded, and the alternates are documented."
+  },
+  {
+   "label": "J986",
+   "task": "search",
+   "score": 5,
+   "invented_refs": 0,
+   "why": "All DOIs and PMID 40200442 are traceable; Eke & Stahl's 39 citations and the empty Krook record and Europe PMC search support its exclusion of Krook. It correctly reports 0 library hits (already_in_library=0), reads all five abstracts, and its picks are on topic."
+  },
+  {
+   "label": "J562",
+   "task": "lit",
+   "score": 5,
+   "invented_refs": 0,
+   "why": "Every step is there: library tag listing, a merged 4-phrasing search plus a gap round, full-text reads, a 22-row table, agreement, disagreement, open questions and verify_check_references on 22 IDs. Spot checks all match tool_results: 26,046 to 141 policies, March 13 2024 and July 12 2024, Articles 26/27/50, the 10-step four-phase roadmap, 157 hits and 129 unique works. Every DOI and citekey appears in the results."
+  },
+  {
+   "label": "J563",
+   "task": "lit",
+   "score": 5,
+   "invented_refs": 0,
+   "why": "Complete, with all 15 library items, the merged search, gap checks that each add a source and verification on all 25 sources. The '<6 vs 12 months for ~30 standards from 23 organisations', '141 policies in EU + 10 countries', the 8 July 2026 / Reg. 2026/1744 text, the White Paper's military exclusion and the Brussels side-effect all check out. No invented references."
+  },
+  {
+   "label": "J576",
+   "task": "lit",
+   "score": 5,
+   "invented_refs": 0,
+   "why": "Complete and broader than most (liability, copyright, the GDPR interplay), with verification on all 26 sources and every DOI found in the results. The 72% of healthcare professionals, the Cloud and AI Development Act of June 2026, the Dec 2027/Aug 2028 deferral in Floridi, Mistral/Helsing in Kilian and the IPCC-style model all match. Most outside works were read at abstract level only, and the note says so."
+  },
+  {
+   "label": "J620",
+   "task": "lit",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "Its figures are precisely sourced: 152 members of 87 firms, 40%/42% to 86%/81%, 261 vs 113, 110/261 (42.1%) raised by 62/70 studies, 92% of 35,000+ firms, 'the cornerstone'. All 18 sources were verified. The library-first step used only 5 of the 15 tagged items in the synthesis, so the library is thinly represented."
+  },
+  {
+   "label": "J673",
+   "task": "lit",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "Well sourced: Art. 43(3) and 11(2), the 690 FDA devices, MDR date of application 26 May 2021, PubMed 113 and Europe PMC 9,153 hits, 'nothing without enforcement', and the search-engine gap in high-risk scope in Schmidt all match. Verification covers 19 identifiers. Small internal slips: it reports 13 of 15 library items used while its table holds 12, and its exclude terms (asthma, spirometry, FENO) are oddly chosen."
+  },
+  {
+   "label": "J899",
+   "task": "lit",
+   "score": 5,
+   "invented_refs": 0,
+   "why": "The most densely and accurately sourced output: 86% of WHO/Europe states, Brueck's 5.5% and 46.9%, the 56- and 18-question questionnaires, Section B, 'civitas sine suffragio', EOSAI, DTR 18988, ISO 13485/Art. 17 and 119/100/91 prescreen counts are all in tool_results. Coverage is complete, with a gap round on GPAI, EHDS and DSA/DMA and verification on all 25 sources."
+  },
+  {
+   "label": "J977",
+   "task": "lit",
+   "score": 5,
+   "invented_refs": 0,
+   "why": "Complete, with all 15 library items, 31 sources, a gap round on sandboxes, DMA and the Omnibus, and verification on all 31. The IMCO/LIBE amendments, 'sandbox arbitrage', the CLOUD Act/Llama episodes, GATS/TBT, the six-phase roadmap, the five MDCG decision steps and the 107 records all check out. Most outside works were read at abstract level only, and the note discloses this."
+  },
+  {
+   "label": "J986",
+   "task": "lit",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "Claims check out: the two new Art. 5 prohibitions and the 2 Dec 2027 date from Tendil, Dir. 2024/2853, notified bodies 'of their choice' from Laux, the Interoperable Europe Act and Open Data Directive, and the excluded Usmonov preprint. There are wording errors: the Omnibus is said to be 'amending' Reg. 2026/1744 when it is that regulation, the Answer merges the Omnibus and the Health Innovation Package, and a note about schmidt2024 is stray. Verification covered 19 DOIs, not every source."
+  }
+ ]
+}

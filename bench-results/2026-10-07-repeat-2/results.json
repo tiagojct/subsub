@@ -1,0 +1,558 @@
+[
+ {
+  "model": "mimo-v2.6-pro",
+  "role": "researcher",
+  "task": "lit_note",
+  "s": {
+   "ok": true,
+   "seconds": 138,
+   "tool_calls": 13,
+   "tool_errors": 2,
+   "refused_calls": 0,
+   "wrong_mode": 0,
+   "path_blocked": 0,
+   "tokens_in": 491978,
+   "tokens_out": 5826,
+   "cost": 0.035430633999999996,
+   "written": true,
+   "words": 878,
+   "citekeys_cited": 0,
+   "citekeys_unknown": [],
+   "read_fulltext": true,
+   "cites_itself": false
+  }
+ },
+ {
+  "model": "mimo-v2.6-pro",
+  "role": "researcher",
+  "task": "synthesis",
+  "s": {
+   "ok": true,
+   "seconds": 290,
+   "tool_calls": 15,
+   "tool_errors": 0,
+   "refused_calls": 0,
+   "wrong_mode": 0,
+   "path_blocked": 2,
+   "tokens_in": 405174,
+   "tokens_out": 8501,
+   "cost": 0.021256304000000004,
+   "written": true,
+   "words": 2041,
+   "citekeys_cited": 13,
+   "citekeys_unknown": [],
+   "topic_items": 12,
+   "topic_items_cited": 11
+  }
+ },
+ {
+  "model": "mimo-v2.6-pro",
+  "role": "researcher",
+  "task": "search",
+  "s": {
+   "ok": true,
+   "seconds": 122,
+   "tool_calls": 8,
+   "tool_errors": 0,
+   "refused_calls": 0,
+   "wrong_mode": 0,
+   "path_blocked": 0,
+   "tokens_in": 182305,
+   "tokens_out": 4436,
+   "cost": 0.014473291000000004,
+   "written": true,
+   "dois": 5,
+   "pmids": 5,
+   "ungrounded": [],
+   "already_in_library": [],
+   "queued": 0,
+   "searches": 1
+  }
+ },
+ {
+  "model": "mimo-v2.6-pro",
+  "role": "researcher",
+  "task": "lit",
+  "s": {
+   "ok": true,
+   "seconds": 663,
+   "tool_calls": 31,
+   "tool_errors": 0,
+   "refused_calls": 0,
+   "wrong_mode": 0,
+   "path_blocked": 1,
+   "tokens_in": 730122,
+   "tokens_out": 25187,
+   "cost": 0.05868718400000001,
+   "written": true,
+   "words": 2891,
+   "evidence_rows": 26,
+   "evidence_labelled": 26,
+   "dois": 13,
+   "pmids": 0,
+   "ungrounded": [],
+   "screening_log": true,
+   "multi_searches": 2,
+   "fulltext_reads": 4,
+   "starbuck": {
+    "references": 26,
+    "fail": 1,
+    "check": 16,
+    "uncited_sentences": 0
+   }
+  }
+ },
+ {
+  "model": "mimo-v2.6-flash",
+  "role": "librarian",
+  "task": "tagging",
+  "s": {
+   "ok": true,
+   "seconds": 123,
+   "tool_calls": 2,
+   "tool_errors": 0,
+   "refused_calls": 0,
+   "wrong_mode": 0,
+   "path_blocked": 0,
+   "tokens_in": 64978,
+   "tokens_out": 7122,
+   "cost": 0.004900616,
+   "submitted": true,
+   "items_served": 20,
+   "items_proposed": 20,
+   "invalid_tags": 0,
+   "status_tags": 0,
+   "peeked": 0,
+   "reference": "library",
+   "reference_coverage": 1,
+   "vs_reference": {
+    "items": 20,
+    "precision": 0.642,
+    "recall": 0.878,
+    "f1": 0.741,
+    "edits": 30,
+    "exact": 6,
+    "missing": 0
+   },
+   "tasks_mismatch": false,
+   "proposals": {
+    "64D5AQ4Z": [
+     "topic/feno",
+     "topic/asthma",
+     "topic/exhaled-biomarkers",
+     "method/statistical-modelling",
+     "type/cross-sectional"
+    ],
+    "FFUCZ4PA": [
+     "topic/exhaled-biomarkers",
+     "topic/respiratory-physiology",
+     "type/validation-study"
+    ],
+    "WANCHUWT": [
+     "topic/lung-function",
+     "topic/epidemiology",
+     "method/statistical-modelling",
+     "type/cohort"
+    ],
+    "LGW298GV": [
+     "topic/severe-asthma",
+     "topic/asthma",
+     "topic/biologics",
+     "type/cohort"
+    ],
+    "F89I3T4S": [
+     "topic/severe-asthma",
+     "topic/asthma",
+     "topic/biologics",
+     "type/cross-sectional"
+    ],
+    "2C43GRI4": [
+     "topic/ai-evaluation",
+     "topic/artificial-intelligence",
+     "topic/psychology"
+    ],
+    "GFRGF7G3": [
+     "topic/digital-health",
+     "topic/medical-informatics"
+    ],
+    "92B5HD69": [
+     "topic/feno",
+     "topic/reference-values",
+     "method/statistical-modelling",
+     "type/guideline"
+    ],
+    "CXXS3ET4": [
+     "topic/adherence",
+     "topic/digital-health",
+     "topic/asthma",
+     "topic/inhalers",
+     "type/protocol"
+    ],
+    "WTRZB4SX": [
+     "topic/asthma",
+     "topic/pediatrics",
+     "topic/lung-function",
+     "type/meta-analysis"
+    ],
+    "GJ77LZ5U": [
+     "topic/asthma",
+     "topic/epidemiology",
+     "method/statistical-modelling",
+     "type/cohort"
+    ],
+    "K7W38Y27": [
+     "topic/ai-ethics",
+     "topic/artificial-intelligence",
+     "topic/health-policy"
+    ],
+    "F5NZG562": [
+     "topic/lung-function",
+     "topic/spirometry",
+     "type/guideline"
+    ],
+    "K466IPAM": [
+     "topic/peer-review",
+     "topic/artificial-intelligence",
+     "topic/scientific-writing",
+     "type/editorial"
+    ],
+    "QYXJUALF": [
+     "topic/clinical-decision-support",
+     "topic/artificial-intelligence",
+     "type/scoping-review"
+    ],
+    "C29FNP96": [
+     "topic/asthma",
+     "topic/epidemiology",
+     "topic/public-health",
+     "method/statistical-modelling",
+     "type/meta-analysis"
+    ],
+    "BISEMP26": [
+     "topic/software"
+    ],
+    "ATSXFQWQ": [
+     "topic/digital-health",
+     "topic/medical-informatics",
+     "type/systematic-review"
+    ],
+    "IHIFEIB7": [
+     "topic/respiratory-physiology",
+     "type/editorial"
+    ],
+    "G33GBJZW": [
+     "topic/research-integrity"
+    ]
+   }
+  }
+ },
+ {
+  "model": "mimo-v2.6-flash",
+  "role": "librarian",
+  "task": "import",
+  "s": {
+   "ok": true,
+   "seconds": 12,
+   "tool_calls": 1,
+   "tool_errors": 0,
+   "refused_calls": 0,
+   "wrong_mode": 0,
+   "path_blocked": 0,
+   "tokens_in": 23719,
+   "tokens_out": 367,
+   "cost": 0.00022720880000000004,
+   "ids_expected": 2,
+   "ids_sent": 2,
+   "extra_ids": 0,
+   "change_calls": 1,
+   "would_import": 1,
+   "duplicate_reported": true,
+   "new_sent": 1,
+   "asked_first": false,
+   "import_right": true
+  }
+ },
+ {
+  "model": "qwen3.8-flash",
+  "role": "librarian",
+  "task": "tagging",
+  "s": {
+   "ok": true,
+   "seconds": 85,
+   "tool_calls": 3,
+   "tool_errors": 1,
+   "refused_calls": 1,
+   "wrong_mode": 0,
+   "path_blocked": 0,
+   "tokens_in": 62515,
+   "tokens_out": 4654,
+   "cost": 0.008993435999999999,
+   "submitted": true,
+   "items_served": 20,
+   "items_proposed": 20,
+   "invalid_tags": 0,
+   "status_tags": 0,
+   "peeked": 0,
+   "reference": "library",
+   "reference_coverage": 1,
+   "vs_reference": {
+    "items": 20,
+    "precision": 0.571,
+    "recall": 0.898,
+    "f1": 0.698,
+    "edits": 38,
+    "exact": 2,
+    "missing": 0
+   },
+   "tasks_mismatch": false,
+   "proposals": {
+    "64D5AQ4Z": [
+     "topic/feno",
+     "topic/asthma",
+     "topic/spirometry",
+     "method/statistical-modelling",
+     "type/cross-sectional"
+    ],
+    "FFUCZ4PA": [
+     "topic/exhaled-biomarkers",
+     "topic/respiratory-physiology",
+     "type/cross-sectional"
+    ],
+    "WANCHUWT": [
+     "topic/lung-function",
+     "topic/copd",
+     "topic/epidemiology",
+     "method/statistical-modelling",
+     "type/cohort"
+    ],
+    "LGW298GV": [
+     "topic/severe-asthma",
+     "topic/biologics",
+     "topic/asthma",
+     "method/statistical-modelling",
+     "type/cohort"
+    ],
+    "F89I3T4S": [
+     "topic/severe-asthma",
+     "topic/asthma",
+     "topic/biologics",
+     "type/cohort"
+    ],
+    "2C43GRI4": [
+     "topic/artificial-intelligence",
+     "topic/ai-evaluation",
+     "method/psychometrics"
+    ],
+    "GFRGF7G3": [
+     "topic/digital-health",
+     "topic/medical-informatics"
+    ],
+    "92B5HD69": [
+     "topic/feno",
+     "topic/reference-values",
+     "topic/lung-function",
+     "method/statistical-modelling",
+     "type/guideline"
+    ],
+    "CXXS3ET4": [
+     "topic/adherence",
+     "topic/digital-health",
+     "topic/asthma",
+     "topic/inhalers",
+     "type/protocol"
+    ],
+    "WTRZB4SX": [
+     "topic/lung-function",
+     "topic/asthma",
+     "topic/pediatrics",
+     "type/meta-analysis",
+     "type/systematic-review"
+    ],
+    "GJ77LZ5U": [
+     "topic/asthma",
+     "topic/epidemiology",
+     "topic/lung-function",
+     "method/statistical-modelling",
+     "type/cohort"
+    ],
+    "K7W38Y27": [
+     "topic/artificial-intelligence",
+     "topic/ai-ethics",
+     "topic/health-policy"
+    ],
+    "F5NZG562": [
+     "topic/lung-function",
+     "topic/spirometry",
+     "topic/respiratory-physiology",
+     "type/guideline"
+    ],
+    "K466IPAM": [
+     "topic/peer-review",
+     "topic/artificial-intelligence",
+     "topic/scientific-writing",
+     "topic/research-integrity"
+    ],
+    "QYXJUALF": [
+     "topic/clinical-decision-support",
+     "topic/artificial-intelligence",
+     "topic/digital-health",
+     "type/scoping-review"
+    ],
+    "C29FNP96": [
+     "topic/asthma",
+     "topic/epidemiology",
+     "topic/public-health",
+     "method/statistical-modelling",
+     "type/systematic-review",
+     "type/meta-analysis"
+    ],
+    "BISEMP26": [
+     "topic/software",
+     "method/programming"
+    ],
+    "ATSXFQWQ": [
+     "topic/digital-health",
+     "topic/medical-informatics",
+     "type/systematic-review"
+    ],
+    "IHIFEIB7": [
+     "topic/respiratory-physiology",
+     "topic/lung-function",
+     "type/editorial"
+    ],
+    "G33GBJZW": [
+     "topic/research-integrity"
+    ]
+   }
+  }
+ },
+ {
+  "model": "qwen3.8-flash",
+  "role": "librarian",
+  "task": "import",
+  "s": {
+   "ok": true,
+   "seconds": 34,
+   "tool_calls": 4,
+   "tool_errors": 0,
+   "refused_calls": 0,
+   "wrong_mode": 0,
+   "path_blocked": 0,
+   "tokens_in": 54158,
+   "tokens_out": 867,
+   "cost": 0.0046300379999999995,
+   "ids_expected": 2,
+   "ids_sent": 2,
+   "extra_ids": 0,
+   "change_calls": 1,
+   "would_import": 1,
+   "duplicate_reported": true,
+   "new_sent": 1,
+   "asked_first": false,
+   "import_right": true
+  }
+ },
+ {
+  "model": "qwen3.8-flash",
+  "role": "researcher",
+  "task": "lit_note",
+  "s": {
+   "ok": true,
+   "seconds": 108,
+   "tool_calls": 11,
+   "tool_errors": 2,
+   "refused_calls": 0,
+   "wrong_mode": 0,
+   "path_blocked": 0,
+   "tokens_in": 418618,
+   "tokens_out": 6382,
+   "cost": 0.025893868000000004,
+   "written": true,
+   "words": 999,
+   "citekeys_cited": 0,
+   "citekeys_unknown": [],
+   "read_fulltext": true,
+   "cites_itself": false
+  }
+ },
+ {
+  "model": "qwen3.8-flash",
+  "role": "researcher",
+  "task": "synthesis",
+  "s": {
+   "ok": true,
+   "seconds": 126,
+   "tool_calls": 9,
+   "tool_errors": 1,
+   "refused_calls": 0,
+   "wrong_mode": 0,
+   "path_blocked": 0,
+   "tokens_in": 160665,
+   "tokens_out": 6924,
+   "cost": 0.012794152,
+   "written": true,
+   "words": 1995,
+   "citekeys_cited": 13,
+   "citekeys_unknown": [],
+   "topic_items": 12,
+   "topic_items_cited": 11
+  }
+ },
+ {
+  "model": "qwen3.8-flash",
+  "role": "researcher",
+  "task": "search",
+  "s": {
+   "ok": true,
+   "seconds": 91,
+   "tool_calls": 10,
+   "tool_errors": 0,
+   "refused_calls": 0,
+   "wrong_mode": 0,
+   "path_blocked": 0,
+   "tokens_in": 130606,
+   "tokens_out": 3619,
+   "cost": 0.00724965,
+   "written": true,
+   "dois": 7,
+   "pmids": 2,
+   "ungrounded": [],
+   "already_in_library": [],
+   "queued": 0,
+   "searches": 1
+  }
+ },
+ {
+  "model": "qwen3.8-flash",
+  "role": "researcher",
+  "task": "lit",
+  "s": {
+   "ok": true,
+   "seconds": 615,
+   "tool_calls": 49,
+   "tool_errors": 7,
+   "refused_calls": 6,
+   "wrong_mode": 0,
+   "path_blocked": 0,
+   "tokens_in": 2661550,
+   "tokens_out": 32313,
+   "cost": 0.07806645399999998,
+   "written": true,
+   "words": 3164,
+   "evidence_rows": 25,
+   "evidence_labelled": 25,
+   "dois": 16,
+   "pmids": 0,
+   "ungrounded": [],
+   "screening_log": true,
+   "multi_searches": 2,
+   "fulltext_reads": 11,
+   "starbuck": {
+    "references": 25,
+    "fail": 3,
+    "check": 14,
+    "uncited_sentences": 0
+   }
+  }
+ }
+]

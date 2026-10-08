@@ -41,6 +41,15 @@ Searches happen only in the Researcher. The Librarian also contacts these servic
 
 Sub-Sub sends no email. `/request-copy` writes a draft in your Sub-Sub folder; you decide whether to send it.
 
+## For a data-protection officer
+
+- Controller: the person who uses Sub-Sub. Sub-Sub is software on their computer, not a service; its author receives no data.
+- Processors: the model provider the user chooses, under that provider's terms (see [Where your data goes](/models/#where-your-data-goes)), and the bibliographic services in the table above.
+- Data sent to the model provider: the user's messages, and what the tools return (bibliographic records, abstracts, tags, passages of full texts, passages of the user's manuscript when they check claims). Sub-Sub is not meant for patient data, and it does not look for it.
+- Location: Mistral processes in the European Union; the other providers mostly in the United States or elsewhere. For material that must stay in the EU, use Mistral, an institutional model service, or a local model.
+- Retention: Sub-Sub keeps conversations, notes and the change journal on the user's computer only. Retention at the model provider follows its terms.
+- Logs: none sent. The pilot usage log is off unless the user turns it on, stays on the computer and holds no content.
+
 ## Safety
 
 - Every library change is shown as a preview first and runs only after you approve it. The check is in the program; the model cannot skip it.
@@ -49,7 +58,9 @@ Sub-Sub sends no email. `/request-copy` writes a draft in your Sub-Sub folder; y
 - Nothing is deleted. Items go to the Zotero trash; tags are removed from items.
 - Only tags from your tag list can be added.
 - The Librarian has no search tools.
-- Text in abstracts, full texts and search results is treated as data. Sub-Sub's instructions tell the model never to follow instructions found in it.
+- Text in abstracts, full texts, web pages and search results is treated as data. Sub-Sub's instructions tell the model never to follow instructions found in it.
+- A search sent to an outside service is checked in the program: a query longer than 1500 characters or of more than three lines is refused, so passages of your notes or full texts do not go out as a "search".
+- A literature note written from the full text may quote only what the full text says. Sub-Sub compares each quote with the item's text in Zotero and refuses the note when a quote is not there.
 - Sub-Sub has no shell access. Writes outside your Sub-Sub folder and the current folder, and writes to settings and rule files, need your yes.
 - The browser view is a small server on your own computer. It listens only on 127.0.0.1, so other computers cannot reach it. The address that opens it contains a random key; other websites cannot read the page or answer an approval. It stops by itself 10 minutes after you close the page.
 - An API key that you save in the browser view is stored on your computer, in the same file as `/login` uses (`~/.subsub/agent/auth.json`, readable only by you). It is sent only to that provider.

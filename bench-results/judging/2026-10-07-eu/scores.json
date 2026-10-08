@@ -1,0 +1,146 @@
+{
+ "about": "Three Mistral models, the free Google model and the default, one run each. Labels are random.",
+ "scale": "1 to 5: support for every claim, coverage of the items, no invented references",
+ "scores": [
+  {
+   "label": "E158",
+   "task": "lit_note",
+   "score": 5,
+   "invented_refs": 0,
+   "why": "Read the whole text in 7 chunks; spot checks (Loffler 1932 p.1849, polysorbate 0.05% vs 1%, 68 diseases, 350,000/110,000 chemicals, dupilumab only FDA-approved for EoE p.1865, rEos/iEos p.1858) all match text and page markers; covers every section."
+  },
+  {
+   "label": "E749",
+   "task": "lit_note",
+   "score": 4,
+   "invented_refs": 0,
+   "why": "Read full text; claims check out (CCR10 ILC2s, CCL27, epithelial crowding, dupilumab hair regrowth, STAT6/JAK1 GOF) and coverage is broad, but no page numbers at all and a wrong created date (2025-07-17)."
+  },
+  {
+   "label": "E301",
+   "task": "lit_note",
+   "score": 3,
+   "invented_refs": 0,
+   "why": "Read only the first 30,000 characters (pp.1848-1852) yet marks evidence as full text; points and page numbers are correct for that span, but diseases, biomarkers, barrier theory detail and inborn errors are missing."
+  },
+  {
+   "label": "E633",
+   "task": "lit_note",
+   "score": 2.5,
+   "invented_refs": 0,
+   "why": "Read only the first 30,000 characters but labels the summary as from full text; accurate but thin (5 key points, no page numbers), with no coverage of the disease sections, biomarkers or inborn errors."
+  },
+  {
+   "label": "E330",
+   "task": "lit_note",
+   "score": 1,
+   "invented_refs": 0,
+   "why": "Lookup with key GAO2025 failed, so it wrote a note on a different paper (persson2026, AI-CDSS scoping review); the requested gao2025 note does not exist."
+  },
+  {
+   "label": "E133",
+   "task": "synthesis",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "Read all 15 full texts and covers every item in depth; spot checks pass (141 policies, Article 6(3) filter, EOSAI, efficiency paradox, epistemic drift, AI literacy from Feb 2025, AI Liability Directive). Small slips: smuha2025/lau2025 marked as abstract although read, and FRA given year 2025."
+  },
+  {
+   "label": "E849",
+   "task": "synthesis",
+   "score": 4,
+   "invented_refs": 0,
+   "why": "Covers all 15 items and is transparent about abstract versus partial full text; quotes check out (function symbiotically, not a barrier to innovation, Court of Rome annulment, 12 June 2026 export control). One unsupported detail (MDR prompted by the PIP scandal) and depth is limited for items read only from the abstract."
+  },
+  {
+   "label": "E736",
+   "task": "synthesis",
+   "score": 3,
+   "invented_refs": 1,
+   "why": "Read 6 full texts; the FRA and Bignami content is supported (logistic regression, AI officers, automation bias), but it uses an invented citekey @nzidzn46s, cites europeancommission2020 for the 2024 AI Act, and barely uses Floridi, Onitiu and Purificato. Much of the text is generic."
+  },
+  {
+   "label": "E546",
+   "task": "synthesis",
+   "score": 2,
+   "invented_refs": 0,
+   "why": "Read only jenko2025, and nearly all claims rest on it; the table marks 14 items as 'Abstract' though no abstracts were retrieved, and costa2026 and schmidt2024 claims are inferred from titles. It drifts to healthcare only."
+  },
+  {
+   "label": "E134",
+   "task": "synthesis",
+   "score": 1,
+   "invented_refs": 0,
+   "why": "Nothing written."
+  },
+  {
+   "label": "E223",
+   "task": "search",
+   "score": 5,
+   "invented_refs": 0,
+   "why": "Five well-chosen, high-impact 2024 papers. DOIs, PMIDs, authors and citation counts (250, 214, 135, 89) all match the results; it confirmed none are in the library and links each pick to items already held."
+  },
+  {
+   "label": "E159",
+   "task": "search",
+   "score": 4,
+   "invented_refs": 0,
+   "why": "All five DOIs and PMIDs are verified in the results and checked against the library; the picks are relevant (van Kolfschooten, Gilbert, Aboy, Novelli, Eke), but the reasons given are brief and generic."
+  },
+  {
+   "label": "E989",
+   "task": "search",
+   "score": 4,
+   "invented_refs": 0,
+   "why": "Valid DOIs and sensible picks (van Kolfschooten 2024 and 2026, Smuha ILM, Novelli CLSR, Zhong). The search output flagged items already in the library. Some reasons are mildly overstated ('first comprehensive analysis', 'annotated by a leading scholar')."
+  },
+  {
+   "label": "E748",
+   "task": "search",
+   "score": 3.5,
+   "invented_refs": 0,
+   "why": "DOIs are valid, but the first author is given as 'Van Kolfschooten, F.', and three of five picks are 2026 papers with 0-2 citations. It ran no explicit library check, relying on the search flag."
+  },
+  {
+   "label": "E784",
+   "task": "search",
+   "score": 3.5,
+   "invented_refs": 0,
+   "why": "DOIs are valid, but it adds unsupported bibliographic details (Health Policy vol. 151; ILM 63(2), 287-322) and picks a weakly related labour-rights paper with 0 citations."
+  },
+  {
+   "label": "E684",
+   "task": "lit",
+   "score": 4.5,
+   "invented_refs": 0,
+   "why": "Includes all 15 library items plus 10 outside sources, with clear agreement, disagreement and open questions; spot checks pass (Regulation 2026/1744 of 8 July 2026, under six months for ~30 standards, White Paper excludes military AI, Onitiu SSRN DOI). Minor: some coauthors (Saeed, Solaiman) are not in the results, and the 16b/17b split rows are awkward."
+  },
+  {
+   "label": "E440",
+   "task": "lit",
+   "score": 3.5,
+   "invented_refs": 0,
+   "why": "The Health Innovation Package, Section A/B, Article 5(5) MDR and July 2026 compromise content is well supported. It marks costa2026, kommusaar2026, keutzer2020, bignami2025a and onitiu2026 as full text though only schmidt, jenko and lau were read. It ignores FRA, Floridi and Lau, and lists onitiu as both in and not in the library."
+  },
+  {
+   "label": "E431",
+   "task": "lit",
+   "score": 2.5,
+   "invented_refs": 8,
+   "why": "Gives no source list; it makes up citekeys for outside works (e.g. @nzia2026 for Olimid, @palmieri2026, @semedo2026), though their DOIs are valid. It claims gap searches that were never run and marks smuha2025 full text unread, and it uses only 2 of the 15 library items despite claiming 8."
+  },
+  {
+   "label": "E333",
+   "task": "lit",
+   "score": 2,
+   "invented_refs": 6,
+   "why": "In-text numbers [11], [16], [21], [22] point to nothing in a 10-item source list. Khan 2026 is given Jenko's authors, and the van Kolfschooten coauthors are invented. 'Perverse incentives' is unsupported, and it makes up citekeys such as @vankolfschooten2024 and @hacker2023."
+  },
+  {
+   "label": "E127",
+   "task": "lit",
+   "score": 2,
+   "invented_refs": 0,
+   "why": "Read no full texts yet marks 6 sources as full text and verification as PASS. It ignores 14 of the 15 library items, and its 'living oversight' claim is credited to sources that do not say it. DOIs are valid but the analysis is thin."
+  }
+ ]
+}

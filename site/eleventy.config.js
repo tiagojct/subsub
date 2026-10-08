@@ -40,6 +40,8 @@ export default function (eleventyConfig) {
 	});
 	eleventyConfig.setLibrary("md", md);
 
+	// A number with a fixed count of decimals (4.875 -> "4.9"); empty for a missing value.
+	eleventyConfig.addFilter("num", (x, d = 2) => (x === null || x === undefined || Number.isNaN(x) ? "" : Number(x).toFixed(d)));
 	eleventyConfig.addFilter("isoDate", (d) => new Date(d).toISOString().slice(0, 10));
 	// "October 2026" or "outubro de 2026", for the date when prices were last checked.
 	eleventyConfig.addFilter("monthYear", (d, lang = "en") => {

@@ -1,0 +1,302 @@
+{
+ "M123-lit_note": {
+  "run": "2026-10-07/M123",
+  "model": "mimo-v2.5-pro",
+  "task": "lit_note"
+ },
+ "M123-synthesis": {
+  "run": "2026-10-07/M123",
+  "model": "mimo-v2.5-pro",
+  "task": "synthesis"
+ },
+ "M123-search": {
+  "run": "2026-10-07/M123",
+  "model": "mimo-v2.5-pro",
+  "task": "search"
+ },
+ "M123-lit": {
+  "run": "2026-10-07/M123",
+  "model": "mimo-v2.5-pro",
+  "task": "lit"
+ },
+ "M191-lit_note": {
+  "run": "2026-10-07/M191",
+  "model": "hy3",
+  "task": "lit_note"
+ },
+ "M191-synthesis": {
+  "run": "2026-10-07/M191",
+  "model": "hy3",
+  "task": "synthesis"
+ },
+ "M191-search": {
+  "run": "2026-10-07/M191",
+  "model": "hy3",
+  "task": "search"
+ },
+ "M191-lit": {
+  "run": "2026-10-07/M191",
+  "model": "hy3",
+  "task": "lit"
+ },
+ "M226-lit_note": {
+  "run": "2026-10-07/M226",
+  "model": "qwen3.8-max",
+  "task": "lit_note"
+ },
+ "M226-synthesis": {
+  "run": "2026-10-07/M226",
+  "model": "qwen3.8-max",
+  "task": "synthesis"
+ },
+ "M226-search": {
+  "run": "2026-10-07/M226",
+  "model": "qwen3.8-max",
+  "task": "search"
+ },
+ "M226-lit": {
+  "run": "2026-10-07/M226",
+  "model": "qwen3.8-max",
+  "task": "lit"
+ },
+ "M293-lit_note": {
+  "run": "2026-10-07/M293",
+  "model": "kimi-k3",
+  "task": "lit_note"
+ },
+ "M293-synthesis": {
+  "run": "2026-10-07/M293",
+  "model": "kimi-k3",
+  "task": "synthesis"
+ },
+ "M293-search": {
+  "run": "2026-10-07/M293",
+  "model": "kimi-k3",
+  "task": "search"
+ },
+ "M293-lit": {
+  "run": "2026-10-07/M293",
+  "model": "kimi-k3",
+  "task": "lit"
+ },
+ "M308-lit_note": {
+  "run": "2026-10-07/M308",
+  "model": "longcat-2.0",
+  "task": "lit_note"
+ },
+ "M308-synthesis": {
+  "run": "2026-10-07/M308",
+  "model": "longcat-2.0",
+  "task": "synthesis"
+ },
+ "M308-search": {
+  "run": "2026-10-07/M308",
+  "model": "longcat-2.0",
+  "task": "search"
+ },
+ "M308-lit": {
+  "run": "2026-10-07/M308",
+  "model": "longcat-2.0",
+  "task": "lit"
+ },
+ "M408-lit_note": {
+  "run": "2026-10-07/M408",
+  "model": "gpt-5.6-luna",
+  "task": "lit_note"
+ },
+ "M408-synthesis": {
+  "run": "2026-10-07/M408",
+  "model": "gpt-5.6-luna",
+  "task": "synthesis"
+ },
+ "M408-search": {
+  "run": "2026-10-07/M408",
+  "model": "gpt-5.6-luna",
+  "task": "search"
+ },
+ "M408-lit": {
+  "run": "2026-10-07/M408",
+  "model": "gpt-5.6-luna",
+  "task": "lit"
+ },
+ "M414-lit_note": {
+  "run": "2026-10-07/M414",
+  "model": "qwen3.8-flash",
+  "task": "lit_note"
+ },
+ "M414-synthesis": {
+  "run": "2026-10-07/M414",
+  "model": "qwen3.8-flash",
+  "task": "synthesis"
+ },
+ "M414-search": {
+  "run": "2026-10-07/M414",
+  "model": "qwen3.8-flash",
+  "task": "search"
+ },
+ "M414-lit": {
+  "run": "2026-10-07/M414",
+  "model": "qwen3.8-flash",
+  "task": "lit"
+ },
+ "M430-lit_note": {
+  "run": "2026-10-07/M430",
+  "model": "mimo-v2.6-flash",
+  "task": "lit_note"
+ },
+ "M430-synthesis": {
+  "run": "2026-10-07/M430",
+  "model": "mimo-v2.6-flash",
+  "task": "synthesis"
+ },
+ "M430-search": {
+  "run": "2026-10-07/M430",
+  "model": "mimo-v2.6-flash",
+  "task": "search"
+ },
+ "M430-lit": {
+  "run": "2026-10-07/M430",
+  "model": "mimo-v2.6-flash",
+  "task": "lit"
+ },
+ "M479-lit_note": {
+  "run": "2026-10-07/M479",
+  "model": "minimax-m2.7",
+  "task": "lit_note"
+ },
+ "M479-synthesis": {
+  "run": "2026-10-07/M479",
+  "model": "minimax-m2.7",
+  "task": "synthesis"
+ },
+ "M479-search": {
+  "run": "2026-10-07/M479",
+  "model": "minimax-m2.7",
+  "task": "search"
+ },
+ "M479-lit": {
+  "run": "2026-10-07/M479",
+  "model": "minimax-m2.7",
+  "task": "lit"
+ },
+ "M494-lit_note": {
+  "run": "2026-10-07/M494",
+  "model": "qwen3.7-plus",
+  "task": "lit_note"
+ },
+ "M494-synthesis": {
+  "run": "2026-10-07/M494",
+  "model": "qwen3.7-plus",
+  "task": "synthesis"
+ },
+ "M494-search": {
+  "run": "2026-10-07/M494",
+  "model": "qwen3.7-plus",
+  "task": "search"
+ },
+ "M494-lit": {
+  "run": "2026-10-07/M494",
+  "model": "qwen3.7-plus",
+  "task": "lit"
+ },
+ "M567-lit_note": {
+  "run": "2026-10-07/M567",
+  "model": "minimax-m3",
+  "task": "lit_note"
+ },
+ "M567-synthesis": {
+  "run": "2026-10-07/M567",
+  "model": "minimax-m3",
+  "task": "synthesis"
+ },
+ "M567-search": {
+  "run": "2026-10-07/M567",
+  "model": "minimax-m3",
+  "task": "search"
+ },
+ "M567-lit": {
+  "run": "2026-10-07/M567",
+  "model": "minimax-m3",
+  "task": "lit"
+ },
+ "M645-lit_note": {
+  "run": "2026-10-07/M645",
+  "model": "glm-5.3-flash",
+  "task": "lit_note"
+ },
+ "M645-synthesis": {
+  "run": "2026-10-07/M645",
+  "model": "glm-5.3-flash",
+  "task": "synthesis"
+ },
+ "M645-search": {
+  "run": "2026-10-07/M645",
+  "model": "glm-5.3-flash",
+  "task": "search"
+ },
+ "M645-lit": {
+  "run": "2026-10-07/M645",
+  "model": "glm-5.3-flash",
+  "task": "lit"
+ },
+ "M739-lit_note": {
+  "run": "2026-10-07/M739",
+  "model": "mimo-v2.6-pro",
+  "task": "lit_note"
+ },
+ "M739-synthesis": {
+  "run": "2026-10-07/M739",
+  "model": "mimo-v2.6-pro",
+  "task": "synthesis"
+ },
+ "M739-search": {
+  "run": "2026-10-07/M739",
+  "model": "mimo-v2.6-pro",
+  "task": "search"
+ },
+ "M739-lit": {
+  "run": "2026-10-07/M739",
+  "model": "mimo-v2.6-pro",
+  "task": "lit"
+ },
+ "M783-lit_note": {
+  "run": "2026-10-07/M783",
+  "model": "gpt-6-luna",
+  "task": "lit_note"
+ },
+ "M783-synthesis": {
+  "run": "2026-10-07/M783",
+  "model": "gpt-6-luna",
+  "task": "synthesis"
+ },
+ "M783-search": {
+  "run": "2026-10-07/M783",
+  "model": "gpt-6-luna",
+  "task": "search"
+ },
+ "M783-lit": {
+  "run": "2026-10-07/M783",
+  "model": "gpt-6-luna",
+  "task": "lit"
+ },
+ "M803-lit_note": {
+  "run": "2026-10-07/M803",
+  "model": "glm-5.3",
+  "task": "lit_note"
+ },
+ "M803-synthesis": {
+  "run": "2026-10-07/M803",
+  "model": "glm-5.3",
+  "task": "synthesis"
+ },
+ "M803-search": {
+  "run": "2026-10-07/M803",
+  "model": "glm-5.3",
+  "task": "search"
+ },
+ "M803-lit": {
+  "run": "2026-10-07/M803",
+  "model": "glm-5.3",
+  "task": "lit"
+ }
+}

@@ -39,7 +39,7 @@ Type `subsub doctor`. Each line starts with `ok`, `NOTE` or `FIX`. Do the fix th
 - A tool or a command is "not part of the Reader profile": type `/profile` to see the profile, and `/profile scholar` to change it. The message names the profiles that have it. For example, `/compare` is not in Reader, and `/review` is only in Author and Editor. (`/lit` works in Reader: it gives a reading list.)
 - A search tool is "part of the Researcher": type `/researcher`, or select Researcher at the top of the browser view.
 - `/verify` says that reference checks need Starbuck: turn on "Reference checks (Starbuck)" in the panel on the left of the browser view, or type `subsub init --starbuck on`.
-- Sub-Sub refuses a literature note: the note must say what Sub-Sub read (evidence: full text, abstract or metadata), and it can give page numbers only when it read the full text. Ask Sub-Sub to correct the note.
+- Sub-Sub refuses a literature note: the note must say what Sub-Sub read (evidence: full text, abstract or metadata), and it can give page numbers only when it read the full text. A note written from the full text may quote only what the full text says: Sub-Sub compares each quote with the item's text in Zotero. Ask Sub-Sub to correct the note.
 - A review note was "already applied": Sub-Sub does not apply a note twice. To apply it again, ask for it explicitly.
 
 ## Papers that are not open access

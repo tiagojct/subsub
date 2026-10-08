@@ -1,0 +1,42 @@
+{
+ "J986": {
+  "run": "2026-10-07/M414",
+  "model": "qwen3.8-flash",
+  "task": "lit"
+ },
+ "J562": {
+  "run": "2026-10-07-repeat-3/M621",
+  "model": "qwen3.8-flash",
+  "task": "lit"
+ },
+ "J563": {
+  "run": "2026-10-07/M739",
+  "model": "mimo-v2.6-pro",
+  "task": "lit"
+ },
+ "J576": {
+  "run": "2026-10-07-repeat-2/M366",
+  "model": "mimo-v2.6-pro",
+  "task": "lit"
+ },
+ "J620": {
+  "run": "2026-10-07-repeat-3/M158",
+  "model": "mimo-v2.6-pro",
+  "task": "lit"
+ },
+ "J899": {
+  "run": "2026-10-07-repeat-2/M715",
+  "model": "qwen3.8-flash",
+  "task": "lit"
+ },
+ "J977": {
+  "run": "2026-10-07-repeat-1/M409",
+  "model": "mimo-v2.6-pro",
+  "task": "lit"
+ },
+ "J673": {
+  "run": "2026-10-07-repeat-1/M726",
+  "model": "qwen3.8-flash",
+  "task": "lit"
+ }
+}

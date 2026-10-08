@@ -24,6 +24,7 @@ import { Bridge, type ServerSpec } from "./bridge.ts";
 import {
 	expand,
 	findUv,
+	FREE_MODELS,
 	isProfile,
 	loadConfig,
 	parseEnvFile,
@@ -39,14 +40,14 @@ import {
 } from "./config.ts";
 import { profileList, profileSpec, promptBlocked } from "./profiles.ts";
 import { coerceArgs, loosenArrays, resolvePathArgs } from "./args.ts";
-import { applyEdits, checkLiteratureNote } from "./notes.ts";
+import { applyEdits, checkLiteratureNote, field, frontMatter, itemKeyOf, missingQuotes, quoteProblem, quotesIn } from "./notes.ts";
 import { buildPolicy, isSecret, judgePath, normalizeToolPath, realish, within } from "./paths.ts";
 import { describeArgs, formatPreview, isEmptyPreview } from "./preview.ts";
 import { perMinuteWait, providerTrouble, TROUBLE_TEXT, TROUBLE_TEXT_PT } from "./keys.ts";
 import { headerLines, type LibraryState, paintPreview, QUOTES, type Scheme, schemeFromAnsi, themeName } from "./look.ts";
 import { systemAddition } from "./prompt.ts";
 import { logUsage } from "./usage.ts";
-import { gateKind, SERVER_PREFIXES, toolsFor, unavailableReason } from "./roles.ts";
+import { gateKind, SERVER_PREFIXES, toolsFor, unavailableReason, outboundProblem } from "./roles.ts";
 
 const MODE_ENTRY = "subsub-mode";
 
@@ -265,6 +266,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		emitWeb();
 	}
 
+	let freeNoted = false;
 	/** Set the mode's tools and, unless `switchModel` is false, the mode's model. */
 	async function applyMode(ctx: ExtensionContext, next: Mode, remember: boolean, switchModel = true): Promise<void> {
 		mode = next;
@@ -274,7 +276,25 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			const i = spec.indexOf("/");
 			const model = i > 0 ? ctx.modelRegistry.find(spec.slice(0, i), spec.slice(i + 1)) : undefined;
 			const ok = model ? await pi.setModel(model) : false;
-			if (!ok) ctx.ui.notify(`Sub-Sub: cannot use ${spec} (unknown model or no key); keeping the current model.`, "warning");
+			if (!ok)
+				ctx.ui.notify(
+					L(
+						`Sub-Sub: cannot use ${spec}: no key for that provider, or the provider renamed or retired the model. Keeping the current model. Choose another with the model button (subsub doctor lists the settings).`,
+						`Sub-Sub: não é possível usar ${spec}: não há chave para esse fornecedor, ou o fornecedor mudou o nome do modelo ou retirou-o. Mantém-se o modelo atual. Escolha outro com o botão do modelo (o subsub doctor mostra as definições).`,
+					),
+					"warning",
+				);
+			// The free model is for trying Sub-Sub: its research notes were thin in the model test.
+			else if (mode === "researcher" && spec === FREE_MODELS.researcher && !freeNoted) {
+				freeNoted = true;
+				ctx.ui.notify(
+					L(
+						"Sub-Sub: the free model is good for trying Sub-Sub and for library tasks. In our test its literature notes and reviews were thin; for research you rely on, choose a paid model (see the Models page).",
+						"Sub-Sub: o modelo gratuito serve para experimentar o Sub-Sub e para tarefas de biblioteca. No nosso teste, as suas notas de literatura e revisões foram pobres; para investigação em que precise de confiar, escolha um modelo pago (veja a página Modelos).",
+					),
+					"info",
+				);
+			}
 		}
 		if (remember) pi.appendEntry(MODE_ENTRY, { mode });
 		status(ctx);
@@ -419,6 +439,11 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 				return { block: true, reason: why };
 			}
 		}
+		const outbound = outboundProblem(name, input);
+		if (outbound) {
+			if (benchOut) record({ kind: "outbound_blocked", tool: name });
+			return { block: true, reason: outbound };
+		}
 		// grep, find and ls search the working folder when no path is given.
 		if (["read", "grep", "find", "ls"].includes(name) && isSecret(normalizeToolPath(typeof input.path === "string" ? input.path : ".", ctx.cwd), name === "grep", cfg.envFile)) {
 			return { block: true, reason: "That file holds keys or passwords. Sub-Sub does not read it." };
@@ -429,7 +454,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		if (benchOut) return benchGate(name, input, kind, ctx.cwd, ctx.signal);
 		if (kind === "path") {
 			const target = normalizeToolPath(String(input.path ?? ""), ctx.cwd);
-			const noteProblem = literatureNoteProblem(name, target, input);
+			const noteProblem = await literatureNoteProblem(name, target, input, ctx.signal);
 			if (noteProblem) return { block: true, reason: noteProblem };
 			const verdict = judgePath(target, buildPolicy({ vault: cfg.vault, cwd: ctx.cwd, serverDir: cfg.serverDir, packageDir: PACKAGE_DIR }));
 			if (verdict.ok) return undefined;
@@ -487,15 +512,49 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		return { block: true, reason: "The library kept changing while the preview was open. Nothing was applied; try again." };
 	});
 
-	/** A literature note (front matter with a citekey) must state its evidence; see notes.ts. */
-	function literatureNoteProblem(name: string, target: string, input: Record<string, unknown>): string | undefined {
+	/**
+	 * A literature note (front matter with a citekey) must state its evidence, and a note written
+	 * from the full text may quote only what the full text says; see notes.ts.
+	 */
+	async function literatureNoteProblem(name: string, target: string, input: Record<string, unknown>, signal?: AbortSignal): Promise<string | undefined> {
 		if (!target.toLowerCase().endsWith(".md")) return undefined;
-		if (name === "write") return checkLiteratureNote(String(input.content ?? ""));
-		if (name === "edit" && Array.isArray(input.edits) && existsSync(target)) {
-			const current = readFileSync(target, "utf8");
-			return checkLiteratureNote(applyEdits(current, input.edits as Array<{ oldText?: unknown; newText?: unknown }>));
+		let text: string | undefined;
+		let before = "";
+		if (name === "write") text = String(input.content ?? "");
+		else if (name === "edit" && Array.isArray(input.edits) && existsSync(target)) {
+			before = readFileSync(target, "utf8");
+			text = applyEdits(before, input.edits as Array<{ oldText?: unknown; newText?: unknown }>);
 		}
-		return undefined;
+		if (text === undefined) return undefined;
+		const problem = checkLiteratureNote(text);
+		if (problem) return problem;
+		const front = frontMatter(text);
+		const key = itemKeyOf(text);
+		if (!front || !key || field(front, "evidence")?.toLowerCase() !== "full text" || !quotesIn(text).length) return undefined;
+		const full = await fullTextOf(key, signal);
+		// Without the full text (no PDF indexed, Zotero closed) there is nothing to check against.
+		return full ? quoteProblem(missingQuotes(text, full, quotesIn(before))) : undefined;
+	}
+
+	/** The whole indexed full text of an item, read in parts, kept for the session. */
+	const fullTexts = new Map<string, string | null>();
+	async function fullTextOf(key: string, signal?: AbortSignal): Promise<string | undefined> {
+		if (fullTexts.has(key)) return fullTexts.get(key) ?? undefined;
+		let text = "";
+		let offset: number | null = 0;
+		try {
+			for (let part = 0; offset !== null && part < 20; part++) {
+				const res = await current().call("zotero_get_fulltext", { key, offset, max_chars: 60000 }, signal);
+				if (res.isError) break;
+				const data = (res.data ?? {}) as { text?: string; next_offset?: number | null };
+				text += data.text ?? "";
+				offset = data.next_offset ?? null;
+			}
+		} catch {
+			/* no full text: the check is skipped */
+		}
+		fullTexts.set(key, text || null);
+		return text || undefined;
 	}
 
 	/**
@@ -528,7 +587,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	async function benchGate(name: string, input: Record<string, unknown>, kind: string, cwd: string, signal?: AbortSignal) {
 		if (kind === "path") {
 			const target = normalizeToolPath(String(input.path ?? ""), cwd);
-			const noteProblem = literatureNoteProblem(name, target, input);
+			const noteProblem = await literatureNoteProblem(name, target, input, signal);
 			if (noteProblem) {
 				record({ kind: "note_blocked", tool: name, path: target, reason: noteProblem });
 				return { block: true, reason: noteProblem };

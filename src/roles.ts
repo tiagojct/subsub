@@ -116,3 +116,23 @@ export function gateKind(toolName: string, input: Record<string, unknown>): Gate
 	if (toolName === "write" || toolName === "edit") return "path";
 	return null;
 }
+
+/** Tools that send a query to an outside service (PubMed, Europe PMC, OpenAlex, Crossref, a web search). */
+const OUTBOUND = new Set(["scholar_search_pubmed", "scholar_search_openalex", "scholar_search_europepmc", "scholar_search_multi", "zotero_find_reference", "zotero_web_search"]);
+export const MAX_QUERY_CHARS = 1500;
+
+/**
+ * Why an outside search is refused: a query is search terms, so a query that is long or holds
+ * several lines is text from a note, a full text or the library, sent where it should not go
+ * (for example because a document asked for it).
+ */
+export function outboundProblem(toolName: string, input: Record<string, unknown>): string | undefined {
+	if (!OUTBOUND.has(toolName)) return undefined;
+	const queries = [input.query, ...(Array.isArray(input.queries) ? input.queries : [])].filter((q): q is string => typeof q === "string");
+	for (const q of queries) {
+		if (q.length > MAX_QUERY_CHARS || q.split("\n").length > 3) {
+			return `This search query is ${q.length} characters on ${q.split("\n").length} lines. A query is search terms; send no passages of notes, full texts or library records to an outside service. Shorten it to the search terms.`;
+		}
+	}
+	return undefined;
+}

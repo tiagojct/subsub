@@ -40,7 +40,7 @@ Escreva `subsub doctor`. Cada linha começa por `ok`, `NOTE` ou `FIX`. Faça a c
 - Uma ferramenta ou um comando "not part of the Reader profile": escreva `/profile` para ver o perfil e `/profile scholar` para o mudar. A mensagem indica os perfis que têm essa ferramenta ou esse comando. Por exemplo, o `/compare` não está no Reader, e o `/review` só está no Author e no Editor. (O `/lit` funciona no Reader: dá uma lista de leitura.)
 - Uma ferramenta de pesquisa é "part of the Researcher": escreva `/researcher`, ou selecione Researcher no topo da vista no navegador.
 - O `/verify` diz que a verificação de referências precisa do Starbuck: ligue "Reference checks (Starbuck)" no painel à esquerda da vista no navegador, ou escreva `subsub init --starbuck on`.
-- O Sub-Sub recusa uma nota de literatura: a nota tem de dizer o que o Sub-Sub leu (evidence: full text, abstract ou metadata, isto é, texto completo, resumo ou metadados), e só pode indicar números de página quando o Sub-Sub leu o texto completo. Peça ao Sub-Sub para corrigir a nota.
+- O Sub-Sub recusa uma nota de literatura: a nota tem de dizer o que o Sub-Sub leu (evidence: full text, abstract ou metadata, isto é, texto completo, resumo ou metadados), e só pode indicar números de página quando o Sub-Sub leu o texto completo. Uma nota escrita a partir do texto completo só pode citar o que o texto completo diz: o Sub-Sub compara cada citação com o texto do item no Zotero. Peça ao Sub-Sub para corrigir a nota.
 - Uma nota de revisão foi "already applied": o Sub-Sub não aplica uma nota duas vezes. Para a aplicar outra vez, peça-o de forma explícita.
 
 ## Artigos que não estão em acesso aberto

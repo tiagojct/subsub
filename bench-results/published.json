@@ -1,0 +1,13 @@
+{
+ "about": "The tests that the site's Models page reports. subsub-bench summary computes its figures from these folders.",
+ "tests": [
+  { "id": "october", "runs": ["2026-10-07"], "judging": "2026-10-07" },
+  { "id": "researcher", "runs": ["2026-10-07", "2026-10-07-repeat-1", "2026-10-07-repeat-2", "2026-10-07-repeat-3"], "judging": "2026-10-07-repeats",
+    "models": ["mimo-v2.6-pro", "qwen3.8-flash"], "role": "researcher", "tasks": ["lit_note", "synthesis", "search", "lit"] },
+  { "id": "librarian", "runs": ["2026-10-07", "2026-10-07-repeat-1", "2026-10-07-repeat-2", "2026-10-07-repeat-3"], "judging": "2026-10-07-repeats",
+    "models": ["mimo-v2.6-flash", "qwen3.8-flash"], "role": "librarian", "tasks": ["tagging", "import"] },
+  { "id": "eu", "runs": ["2026-10-07", "2026-10-07-eu", "2026-10-07-free2"], "judging": "2026-10-07-eu",
+    "models": ["mimo-v2.6-pro", "mistral-medium-3.5", "mistral-large-2512", "mistral-small-2603", "gemini-3.1-flash-lite"],
+    "tasks": ["tagging", "import", "lit_note", "synthesis", "search", "lit"], "free": ["gemini-3.1-flash-lite"] }
+ ]
+}

@@ -2,9 +2,26 @@
 
 Sub-Sub follows the version numbers of npm: a change in the second number (0.13) adds features or changes how you use it; a change in the third (0.13.1) only fixes.
 
-## Unreleased
+## 0.15.0 (2026-10-08)
+
+Checks:
+
+- A literature note written from the full text may quote only what the full text says. Sub-Sub compares each quote (in quote marks or a blockquote, 25 characters or more) with the item's text in Zotero, and refuses the note when a quote is not there. Line breaks, hyphenation, quote marks and a page header in the middle of a sentence do not count as differences. Without an indexed full text, the check is skipped.
+- A search sent to PubMed, Europe PMC, OpenAlex, Crossref or a web search may not be longer than 1500 characters or three lines. Text from documents is data: the Librarian's instructions now say so too, and both modes are told to send only search terms.
+- When a mode's model cannot be used, Sub-Sub says that the provider may have renamed or retired it. With the free model in the Researcher, Sub-Sub says once that it is for trying, not for research you rely on.
+
+Model test:
+
+- The tagging score now uses the items the model was given. The scorer kept in the repository compared them with the reference for other items and gave F1 0; the figures on the site were computed separately and were right.
+- The import score counts a model that previewed the import and asked first, or that left out the work already in the library, as right. The Models page had said that glm-5.3-flash missed an identifier and that longcat-2.0 and mimo-v2.5-pro imported nothing; all three imported correctly.
+- The results, the blind judgements and the list of published tests are in the repository (bench-results/). `subsub-bench summary` computes the Models page from them, and the release stops when the page and the files differ.
+- `subsub-bench sheet` and `subsub-bench agreement`: a blind scoring sheet for people, and their agreement with the AI judge.
+- The release workflow runs the unit tests before it publishes.
+
+Other:
 
 - In Portuguese, the browser view titles approvals "Confirmar: etiquetar itens?" and the like, as it does in English; before, it showed the program's raw title ("aplicar tag_items?").
+- The site: the whole site in European Portuguese, a two-column home page, How it works, and a section of the Privacy page for a data-protection officer.
 
 ## 0.14.0 (2026-10-08)
 
