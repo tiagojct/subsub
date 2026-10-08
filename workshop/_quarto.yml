@@ -31,6 +31,7 @@ format:
     link-external-newwindow: true
     fragments: true
     pdf-separate-fragments: false
+    pdf-max-pages-per-slide: 1
     embed-resources: false
     include-in-header:
       text: |

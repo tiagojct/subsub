@@ -412,12 +412,12 @@ Esta distinção é o que um revisor ou um orientador vai perguntar. O /lit é u
 
 ## O que vamos ver
 
-| Precisa de | Peça ao Sub-Sub | Recebe |
-|---|---|---|
-| Acrescentar um artigo | `importa 10.1183/13993003.00289-2020` | a pré-visualização; Sim; depois `/undo` |
-| Ler bem um artigo | `/lit-note` e palavras do título | uma nota com citações verificadas |
-| Saber o que está publicado | `/lit` e a pergunta | uma revisão rápida com tabela de evidência |
-| Verificar um manuscrito | `/review` e `/verify` com o ficheiro | comentários STROBE e as referências verificadas |
+| Precisa de | Peça ao Sub-Sub | Recebe | |
+|---|---|---|---|
+| Acrescentar um artigo | `importa 10.1183/13993003.00289-2020` | a pré-visualização; Sim; depois `/undo` | 3 min |
+| Ler bem um artigo | `/lit-note` e palavras do título | uma nota com citações verificadas | 4 min |
+| Saber o que está publicado | `/lit` e a pergunta | uma revisão rápida com tabela de evidência | 5 min |
+| Verificar um manuscrito | `/profile author`, depois `/review` e `/verify` com o ficheiro | comentários STROBE e as referências verificadas | 3 min |
 
 ::: {.cols style="margin-top:0.5em"}
 ::: {.look}
@@ -435,7 +435,7 @@ Roteiro da demonstração (15 min):
 1. (3 min) Importar o DOI do Hall 2021 (volumes pulmonares estáticos GLI). Mostrar a pré-visualização, dizer Sim, mostrar o registo, fazer /undo.
 2. (4 min) /lit-note num artigo com PDF. Abrir a nota, mostrar evidence: full text, procurar uma citação no PDF.
 3. (5 min) /lit com uma pergunta clínica do público. Enquanto corre, mostrar o plano em Research/.plans. No fim, a tabela de evidência e a secção What this review is.
-4. (3 min) /review num manuscrito observacional (STROBE) e /verify nas referências.
+4. (3 min) Mudar para o perfil Author (/profile author): o perfil Scholar, o de origem, não tem /review. Depois /review num manuscrito observacional (STROBE) e /verify nas referências.
 :::
 
 ## A vista no navegador
@@ -667,7 +667,7 @@ Ler em voz alta um exemplo de declaração. Lembrar que cada revista diz onde a 
 ## Antes de usar uma nota num manuscrito
 
 ::: {.cols}
-::: {.steps}
+::: {.steps .tick}
 - Abra a fonte de cada afirmação que vai usar.
 - Confirme o campo `evidence:`: o resumo não chega para números.
 - Corra `/verify` nas referências do manuscrito.
@@ -719,6 +719,35 @@ Jacinto T. Sub-Sub: a research assistant for Zotero [software]. Porto: FMUP; 202
 
 ::: notes
 Perguntas. Deixar este diapositivo no ecrã durante as perguntas.
+:::
+
+## Anexo · Cartão de comandos {visibility="uncounted"}
+
+```{=html}
+<div class="cmds">
+<div><p class="cmds-h">Investigação</p><div class="cmd-grid">
+<div><code>/lit</code> <i>pergunta</i></div><span>revisão rápida: biblioteca, PubMed, Europe PMC, OpenAlex</span>
+<div><code>/lit-note</code> <i>título</i></div><span>nota de leitura de um artigo</span>
+<div><code>/synthesis</code> <i>tema</i></div><span>síntese da biblioteca sobre um tema</span>
+<div><code>/gaps</code> <i>tema</i></div><span>o que falta sobre um tema</span>
+<div><code>/compare</code> <i>pergunta</i></div><span>matriz de fontes: afirmação, evidência, limites</span>
+<div><code>/verify</code> <i>ficheiro</i></div><span>verifica as referências de um manuscrito</span>
+<div><code>/review</code> <i>ficheiro</i></div><span>revisão crítica; perfis Author e Editor</span>
+<div><code>/ai-statement</code></div><span>rascunho da declaração de uso de IA</span>
+</div></div>
+<div><p class="cmds-h">Biblioteca</p><div class="cmd-grid">
+<div><code>/tag-batch</code></div><span>propõe etiquetas para os itens seguintes</span>
+<div><code>/clean-tags</code></div><span>encontra etiquetas mal postas</span>
+<div><code>/import-queue</code></div><span>importa as linhas marcadas da fila</span>
+<div><code>/history</code></div><span>as alterações recentes</span>
+<div><code>/undo</code></div><span>anula a última alteração, depois de perguntar</span>
+<div><code>/profile</code></div><span>mostra ou muda o perfil</span>
+</div><p class="cmds-foot">Ou escreva em linguagem corrente. Na caixa de mensagem, <code>/</code> mostra todos os comandos. Os perfis Reader e Scholar não têm <code>/review</code>.</p></div>
+</div>
+```
+
+::: notes
+Para imprimir e distribuir: abra o endereço dos diapositivos com ?print-pdf no fim e imprima esta página.
 :::
 
 ## Anexo · Para enviar aos participantes uma semana antes {visibility="uncounted"}
