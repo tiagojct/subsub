@@ -2,6 +2,14 @@
 
 Sub-Sub follows the version numbers of npm: a change in the second number (0.13) adds features or changes how you use it; a change in the third (0.13.1) only fixes.
 
+## 0.16.0 (2026-10-08)
+
+For clinical researchers:
+
+- `/ai-statement [what you used it for]` writes a draft of the statement on the use of AI that journals ask for, with the Sub-Sub version, its DOI, your models and Sub-Sub's checks, in `Research/`. The parts in brackets are for you to complete. It is also a button in the browser view.
+- A `/lit` note now says what it is: an AI-assisted rapid review, with one AI screener, no second reviewer and no formal risk-of-bias assessment, for scoping, a background section or a first search, and not a systematic review.
+- The site has a page for clinical researchers, in English and Portuguese: what Sub-Sub does for them, what it is not, how to get it on a hospital computer, moving from EndNote or Mendeley, data protection, and journals and AI. The Install page has a section for your IT service: what is installed, what runs and which addresses it contacts.
+
 ## 0.15.0 (2026-10-08)
 
 Checks:

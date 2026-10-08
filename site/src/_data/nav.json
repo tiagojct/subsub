@@ -1,5 +1,6 @@
 [
   { "url": "/students/", "label": "Students", "ptUrl": "/pt/estudantes/", "ptLabel": "Estudantes" },
+  { "url": "/clinicians/", "label": "Clinicians", "ptUrl": "/pt/clinicos/", "ptLabel": "Clínicos" },
   { "url": "/install/", "label": "Install", "ptUrl": "/pt/instalar/", "ptLabel": "Instalar" },
   { "url": "/guide/", "label": "Guide", "ptUrl": "/pt/guia/", "ptLabel": "Guia" },
   { "url": "/how-it-works/", "label": "How it works", "ptUrl": "/pt/como-funciona/", "ptLabel": "Como funciona" },

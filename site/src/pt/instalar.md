@@ -47,7 +47,7 @@ O comando transfere um script deste site e executa-o. Os conselhos de segurança
 - Tudo o que instala é de código aberto: o Sub-Sub, o Node.js e o uv. O código-fonte do Sub-Sub está no [GitHub]({{ site.repo }}).
 - Para remover tudo, veja [Remover](#remover).
 
-Se a sua instituição gere o seu computador e bloqueia o comando, peça ajuda ao serviço de informática, ou use um computador seu.
+Se a sua instituição gere o seu computador e bloqueia o comando, entregue ao serviço de informática a secção [Para o serviço de informática](#para-o-servico-de-informatica), ou use um computador seu.
 
 ## Iniciar o Sub-Sub
 
@@ -77,6 +77,17 @@ O instalador põe tudo em `~/.subsub` (no Windows, `.subsub` na sua pasta de uti
 - Abre o Sub-Sub no navegador.
 
 Pode ler os instaladores antes de os executar: [install.sh](/install.sh) e [install.ps1](/install.ps1).
+
+## Para o serviço de informática
+
+Se a sua instituição gere o seu computador, entregue esta secção ao serviço de informática.
+
+- O que instala: o Node.js 22 e o uv (código aberto) e o pacote npm @tiagojct/subsub, tudo na pasta do utilizador (`~/.subsub`, ou `.subsub` na pasta do utilizador no Windows). Não precisa de direitos de administrador, não cria serviços do sistema e não altera definições do sistema. [O que o instalador faz](#o-que-o-instalador-faz).
+- O que corre: um processo Node.js (o Sub-Sub) e dois processos Python iniciados pelo uv (os servidores do Zotero), apenas enquanto o Sub-Sub está aberto. A vista no navegador é um servidor web local, apenas em 127.0.0.1, com uma chave aleatória no endereço; para 10 minutos depois de a página ser fechada. A ligação local do Zotero usa 127.0.0.1, porta 23119.
+- Transferências na instalação e nas atualizações: subsub.tiagojacinto.eu, nodejs.org, astral.sh, registry.npmjs.org, pypi.org e files.pythonhosted.org.
+- Ligações durante o uso: o fornecedor do modelo que o utilizador escolhe (por exemplo opencode.ai, api.mistral.ai, generativelanguage.googleapis.com) e os serviços bibliográficos eutils.ncbi.nlm.nih.gov, www.ebi.ac.uk, api.openalex.org, api.crossref.org, api.unpaywall.org, doi.org e openlibrary.org. Os PDF em acesso aberto vêm dos sites das próprias editoras e repositórios. A página [Privacidade](/pt/privacidade/) indica o que cada serviço recebe.
+- Nada é enviado ao autor do Sub-Sub. Não há telemetria.
+- Código-fonte: [github.com/tiagojct/subsub]({{ site.repo }}), licença MIT. Cada versão fica arquivada no Zenodo (doi:[{{ site.doi }}](https://doi.org/{{ site.doi }})).
 
 ## Instalar com o npm
 

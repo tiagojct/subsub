@@ -1237,3 +1237,34 @@ test("site: the Models page figures are the published results", async () => {
 	assert.deepEqual(facts.defaults, { librarian: DEFAULT_MODELS.librarian.split("/").pop(), researcher: DEFAULT_MODELS.researcher.split("/").pop() });
 	for (const mode of ["librarian", "researcher"] as const) assert.ok(onPage.october.models[facts.defaults[mode]].works, `the ${mode} default was tested`);
 });
+
+test("/ai-statement: a draft with the version, the models and the checks", async () => {
+	const { aiStatement, modelLabel, SUBSUB_DOI } = await import("../src/statement.ts");
+	assert.equal(modelLabel("opencode-go/mimo-v2.6-pro"), "mimo-v2.6-pro (OpenCode Go)");
+	assert.equal(modelLabel("mistral/mistral-medium-3.5"), "mistral-medium-3.5 (Mistral AI)");
+	const s = aiStatement({ version: "0.16.0", models: { librarian: "mistral/mistral-medium-3.5", researcher: "mistral/mistral-medium-3.5" }, uses: "literature searches", date: "2026-10-08", starbuck: true });
+	assert.match(s, /Sub-Sub 0\.16\.0/);
+	assert.match(s, new RegExp(`doi:${SUBSUB_DOI.replace(/\./g, "\\.")}`));
+	assert.match(s, /the language model mistral-medium-3\.5 \(Mistral AI\),/, "one model, named once");
+	assert.match(s, /for literature searches\./);
+	assert.match(s, /Starbuck/);
+	assert.doesNotMatch(aiStatement({ version: "1", models: {}, date: "d", starbuck: false }), /Starbuck/);
+	assert.match(aiStatement({ version: "1", models: {}, date: "d", starbuck: false }), /\[the language model and its provider\]/);
+
+	const vault = mkdtempSync(join(tmpdir(), "subsub-stmt-"));
+	const fp = fakePi();
+	await createSubsub(fp.pi as any, { config: { ...CFG, vault }, bridge: new FakeBridge() as unknown as Bridge });
+	const { ctx, notes } = fakeCtx();
+	await fp.commands["ai-statement"].handler("reading notes", ctx);
+	await fp.commands["ai-statement"].handler("", ctx);
+	const date = new Date().toISOString().slice(0, 10);
+	assert.match(readFileSync(join(vault, "Research", `${date} AI use statement.md`), "utf8"), /for reading notes\./);
+	assert.ok(existsSync(join(vault, "Research", `${date} AI use statement-2.md`)), "a second draft does not overwrite the first");
+	assert.match(notes[0], /AI use statement\.md/);
+});
+
+test("/lit: the review says what it is not", () => {
+	const lit = readFileSync(resolve(import.meta.dirname, "..", "prompts", "lit.md"), "utf8");
+	assert.match(lit, /review_type: AI-assisted rapid review \(not a systematic review\)/);
+	assert.match(lit, /## What this review is[\s\S]*no second reviewer[\s\S]*PRISMA/);
+});

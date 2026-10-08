@@ -99,6 +99,7 @@ Commands in Sub-Sub:
 | `/profile [name]` | Show or change the profile |
 | `/subsub` | Zotero connection, mode, model and library counts |
 | `/history`, `/undo [id]` | Recent library changes; undo the last one or one by its id |
+| `/ai-statement [uses]` | A draft statement on the use of AI for a manuscript, with the Sub-Sub version, its DOI and your models |
 | `/tag-batch [size]` | Tag items that have no topic, with your tag list |
 | `/clean-tags` | Find tags that are not in your tag list and propose fixes |
 | `/import-queue [path]` | Import the references in the import queue note |

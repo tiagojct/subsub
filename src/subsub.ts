@@ -17,7 +17,7 @@
  */
 
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Bridge, type ServerSpec } from "./bridge.ts";
@@ -40,6 +40,7 @@ import {
 } from "./config.ts";
 import { profileList, profileSpec, promptBlocked } from "./profiles.ts";
 import { coerceArgs, loosenArrays, resolvePathArgs } from "./args.ts";
+import { aiStatement } from "./statement.ts";
 import { applyEdits, checkLiteratureNote, field, frontMatter, itemKeyOf, missingQuotes, quoteProblem, quotesIn } from "./notes.ts";
 import { buildPolicy, isSecret, judgePath, normalizeToolPath, realish, within } from "./paths.ts";
 import { describeArgs, formatPreview, isEmptyPreview } from "./preview.ts";
@@ -692,6 +693,31 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		handler: async (_args, ctx) => {
 			webCtx = ctx;
 			await refreshLibrary();
+		},
+	});
+
+	pi.registerCommand("ai-statement", {
+		description: "Sub-Sub: a draft statement on the use of AI for a manuscript (what journals ask for)",
+		handler: async (args, ctx) => {
+			const date = new Date().toISOString().slice(0, 10);
+			const text = aiStatement({ version: ownVersion(), models: cfg.models, uses: String(args ?? ""), date, starbuck: starbuckEnabled(cfg) });
+			const dir = join(cfg.vault ?? ctx.cwd, "Research");
+			let file = join(dir, `${date} AI use statement.md`);
+			for (let n = 2; existsSync(file); n++) file = join(dir, `${date} AI use statement-${n}.md`);
+			try {
+				mkdirSync(dir, { recursive: true });
+				writeFileSync(file, text);
+			} catch (err) {
+				ctx.ui.notify(`${text}\n${L("Could not save it", "Não foi possível guardar")}: ${(err as Error).message}`, "warning");
+				return;
+			}
+			ctx.ui.notify(
+				L(
+					`Sub-Sub: a draft statement on the use of AI is in ${file}. Complete the parts in brackets. To name the tasks, type /ai-statement followed by them, for example: /ai-statement literature searches and reading notes.`,
+					`Sub-Sub: há um rascunho da declaração sobre o uso de IA em ${file}. Complete as partes entre parênteses retos. Para indicar as tarefas, escreva /ai-statement seguido delas, por exemplo: /ai-statement literature searches and reading notes.`,
+				),
+				"info",
+			);
 		},
 	});
 

@@ -46,7 +46,7 @@ The command downloads a script from this site and runs it. Security advice often
 - Everything it installs is open source: Sub-Sub, Node.js and uv. The source of Sub-Sub is on [GitHub]({{ site.repo }}).
 - To remove it all, see [Remove](#remove).
 
-If your institution manages your computer and blocks the command, ask its IT service, or use a computer of your own.
+If your institution manages your computer and blocks the command, give its IT service the section [For your IT service](#for-your-it-service), or use a computer of your own.
 
 ## Start Sub-Sub
 
@@ -76,6 +76,17 @@ The installer puts everything in `~/.subsub` (on Windows, `.subsub` in your user
 - It opens Sub-Sub in your browser.
 
 You can read the installers before you run them: [install.sh](/install.sh) and [install.ps1](/install.ps1).
+
+## For your IT service
+
+If your institution manages your computer, give this section to its IT service.
+
+- What it installs: Node.js 22 and uv (open source), and the npm package @tiagojct/subsub, all in the user's folder (`~/.subsub`, or `.subsub` in the user folder on Windows). No administrator rights, no system service, no change to system settings. [What the installer does](#what-the-installer-does).
+- What runs: a Node.js process (Sub-Sub) and two Python processes started by uv (the Zotero servers), only while Sub-Sub is open. The browser view is a local web server on 127.0.0.1 only, with a random key in its address; it stops 10 minutes after the page is closed. Zotero's local connection is on 127.0.0.1 port 23119.
+- Downloads at install and update: subsub.tiagojacinto.eu, nodejs.org, astral.sh, registry.npmjs.org, pypi.org and files.pythonhosted.org.
+- Connections during use: the model provider the user chooses (for example opencode.ai, api.mistral.ai, generativelanguage.googleapis.com), and the bibliographic services eutils.ncbi.nlm.nih.gov, www.ebi.ac.uk, api.openalex.org, api.crossref.org, api.unpaywall.org, doi.org and openlibrary.org. Open-access PDFs come from the publishers' and repositories' own sites. The [Privacy](/privacy/) page lists what each service receives.
+- Nothing is sent to the author of Sub-Sub. There is no telemetry.
+- Source code: [github.com/tiagojct/subsub]({{ site.repo }}), MIT licence. Each version is archived on Zenodo (doi:[{{ site.doi }}](https://doi.org/{{ site.doi }})).
 
 ## Install with npm
 

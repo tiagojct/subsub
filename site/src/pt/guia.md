@@ -95,11 +95,14 @@ O que o Sub-Sub escreve depende do seu [perfil](/pt/perfis/). Os formatos das no
 5. Procura lacunas, verifica as referências e escreve uma nota em `Research/`.
 6. Lista as obras que vale a pena acrescentar. Diga quais quer, e o Sub-Sub importa-as na mesma conversa, com uma só pré-visualização para todas. Depois oferece-se para as etiquetar.
 
+O `/lit` é uma revisão rápida, não uma revisão sistemática: a triagem é feita por uma IA, sem segundo revisor, sem protocolo registado e sem avaliação formal do risco de viés. Cada nota diz isso numa secção, "What this review is". Use-o para delimitar uma pergunta, para uma secção de introdução ou como primeira pesquisa. Para uma revisão sistemática, parta das suas pesquisas e do registo de triagem, e depois faça a triagem em duplicado, avalie o risco de viés e relate segundo a PRISMA.
+
 Outros comandos de investigação:
 
 - `/compare <pergunta ou citekeys>` escreve uma matriz de fontes: para cada fonte, a afirmação, o tipo de evidência, as ressalvas e o grau de confiança.
 - `/review <ficheiro>` comenta o seu próprio manuscrito à luz da norma de publicação que se aplica: CONSORT, STROBE, PRISMA, STARD, TRIPOD, CHEERS, ou SRQR ou COREQ. Escreve apenas comentários, ao lado do manuscrito, em `<nome>-review.md`, e não altera o manuscrito.
 - `/digest [dias] [tema]` resume os alertas e as notas dos últimos dias (7 por omissão).
+- `/ai-statement [para que o usou]` escreve um rascunho da declaração sobre o uso de IA que as revistas pedem, com a versão do Sub-Sub, o seu DOI e os seus modelos, em `Research/`. Complete as partes entre parênteses retos. Funciona em todos os perfis.
 - `/request-copy <citekey, DOI ou PMID>` prepara um rascunho de email para o autor correspondente, a pedir uma cópia de um artigo que não está em acesso aberto. O endereço vem do registo da PubMed. O Sub-Sub escreve o rascunho em `Inbox/`; depois, envie-o.
 
 Alguns perfis não executam todos estes comandos. Veja [Perfis](/pt/perfis/).
@@ -123,6 +126,7 @@ O Sub-Sub não altera o manuscrito. O Starbuck escreve um relatório HTML numa p
 | `/profile` | Mostra ou muda o perfil |
 | `/subsub` | Ligação ao Zotero e resumo da biblioteca |
 | `/history`, `/undo` | Alterações recentes; anular uma delas |
+| `/ai-statement [usos]` | Um rascunho da declaração sobre o uso de IA para um manuscrito |
 | `/tag-batch [tamanho]`, `/clean-tags`, `/import-queue` | Tarefas predefinidas da biblioteca (os dois modos) |
 | `/lit-note <citekey>`, `/synthesis <tema>`, `/gaps <tema>`, `/manuscript <ficheiro>`, `/alert` | Tarefas predefinidas de investigação (Investigador) |
 | `/lit <pergunta>`, `/compare <pergunta>`, `/review <ficheiro>`, `/digest [dias]`, `/request-copy <citekey>` | Tarefas predefinidas de investigação (Investigador) |

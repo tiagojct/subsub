@@ -270,6 +270,7 @@ export const ACTIONS = {
 		{ cmd: "review", fill: true, profiles: ["author", "editor"], en: "Review a manuscript", pt: "Rever um manuscrito" },
 		{ cmd: "alert", send: true, en: "New publications", pt: "Novas publicações" },
 		{ cmd: "request-copy", fill: true, en: "Ask an author for a copy", pt: "Pedir uma cópia ao autor" },
+		{ cmd: "ai-statement", fill: true, en: "Statement on AI use", pt: "Declaração de uso de IA" },
 		{ cmd: "digest", send: true, profiles: ["scholar", "author", "editor"], en: "Digest of the week", pt: "Resumo da semana" },
 	],
 	library: [

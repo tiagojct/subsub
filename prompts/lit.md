@@ -54,6 +54,7 @@ Write one note: `Research/<date> <slug>.md` in the Sub-Sub folder. Do not overwr
 title: "<question>"
 date: <YYYY-MM-DD>
 type: literature-review
+review_type: AI-assisted rapid review (not a systematic review)
 question: "<question in one sentence>"
 searches: ["<phrasing 1>", "<phrasing 2>", "<phrasing 3>"]
 sources_found: <number of unique works>
@@ -77,6 +78,9 @@ reference_check: "<path of the Starbuck report, or none>"
 ## Open questions
 ## Methods
 (where you searched, the phrasings, the pre-screen terms, the screening counts, the gap searches, what you included and left out, and why)
+
+## What this review is
+(copy this paragraph as it is) An AI-assisted rapid review: one AI screener, no second reviewer, no registered protocol and no formal risk-of-bias assessment (such as RoB 2 or ROBINS-I). Use it to scope a question, to write a background section or as a first search. For a systematic review, use the searches and the screening log as a starting point, then screen in duplicate, assess the risk of bias and report to PRISMA.
 
 ## Sources
 1. [@citekey] for library items; for other works: Authors, year, title, journal. doi:... (not in library)

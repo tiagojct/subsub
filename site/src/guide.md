@@ -95,11 +95,14 @@ What Sub-Sub writes depends on your [profile](/profiles/). The note formats are 
 5. It looks for gaps, checks the references and writes one note in `Research/`.
 6. It lists the works worth adding. Say which ones, and it imports them in the same conversation: one preview for all. Then it offers to tag them.
 
+`/lit` is a rapid review, not a systematic review: one AI screens, with no second reviewer, no registered protocol and no formal risk-of-bias assessment. Each note says so in a section, "What this review is". Use it to scope a question, for a background section or as a first search. For a systematic review, start from its searches and screening log, then screen in duplicate, assess the risk of bias and report to PRISMA.
+
 Other research commands:
 
 - `/compare <question or citekeys>` writes a source matrix: the claim, the type of evidence, the caveats and the confidence for each source.
 - `/review <file>` comments on your own manuscript against the reporting guideline that applies: CONSORT, STROBE, PRISMA, STARD, TRIPOD, CHEERS, or SRQR or COREQ. It writes comments only, next to the manuscript in `<name>-review.md`, and does not change the manuscript.
 - `/digest [days] [topic]` summarises the alerts and notes of the last days (7 by default).
+- `/ai-statement [what you used it for]` writes a draft of the statement on the use of AI that journals ask for, with the Sub-Sub version, its DOI and your models, in `Research/`. Complete the parts in brackets. In every profile.
 - `/request-copy <citekey, DOI or PMID>` drafts an email to the corresponding author to ask for a copy of a paper that is not open access. The address comes from the PubMed record. Sub-Sub writes the draft in `Inbox/`; you send it.
 
 Some profiles do not run all of these commands. See [Profiles](/profiles/).
@@ -123,6 +126,7 @@ Sub-Sub does not change the manuscript. Starbuck writes an HTML report in a `_st
 | `/profile` | Show or change the profile |
 | `/subsub` | Zotero connection and library overview |
 | `/history`, `/undo` | Recent changes; revert one |
+| `/ai-statement [uses]` | A draft statement on the use of AI for a manuscript |
 | `/tag-batch [size]`, `/clean-tags`, `/import-queue` | Library templates (both modes) |
 | `/lit-note <citekey>`, `/synthesis <topic>`, `/gaps <topic>`, `/manuscript <file>`, `/alert` | Research templates (Researcher) |
 | `/lit <question>`, `/compare <question>`, `/review <file>`, `/digest [days]`, `/request-copy <citekey>` | Research templates (Researcher) |
