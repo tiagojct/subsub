@@ -1,0 +1,39 @@
+/*-- scss:defaults --*/
+// The site's tokens (site/src/assets/css/site.css): IBM Plex, warm paper, ink blue, rust.
+$bg: #f7f6f2;
+$surface: #efede7;
+$raised: #ffffff;
+$ink: #1c1b19;
+$muted: #5f5c55;
+$faint: #6f6b63;
+$rule: #e0ddd4;
+$rule-strong: #c8c3b8;
+$accent: #1d4f7c;
+$accent-soft: #e3ebf3;
+$rust: #a33b14;
+$rust-soft: #f5e6de;
+$green: #2f7a4b;
+
+$body-bg: $bg;
+$body-color: $ink;
+$link-color: $accent;
+$selection-bg: $accent-soft;
+$font-family-sans-serif: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+$font-family-monospace: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+$presentation-font-size-root: 34px;
+$presentation-line-height: 1.45;
+$presentation-heading-font: "IBM Plex Serif", Georgia, serif;
+$presentation-heading-color: $ink;
+$presentation-heading-font-weight: 500;
+$presentation-heading-line-height: 1.12;
+$presentation-heading-letter-spacing: -0.01em;
+$presentation-h1-font-size: 2.6em;
+$presentation-h2-font-size: 1.55em;
+$presentation-h3-font-size: 1.05em;
+$code-block-bg: $surface;
+$code-block-border-color: $rule;
+$code-color: $ink;
+$code-bg: $surface;
+$table-border-color: $rule-strong;
+
+/*-- scss:rules --*/

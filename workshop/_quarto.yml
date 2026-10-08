@@ -1,0 +1,37 @@
+# The one-hour workshop: /workshop/ (Portuguese) and /workshop/en/ (English) on the site.
+# quarto render here writes _output/, which site/scripts/deploy.sh copies into the site.
+# Not linked from the site, and marked noindex.
+project:
+  type: default
+  output-dir: _output
+  render:
+    - index.qmd
+    - en/index.qmd
+  resources:
+    - assets/fonts/*.woff2
+
+format:
+  revealjs:
+    theme: [default, theme.scss]
+    width: 1600
+    height: 900
+    margin: 0.06
+    center: false
+    hash: true
+    slide-number: c/t
+    show-slide-number: all
+    transition: fade
+    transition-speed: fast
+    background-transition: fade
+    controls: true
+    controls-layout: bottom-right
+    progress: true
+    preview-links: false
+    link-external-newwindow: true
+    fragments: true
+    pdf-separate-fragments: false
+    embed-resources: false
+    include-in-header:
+      text: |
+        <meta name="robots" content="noindex, nofollow">
+        <link rel="icon" href="https://subsub.tiagojacinto.eu/assets/favicon.svg" type="image/svg+xml">
