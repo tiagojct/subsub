@@ -20,7 +20,8 @@ jobs:
       - uses: astral-sh/setup-uv@v6
       - run: npm ci
       - run: npm install --no-save @earendil-works/pi-coding-agent@latest
-      - run: npm ls @earendil-works/pi-coding-agent
+      # Latest is outside the ~1.0.x range on purpose, so npm ls exits 1; it only prints the version.
+      - run: npm ls @earendil-works/pi-coding-agent || true
       - run: npm run build
       - run: npm test
       - run: uv sync
