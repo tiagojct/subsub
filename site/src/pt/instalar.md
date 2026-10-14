@@ -72,7 +72,7 @@ O instalador põe tudo em `~/.subsub` (no Windows, `.subsub` na sua pasta de uti
 - Instala o Node.js 22 em `~/.subsub/node`, se não tiver o Node.js ou se a sua versão for anterior à 22.19. Compara o ficheiro transferido com as somas de verificação (checksums) que o nodejs.org publica.
 - Instala o Sub-Sub (o pacote npm [@tiagojct/subsub](https://www.npmjs.com/package/@tiagojct/subsub)).
 - Acrescenta `~/.subsub/bin` ao seu PATH, para que o comando `subsub` funcione em novas janelas do terminal.
-- Inicia o `subsub init`, que faz algumas perguntas: o seu nome e uma linha sobre si, a língua, a pasta do Sub-Sub, a configuração (padrão, ou FMUP para a Faculdade de Medicina da Universidade do Porto), uma lista de etiquetas inicial, um endereço de email de contacto, a verificação de referências (Starbuck), o registo de utilização do piloto (desligado por omissão) e os modelos. Prima Enter para aceitar cada valor por omissão. No fim, o instalador executa `subsub doctor` para verificar a configuração.
+- Inicia o `subsub init`, que faz algumas perguntas: o seu nome e uma linha sobre si, a língua, a pasta do Sub-Sub, a configuração (padrão, ou FMUP para a Faculdade de Medicina da Universidade do Porto), uma lista de etiquetas inicial, um endereço de email de contacto, uma chave da Brave Search para pesquisar na web (opcional), a verificação de referências (Starbuck), o registo de utilização do piloto (desligado por omissão) e os modelos. Prima Enter para aceitar cada valor por omissão. No fim, o instalador executa `subsub doctor` para verificar a configuração.
 - Acrescenta um atalho do Sub-Sub (`subsub shortcut`): nas Aplicações, no macOS; no menu Iniciar e no ambiente de trabalho, no Windows; no menu de aplicações, no Linux. O atalho abre o Sub-Sub no navegador.
 - Abre o Sub-Sub no navegador.
 
@@ -83,9 +83,9 @@ Pode ler os instaladores antes de os executar: [install.sh](/install.sh) e [inst
 Se a sua instituição gere o seu computador, entregue esta secção ao serviço de informática.
 
 - O que instala: o Node.js 22 e o uv (código aberto) e o pacote npm @tiagojct/subsub, tudo na pasta do utilizador (`~/.subsub`, ou `.subsub` na pasta do utilizador no Windows). Não precisa de direitos de administrador, não cria serviços do sistema e não altera definições do sistema. [O que o instalador faz](#o-que-o-instalador-faz).
-- O que corre: um processo Node.js (o Sub-Sub) e dois processos Python iniciados pelo uv (os servidores do Zotero), apenas enquanto o Sub-Sub está aberto. A vista no navegador é um servidor web local, apenas em 127.0.0.1, com uma chave aleatória no endereço; para 10 minutos depois de a página ser fechada. A ligação local do Zotero usa 127.0.0.1, porta 23119.
+- O que corre: um processo Node.js (o Sub-Sub) e dois processos Python iniciados pelo uv (os servidores do Zotero), e um terceiro (o Starbuck) quando a verificação de referências está ligada, apenas enquanto o Sub-Sub está aberto. A vista no navegador é um servidor web local, apenas em 127.0.0.1, com uma chave aleatória no endereço; para 10 minutos depois de a página ser fechada. A ligação local do Zotero usa 127.0.0.1, porta 23119.
 - Transferências na instalação e nas atualizações: subsub.tiagojacinto.eu, nodejs.org, astral.sh, registry.npmjs.org, pypi.org e files.pythonhosted.org.
-- Ligações durante o uso: o fornecedor do modelo que o utilizador escolhe (por exemplo opencode.ai, api.mistral.ai, generativelanguage.googleapis.com) e os serviços bibliográficos eutils.ncbi.nlm.nih.gov, www.ebi.ac.uk, api.openalex.org, api.crossref.org, api.unpaywall.org, doi.org e openlibrary.org. Os PDF em acesso aberto vêm dos sites das próprias editoras e repositórios. A página [Privacidade](/pt/privacidade/) indica o que cada serviço recebe.
+- Ligações durante o uso: o fornecedor do modelo que o utilizador escolhe (por exemplo opencode.ai, api.mistral.ai, generativelanguage.googleapis.com) e os serviços bibliográficos eutils.ncbi.nlm.nih.gov, www.ebi.ac.uk, api.openalex.org, api.crossref.org, api.unpaywall.org, doi.org, openlibrary.org e api.zotero.org (modelos de itens em branco, sem conta). Para identificar ficheiros sem item principal: www.googleapis.com (Google Books), archive.org e www.wikidata.org, e api.search.brave.com quando o utilizador guardou uma chave da Brave Search. Com a verificação de referências ligada, o Starbuck contacta também api.datacite.org e export.arxiv.org. Os PDF em acesso aberto vêm dos sites das próprias editoras e repositórios. A página [Privacidade](/pt/privacidade/) indica o que cada serviço recebe.
 - Nada é enviado ao autor do Sub-Sub. Não há telemetria.
 - Código-fonte: [github.com/tiagojct/subsub]({{ site.repo }}), licença MIT. Cada versão fica arquivada no Zenodo (doi:[{{ site.doi }}](https://doi.org/{{ site.doi }})).
 
@@ -123,7 +123,7 @@ Escreva outra vez o comando de instalação. Ou, se instalou com o npm, escreva 
 ## Remover
 
 1. Escreva `subsub shortcut --remove`. Este comando remove o atalho das Aplicações, do menu Iniciar ou do menu de aplicações, e do ambiente de trabalho.
-2. Apague a pasta `~/.subsub`.
+2. Apague a pasta `~/.subsub`. Isto também apaga as suas conversas (incluindo as de `~/.subsub/trash`) e as chaves de API guardadas.
 3. Remova a linha que começa por `export PATH` e contém `.subsub` de `~/.zshrc`, `~/.bashrc` ou `~/.profile`. (No Windows, remova as duas entradas `.subsub` do PATH do seu utilizador.)
 4. Se já não quiser as definições, apague `~/.config/subsub` e `~/.config/zotero-local-mcp`. O registo de alterações, que o `/undo` usa, está em `~/.local/share/zotero-local-mcp`.
 

@@ -4,7 +4,7 @@ lang: pt-PT
 layout: base.njk
 title: Guia
 eyebrow: A primeira meia hora
-lead: Etiquete os seus primeiros itens, importe um artigo, escreva uma nota de literatura e anule uma alteração. Abra o Zotero antes do Sub-Sub.
+lead: Etiquete os seus primeiros itens, importe um artigo, leia um artigo com orientação, escreva uma nota de literatura e anule uma alteração. Abra o Zotero antes do Sub-Sub.
 ---
 
 ## Começar
@@ -15,16 +15,16 @@ lead: Etiquete os seus primeiros itens, importe um artigo, escreva uma nota de l
 
 O Sub-Sub tem dois modos. O Investigador é o modo por omissão. Lê a sua biblioteca, pesquisa a literatura, escreve notas e também altera a biblioteca. O Bibliotecário só gere a biblioteca: etiquetas, importações, metadados, PDF e coleções. Para mudar de modo, selecione Investigador ou Bibliotecário no topo. Cada modo pode ter o seu próprio modelo. Nos dois modos, cada alteração à biblioteca mostra primeiro uma pré-visualização e só é feita depois de selecionar Sim.
 
-O botão do modelo está no canto superior direito. O painel da esquerda tem os comandos mais usados e as suas conversas anteriores. No modo Investigador, os comandos estão em dois grupos, Investigação e Biblioteca. No modo Bibliotecário, só aparece o grupo Biblioteca.
+O botão Notas e o botão do modelo estão no canto superior direito. O painel da esquerda tem uma pesquisa na biblioteca, os comandos mais usados e as suas conversas anteriores. No modo Investigador, os comandos estão em dois grupos, Investigação e Biblioteca. No modo Bibliotecário, só aparece o grupo Biblioteca.
 
 Este guia dá os comandos que escreve. No navegador, a maior parte deles também são botões.
 
 Mais no navegador:
 
-- Biblioteca: escreva na caixa de pesquisa no topo do painel da esquerda para encontrar itens no Zotero. Cada resultado tem Ler (`/read`), Nota (`/lit-note`) e uma ligação que abre o item no Zotero.
+- Biblioteca: escreva na caixa de pesquisa no topo do painel da esquerda para encontrar itens no Zotero. No modo Investigador, cada resultado tem Ler (`/read`) e Nota (`/lit-note`). Cada resultado tem também uma ligação que abre o item no Zotero. O botão Nota de literatura põe o cursor nesta caixa de pesquisa.
 - Notas: selecione Notas no topo para ver as notas da sua pasta do Sub-Sub, das mais recentes para as mais antigas. Selecione uma nota para a ler ao lado da conversa. Os caminhos de notas nas respostas, as `[[ligações]]` e o botão Abrir de um ficheiro escrito também abrem a nota aí. Abrir na aplicação abre-a no Obsidian ou no seu editor de Markdown.
 - Comandos: depois de escrever um comando e um espaço, a caixa mostra o que o comando precisa, por exemplo `<citekey or title words>`.
-- Conversas: aponte para uma conversa na lista para lhe mudar o nome ou a apagar. Apagar move-a para `~/.subsub/trash`, para que a possa recuperar. Exportar guarda a conversa aberta num ficheiro Markdown, com as ferramentas que o Sub-Sub usou e os resultados.
+- Conversas: aponte para uma conversa na lista para lhe mudar o nome ou a apagar. Não pode apagar a conversa aberta. Apagar move o ficheiro para `~/.subsub/trash`, para que o possa recuperar. Exportar guarda a conversa aberta num ficheiro Markdown, na pasta de transferências, com as ferramentas que o Sub-Sub usou e os resultados.
 
 Para um mapa das partes (as aplicações, os servidores, os modos e as pastas), veja [Como funciona](/pt/como-funciona/).
 
@@ -36,7 +36,7 @@ Escreva `subsub`. O Sub-Sub começa no modo Investigador. Para começar no modo 
 
 O Sub-Sub só usa as etiquetas da sua lista de etiquetas. A lista inicial para qualquer área ainda não tem temas, porque os seus temas dependem da sua biblioteca. A lista para as ciências da saúde já tem alguns. Se a sua lista não tiver etiquetas `topic/`, comece aqui:
 
-1. Escreva: `propõe temas para a minha lista de etiquetas`. O Sub-Sub lê os títulos dos seus itens e escreve `Inbox/Zotero topic proposal.md` com 15 a 30 temas.
+1. Escreva: `proponha temas para a minha lista de etiquetas`. O Sub-Sub lê os títulos dos seus itens e escreve `Inbox/Zotero topic proposal.md` com 15 a 30 temas.
 2. Copie os temas que quer para `Zotero/Zotero tags.md`, no formato desse ficheiro.
 
 Depois, etiquete:
@@ -45,7 +45,7 @@ Depois, etiquete:
 2. Escreva `/tag-batch 10`. O Sub-Sub lê dez itens sem tema e escreve uma nota de revisão de etiquetas: `Inbox/Zotero tag review 01.md`.
 3. Abra a nota. Cada linha tem o item, as etiquetas atuais, as etiquetas propostas e uma justificação.
 4. Edite a coluna das etiquetas propostas (Proposed tags). Para deixar um item como está, escreva `skip`.
-5. Escreva: `aplica a nota de revisão de etiquetas Inbox/Zotero tag review 01.md`.
+5. Escreva: `aplique a nota de revisão de etiquetas Inbox/Zotero tag review 01.md`.
 6. Leia a pré-visualização. Para aplicar as alterações, selecione Sim. Para parar, selecione Não e diga o que deve mudar.
 
 As etiquetas têm de estar na sua lista de etiquetas, `Zotero/Zotero tags.md`. O Sub-Sub recusa outras etiquetas. Para acrescentar uma etiqueta, edite esse ficheiro.
@@ -74,7 +74,7 @@ A anulação ignora os itens que alterou no Zotero depois da alteração. Uma co
 
 Um PDF ou uma nota que acrescentou ao Zotero como ficheiro independente não tem item principal: não tem título, autores nem data na biblioteca, e não tem citekey. O Sub-Sub pode criar o item principal por si.
 
-1. Em qualquer dos modos, escreva `cria um item principal adequado para os meus ficheiros sem item principal`. Para começar por alguns, indique-os pelo nome ou diga "os primeiros cinco".
+1. Em qualquer dos modos, escreva `crie um item principal adequado para os meus ficheiros sem item principal`. Para começar por alguns, indique-os pelo nome ou diga "os primeiros cinco".
 2. O Sub-Sub lê cada ficheiro. Procura a obra na Crossref, no Google Books, no Internet Archive, na Open Library e na Wikidata, e também na web se guardou uma chave da Brave Search no `subsub init`. Só guarda um resultado quando este corresponde ao ficheiro.
 3. Leia a pré-visualização. Para cada ficheiro, mostra um item novo (tipo, citekey, publicação, data, número) ou um item que já está na sua biblioteca.
 4. Selecione Sim. O ficheiro passa para debaixo do seu item principal; um item novo recebe as coleções do ficheiro e a marca de revisão `_agent`.
@@ -83,15 +83,15 @@ A anulação devolve os ficheiros ao sítio onde estavam e move os itens novos p
 
 ## Ler um artigo
 
-O `/read` ensina a ler um artigo. O Sub-Sub encontra as passagens e faz perguntas. O utilizador lê as passagens e escreve as respostas. O Sub-Sub não escreve resultados nem resumos nesta nota. Use o modo Investigador.
+O `/read` ensina a ler um artigo. O Sub-Sub encontra as passagens e faz perguntas. Lê as passagens e escreve as respostas. O Sub-Sub não escreve resultados nem resumos nesta nota. Use o modo Investigador.
 
-1. Escreva `/read smith2021`, ou selecione Ler um artigo no navegador.
+1. Escreva `/read` e uma citekey, um DOI, um PMID ou palavras do título, por exemplo `/read smith2021`. No navegador, selecione Ler um artigo, ou pesquise a biblioteca no painel da esquerda e selecione Ler. Se a obra não estiver na sua biblioteca, o Sub-Sub lê o texto em acesso aberto ou o resumo e propõe importá-la.
 2. Selecione porque vai ler o artigo:
    - Contexto: apenas o título e o resumo. Decide se mantém o artigo ou se o põe de parte.
    - Um dado: o Sub-Sub pergunta que dado procura e mostra as passagens que o dão.
-   - Extração: a pergunta, o desenho, a população, o contexto, o resultado medido e o resultado principal, cada um com a sua passagem. O Sub-Sub também acrescenta uma linha para o artigo à sua folha de extração em `Research/`. A linha diz onde encontrar cada valor; o utilizador preenche os valores.
-   - Crítica: o artigo inteiro, secção a secção, com perguntas sobre o risco de viés e a norma de relato com que o deve comparar.
-3. Abra `Literature/smith2021.md` e escreva as respostas por baixo das perguntas.
+   - Extração: a pergunta, o desenho, a população, o contexto, o resultado medido e o resultado principal, cada um com a sua passagem. O Sub-Sub pergunta que folha de extração de `Research/` deve usar, ou a pergunta da sua revisão para uma folha nova (`Research/<slug> extraction.md`). Acrescenta uma linha para o artigo à folha. A linha diz onde encontrar cada valor; preenche os valores.
+   - Crítica: o artigo inteiro, secção a secção, com perguntas sobre o risco de viés e a norma de relato com que o deve comparar. Se só conseguir ler o resumo, o Sub-Sub diz isso e propõe o `/request-copy`.
+3. Abra `Literature/smith2021.md` e escreva as respostas por baixo das perguntas. Se a nota já existir (por exemplo, de um `/lit-note`), o Sub-Sub acrescenta uma secção nova no fim e não altera o resto.
 
 Para não ter de responder à pergunta, escreva o motivo primeiro: `/read extract smith2021`. Leia a maior parte dos artigos ao nível do contexto, e leia com atenção apenas os poucos que o exigem.
 
@@ -100,12 +100,12 @@ Para não ter de responder à pergunta, escreva o motivo primeiro: `/read extrac
 Use o modo Investigador nesta parte. O modo Bibliotecário não pesquisa nem escreve notas.
 
 1. Pergunte: `O que tenho sobre espirometria em casa?`. A resposta lista citekeys da sua biblioteca.
-2. Escreva `/lit-note smith2021`. O Sub-Sub lê o texto completo (ou o resumo, e diz isso) e escreve `Literature/smith2021.md` na sua pasta do Sub-Sub.
+2. Escreva `/lit-note smith2021`, ou pesquise a biblioteca no painel da esquerda e selecione Nota. O Sub-Sub lê o texto completo (ou o resumo, e diz isso) e escreve `Literature/smith2021.md` na sua pasta do Sub-Sub.
 3. Escreva `/synthesis <tema>` para uma nota sobre vários itens, ou `/gaps <tema>` para procurar na PubMed e no OpenAlex obras que ainda não tem.
 
 Cada nota de literatura diz o que o Sub-Sub leu: o texto completo, o resumo ou apenas os metadados. Os números de página vêm apenas do texto completo. O Sub-Sub recusa uma nota que não cumpra esta regra.
 
-O Sub-Sub só redige texto para um manuscrito quando o pede, e marca o texto redigido. Os formatos das notas estão em `Zotero/Zotero agent.md`. Pode editá-los.
+O Sub-Sub só redige texto para um manuscrito ou uma tese quando o pede, e marca o texto redigido. Não redige texto para trabalhos de avaliação, mesmo que o peça. Os formatos das notas estão em `Zotero/Zotero agent.md`. Pode editá-los.
 
 ## Rever a literatura
 
@@ -123,7 +123,7 @@ Para receber uma lista de leitura em vez de uma revisão, escreva `/lit reading 
 Outros comandos de investigação:
 
 - `/compare <pergunta ou citekeys>` escreve uma matriz de fontes: para cada fonte, a afirmação, o tipo de evidência, as ressalvas e o grau de confiança.
-- `/review <ficheiro>` comenta o seu próprio manuscrito à luz da norma de publicação que se aplica: CONSORT, STROBE, PRISMA, STARD, TRIPOD, CHEERS, ou SRQR ou COREQ. Escreve apenas comentários, ao lado do manuscrito, em `<nome>-review.md`, e não altera o manuscrito.
+- `/review <ficheiro>` comenta o seu próprio manuscrito à luz da norma de relato que se aplica: CONSORT, STROBE, PRISMA, STARD, TRIPOD, CHEERS, ou SRQR ou COREQ. Escreve apenas comentários, ao lado do manuscrito, em `<nome>-review.md`, e não altera o manuscrito.
 - `/digest [dias] [tema]` resume os alertas e as notas dos últimos dias (7 por omissão).
 - `/ai-statement [para que o usou]` escreve um rascunho da declaração sobre o uso de IA que as revistas pedem, com a versão do Sub-Sub, o seu DOI e os seus modelos, em `Research/`. Complete as partes entre parênteses retos. Funciona nos dois modos.
 - `/request-copy <citekey, DOI ou PMID>` prepara um rascunho de email para o autor correspondente, a pedir uma cópia de um artigo que não está em acesso aberto. O endereço vem do registo da PubMed. O Sub-Sub escreve o rascunho em `Inbox/`; depois, envie-o.
@@ -149,7 +149,7 @@ O Sub-Sub não altera o manuscrito. O Starbuck escreve um relatório HTML numa p
 | `/subsub` | Ligação ao Zotero e resumo da biblioteca |
 | `/history`, `/undo` | Alterações recentes; anular uma delas |
 | `/ai-statement [usos]` | Um rascunho da declaração sobre o uso de IA para um manuscrito |
-| `/read [motivo] <citekey>` | Leitura guiada de um artigo: o Sub-Sub encontra as passagens e pergunta, o utilizador escreve as respostas (Investigador) |
+| `/read [motivo] <citekey>` | Leitura guiada de um artigo: o Sub-Sub encontra as passagens e pergunta, escreve as respostas (Investigador) |
 | `/tag-batch [tamanho]`, `/clean-tags`, `/import-queue` | Tarefas predefinidas da biblioteca (os dois modos) |
 | `/lit-note <citekey>`, `/synthesis <tema>`, `/gaps <tema>`, `/manuscript <ficheiro>`, `/alert` | Tarefas predefinidas de investigação (Investigador) |
 | `/lit <pergunta>`, `/compare <pergunta>`, `/review <ficheiro>`, `/digest [dias]`, `/request-copy <citekey>` | Tarefas predefinidas de investigação (Investigador) |
@@ -161,14 +161,14 @@ O Sub-Sub não altera o manuscrito. O Starbuck escreve um relatório HTML numa p
 
 ## A sua pasta do Sub-Sub
 
-O Sub-Sub guarda as notas e as definições numa só pasta, `Sub-Sub`. Há duas coisas que ficam noutro sítio: a revisão de um manuscrito (`/review`) fica ao lado do manuscrito, e um relatório do Starbuck fica numa pasta `_starbuck` ao lado do manuscrito. Por omissão, a pasta `Sub-Sub` está na sua pasta Documentos. Se usa o Obsidian, o `subsub init` põe-na dentro do seu cofre (vault), e o Sub-Sub não mexe no resto do cofre.
+O Sub-Sub guarda as notas e as definições numa só pasta, `Sub-Sub`. Por omissão, esta pasta está na sua pasta Documentos. Se usa o Obsidian, o `subsub init` põe-na dentro do seu cofre (vault), e o Sub-Sub não mexe no resto do cofre. Há duas coisas que ficam noutro sítio: a revisão de um manuscrito (`/review`) fica ao lado do manuscrito, e um relatório do Starbuck fica numa pasta `_starbuck` ao lado do manuscrito.
 
 | Caminho | Conteúdo |
 |---|---|
-| `Inbox/` | Notas de revisão, a fila de importação, propostas |
-| `Literature/` | Uma nota por item, com o nome da citekey |
+| `Inbox/` | Notas de revisão, a fila de importação, alertas, propostas, rascunhos de email (`/request-copy`) |
+| `Literature/` | Uma nota por item, com o nome da citekey: notas de literatura (`/lit-note`) e notas de leitura (`/read`) |
 | `Syntheses/` | Notas sobre vários itens |
-| `Research/` | Revisões da literatura, comparações, resumos periódicos; planos e registos de triagem em `Research/.plans/` |
+| `Research/` | Revisões da literatura, listas de leitura, comparações, resumos periódicos, folhas de extração (`/read extract`), declarações de uso de IA; planos e registos de triagem em `Research/.plans/` |
 | `Zotero/Zotero tags.md` | A sua lista de etiquetas |
 | `Zotero/Zotero agent.md` | Formatos das notas e regras comuns |
 | `Zotero/Literature alerts.md` | As pesquisas para os alertas semanais (opcional) |

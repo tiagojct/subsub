@@ -17,19 +17,19 @@ form:
 
 O Sub-Sub é um bibliotecário e assistente de investigação para o Zotero. Funciona no seu computador e abre no seu navegador, com um modelo de IA. Tem dois modos:
 
-- o Investigador lê a biblioteca, pesquisa na PubMed, na Europe PMC e na OpenAlex, escreve notas na sua pasta Sub-Sub e também organiza a biblioteca;
+- o Investigador lê a biblioteca, pesquisa na PubMed, na Europe PMC e no OpenAlex, escreve notas na sua pasta Sub-Sub e também organiza a biblioteca;
 - o Bibliotecário só organiza a biblioteca: etiquetas, importações por DOI ou PMID, correção de metadados.
 
 Para mudar de modo, selecione Investigador ou Bibliotecário no topo da página.
 
-Nenhuma alteração à biblioteca acontece sem a sua aprovação. Com a língua definida para português europeu, os botões, as respostas e as notas ficam em português. As pré-visualizações das alterações e algumas mensagens técnicas ficam em inglês.
+Nenhuma alteração à biblioteca acontece sem a sua aprovação. Com a língua definida para português europeu, os botões, as pré-visualizações, as respostas e as notas ficam em português. Algumas mensagens técnicas ficam em inglês.
 
 ## Antes de começar
 
 1. Instale o [Zotero 10](https://www.zotero.org/download/), se ainda não o tiver.
 2. Faça uma cópia de segurança da biblioteca. No Zotero, abra Definições (Settings) > Avançado (Advanced) > Ficheiros e pastas (Files and Folders) e clique em Mostrar pasta de dados (Show Data Directory). Feche o Zotero. Copie essa pasta para outro local.
 3. Abra o Zotero. Em Definições > Avançado, ative a opção "Allow other applications on this computer to communicate with Zotero" (permitir que outras aplicações deste computador comuniquem com o Zotero).
-4. Tenha à mão os dados de acesso ao modelo de IA indicado para o piloto. Se não tiver um, pode experimentar sem pagar com uma chave gratuita da Google: veja [Use Sub-Sub for free](/models/#use-sub-sub-for-free), em inglês.
+4. Tenha à mão os dados de acesso ao modelo de IA indicado para o piloto. Se não tiver um, pode experimentar sem pagar com uma chave gratuita da Google: veja [Usar o Sub-Sub sem pagar](/pt/modelos/#usar-o-sub-sub-sem-pagar).
 
 ## Instalar
 
@@ -60,7 +60,9 @@ O instalador instala o uv, o Node.js (se for preciso) e o Sub-Sub na sua pasta p
 | Set-up | Escreva 2 (FMUP / U.Porto) e prima Enter. |
 | Starter tag list | Prima Enter (health sciences). |
 | Email | O seu email da U.Porto. Serve para encontrar PDF em acesso aberto. |
+| Brave Search key | Prima Enter (nenhuma). |
 | Reference checks | Prima Enter (Off). |
+| Usage log | Prima Enter (Off), ou escolha On para guardar o registo de utilização (veja abaixo). |
 | Models | Prima Enter (Choose later). |
 
 </div>
@@ -74,7 +76,7 @@ Em Windows, o atalho abre também uma janela minimizada na barra de tarefas. Nã
 
 ## Ligar o modelo de IA
 
-1. No Sub-Sub, selecione o botão do modelo, no canto superior direito. Antes da primeira ligação, mostra "Sem modelo".
+1. No Sub-Sub, selecione o botão do modelo, no canto superior direito. Antes da primeira ligação, mostra "Ligar um modelo".
 2. Em Fornecedor, selecione o fornecedor indicado para o piloto.
 3. Cole a chave de API e selecione Guardar.
 4. Na lista de modelos, selecione o modelo indicado para o piloto.
@@ -92,7 +94,7 @@ Se alguma coisa falhar:
 3. Cada linha começa por ok, NOTE ou FIX. Faça o que cada linha FIX indica.
 4. Escreva `subsub doctor` outra vez, até não haver linhas FIX.
 
-A página [Help](/help/) explica cada linha, em inglês.
+A página [Ajuda](/pt/ajuda/) explica cada linha.
 
 ## O que experimentar
 
@@ -107,7 +109,7 @@ Faça as tarefas por esta ordem. Durante as tarefas, anote o que correu mal e o 
 ### 2. Etiquetar dez itens
 
 1. No topo da página, selecione Bibliotecário.
-2. No painel da esquerda, em Biblioteca, selecione Etiquetar 10 itens. O Sub-Sub escreve uma nota de revisão na pasta Inbox, dentro da sua pasta Sub-Sub.
+2. No painel da esquerda, em Ações, no grupo Biblioteca, selecione Etiquetar 10 itens. O Sub-Sub escreve uma nota de revisão na pasta Inbox, dentro da sua pasta Sub-Sub.
 3. Abra a nota, por exemplo com o Obsidian ou com um editor de texto. Cada linha tem o item, as etiquetas atuais, as etiquetas propostas e o motivo.
 4. Corrija a coluna das etiquetas propostas. Para deixar um item como está, escreva `skip`.
 5. No Sub-Sub, escreva: `aplica a revisão Inbox/Zotero tag review 01.md`.
@@ -119,12 +121,12 @@ Faça as tarefas por esta ordem. Durante as tarefas, anote o que correu mal e o 
 1. Em qualquer dos modos, escreva `import` e um DOI. Por exemplo, a declaração PRISMA 2020: `import 10.1136/bmj.n71`.
 2. Leia a pré-visualização. Selecione Sim.
 
-### 4. Escrever uma nota de leitura
+### 4. Escrever uma nota de literatura
 
 1. No topo da página, selecione Investigador.
-2. No painel da esquerda, em Investigação, selecione Nota de leitura. A caixa de mensagem fica com `/lit-note`.
-3. Acrescente a citekey de um item com PDF e prima Enter. As respostas do Sub-Sub mostram as citekeys entre `[@` e `]`.
-4. Quando a nota estiver escrita, selecione Abrir na linha "escrever um ficheiro". A nota diz o que o Sub-Sub leu e tem citações com a página. Para ler o artigo por si, com perguntas em vez de um resumo, use o `/read` (veja [Ler um artigo](/pt/guia/#ler-um-artigo)).
+2. No painel da esquerda, na caixa Pesquisar na biblioteca, escreva palavras do título de um item com PDF.
+3. No resultado, selecione Nota. O Sub-Sub começa o `/lit-note` desse item.
+4. Quando a nota estiver escrita, selecione Abrir na linha "escrever um ficheiro". A nota abre no painel de notas, ao lado da conversa. A nota diz o que o Sub-Sub leu e tem citações com a página. Para ler o artigo por si, com perguntas em vez de um resumo, use o `/read` (veja [Ler um artigo](/pt/guia/#ler-um-artigo)).
 5. Confirme duas citações no PDF.
 
 ### 5. Desfazer uma alteração
@@ -179,7 +181,7 @@ Se ficar bloqueado e precisar de ajuda durante o piloto, envie um email para [ti
 ## Cuidados
 
 - O Sub-Sub não apaga nada. Os itens vão para o lixo do Zotero, e `/undo` reverte uma alteração.
-- O fornecedor do modelo recebe o que as ferramentas lhe devolvem: títulos, autores, resumos e partes do texto completo. Não use o Sub-Sub com documentos confidenciais nem com dados de doentes. Veja [Privacy](/privacy/), em inglês.
+- O fornecedor do modelo recebe o que as ferramentas lhe devolvem: títulos, autores, resumos e partes do texto completo. Não use o Sub-Sub com documentos confidenciais nem com dados de doentes. Veja [Privacidade](/pt/privacidade/).
 - As regras da sua unidade curricular e da faculdade sobre o uso de IA aplicam-se ao que entregar. O [FMUP · IA](https://tiagojacinto.eu/fmup-ia/) é uma proposta de quadro de referência para o uso de IA generativa na FMUP, ainda em revisão institucional.
 
 ## Desinstalar

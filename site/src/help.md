@@ -35,12 +35,15 @@ Type `subsub doctor`. Each line starts with `ok`, `NOTE` or `FIX`. Do the fix th
 - Zotero asks for permission when Sub-Sub first changes something: select Always Allow.
 - "This Go model requires Global regions": your OpenCode workspace allows only some regions. In OpenCode, open the workspace's Privacy settings and select Global, or choose another model.
 - Sub-Sub says that web search is not set up: it still finds references in Crossref, Google Books, Internet Archive, Open Library and Wikidata. For web search, get a key at [brave.com/search/api](https://brave.com/search/api/) and type `subsub init`.
-- "cannot use opencode-go/…": you are not logged in to that provider, or the model name is wrong. Type `/login`, or change `models` in the settings file.
+- "cannot use opencode-go/…": you are not logged in to that provider, or the model name is wrong. Select the model button and save a key (in the terminal, `/login`), or change `models` in the settings file.
 - `/profile` says "Sub-Sub no longer has profiles": every command is now in the Researcher. If you are in the Librarian, type `/researcher`. To read a paper with guidance, type `/read`. See [Modes and commands](/profiles/).
-- A search tool is "part of the Researcher": type `/researcher`, or select Researcher at the top of the browser view.
+- A command or a search tool is "part of the Researcher": type `/researcher`, or select Researcher at the top of the browser view.
 - `/verify` says that reference checks need Starbuck: turn on "Reference checks (Starbuck)" in the panel on the left of the browser view, or type `subsub init --starbuck on`.
 - Sub-Sub refuses a literature note: the note must say what Sub-Sub read (evidence: full text, abstract or metadata), and it can give page numbers only when it read the full text. A note written from the full text may quote only what the full text says: Sub-Sub compares each quote with the item's text in Zotero. Ask Sub-Sub to correct the note.
 - A review note was "already applied": Sub-Sub does not apply a note twice. To apply it again, ask for it explicitly.
+- Sub-Sub says that it does not draft text for assignments: this is on purpose. Use `/read` to read the papers with guidance, and `/lit reading list:` for a list of works to read. For a manuscript or a thesis, Sub-Sub drafts text when you ask.
+- `/read` with the reason critique says that it read only the abstract: a critique needs the full text. Attach the PDF in Zotero, use Sub-Sub on your institution's network, or type `/request-copy` and the citekey.
+- You deleted a conversation by mistake: Delete moves the file to `~/.subsub/trash`, in the same subfolder as before. Move it back to the same place in `~/.subsub/agent/sessions/`.
 
 ## Papers that are not open access
 

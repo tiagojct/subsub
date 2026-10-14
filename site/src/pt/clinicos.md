@@ -16,11 +16,13 @@ In English: [For clinical researchers](/clinicians/).
 |---|---|---|
 | Saber o que está publicado sobre uma pergunta, para um protocolo ou uma introdução | `/lit` e a pergunta, por exemplo `/lit espirometria em casa em crianças com asma` | Uma nota com a resposta, uma tabela de evidência (desenho, população, resultado, e se o Sub-Sub leu o texto completo), as pesquisas e um registo de triagem |
 | Ler bem um artigo | `/lit-note` e palavras do título do artigo | Uma nota com os pontos principais, os métodos e citações com números de página, cada citação verificada no PDF |
-| Verificar o seu manuscrito face à norma de publicação | `/review` e o ficheiro do manuscrito | Comentários à luz da CONSORT, STROBE, STARD, PRISMA, TRIPOD, CHEERS, SRQR ou COREQ, ao lado do seu ficheiro; o seu texto não muda |
+| Construir uma tabela de extração para uma revisão | `/read extract` e a citekey | Uma nota de leitura com a passagem de cada campo e uma linha na sua folha de extração em `Research/` que diz onde está cada valor; o preenchimento fica a seu cargo |
+| Ler um artigo com espírito crítico, para um clube de revista ou uma revisão por pares | `/read critique` e a citekey | As passagens que importam, secção a secção, com perguntas sobre o risco de viés e a norma de relato a usar; a apreciação fica a seu cargo |
+| Verificar o seu manuscrito face à norma de relato | `/review` e o ficheiro do manuscrito | Comentários à luz da CONSORT, STROBE, STARD, PRISMA, TRIPOD, CHEERS, SRQR ou COREQ, ao lado do seu ficheiro; o seu texto não muda |
 | Verificar as referências antes de submeter | `/verify` e o ficheiro do manuscrito | Para cada referência: existe, o título, o primeiro autor e o ano coincidem, foi retratada ou corrigida |
 | Declarar à revista o uso de IA | `/ai-statement` e para que o usou | Um rascunho de declaração com a versão do Sub-Sub, o seu DOI e o modelo, para completar e colar |
 
-Também pode pedir em linguagem corrente ("procura estudos de coorte recentes sobre FeNO em crianças"). Nos nossos testes, uma nota ou uma revisão levou cerca de {{ modeltest.researcher.models[facts.defaults.researcher].minutes_per_task | num(0) }} minutos de trabalho do Sub-Sub. O seu tempo vai para ler e verificar o que ele escreveu. Estes comandos funcionam no Investigador, o modo por omissão; veja [Modos e comandos](/pt/perfis/). O `/verify` precisa da verificação de referências, que se liga no `subsub init`.
+Também pode pedir em linguagem corrente ("procure estudos de coorte recentes sobre FeNO em crianças"). Nos nossos testes, uma nota ou uma revisão levou cerca de {{ modeltest.researcher.models[facts.defaults.researcher].minutes_per_task | num(0) }} minutos de trabalho do Sub-Sub. O seu tempo vai para ler e verificar o que ele escreveu. Estes comandos funcionam no Investigador, o modo por omissão; veja [Modos e comandos](/pt/perfis/). O `/verify` precisa da verificação de referências, que se liga no `subsub init`.
 
 ## O que não é
 
@@ -41,9 +43,9 @@ Não precisa de etiquetas para começar. O `/lit`, o `/lit-note`, o `/review` e 
 
 Se as suas referências estão no EndNote ou no Mendeley, passe-as primeiro para o Zotero. Os guias do próprio Zotero explicam como: [a partir do EndNote](https://www.zotero.org/support/kb/importing_records_from_endnote) e [a partir do Mendeley](https://www.zotero.org/support/kb/mendeley_import) (em inglês). Depois peça ao Sub-Sub, em linguagem corrente:
 
-1. "Dá-me um resumo da minha biblioteca." Conta os itens, e os que não têm etiquetas nem chaves de citação.
-2. "Procura duplicados." Mostra cada grupo com as suas provas; junta-os no Zotero.
-3. "Corrige os metadados dos itens sem DOI." Mostra cada alteração primeiro.
+1. "Dê-me um resumo da minha biblioteca." Conta os itens, e os que não têm etiquetas nem chaves de citação.
+2. "Procure duplicados." Mostra cada grupo com as suas provas; depois, junte-os no Zotero.
+3. "Corrija os metadados dos itens sem DOI." Mostra cada alteração primeiro.
 
 ## Proteção de dados e ética
 

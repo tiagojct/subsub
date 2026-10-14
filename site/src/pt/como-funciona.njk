@@ -19,7 +19,7 @@ description: O que corre onde, os dois modos, o navegador e o terminal, e aquilo
 	<div class="wrap">
 		<p class="eyebrow">Como se articula</p>
 		<h2>O que corre onde.</h2>
-		<p class="section-lead">Tudo corre no seu computador, exceto o modelo e os serviços online. O modo decide que servidores o Sub-Sub pode usar: o Bibliotecário usa só o zotero; o Investigador usa o zotero, o scholar e o verify.</p>
+		<p class="section-lead">Tudo corre no seu computador, exceto o modelo e os serviços online. O modo decide que servidores o Sub-Sub pode usar: o Bibliotecário usa só o zotero; o Investigador usa o zotero e o scholar, e o verify quando a verificação de referências está ligada.</p>
 		{% include "diagram-pt.njk" %}
 	</div>
 </section>
@@ -28,7 +28,7 @@ description: O que corre onde, os dois modos, o navegador e o terminal, e aquilo
 	<div class="wrap">
 		<p class="eyebrow">Dois modos</p>
 		<h2>O Investigador faz tudo. O Bibliotecário só mantém a biblioteca.</h2>
-		<p class="section-lead">O Investigador é o modo predefinido: investigue um tema e arquive o que encontrar na mesma conversa. Use o Bibliotecário para sessões de etiquetagem com um modelo rápido e barato.</p>
+		<p class="section-lead">O Investigador é o modo por omissão: investigue um tema e arquive o que encontrar na mesma conversa. Use o Bibliotecário para sessões de etiquetagem com um modelo rápido e barato.</p>
 		<div class="modes">
 			<article class="mode researcher">
 				<h3>Investigador</h3>
@@ -37,6 +37,8 @@ description: O que corre onde, os dois modos, o navegador e o terminal, e aquilo
 					<li>Responde a "o que tenho sobre…?" a partir da sua biblioteca, com citekeys.</li>
 					<li>Pesquisa na PubMed, na Europe PMC e no OpenAlex obras que não estão na sua biblioteca.</li>
 					<li>Escreve notas de literatura, sínteses e revisões da literatura com um registo de triagem. Cada nota diz o que o Sub-Sub leu: o texto completo, o resumo ou só os metadados.</li>
+					<li>Orienta a leitura de um artigo (<code>/read</code>): cita as passagens com o sítio onde estão e faz perguntas; as respostas ficam a seu cargo.</li>
+					<li>Só redige texto para um manuscrito ou uma tese quando o pede, e nunca para um trabalho de avaliação.</li>
 					<li>Verifica as referências de um manuscrito com o Starbuck, um complemento opcional.</li>
 					<li>Importa, etiqueta e corrige o que encontra, com uma pré-visualização de cada alteração.</li>
 				</ul>
@@ -63,6 +65,7 @@ description: O que corre onde, os dois modos, o navegador e o terminal, e aquilo
 			<p class="eyebrow">Navegador ou terminal</p>
 			<h2>O mesmo Sub-Sub nos dois.</h2>
 			<p>Abra o Sub-Sub a partir do atalho e ele abre no navegador. Escreva <code>subsub</code> e ele abre no terminal. Os modos e as aprovações são os mesmos.</p>
+			<p>A vista no navegador acrescenta uma pesquisa na biblioteca, um painel de notas que mostra as suas notas ao lado da conversa e botões para os comandos mais usados.</p>
 			<p>A vista no navegador é um pequeno servidor no seu próprio computador. Só escuta em 127.0.0.1 e desliga-se 10 minutos depois de fechar a página.</p>
 		</div>
 <div class="terminal" role="img" aria-label="O Sub-Sub no terminal: mostra a pré-visualização de uma alteração de etiquetas e pergunta Yes ou No.">

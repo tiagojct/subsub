@@ -12,7 +12,7 @@ In English: [For students](/students/).
 
 ## O que é, em palavras simples
 
-Guarda os seus artigos no Zotero, um gestor de referências gratuito. O Sub-Sub é um assistente que trabalha com essa coleção. Pede-lhe as coisas em linguagem corrente, por exemplo "o que tenho sobre asma em crianças?" ou "procura ensaios recentes sobre espirometria em casa". Responde a partir dos seus artigos, procura na PubMed os artigos que não tem e acrescenta ao Zotero os que escolher. Cada nota que escreve diz o que leu: o artigo completo, só o resumo, ou só o título e os autores.
+Guarda os seus artigos no Zotero, um gestor de referências gratuito. O Sub-Sub é um assistente que trabalha com essa coleção. Pede-lhe as coisas em linguagem corrente, por exemplo "o que tenho sobre asma em crianças?" ou "procure ensaios recentes sobre espirometria em casa". Responde a partir dos seus artigos, procura na PubMed os artigos que não tem e acrescenta ao Zotero os que escolher. Cada nota que escreve diz o que leu: o artigo completo, só o resumo, ou só o título e os autores.
 
 O Sub-Sub abre no navegador, como um site, mas corre no seu computador. Fala português e inglês: escolha a língua na configuração.
 
@@ -53,15 +53,15 @@ Na FMUP ou na Universidade do Porto, escolha a configuração "FMUP / U.Porto". 
 
 ## Três coisas para experimentar primeiro
 
-1. Escolha Resumo da biblioteca. O Sub-Sub mostra o que tem na biblioteca.
+1. Selecione Resumo da biblioteca. O Sub-Sub mostra o que tem na biblioteca.
 2. Escreva `/lit reading list:` e um tema, por exemplo `/lit reading list: espirometria em casa em crianças com asma`. Recebe uma lista de leitura: as obras a ler, a ordem em que as deve ler e perguntas para as ler.
-3. Escreva `/read` e a citekey de um artigo, por exemplo `/read smith2021`. Escolha porque vai ler o artigo. Recebe uma nota de leitura: citações com o sítio onde estão e perguntas para responder.
+3. Escreva `/read` e a citekey de um artigo, por exemplo `/read smith2021`. Selecione porque vai ler o artigo. Recebe uma nota de leitura: citações com o sítio onde estão e perguntas para responder. No navegador, também pode pesquisar a biblioteca no painel da esquerda e selecionar Ler ao lado de um artigo.
 
 Depois leia o [Guia](/pt/guia/).
 
 ## Quanto custa
 
-- Para experimentar: nada, com a chave da Google acima. O nível gratuito interrompe as tarefas longas ao fim de alguns minutos. Espere um minuto e peça ao Sub-Sub para continuar.
+- Para experimentar: nada, com a chave da Google acima. O nível gratuito limita o texto enviado por minuto e os pedidos por dia. Quando uma tarefa longa atinge o limite do minuto, o Sub-Sub espera e continua sozinho, até três vezes. Se mesmo assim parar, o limite do dia pode estar esgotado; renova-se no dia seguinte.
 - Para uso regular: uma assinatura do [OpenCode Go]({{ facts.opencodeGo.url }}), cerca de {{ facts.opencodeGo.monthly }} dólares por mês ({{ facts.opencodeGo.firstMonth }} dólares no primeiro mês; preços confirmados em {{ facts.checked | monthYear("pt") }}, por isso confirme as condições atuais no site). Os modelos testados custam cerca de {{ facts.defaultTaskCents }} cêntimos por tarefa, por isso o limite mensal chega bem para um estudante.
 - Para material não publicado ou confidencial: a Mistral, com servidores na União Europeia, ou um serviço de modelos da sua instituição. Veja [Para onde vão os seus dados](/pt/modelos/#para-onde-vao-os-seus-dados).
 
@@ -84,7 +84,7 @@ Os seus artigos ficam no Zotero. As suas notas são ficheiros de texto simples (
 | Citekey | Um nome curto para uma referência, por exemplo `smith2021`. O Sub-Sub usa-o para nomear um artigo numa nota. |
 | Modelo | A IA que escreve as respostas. |
 | Fornecedor (provider) | A empresa onde o modelo corre, por exemplo a Google. |
-| Chave API (API key) | Uma palavra-passe que deixa o Sub-Sub usar a sua conta no fornecedor. Não a partilhe. |
+| Chave de API (API key) | Uma palavra-passe que deixa o Sub-Sub usar a sua conta no fornecedor. Não a partilhe. |
 | Etiqueta (tag) | Uma marca num item do Zotero, por exemplo `topic/asthma`. O Sub-Sub só usa as etiquetas da sua lista. |
 | Terminal | Uma janela onde se escrevem comandos. Precisa dele uma vez, para instalar. Depois, o Sub-Sub abre a partir do atalho. |
 | Markdown | Texto simples com algumas marcas para títulos e listas. As notas do Sub-Sub são ficheiros Markdown. O [Obsidian](https://obsidian.md) mostra-os bem, mas qualquer editor os abre. |

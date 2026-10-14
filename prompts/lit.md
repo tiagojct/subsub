@@ -109,4 +109,4 @@ When the user asks for a reading list (for example `/lit reading list: <topic>`,
 
 "What it studies" says what the work asks and how, never what it found. Do not state results, effect sizes or conclusions anywhere in the note. Then give the user the path, the first work to read and why, and the works worth adding to the library.
 
-Before you answer, read the note back to confirm that it exists. Then give the user the path, the answer in three lines, and the works worth adding to the library (offer to import them).
+Before you answer, read the note back to confirm that it exists. For a review, give the user the path, the answer in three lines, and the works worth adding to the library (offer to import them). For a reading list, give the user what the section above says, with no results.

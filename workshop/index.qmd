@@ -21,7 +21,7 @@ format:
 :::
 
 ::: {.shot}
-![](assets/img/web-view-pt-light.webp){fig-alt="A vista do Sub-Sub no navegador: uma pergunta sobre uma revisão da literatura e a resposta, com as ferramentas que usou."}
+![](assets/img/web-view-pt-light.webp){fig-alt="O Sub-Sub no navegador: uma pergunta sobre a literatura e a resposta, com as ferramentas que usou."}
 :::
 
 ::: notes
@@ -253,7 +253,7 @@ O que sai do computador: para o fornecedor do modelo, as mensagens e as passagen
   <text class="t" x="931" y="105" text-anchor="middle" style="fill:var(--green)">Sim</text>
   <rect class="rust-box" x="988" y="74" width="90" height="46" rx="8"/>
   <text class="t" x="1033" y="105" text-anchor="middle" style="fill:var(--rust)">Não</text>
-  <text class="s" x="886" y="160">decide você</text>
+  <text class="s" x="886" y="160">a decisão é sua</text>
   <path class="ln" d="M1106 105 H1142" marker-end="url(#a2)"/>
 
   <rect class="box" x="1146" y="20" width="240" height="170" rx="12"/>
@@ -269,7 +269,7 @@ O que sai do computador: para o fornecedor do modelo, as mensagens e as passagen
 
 ::: {.cols .mid style="margin-top:0.3em"}
 ::: {.shot .bare}
-![](assets/img/web-approval-pt.webp){fig-alt="A janela de aprovação: uma tabela de itens com as etiquetas a acrescentar a verde, e os botões Sim e Não."}
+![](assets/img/web-approval-pt.webp){fig-alt="A janela de aprovação: dois itens, com as etiquetas a acrescentar a verde e a etiqueta a retirar a vermelho, e os botões Não e Sim."}
 :::
 
 ::: {}
@@ -442,7 +442,7 @@ Roteiro da demonstração (15 min):
 
 ::: {.cols .wide-left .mid}
 ::: {.shot .pins}
-![](assets/img/web-view-pt-light.webp){fig-alt="A vista do Sub-Sub: à esquerda os comandos e as conversas, ao centro a conversa, no topo o modo e o modelo."}
+![](assets/img/web-view-pt-light.webp){fig-alt="A vista do Sub-Sub: à esquerda a pesquisa na biblioteca, os comandos e as conversas, ao centro a conversa, no topo o modo, as Notas e o modelo."}
 
 [1]{.pin style="left:17.5%;top:21%"}
 [2]{.pin style="left:31.6%;top:0.4%"}
@@ -451,10 +451,10 @@ Roteiro da demonstração (15 min):
 
 ::: {.side}
 [[1]{.pin-i} À esquerda]{.h3}
-os comandos mais usados e as conversas anteriores
+a pesquisa na biblioteca, os comandos mais usados e as conversas anteriores
 
 [[2]{.pin-i} Em cima]{.h3}
-o modo (Investigador ou Bibliotecário) e o modelo
+o modo (Investigador ou Bibliotecário), as Notas e o modelo
 
 [[3]{.pin-i} Ao centro]{.h3}
 a conversa, com cada ferramenta que o Sub-Sub usou
@@ -518,7 +518,7 @@ Dar 2 minutos. Circular pela sala. Os problemas mais comuns: o Zotero fechado, o
 :::
 
 ::: {.look}
-**Depois experimente:** [Procura duplicados.]{.say}<br>O Sub-Sub mostra cada grupo com as provas. Junta-os você, no Zotero.
+**Depois experimente:** [Procure duplicados.]{.say}<br>O Sub-Sub mostra cada grupo com as provas. Depois, junte-os no Zotero.
 :::
 :::
 
@@ -575,7 +575,7 @@ Neste exercício nada muda: o resumo e a procura de duplicados só leem. Serve p
   <rect x="820" y="164" width="220" height="8" rx="3" fill="var(--rule)"/>
   <text class="s" x="1120" y="88">O Sub-Sub já comparou</text>
   <text class="s" x="1120" y="114">cada citação com o texto.</text>
-  <text class="s" x="1120" y="140">Confirme você a página.</text>
+  <text class="s" x="1120" y="140">Confirme a página.</text>
 </svg>
 ```
 
@@ -671,7 +671,7 @@ Ler em voz alta um exemplo de declaração. Lembrar que cada revista diz onde a 
 - Abra a fonte de cada afirmação que vai usar.
 - Confirme o campo `evidence:`: o resumo não chega para números.
 - Corra `/verify` nas referências do manuscrito.
-- Escreva as frases você: as notas são material de trabalho.
+- Escreva as frases pelas suas palavras: as notas são material de trabalho.
 - Declare o uso de IA com `/ai-statement`.
 :::
 
@@ -727,7 +727,8 @@ Perguntas. Deixar este diapositivo no ecrã durante as perguntas.
 <div class="cmds">
 <div><p class="cmds-h">Investigação</p><div class="cmd-grid">
 <div><code>/lit</code> <i>pergunta</i></div><span>revisão rápida: biblioteca, PubMed, Europe PMC, OpenAlex</span>
-<div><code>/lit-note</code> <i>título</i></div><span>nota de leitura de um artigo</span>
+<div><code>/lit-note</code> <i>título</i></div><span>nota de literatura de um artigo</span>
+<div><code>/lit reading list:</code> <i>tema</i></div><span>lista de leitura com perguntas, sem resultados</span>
 <div><code>/read</code> <i>citekey</i></div><span>leitura guiada: o Sub-Sub pergunta, o leitor responde</span>
 <div><code>/synthesis</code> <i>tema</i></div><span>síntese da biblioteca sobre um tema</span>
 <div><code>/gaps</code> <i>tema</i></div><span>o que falta sobre um tema</span>

@@ -2,6 +2,12 @@
 
 Sub-Sub follows the version numbers of npm: a change in the second number (0.13) adds features or changes how you use it; a change in the third (0.13.1) only fixes.
 
+## Unreleased
+
+- `/lit reading list:` no longer ends with "the answer in three lines": a reading list states no results, in the reply too.
+- In Portuguese, the browser button for `/lit-note` is now Nota de literatura, so that it is not confused with the reading notes of `/read`.
+- Delete in the browser view keeps the conversation's subfolder in `~/.subsub/trash`, so that moving it back is one step.
+
 ## 0.17.0 (2026-10-14)
 
 For people who are learning to read the literature:

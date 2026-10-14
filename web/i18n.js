@@ -293,7 +293,7 @@ export const ACTIONS = {
 		{ cmd: "lit", en: "Literature review", pt: "Revisão da literatura" },
 		{ cmd: "lit reading list:", en: "Reading list", pt: "Lista de leitura" },
 		{ cmd: "compare", en: "Compare sources", pt: "Comparar fontes" },
-		{ cmd: "lit-note", item: true, en: "Literature note", pt: "Nota de leitura" },
+		{ cmd: "lit-note", item: true, en: "Literature note", pt: "Nota de literatura" },
 		{ cmd: "synthesis", en: "Synthesis", pt: "Síntese" },
 		{ cmd: "gaps", en: "What is missing", pt: "O que falta" },
 		{ cmd: "manuscript", en: "Check a manuscript", pt: "Verificar um manuscrito" },

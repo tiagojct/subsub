@@ -29,10 +29,10 @@ O Sub-Sub não usa fontes sem licença.
 
 ## O serviço de modelos da FMUP
 
-Em breve, a configuração da FMUP vai incluir um serviço de modelos sem custos para si. Até lá, ligue o seu próprio fornecedor do modelo com `/login` (veja [Modelos](/pt/modelos/)).
+Em breve, a configuração da FMUP vai incluir um serviço de modelos sem custos para si. Até lá, ligue o seu próprio fornecedor do modelo com o botão do modelo (no terminal, `/login`; veja [Modelos](/pt/modelos/)).
 
 ## Regras para o uso de IA
 
-O Sub-Sub ajuda a encontrar, organizar e ler a literatura. As regras do seu curso e da faculdade sobre IA aplicam-se ao que entrega.
+O Sub-Sub ajuda a encontrar, organizar e ler a literatura. Não redige texto para trabalhos de avaliação, mesmo que o peça. As regras do seu curso e da faculdade sobre IA aplicam-se ao que entrega.
 
 O [FMUP · IA](https://tiagojacinto.eu/fmup-ia/) é uma proposta de quadro de referência para o uso de IA generativa na FMUP. Inclui o Themis, uma ferramenta que ajuda a escrever a declaração de uso de IA. É uma proposta para apreciação institucional. Ainda não é uma política aprovada pela faculdade.

@@ -9,7 +9,7 @@ lead: Sub-Sub runs on your computer. Your library stays in Zotero. You choose th
 ## What stays on your computer
 
 - Your Zotero library. Sub-Sub reads and changes it only through Zotero's local API on your computer (127.0.0.1). It never uses your zotero.org account.
-- Your notes, your tag list and your settings.
+- Your notes, your tag list, your settings and your conversations (`~/.subsub/agent/sessions`). Delete in the browser view moves a conversation to `~/.subsub/trash`; it does not erase it.
 - The journal of changes (`~/.local/share/zotero-local-mcp`), which `/undo` uses.
 
 Sub-Sub sends no usage data, statistics or crash reports anywhere. It also turns off the install report of pi, the program it is built on.
@@ -18,7 +18,7 @@ For the pilot, you can turn on a usage log (`subsub init`, Usage log). It stays 
 
 ## What goes to the model provider
 
-The AI model runs at the provider you choose. It receives your messages and what the tools return to it: titles, authors, abstracts, tags, and parts of a full text when you ask for a note on it. When you check claims with `/verify <file> claims`, it also receives the citing sentences of your manuscript and the passages of the sources. Choose a provider whose terms suit your material. For confidential work, use an institutional model service or a local model (see [Models](/models/)). Free tiers have their own terms: outside the European Union, the United Kingdom and Switzerland, Google may use prompts sent with a free key to improve its products, and the providers of some free models on OpenRouter may keep prompts.
+The AI model runs at the provider you choose. It receives your messages and what the tools return to it: titles, authors, abstracts, tags, and parts of a full text when you ask for a note on it or read it with `/read`. When you check claims with `/verify <file> claims`, it also receives the citing sentences of your manuscript and the passages of the sources. Choose a provider whose terms suit your material. For confidential work, use an institutional model service or a local model (see [Models](/models/)). Free tiers have their own terms: outside the European Union, the United Kingdom and Switzerland, Google may use prompts sent with a free key to improve its products, and the providers of some free models on OpenRouter may keep prompts.
 
 ## What goes to other services
 
@@ -33,6 +33,7 @@ The AI model runs at the provider you choose. It receives your messages and what
 | Google Books, Internet Archive, Wikidata | Titles, publication names and dates | Finding the reference of a file without a parent item |
 | Brave Search (United States) | Titles, publication names and dates | The same, only when you saved a Brave Search key in `subsub init` |
 | Crossref, DataCite, PubMed, OpenAlex, arXiv, Open Library, Europe PMC | The identifiers and titles of the cited works, and your contact email | Reference checks (Starbuck), only when you turn the add-on on |
+| Zotero web API (api.zotero.org) | An item type, with no account and nothing from your library | Creating an item of a type for which Zotero's local API has no template, once per type |
 | npm, PyPI | Package downloads | Install and update |
 
 These services receive identifiers and search terms, not your notes or your library. If you give a contact email in `subsub init`, every request to them carries it, as these services ask (Unpaywall requires it). Without it, Sub-Sub cannot find open-access PDFs.
@@ -47,7 +48,7 @@ Sub-Sub sends no email. `/request-copy` writes a draft in your Sub-Sub folder; y
 - Processors: the model provider the user chooses, under that provider's terms (see [Where your data goes](/models/#where-your-data-goes)), and the bibliographic services in the table above.
 - Data sent to the model provider: the user's messages, and what the tools return (bibliographic records, abstracts, tags, passages of full texts, passages of the user's manuscript when they check claims). Sub-Sub is not meant for patient data, and it does not look for it.
 - Location: Mistral processes in the European Union; the other providers mostly in the United States or elsewhere. For material that must stay in the EU, use Mistral, an institutional model service, or a local model.
-- Retention: Sub-Sub keeps conversations, notes and the change journal on the user's computer only. Retention at the model provider follows its terms.
+- Retention: Sub-Sub keeps conversations, notes and the change journal on the user's computer only. A conversation deleted in the browser view moves to `~/.subsub/trash` and stays there until the user deletes the file. Retention at the model provider follows its terms.
 - Logs: none sent. The pilot usage log is off unless the user turns it on, stays on the computer and holds no content.
 
 ## Safety

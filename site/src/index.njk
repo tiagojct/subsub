@@ -36,7 +36,7 @@ alt: /pt/
 			<p class="hero-alt">You need Zotero and an account with a model provider; <a href="/models/#use-sub-sub-for-free">a free one is enough to try</a>. <a href="/install/">Install guide</a> · <a href="/guide/">The first half hour</a></p>
 		</div>
 		<figure class="shot hero-shot">
-			<img class="only-light" src="/assets/img/web-view-light.webp?v={{ assetVersion }}" width="1600" height="1100" alt="The Sub-Sub web view. Asked what the library has on home spirometry, Sub-Sub lists four items from the library and three recent works from PubMed that are not in it, and offers to import them.">
+			<img class="only-light" src="/assets/img/web-view-light.webp?v={{ assetVersion }}" width="1600" height="1100" alt="The Sub-Sub web view. On the left, a library search and the action buttons, with Read a paper first. In the middle, asked what the library has on home spirometry, Sub-Sub lists four items from the library and three recent works from PubMed that are not in it, offers to import them, and suggests /read smith2021 to read one with guidance.">
 			<img class="only-dark" src="/assets/img/web-view-dark.webp?v={{ assetVersion }}" width="1600" height="1100" alt="" loading="lazy">
 		</figure>
 	</div>
@@ -59,6 +59,7 @@ alt: /pt/
 			<div class="note-body">
 <pre class="fm">citekey: smith2021
 type: reading-note
+purpose: critique
 evidence: full text</pre>
 				<h3>Smith 2021, Home spirometry in children with asthma</h3>
 				<blockquote><p>"Children did home spirometry twice a day for 12 weeks, with a parent, after one training session in the clinic." <span class="page">p. 3</span></p></blockquote>
@@ -83,7 +84,7 @@ evidence: full text</pre>
 			</ol>
 		</div>
 		<figure class="shot approval-shot">
-			<img class="only-light" src="/assets/img/web-approval.webp?v={{ assetVersion }}" width="1280" height="640" loading="lazy" alt="An approval dialog. It asks: Apply tag items? Two items would change. One gets three new topic tags; the other gets one new tag and loses type/rct. Buttons: No and Yes.">
+			<img class="only-light" src="/assets/img/web-approval.webp?v={{ assetVersion }}" width="1280" height="640" loading="lazy" alt="An approval dialog. It asks: Apply tag items? Two items would change. One gets two topic tags and a type tag; the other gets one new tag and loses type/rct. Buttons: No and Yes.">
 			<img class="only-dark" src="/assets/img/web-approval-dark.webp?v={{ assetVersion }}" width="1280" height="640" loading="lazy" alt="">
 		</figure>
 	</div>
@@ -96,7 +97,7 @@ evidence: full text</pre>
 			<h2>It helps you learn to read the literature.</h2>
 		</div>
 		<div class="prose-block">
-			<p>Type <code>/read</code> and a citekey to read a paper with guidance. Sub-Sub finds the passages and asks questions; you read them and write the answers. For a literature review, type <code>/lit reading list:</code> and your topic. You get the works to read and questions to read them with, and no results.</p>
+			<p>Type <code>/read</code> and a citekey, DOI or PMID to read a paper with guidance. In the browser, select Read a paper, or Read next to a result of the library search. Sub-Sub finds the passages and asks questions; you read them and write the answers. For a literature review, type <code>/lit reading list:</code> and your topic. You get the works to read and questions to read them with, and no results.</p>
 			<p>Sub-Sub does not draft text for your assignments, even when you ask. For a thesis, it drafts text only when you ask, and marks it. The rules of your course about AI still apply.</p>
 			<p>You can try it for free with a Google key, and an empty Zotero library is fine.</p>
 			<p><a href="/students/">For students</a> · <a href="/pt/estudantes/" lang="pt-PT" hreflang="pt-PT">Para estudantes</a></p>
@@ -129,7 +130,7 @@ evidence: full text</pre>
 		</div>
 		<div class="prose-block">
 			<p>Sub-Sub talks to Zotero through its local API and never uses your zotero.org account. It sends no usage data.</p>
-			<p>The model provider that you choose receives your messages and what the tools return: titles, authors, abstracts, and parts of a full text when you ask for a note. PubMed, Europe PMC, OpenAlex, Crossref and Unpaywall receive search terms and identifiers, not your notes.</p>
+			<p>The model provider that you choose receives your messages and what the tools return: titles, authors, abstracts, and parts of a full text when you ask for a note or a guided reading. PubMed, Europe PMC, OpenAlex, Crossref and Unpaywall receive search terms and identifiers, not your notes.</p>
 			<p><a href="/privacy/">What goes where</a></p>
 		</div>
 	</div>

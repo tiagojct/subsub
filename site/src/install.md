@@ -71,7 +71,7 @@ The installer puts everything in `~/.subsub` (on Windows, `.subsub` in your user
 - It installs Node.js 22 in `~/.subsub/node`, if your Node.js is missing or older than 22.19. It checks the download against the checksums that nodejs.org publishes.
 - It installs Sub-Sub (the npm package [@tiagojct/subsub](https://www.npmjs.com/package/@tiagojct/subsub)).
 - It adds `~/.subsub/bin` to your PATH, so that the `subsub` command works in new terminal windows.
-- It starts `subsub init`, which asks a few questions: your name and one line about you, the language, the Sub-Sub folder, the set-up (standard, or FMUP for the Faculty of Medicine in Porto), a starter tag list, a contact email, reference checks (Starbuck), the usage log for the pilot (off by default) and the models. Press Enter to accept each default. At the end, the installer runs `subsub doctor` to check the set-up.
+- It starts `subsub init`, which asks a few questions: your name and one line about you, the language, the Sub-Sub folder, the set-up (standard, or FMUP for the Faculty of Medicine in Porto), a starter tag list, a contact email, a Brave Search key for web search (optional), reference checks (Starbuck), the usage log for the pilot (off by default) and the models. Press Enter to accept each default. At the end, the installer runs `subsub doctor` to check the set-up.
 - It adds a Sub-Sub shortcut (`subsub shortcut`): in Applications on macOS, in the Start menu and on the desktop on Windows, in the applications menu on Linux. The shortcut opens Sub-Sub in your browser.
 - It opens Sub-Sub in your browser.
 
@@ -82,9 +82,9 @@ You can read the installers before you run them: [install.sh](/install.sh) and [
 If your institution manages your computer, give this section to its IT service.
 
 - What it installs: Node.js 22 and uv (open source), and the npm package @tiagojct/subsub, all in the user's folder (`~/.subsub`, or `.subsub` in the user folder on Windows). No administrator rights, no system service, no change to system settings. [What the installer does](#what-the-installer-does).
-- What runs: a Node.js process (Sub-Sub) and two Python processes started by uv (the Zotero servers), only while Sub-Sub is open. The browser view is a local web server on 127.0.0.1 only, with a random key in its address; it stops 10 minutes after the page is closed. Zotero's local connection is on 127.0.0.1 port 23119.
+- What runs: a Node.js process (Sub-Sub) and two Python processes started by uv (the Zotero servers), and a third (Starbuck) when reference checks are on, only while Sub-Sub is open. The browser view is a local web server on 127.0.0.1 only, with a random key in its address; it stops 10 minutes after the page is closed. Zotero's local connection is on 127.0.0.1 port 23119.
 - Downloads at install and update: subsub.tiagojacinto.eu, nodejs.org, astral.sh, registry.npmjs.org, pypi.org and files.pythonhosted.org.
-- Connections during use: the model provider the user chooses (for example opencode.ai, api.mistral.ai, generativelanguage.googleapis.com), and the bibliographic services eutils.ncbi.nlm.nih.gov, www.ebi.ac.uk, api.openalex.org, api.crossref.org, api.unpaywall.org, doi.org and openlibrary.org. Open-access PDFs come from the publishers' and repositories' own sites. The [Privacy](/privacy/) page lists what each service receives.
+- Connections during use: the model provider the user chooses (for example opencode.ai, api.mistral.ai, generativelanguage.googleapis.com), and the bibliographic services eutils.ncbi.nlm.nih.gov, www.ebi.ac.uk, api.openalex.org, api.crossref.org, api.unpaywall.org, doi.org, openlibrary.org and api.zotero.org (blank item templates, no account). To identify files without a parent item: www.googleapis.com (Google Books), archive.org and www.wikidata.org, and api.search.brave.com when the user saved a Brave Search key. With reference checks on, Starbuck also contacts api.datacite.org and export.arxiv.org. Open-access PDFs come from the publishers' and repositories' own sites. The [Privacy](/privacy/) page lists what each service receives.
 - Nothing is sent to the author of Sub-Sub. There is no telemetry.
 - Source code: [github.com/tiagojct/subsub]({{ site.repo }}), MIT licence. Each version is archived on Zenodo (doi:[{{ site.doi }}](https://doi.org/{{ site.doi }})).
 
@@ -122,7 +122,7 @@ Type the install command again. Or, if you installed with npm, type `npm install
 ## Remove
 
 1. Type `subsub shortcut --remove`. This removes the shortcut from Applications, the Start menu or the applications menu, and from the desktop.
-2. Delete the folder `~/.subsub`.
+2. Delete the folder `~/.subsub`. This also deletes your conversations (and the ones in `~/.subsub/trash`) and the saved API keys.
 3. Remove the line that starts with `export PATH` and names `.subsub` from `~/.zshrc`, `~/.bashrc` or `~/.profile`. (On Windows: remove the two `.subsub` entries from your user PATH.)
 4. If you do not want the settings any more, delete `~/.config/subsub` and `~/.config/zotero-local-mcp`. The journal of changes, which `/undo` uses, is in `~/.local/share/zotero-local-mcp`.
 

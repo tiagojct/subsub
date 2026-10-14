@@ -19,7 +19,7 @@ import { randomBytes, timingSafeEqual } from "node:crypto";
 import { createReadStream, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, statSync, writeFileSync, appendFileSync } from "node:fs";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { homedir } from "node:os";
-import { basename, dirname, extname, join, normalize, resolve, sep } from "node:path";
+import { basename, dirname, extname, join, normalize, relative, resolve, sep } from "node:path";
 import { StringDecoder } from "node:string_decoder";
 import { agentDirFor, chooseCwd, PACKAGE_DIR, packageVersion } from "./cli.ts";
 import { configPath, expand, loadConfig, RECOMMENDED_MODELS, readConfigFile, saveConfig, type SubsubConfig, uiLanguage, withStarbuck } from "./config.ts";
@@ -710,10 +710,12 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 					const known = (await sessions()) as Array<{ path: string }>;
 					if (!known.some((x) => x.path === body.path)) return send(res, 404, { error: "no such session" });
 					if (body.path === (await currentSession())) return send(res, 409, { error: "the open conversation" });
-					// Nothing is deleted: the file moves to a trash folder next to the agent folder.
-					const trash = join(dirname(agentDir), "trash");
-					mkdirSync(trash, { recursive: true });
-					renameSync(String(body.path), join(trash, basename(String(body.path))));
+					// Nothing is deleted: the file moves to a trash folder next to the agent folder, in the same
+					// subfolder as under sessions/, so that moving it back is one step.
+					const rel = relative(join(agentDir, "sessions"), String(body.path));
+					const to = join(dirname(agentDir), "trash", rel.startsWith("..") ? basename(rel) : rel);
+					mkdirSync(dirname(to), { recursive: true });
+					renameSync(String(body.path), to);
 					return send(res, 200, { ok: true });
 				}
 				case "POST /api/open": {

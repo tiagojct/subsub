@@ -37,7 +37,7 @@ description: Um assistente de investigação que trabalha a partir da sua biblio
 			<p class="hero-alt">Precisa do Zotero e de uma conta num fornecedor de modelos; <a href="/pt/modelos/#usar-o-sub-sub-sem-pagar">uma conta gratuita chega para experimentar</a>. <a href="/pt/instalar/">Guia de instalação</a> · <a href="/pt/guia/">A primeira meia hora</a></p>
 		</div>
 		<figure class="shot hero-shot">
-			<img class="only-light" src="/assets/img/web-view-pt-light.webp?v={{ assetVersion }}" width="1600" height="1100" alt="A vista no navegador do Sub-Sub. À pergunta sobre o que a biblioteca tem sobre espirometria em casa, o Sub-Sub lista quatro itens da biblioteca e três obras recentes da PubMed que não estão nela, e propõe importá-las.">
+			<img class="only-light" src="/assets/img/web-view-pt-light.webp?v={{ assetVersion }}" width="1600" height="1100" alt="A vista no navegador do Sub-Sub. À esquerda, a pesquisa na biblioteca e os botões das ações, com Ler um artigo em primeiro lugar. Ao centro, à pergunta sobre o que a biblioteca tem sobre espirometria em casa, o Sub-Sub lista quatro itens da biblioteca e três obras recentes da PubMed que não estão nela, propõe importá-las e sugere /read smith2021 para ler um deles com orientação.">
 			<img class="only-dark" src="/assets/img/web-view-pt-dark.webp?v={{ assetVersion }}" width="1600" height="1100" alt="" loading="lazy">
 		</figure>
 	</div>
@@ -60,11 +60,12 @@ description: Um assistente de investigação que trabalha a partir da sua biblio
 			<div class="note-body">
 <pre class="fm">citekey: smith2021
 type: reading-note
+purpose: critique
 evidence: full text</pre>
-				<h3>Smith 2021, Espirometria em casa em crianças com asma</h3>
-				<blockquote><p>"As crianças fizeram espirometria em casa duas vezes por dia durante 12 semanas, com um dos pais, depois de uma sessão de treino na consulta." <span class="page">p. 3</span></p></blockquote>
+				<h3>Smith 2021, Home spirometry in children with asthma</h3>
+				<blockquote><p lang="en">"Children did home spirometry twice a day for 12 weeks, with a parent, after one training session in the clinic." <span class="page">p. 3</span></p></blockquote>
 				<p class="q">Como verificaram os autores a técnica entre as consultas?</p>
-				<blockquote><p>"Das 1140 manobras feitas em casa, 71% cumpriram os critérios de aceitabilidade da ATS/ERS." <span class="page">p. 5</span></p></blockquote>
+				<blockquote><p lang="en">"Of 1,140 home manoeuvres, 71% met the ATS/ERS acceptability criteria." <span class="page">p. 5</span></p></blockquote>
 				<p class="q">Essa taxa manter-se-ia em crianças com menos de seis anos?</p>
 			</div>
 		</figure>
@@ -84,7 +85,7 @@ evidence: full text</pre>
 			</ol>
 		</div>
 		<figure class="shot approval-shot">
-			<img class="only-light" src="/assets/img/web-approval-pt.webp?v={{ assetVersion }}" width="1280" height="640" loading="lazy" alt="Uma janela de aprovação. Pergunta: Confirmar: etiquetar itens? Dois itens vão mudar. Um recebe três etiquetas de tópico novas; o outro recebe uma etiqueta nova e perde type/rct. Botões: Não e Sim.">
+			<img class="only-light" src="/assets/img/web-approval-pt.webp?v={{ assetVersion }}" width="1280" height="640" loading="lazy" alt="Uma janela de aprovação. Pergunta: Confirmar: etiquetar itens? Dois itens vão mudar. Um recebe duas etiquetas de tópico e uma de tipo; o outro recebe uma etiqueta nova e perde type/rct. Botões: Não e Sim.">
 			<img class="only-dark" src="/assets/img/web-approval-pt-dark.webp?v={{ assetVersion }}" width="1280" height="640" loading="lazy" alt="">
 		</figure>
 	</div>
@@ -97,7 +98,7 @@ evidence: full text</pre>
 			<h2>Ajuda a aprender a ler a literatura.</h2>
 		</div>
 		<div class="prose-block">
-			<p>Escreva <code>/read</code> e uma citekey para ler um artigo com orientação. O Sub-Sub encontra as passagens e faz perguntas; a leitura e as respostas ficam a seu cargo. Para uma revisão da literatura, escreva <code>/lit reading list:</code> e o seu tema. Recebe as obras a ler e perguntas para as ler, sem resultados.</p>
+			<p>Escreva <code>/read</code> e uma citekey, um DOI ou um PMID para ler um artigo com orientação. No navegador, selecione Ler um artigo, ou Ler ao lado de um resultado da pesquisa na biblioteca. O Sub-Sub encontra as passagens e faz perguntas; a leitura e as respostas ficam a seu cargo. Para uma revisão da literatura, escreva <code>/lit reading list:</code> e o seu tema. Recebe as obras a ler e perguntas para as ler, sem resultados.</p>
 			<p>O Sub-Sub não redige texto para os seus trabalhos de avaliação, mesmo que o peça. Para uma tese, só redige texto quando o pede, e marca esse texto. As regras do seu curso sobre IA continuam a aplicar-se.</p>
 			<p>Pode experimentá-lo sem pagar, com uma chave da Google, e uma biblioteca do Zotero vazia não é problema.</p>
 			<p><a href="/pt/estudantes/">Para estudantes</a> · <a href="/students/" lang="en" hreflang="en">In English</a></p>
@@ -130,7 +131,7 @@ evidence: full text</pre>
 		</div>
 		<div class="prose-block">
 			<p>O Sub-Sub comunica com o Zotero através da API local e nunca usa a sua conta em zotero.org. Não envia dados de utilização.</p>
-			<p>O fornecedor do modelo que escolher recebe as suas mensagens e o que as ferramentas devolvem: títulos, autores, resumos e partes de um texto completo quando pede uma nota. A PubMed, a Europe PMC, o OpenAlex, a Crossref e o Unpaywall recebem termos de pesquisa e identificadores, não as suas notas.</p>
+			<p>O fornecedor do modelo que escolher recebe as suas mensagens e o que as ferramentas devolvem: títulos, autores, resumos e partes de um texto completo quando pede uma nota ou uma leitura guiada. A PubMed, a Europe PMC, o OpenAlex, a Crossref e o Unpaywall recebem termos de pesquisa e identificadores, não as suas notas.</p>
 			<p><a href="/pt/privacidade/">Para onde vão os dados</a></p>
 		</div>
 	</div>

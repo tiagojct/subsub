@@ -18,7 +18,7 @@ description: What runs where, the two modes, the browser and the terminal, and w
 	<div class="wrap">
 		<p class="eyebrow">How it fits together</p>
 		<h2>What runs where.</h2>
-		<p class="section-lead">Everything except the model and the online services runs on your computer. The mode decides which servers Sub-Sub may use: the Librarian uses zotero only, the Researcher uses zotero, scholar and verify.</p>
+		<p class="section-lead">Everything except the model and the online services runs on your computer. The mode decides which servers Sub-Sub may use: the Librarian uses zotero only; the Researcher uses zotero and scholar, and verify when reference checks are on.</p>
 		{% include "diagram.njk" %}
 	</div>
 </section>
@@ -36,6 +36,8 @@ description: What runs where, the two modes, the browser and the terminal, and w
 					<li>Answers "what do I have on…?" from your library, with citekeys.</li>
 					<li>Searches PubMed, Europe PMC and OpenAlex for works that are not in your library.</li>
 					<li>Writes literature notes, syntheses and literature reviews with a screening log. Each note says what Sub-Sub read: the full text, the abstract or only the metadata.</li>
+					<li>Guides your reading of one paper (<code>/read</code>): it quotes the passages with their place and asks questions; you write the answers.</li>
+					<li>Drafts text for a manuscript or thesis only when you ask, and never for an assignment.</li>
 					<li>Checks the references of a manuscript with Starbuck, an optional add-on.</li>
 					<li>Imports, tags and repairs what it finds, with a preview for each change.</li>
 				</ul>
@@ -62,6 +64,7 @@ description: What runs where, the two modes, the browser and the terminal, and w
 			<p class="eyebrow">Browser or terminal</p>
 			<h2>The same Sub-Sub in both.</h2>
 			<p>Open Sub-Sub from its shortcut and it opens in your browser. Type <code>subsub</code> and it opens in the terminal. The modes and the approvals are the same.</p>
+			<p>The browser view adds a library search, a notes pane that shows your notes next to the conversation, and buttons for the common commands.</p>
 			<p>The browser view is a small server on your own computer. It listens only on 127.0.0.1 and stops 10 minutes after you close the page.</p>
 		</div>
 <div class="terminal" role="img" aria-label="Sub-Sub in the terminal: it shows a preview of a tag change and asks Yes or No.">

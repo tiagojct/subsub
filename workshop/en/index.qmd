@@ -269,7 +269,7 @@ What leaves the computer: to the model provider, the messages and the passages S
 
 ::: {.cols .mid style="margin-top:0.3em"}
 ::: {.shot .bare}
-![](../assets/img/web-approval.webp){fig-alt="The approval dialog: a table of items with the tags to add in green, and the Yes and No buttons."}
+![](../assets/img/web-approval.webp){fig-alt="The approval dialog: two items, with the tags to add in green and the tag to remove in red, and the No and Yes buttons."}
 :::
 
 ::: {}
@@ -442,7 +442,7 @@ Demonstration script (15 min):
 
 ::: {.cols .wide-left .mid}
 ::: {.shot .pins}
-![](../assets/img/web-view-light.webp){fig-alt="The Sub-Sub browser view: commands and conversations on the left, the conversation in the middle, the mode and model at the top."}
+![](../assets/img/web-view-light.webp){fig-alt="The Sub-Sub browser view: a library search, commands and conversations on the left, the conversation in the middle, the mode, Notes and the model at the top."}
 
 [1]{.pin style="left:17.5%;top:21%"}
 [2]{.pin style="left:31.6%;top:0.4%"}
@@ -451,10 +451,10 @@ Demonstration script (15 min):
 
 ::: {.side}
 [[1]{.pin-i} On the left]{.h3}
-the most used commands and your earlier conversations
+a library search, the most used commands and your earlier conversations
 
 [[2]{.pin-i} At the top]{.h3}
-the mode (Researcher or Librarian) and the model
+the mode (Researcher or Librarian), Notes and the model
 
 [[3]{.pin-i} In the middle]{.h3}
 the conversation, with each tool Sub-Sub used
@@ -727,7 +727,8 @@ Questions. Leave this slide on the screen during questions.
 <div class="cmds">
 <div><p class="cmds-h">Research</p><div class="cmd-grid">
 <div><code>/lit</code> <i>question</i></div><span>rapid review: library, PubMed, Europe PMC, OpenAlex</span>
-<div><code>/lit-note</code> <i>title</i></div><span>reading note for one paper</span>
+<div><code>/lit-note</code> <i>title</i></div><span>literature note for one paper</span>
+<div><code>/lit reading list:</code> <i>topic</i></div><span>reading list with questions, no results</span>
 <div><code>/read</code> <i>citekey</i></div><span>guided reading: Sub-Sub asks, the reader answers</span>
 <div><code>/synthesis</code> <i>topic</i></div><span>synthesis of the library on a topic</span>
 <div><code>/gaps</code> <i>topic</i></div><span>what is missing on a topic</span>

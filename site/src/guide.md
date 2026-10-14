@@ -3,7 +3,7 @@ alt: /pt/guia/
 layout: base.njk
 title: Guide
 eyebrow: The first half hour
-lead: Tag your first items, import a paper, write a literature note and undo a change. Start Zotero before Sub-Sub.
+lead: Tag your first items, import a paper, read a paper with guidance, write a literature note and undo a change. Start Zotero before Sub-Sub.
 ---
 
 ## Start
@@ -14,16 +14,16 @@ lead: Tag your first items, import a paper, write a literature note and undo a c
 
 Sub-Sub has two modes. The Researcher is the default. It reads your library, searches the literature, writes notes and also changes the library. The Librarian manages the library only: tags, imports, metadata, PDFs and collections. To change the mode, select Researcher or Librarian at the top. Each mode can have its own model. In both modes, every library change shows a preview first and runs only after you select Yes.
 
-The model button is at the top right. The panel on the left has the most used commands and your earlier conversations. In the Researcher, the commands are in two groups, Research and Library. In the Librarian, only the Library group shows.
+The Notes button and the model button are at the top right. The panel on the left has a library search, the most used commands and your earlier conversations. In the Researcher, the commands are in two groups, Research and Library. In the Librarian, only the Library group shows.
 
 This guide gives the commands that you type. In the browser, most of them are also buttons.
 
 More in the browser:
 
-- Library: type in the search box at the top of the left panel to find items in Zotero. Each result has Read (`/read`), Note (`/lit-note`) and a link that opens the item in Zotero.
+- Library: type in the search box at the top of the left panel to find items in Zotero. In the Researcher, each result has Read (`/read`) and Note (`/lit-note`). Each result also has a link that opens the item in Zotero. The Literature note button puts the cursor in this search box.
 - Notes: select Notes at the top to see the notes in your Sub-Sub folder, newest first. Select a note to read it next to the conversation. Note paths in replies, `[[links]]` and the Open button on a written file also open the note there. Open in app opens it in Obsidian or your Markdown editor.
 - Commands: after you type a command and a space, the box shows what the command needs, for example `<citekey or title words>`.
-- Conversations: point to a conversation in the list to rename it or delete it. Delete moves it to `~/.subsub/trash`, so you can get it back. Export saves the open conversation as a Markdown file, with the tools that Sub-Sub used and their results.
+- Conversations: point to a conversation in the list to rename it or delete it. You cannot delete the open conversation. Delete moves the file to `~/.subsub/trash`, so you can get it back. Export saves the open conversation as a Markdown file in your downloads folder, with the tools that Sub-Sub used and their results.
 
 For a map of the parts (the apps, the servers, the modes and the folders), see [How it works](/how-it-works/).
 
@@ -85,13 +85,13 @@ Undo puts the files back where they were and moves the new items to the Zotero t
 
 `/read` teaches you to read a paper. Sub-Sub finds the passages and asks questions. You read them and write the answers. Sub-Sub does not write results or summaries in this note. Use the Researcher.
 
-1. Type `/read smith2021`, or select Read a paper in the browser.
+1. Type `/read` and a citekey, DOI, PMID or title words, for example `/read smith2021`. In the browser, select Read a paper, or search your library in the left panel and select Read. If the work is not in your library, Sub-Sub reads the open-access text or the abstract and offers to import it.
 2. Select why you read it:
    - Background: the title and the abstract only. You decide to keep or drop the paper.
    - One fact: Sub-Sub asks which fact, then shows the passages that give it.
-   - Extraction: the question, design, population, setting, outcome and main finding, each with its passage. Sub-Sub also adds a row for the paper to your extraction sheet in `Research/`. The row tells you where to find each value; you fill in the values.
-   - Critique: the whole paper, section by section, with questions on the risk of bias and the reporting guideline to check it against.
-3. Open `Literature/smith2021.md` and write your answers under the questions.
+   - Extraction: the question, design, population, setting, outcome and main finding, each with its passage. Sub-Sub asks which extraction sheet in `Research/` to use, or the question of your review for a new sheet (`Research/<slug> extraction.md`). It adds a row for the paper to the sheet. The row tells you where to find each value; you fill in the values.
+   - Critique: the whole paper, section by section, with questions on the risk of bias and the reporting guideline to check it against. If Sub-Sub can read only the abstract, it says so and offers `/request-copy`.
+3. Open `Literature/smith2021.md` and write your answers under the questions. If the note exists (for example from `/lit-note`), Sub-Sub adds a new section at the end and does not change the rest.
 
 To skip the question, put the reason first: `/read extract smith2021`. Read most papers at the background level, and read closely only the few that need it.
 
@@ -100,12 +100,12 @@ To skip the question, put the reason first: `/read extract smith2021`. Read most
 Use the Researcher for this part. The Librarian does not search or write notes.
 
 1. Ask: `What do I have on home spirometry?`. The answer lists citekeys from your library.
-2. Type `/lit-note smith2021`. Sub-Sub reads the full text (or the abstract, and says so) and writes `Literature/smith2021.md` in your Sub-Sub folder.
+2. Type `/lit-note smith2021`, or search your library in the left panel and select Note. Sub-Sub reads the full text (or the abstract, and says so) and writes `Literature/smith2021.md` in your Sub-Sub folder.
 3. Type `/synthesis <topic>` for a note on several items, or `/gaps <topic>` to search PubMed and OpenAlex for works you do not have.
 
 Each literature note says what Sub-Sub read: the full text, the abstract or only the metadata. Page numbers come only from the full text. Sub-Sub refuses a note that breaks this rule.
 
-Sub-Sub drafts text for a manuscript only when you ask, and marks the drafted text. The note formats are in `Zotero/Zotero agent.md`. You can edit them.
+Sub-Sub drafts text for a manuscript or a thesis only when you ask, and marks the drafted text. It does not draft text for assignments, even when you ask. The note formats are in `Zotero/Zotero agent.md`. You can edit them.
 
 ## Review the literature
 
@@ -161,14 +161,14 @@ Sub-Sub does not change the manuscript. Starbuck writes an HTML report in a `_st
 
 ## Your Sub-Sub folder
 
-Sub-Sub keeps its notes and settings in one folder, `Sub-Sub`. Two things go elsewhere: a manuscript review (`/review`) goes next to the manuscript, and a Starbuck report goes in a `_starbuck` folder next to it. By default it is in your Documents folder. If you use Obsidian, `subsub init` puts it inside your vault, and Sub-Sub leaves the rest of the vault alone.
+Sub-Sub keeps its notes and settings in one folder, `Sub-Sub`. By default this folder is in your Documents folder. If you use Obsidian, `subsub init` puts it inside your vault, and Sub-Sub leaves the rest of the vault alone. Two things go elsewhere: a manuscript review (`/review`) goes next to the manuscript, and a Starbuck report goes in a `_starbuck` folder next to it.
 
 | Path | Contents |
 |---|---|
-| `Inbox/` | Review notes, the import queue, proposals |
-| `Literature/` | One note per item, named after the citekey |
+| `Inbox/` | Review notes, the import queue, alerts, proposals, email drafts (`/request-copy`) |
+| `Literature/` | One note per item, named after the citekey: literature notes (`/lit-note`) and reading notes (`/read`) |
 | `Syntheses/` | Notes on several items |
-| `Research/` | Literature reviews, comparisons, digests; plans and screening logs in `Research/.plans/` |
+| `Research/` | Literature reviews, reading lists, comparisons, digests, extraction sheets (`/read extract`), AI statements; plans and screening logs in `Research/.plans/` |
 | `Zotero/Zotero tags.md` | Your tag list |
 | `Zotero/Zotero agent.md` | Note formats and shared rules |
 | `Zotero/Literature alerts.md` | The searches for weekly alerts (optional) |

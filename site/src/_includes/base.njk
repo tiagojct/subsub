@@ -131,7 +131,7 @@
 			<span>Sub-Sub {{ release.version }}</span>
 			<span>zotero-local-mcp {{ release.server }}</span>
 			<span>Starbuck {{ release.starbuck }}</span>
-			<span>pi {{ release.pi | replace("^", "") }}</span>
+			<span>pi {{ release.pi | replace("^", "") | replace("~", "") }}</span>
 		</div>
 	</footer>
 </body>

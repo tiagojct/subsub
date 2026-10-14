@@ -10,7 +10,7 @@ lead: O Sub-Sub corre no seu computador. A sua biblioteca fica no Zotero. Escolh
 ## O que fica no seu computador
 
 - A sua biblioteca do Zotero. O Sub-Sub lê-a e altera-a apenas através da API local do Zotero, no seu computador (127.0.0.1). Nunca usa a sua conta zotero.org.
-- As suas notas, a sua lista de etiquetas e as suas definições.
+- As suas notas, a sua lista de etiquetas, as suas definições e as suas conversas (`~/.subsub/agent/sessions`). Apagar uma conversa na vista no navegador move-a para `~/.subsub/trash`; não a elimina.
 - O registo de alterações (`~/.local/share/zotero-local-mcp`), que o `/undo` usa.
 
 O Sub-Sub não envia dados de utilização, estatísticas nem relatórios de erros para lado nenhum. Também desliga o relatório de instalação do pi, o programa em que se baseia.
@@ -19,7 +19,7 @@ Para o piloto, pode ligar um registo de utilização (`subsub init`, Usage log).
 
 ## O que vai para o fornecedor do modelo
 
-O modelo de IA corre no fornecedor que escolher. Recebe as suas mensagens e o que as ferramentas lhe devolvem: títulos, autores, resumos, etiquetas e partes de um texto completo quando pede uma nota sobre ele. Quando verifica afirmações com `/verify <file> claims`, recebe também as frases do seu manuscrito que citam e as passagens das fontes. Escolha um fornecedor cujos termos sirvam o seu material. Para trabalho confidencial, use um serviço de modelos institucional ou um modelo local (veja [Modelos](/pt/modelos/)). Os níveis gratuitos têm os seus próprios termos: fora da União Europeia, do Reino Unido e da Suíça, a Google pode usar os pedidos enviados com uma chave gratuita para melhorar os seus produtos, e os fornecedores de alguns modelos gratuitos do OpenRouter podem guardar os pedidos.
+O modelo de IA corre no fornecedor que escolher. Recebe as suas mensagens e o que as ferramentas lhe devolvem: títulos, autores, resumos, etiquetas e partes de um texto completo quando pede uma nota sobre ele ou o lê com o `/read`. Quando verifica afirmações com `/verify <file> claims`, recebe também as frases do seu manuscrito que citam e as passagens das fontes. Escolha um fornecedor cujos termos sirvam o seu material. Para trabalho confidencial, use um serviço de modelos institucional ou um modelo local (veja [Modelos](/pt/modelos/)). Os níveis gratuitos têm os seus próprios termos: fora da União Europeia, do Reino Unido e da Suíça, a Google pode usar os pedidos enviados com uma chave gratuita para melhorar os seus produtos, e os fornecedores de alguns modelos gratuitos do OpenRouter podem guardar os pedidos.
 
 ## O que vai para outros serviços
 
@@ -34,6 +34,7 @@ O modelo de IA corre no fornecedor que escolher. Recebe as suas mensagens e o qu
 | Google Books, Internet Archive, Wikidata | Títulos, nomes de publicações e datas | Encontrar a referência de um ficheiro sem item principal |
 | Brave Search (Estados Unidos) | Títulos, nomes de publicações e datas | O mesmo, apenas se guardou uma chave do Brave Search no `subsub init` |
 | Crossref, DataCite, PubMed, OpenAlex, arXiv, Open Library, Europe PMC | Os identificadores e os títulos das obras citadas, e o seu email de contacto | Verificação de referências (Starbuck), apenas se ligar o complemento |
+| API web do Zotero (api.zotero.org) | Um tipo de item, sem conta e sem nada da sua biblioteca | Criar um item de um tipo para o qual a API local do Zotero não tem modelo, uma vez por tipo |
 | npm, PyPI | Transferência de pacotes | Instalação e atualização |
 
 Estes serviços recebem identificadores e termos de pesquisa, não as suas notas nem a sua biblioteca. Se indicar um email de contacto no `subsub init`, cada pedido a estes serviços leva-o, como eles pedem (o Unpaywall exige-o). Sem ele, o Sub-Sub não consegue encontrar PDF de acesso aberto.
@@ -48,7 +49,7 @@ O Sub-Sub não envia emails. O `/request-copy` escreve um rascunho na sua pasta 
 - Subcontratantes: o fornecedor do modelo que o utilizador escolhe, nos termos desse fornecedor (veja [Para onde vão os seus dados](/pt/modelos/#para-onde-vao-os-seus-dados)), e os serviços bibliográficos da tabela acima.
 - Dados enviados ao fornecedor do modelo: as mensagens do utilizador e o que as ferramentas devolvem (registos bibliográficos, resumos, etiquetas, passagens de textos completos, passagens do manuscrito do utilizador quando verifica afirmações). O Sub-Sub não se destina a dados de doentes, nem os procura.
 - Localização: a Mistral trata os dados na União Europeia; os outros fornecedores sobretudo nos Estados Unidos ou noutros países. Para material que tem de ficar na UE, use a Mistral, um serviço de modelos da instituição ou um modelo local.
-- Conservação: o Sub-Sub guarda as conversas, as notas e o registo de alterações apenas no computador do utilizador. A conservação no fornecedor do modelo segue os termos deste.
+- Conservação: o Sub-Sub guarda as conversas, as notas e o registo de alterações apenas no computador do utilizador. Uma conversa apagada na vista no navegador passa para `~/.subsub/trash` e fica lá até o utilizador apagar o ficheiro. A conservação no fornecedor do modelo segue os termos deste.
 - Registos: nenhum é enviado. O registo de utilização do piloto está desligado, a menos que o utilizador o ligue, fica no computador e não contém conteúdo.
 
 ## Segurança

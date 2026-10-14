@@ -10,7 +10,7 @@ import { spawn, type ChildProcess } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, symlinkSync, writeFileSync } from "node:fs";
 import { createServer, request as httpRequest, type Server } from "node:http";
 import { homedir, tmpdir } from "node:os";
-import { basename, dirname, join } from "node:path";
+import { dirname, join, relative } from "node:path";
 import { after, before, test } from "node:test";
 import { fileURLToPath } from "node:url";
 
@@ -616,7 +616,7 @@ test("the web view: the page answers Sub-Sub's approval; other sites and hosts a
 		await stream.wait((e) => e.type === "agent_settled", 90_000, mark5);
 		assert.equal((await call(port, "POST", "/api/session/trash", { headers: ok, body: { path: cur } })).status, 200);
 		assert.ok(!JSON.parse((await call(port, "GET", "/api/sessions", { headers: ok })).body).sessions.some((x: any) => x.path === cur));
-		assert.ok(existsSync(join(home, ".subsub", "trash", basename(cur))));
+		assert.ok(existsSync(join(home, ".subsub", "trash", relative(join(agentDir, "sessions"), cur))), "same subfolder as under sessions/");
 
 		// Reference checks: the toggle saves the setting and restarts pi with the verify server.
 		if (existsSync(join(STARBUCK, ".venv"))) {

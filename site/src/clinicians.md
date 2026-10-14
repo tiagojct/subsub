@@ -15,6 +15,8 @@ Em português: [Para investigadores clínicos](/pt/clinicos/).
 |---|---|---|
 | Know what is published on a question, for a protocol or a background section | `/lit` and the question, for example `/lit home spirometry in children with asthma` | A note with the answer, an evidence table (design, population, finding, and whether Sub-Sub read the full text), the searches and a screening log |
 | Read one paper well | `/lit-note` and the paper's title words | A note with the key points, the methods and quotes with page numbers, each quote checked against the PDF |
+| Build an extraction table for a review | `/read extract` and the citekey | A reading note with the passage for each field, and a row in your extraction sheet in `Research/` that says where each value is; you fill in the values |
+| Appraise one paper closely, for a journal club or a peer review | `/read critique` and the citekey | The passages that matter, section by section, with questions on the risk of bias and the reporting guideline to check; you write the appraisal |
 | Check your manuscript against the reporting guideline | `/review` and the manuscript file | Comments against CONSORT, STROBE, STARD, PRISMA, TRIPOD, CHEERS, SRQR or COREQ, next to your file; your text does not change |
 | Check the references before you submit | `/verify` and the manuscript file | For each reference: does it exist, do the title, first author and year match, was it retracted or corrected |
 | Declare the use of AI to the journal | `/ai-statement` and what you used it for | A draft statement with the Sub-Sub version, its DOI and the model, to complete and paste |

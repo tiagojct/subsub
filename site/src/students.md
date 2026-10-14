@@ -13,7 +13,7 @@ Em português: [Para estudantes](/pt/estudantes/).
 
 You keep your papers in Zotero, a free reference manager. Sub-Sub is an assistant that works with that collection. You ask it in plain language, for example "what do I have on asthma in children?" or "find recent trials on home spirometry". It answers from your papers, searches PubMed for papers you do not have, and adds the ones you choose to Zotero. Each note it writes says what it read: the full paper, only the abstract, or only the title and authors.
 
-Sub-Sub opens in your web browser, like a website, but it runs on your own computer. It speaks Portuguese and English.
+Sub-Sub opens in your web browser, like a website, but it runs on your own computer. It speaks Portuguese and English: choose the language in the set-up.
 
 ## What it does not do
 
@@ -21,7 +21,7 @@ Sub-Sub opens in your web browser, like a website, but it runs on your own compu
 - It does not replace reading the paper. A note from a free model can be thin. Check each quote against the page before you use it.
 - It does not change your Zotero library without asking. You see every change first and select Yes or No. You can undo it later.
 
-The rules of your course and of your faculty about AI apply to what you hand in, whatever Sub-Sub does. If you are not sure, ask your teacher before you use it for graded work.
+The rules of your course and of your faculty about AI apply to what you hand in, whatever Sub-Sub does. If you are not sure, ask your teacher before you use it for graded work. At FMUP, see also [Rules for the use of AI](/fmup/#rules-for-the-use-of-ai), with Themis, which helps you write a declaration of AI use.
 
 ## Is it for me?
 
@@ -54,13 +54,13 @@ At FMUP or the University of Porto, select the "FMUP / U.Porto" set-up. See [FMU
 
 1. Select Library overview. Sub-Sub shows what is in your library.
 2. Type `/lit reading list:` and a topic, for example `/lit reading list: home spirometry in children with asthma`. You get a reading list: the works to read, the order to read them in, and questions to read them with.
-3. Type `/read` and the citekey of a paper, for example `/read smith2021`. Select why you read it. You get a reading note: quotes with their place, and questions for you to answer.
+3. Type `/read` and the citekey of a paper, for example `/read smith2021`. Select why you read it. You get a reading note: quotes with their place, and questions for you to answer. In the browser, you can also search your library in the left panel and select Read next to a paper.
 
 Then read the [Guide](/guide/).
 
 ## What it costs
 
-- To try it: free, with the Google key above. The free tier stops long tasks after a few minutes. Wait a minute, then ask Sub-Sub to continue.
+- To try it: free, with the Google key above. The free tier limits the text sent each minute and the requests each day. When a long task reaches the limit for the minute, Sub-Sub waits and continues by itself, up to three times. If it still stops, the limit for the day may be used up; it resets the next day.
 - For regular use: an [OpenCode Go]({{ facts.opencodeGo.url }}) subscription, about {{ facts.opencodeGo.monthly }} dollars a month ({{ facts.opencodeGo.firstMonth }} dollars the first month; prices checked {{ facts.checked | monthYear }}, so check the current terms there). The tested models cost about {{ facts.defaultTaskCents }} cents a task, so the monthly allowance is much more than a student uses.
 - For unpublished or confidential material: Mistral, with servers in the European Union, or a model service of your institution. See [Where your data goes](/models/#where-your-data-goes).
 

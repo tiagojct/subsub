@@ -13,10 +13,10 @@ export default function (eleventyConfig) {
 	eleventyConfig.addPassthroughCopy({ "src/install.sh": "install.sh" });
 	eleventyConfig.addPassthroughCopy({ "src/install.ps1": "install.ps1" });
 
-	// A short hash of the styles and scripts, appended to their URLs as ?v=, so that
+	// A short hash of the styles, scripts and images, appended to their URLs as ?v=, so that
 	// Cloudflare or a browser never serves an old copy after a deploy.
 	const hash = createHash("sha256");
-	for (const dir of ["src/assets/css", "src/assets/js"]) {
+	for (const dir of ["src/assets/css", "src/assets/js", "src/assets/img"]) {
 		for (const f of fs.readdirSync(path.join(ROOT, dir)).sort()) hash.update(fs.readFileSync(path.join(ROOT, dir, f)));
 	}
 	eleventyConfig.addGlobalData("assetVersion", hash.digest("hex").slice(0, 10));
