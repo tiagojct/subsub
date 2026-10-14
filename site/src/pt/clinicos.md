@@ -20,13 +20,13 @@ In English: [For clinical researchers](/clinicians/).
 | Verificar as referências antes de submeter | `/verify` e o ficheiro do manuscrito | Para cada referência: existe, o título, o primeiro autor e o ano coincidem, foi retratada ou corrigida |
 | Declarar à revista o uso de IA | `/ai-statement` e para que o usou | Um rascunho de declaração com a versão do Sub-Sub, o seu DOI e o modelo, para completar e colar |
 
-Também pode pedir em linguagem corrente ("procura estudos de coorte recentes sobre FeNO em crianças"). Nos nossos testes, uma nota ou uma revisão levou cerca de {{ modeltest.researcher.models[facts.defaults.researcher].minutes_per_task | num(0) }} minutos de trabalho do Sub-Sub. O seu tempo vai para ler e verificar o que ele escreveu. O `/review` precisa do perfil Author ou Editor; veja [Perfis](/pt/perfis/). O `/verify` precisa da verificação de referências, que se liga no `subsub init`.
+Também pode pedir em linguagem corrente ("procura estudos de coorte recentes sobre FeNO em crianças"). Nos nossos testes, uma nota ou uma revisão levou cerca de {{ modeltest.researcher.models[facts.defaults.researcher].minutes_per_task | num(0) }} minutos de trabalho do Sub-Sub. O seu tempo vai para ler e verificar o que ele escreveu. Estes comandos funcionam no Investigador, o modo por omissão; veja [Modos e comandos](/pt/perfis/). O `/verify` precisa da verificação de referências, que se liga no `subsub init`.
 
 ## O que não é
 
 - Não é uma revisão sistemática. O `/lit` é uma revisão rápida: a triagem é feita por uma IA, sem segundo revisor e sem avaliação formal do risco de viés. Cada nota diz isso. Use-o para delimitar uma pergunta ou como primeira pesquisa; numa revisão sistemática, faça a triagem em duplicado, avalie o risco de viés e relate segundo a PRISMA.
 - Não se destina a dados de doentes, nem é apoio à decisão clínica. Trabalha sobre publicações.
-- Não escreve o seu artigo, a menos que escolha o perfil Editor e o peça. Mesmo assim, verifique e reescreva cada linha.
+- Não escreve o seu artigo, a menos que o peça. Nesse caso, marca o texto redigido; verifique e reescreva cada linha.
 - Não substitui o seu juízo. Mostra o que leu; é o investigador que decide o que a evidência quer dizer.
 
 ## Instalar no seu computador

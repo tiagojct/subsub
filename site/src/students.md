@@ -4,7 +4,7 @@ layout: base.njk
 title: For students
 eyebrow: New to Zotero or to AI tools
 description: What Sub-Sub is for a student, what it does not do, how to start for free, and the words you will meet.
-lead: Sub-Sub helps you find, organise and read papers. It does not write your work. You can try it for free.
+lead: Sub-Sub helps you find, organise and read papers. It drafts text for your work only when you ask. You can try it for free.
 ---
 
 Em português: [Para estudantes](/pt/estudantes/).
@@ -17,7 +17,7 @@ Sub-Sub opens in your web browser, like a website, but it runs on your own compu
 
 ## What it does not do
 
-- It does not write your assignments or your thesis. Students start with the Reader profile: Sub-Sub gives you quotes with page numbers and questions to answer as you read, and a reading list for a literature review. It does not write summaries or conclusions that you could hand in.
+- It does not write your assignments or your thesis on its own. It drafts text only when you ask, and marks the drafted text. To learn to read papers, use `/read`: Sub-Sub gives you quotes with their place and questions to answer as you read. For a literature review, `/lit reading list:` gives you the works to read and questions to read them with, and no results.
 - It does not replace reading the paper. A note from a free model can be thin. Check each quote against the page before you use it.
 - It does not change your Zotero library without asking. You see every change first and select Yes or No. You can undo it later.
 
@@ -45,7 +45,7 @@ You need a computer with macOS, Windows or Linux, and about 15 minutes.
 2. In Zotero, open Settings > Advanced. Turn on "Allow other applications on this computer to communicate with Zotero".
 3. Get a free Google key. Open [aistudio.google.com/apikey](https://aistudio.google.com/apikey), sign in and select "Create API key". Copy the key. Google does not ask for a card. You must be 18 or older.
 4. Install Sub-Sub with the command on the [Install](/install/) page. If the command looks strange, read [About the install command](/install/#about-the-install-command) first.
-5. Answer the questions. When Sub-Sub asks who you are, select "A student". In Models, select "Free, to try Sub-Sub" and paste the key.
+5. Answer the questions. In Models, select "Free, to try Sub-Sub" and paste the key.
 6. Sub-Sub opens in your browser. Make sure that the top of the page shows the number of items in your Zotero library.
 
 At FMUP or the University of Porto, select the "FMUP / U.Porto" set-up. See [FMUP](/fmup/).
@@ -53,8 +53,8 @@ At FMUP or the University of Porto, select the "FMUP / U.Porto" set-up. See [FMU
 ## Three things to try first
 
 1. Select Library overview. Sub-Sub shows what is in your library.
-2. Type `/lit` and a question, for example `/lit home spirometry in children with asthma`. You get a reading list: the works to read, the order to read them in, and questions to read them with.
-3. Type `/lit-note` and the citekey of a paper. You get a reading note: quotes with page numbers, and a question under each quote.
+2. Type `/lit reading list:` and a topic, for example `/lit reading list: home spirometry in children with asthma`. You get a reading list: the works to read, the order to read them in, and questions to read them with.
+3. Type `/read` and the citekey of a paper, for example `/read smith2021`. Select why you read it. You get a reading note: quotes with their place, and questions for you to answer.
 
 Then read the [Guide](/guide/).
 
@@ -87,4 +87,4 @@ Your papers stay in Zotero. Your notes are plain text files (Markdown) in a fold
 | Tag | A label on an item in Zotero, for example `topic/asthma`. Sub-Sub uses only the tags in your tag list. |
 | Terminal | A window where you type commands. You need it once, to install. After that, Sub-Sub opens from its shortcut. |
 | Markdown | Plain text with a few marks for headings and lists. Sub-Sub's notes are Markdown files. [Obsidian](https://obsidian.md) shows them well, but any editor opens them. |
-| Profile | How much Sub-Sub writes for you. Students start with Reader. See [Profiles](/profiles/). |
+| Mode | What Sub-Sub works on. The Researcher reads, searches, writes notes and changes the library. The Librarian only manages the library. See [Modes and commands](/profiles/). |

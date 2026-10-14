@@ -15,11 +15,11 @@ lead: Etiquete os seus primeiros itens, importe um artigo, escreva uma nota de l
 
 O Sub-Sub tem dois modos. O Investigador é o modo por omissão. Lê a sua biblioteca, pesquisa a literatura, escreve notas e também altera a biblioteca. O Bibliotecário só gere a biblioteca: etiquetas, importações, metadados, PDF e coleções. Para mudar de modo, selecione Investigador ou Bibliotecário no topo. Cada modo pode ter o seu próprio modelo. Nos dois modos, cada alteração à biblioteca mostra primeiro uma pré-visualização e só é feita depois de selecionar Sim.
 
-O menu do perfil e o botão do modelo estão no canto superior direito. O painel da esquerda tem os comandos mais usados e as suas conversas anteriores. No modo Investigador, os comandos estão em dois grupos, Investigação e Biblioteca. No modo Bibliotecário, só aparece o grupo Biblioteca.
+O botão do modelo está no canto superior direito. O painel da esquerda tem os comandos mais usados e as suas conversas anteriores. No modo Investigador, os comandos estão em dois grupos, Investigação e Biblioteca. No modo Bibliotecário, só aparece o grupo Biblioteca.
 
 Este guia dá os comandos que escreve. No navegador, a maior parte deles também são botões.
 
-Para um mapa das partes (as aplicações, os servidores, os modos, os perfis e as pastas), veja [Como funciona](/pt/como-funciona/).
+Para um mapa das partes (as aplicações, os servidores, os modos e as pastas), veja [Como funciona](/pt/como-funciona/).
 
 ### No terminal
 
@@ -98,7 +98,7 @@ Use o modo Investigador nesta parte. O modo Bibliotecário não pesquisa nem esc
 
 Cada nota de literatura diz o que o Sub-Sub leu: o texto completo, o resumo ou apenas os metadados. Os números de página vêm apenas do texto completo. O Sub-Sub recusa uma nota que não cumpra esta regra.
 
-O que o Sub-Sub escreve depende do seu [perfil](/pt/perfis/). Os formatos das notas estão em `Zotero/Zotero agent.md`. Pode editá-los.
+O Sub-Sub só redige texto para um manuscrito quando o pede, e marca o texto redigido. Os formatos das notas estão em `Zotero/Zotero agent.md`. Pode editá-los.
 
 ## Rever a literatura
 
@@ -111,15 +111,17 @@ O que o Sub-Sub escreve depende do seu [perfil](/pt/perfis/). Os formatos das no
 
 O `/lit` é uma revisão rápida, não uma revisão sistemática: a triagem é feita por uma IA, sem segundo revisor, sem protocolo registado e sem avaliação formal do risco de viés. Cada nota diz isso numa secção, "What this review is". Use-o para delimitar uma pergunta, para uma secção de introdução ou como primeira pesquisa. Para uma revisão sistemática, parta das suas pesquisas e do registo de triagem, e depois faça a triagem em duplicado, avalie o risco de viés e relate segundo a PRISMA.
 
+Para receber uma lista de leitura em vez de uma revisão, escreva `/lit reading list:` e o seu tema, por exemplo `/lit reading list: espirometria em casa em crianças com asma`. No navegador, selecione Lista de leitura. O Sub-Sub pesquisa e faz a triagem da mesma forma. Depois escreve as obras a ler, a ordem em que as deve ler e perguntas para ler cada uma. Não apresenta resultados.
+
 Outros comandos de investigação:
 
 - `/compare <pergunta ou citekeys>` escreve uma matriz de fontes: para cada fonte, a afirmação, o tipo de evidência, as ressalvas e o grau de confiança.
 - `/review <ficheiro>` comenta o seu próprio manuscrito à luz da norma de publicação que se aplica: CONSORT, STROBE, PRISMA, STARD, TRIPOD, CHEERS, ou SRQR ou COREQ. Escreve apenas comentários, ao lado do manuscrito, em `<nome>-review.md`, e não altera o manuscrito.
 - `/digest [dias] [tema]` resume os alertas e as notas dos últimos dias (7 por omissão).
-- `/ai-statement [para que o usou]` escreve um rascunho da declaração sobre o uso de IA que as revistas pedem, com a versão do Sub-Sub, o seu DOI e os seus modelos, em `Research/`. Complete as partes entre parênteses retos. Funciona em todos os perfis.
+- `/ai-statement [para que o usou]` escreve um rascunho da declaração sobre o uso de IA que as revistas pedem, com a versão do Sub-Sub, o seu DOI e os seus modelos, em `Research/`. Complete as partes entre parênteses retos. Funciona nos dois modos.
 - `/request-copy <citekey, DOI ou PMID>` prepara um rascunho de email para o autor correspondente, a pedir uma cópia de um artigo que não está em acesso aberto. O endereço vem do registo da PubMed. O Sub-Sub escreve o rascunho em `Inbox/`; depois, envie-o.
 
-Alguns perfis não executam todos estes comandos. Veja [Perfis](/pt/perfis/).
+Para os comandos de cada modo, veja [Modos e comandos](/pt/perfis/).
 
 ## Verificar referências
 
@@ -137,7 +139,6 @@ O Sub-Sub não altera o manuscrito. O Starbuck escreve um relatório HTML numa p
 | Comando | O que faz |
 |---|---|
 | `/librarian`, `/researcher` | Muda de modo (cada modo pode ter o seu próprio modelo) |
-| `/profile` | Mostra ou muda o perfil |
 | `/subsub` | Ligação ao Zotero e resumo da biblioteca |
 | `/history`, `/undo` | Alterações recentes; anular uma delas |
 | `/ai-statement [usos]` | Um rascunho da declaração sobre o uso de IA para um manuscrito |
@@ -145,6 +146,7 @@ O Sub-Sub não altera o manuscrito. O Starbuck escreve um relatório HTML numa p
 | `/tag-batch [tamanho]`, `/clean-tags`, `/import-queue` | Tarefas predefinidas da biblioteca (os dois modos) |
 | `/lit-note <citekey>`, `/synthesis <tema>`, `/gaps <tema>`, `/manuscript <ficheiro>`, `/alert` | Tarefas predefinidas de investigação (Investigador) |
 | `/lit <pergunta>`, `/compare <pergunta>`, `/review <ficheiro>`, `/digest [dias]`, `/request-copy <citekey>` | Tarefas predefinidas de investigação (Investigador) |
+| `/lit reading list: <tema>` | Uma lista de leitura com perguntas para orientar a leitura, sem resultados (Investigador) |
 | `/verify <ficheiro> [claims]` | Verificação de referências (Investigador; precisa do Starbuck) |
 | `subsub -c`, `subsub -r` | Continua a última sessão; seleciona uma sessão anterior (terminal) |
 | `subsub web` | Abre o Sub-Sub no navegador |

@@ -1,70 +1,62 @@
 ---
 alt: /pt/perfis/
 layout: base.njk
-title: Profiles
-eyebrow: How much Sub-Sub does
-lead: A profile sets what Sub-Sub writes for you and which tools it offers. The names describe the work, not the person.
+title: Modes and commands
+eyebrow: What each mode does
+lead: Sub-Sub has two modes. The Researcher has every command and tool. The Librarian manages the library only.
 ---
 
-A profile applies in both modes, the Researcher and the Librarian. It changes two things. For research, it sets what Sub-Sub writes for you. For library changes, only the Reader profile is different: it has no bulk changes and smaller batches. Scholar, Author and Editor make the same library changes.
+The mode sets which tools Sub-Sub may use. The Researcher is the default: it reads your library, searches the literature, writes notes and also changes the library. Use the Librarian for tagging sessions with a fast, cheap model. Each mode can have its own model.
 
-## Research (Researcher)
+To change the mode, select Researcher or Librarian at the top of the browser view. In the terminal, type `/researcher` or `/librarian`.
 
-| | Reader | Scholar | Author | Editor |
-|---|---|---|---|---|
-| Explains each step | yes | | | |
-| Reading notes: quotes with page numbers, and questions for you | yes | yes | yes | yes |
-| Summaries, literature notes, syntheses | | yes | yes | yes |
-| Literature search with a screening log (`/lit`) | reading list | review | review | review |
-| Comparisons and digests (`/compare`, `/digest`) | | yes | yes | yes |
-| Reference checks with Starbuck (`/verify`) | yes | yes | yes | yes |
-| Draft email to ask an author for a copy (`/request-copy`) | yes | yes | yes | yes |
-| Citation check and bibliography for a manuscript | | | yes | yes |
-| Comments on the argument of a manuscript | | | yes | yes |
-| Review of a manuscript against a reporting guideline (`/review`) | | | yes | yes |
-| Drafted text for a manuscript, when you ask | | | | yes |
+## Research
 
-## Library (both modes)
+| | Researcher | Librarian |
+|---|---|---|
+| Guided reading of one paper (`/read`) | yes | |
+| Reading list with questions to read with (`/lit reading list:`) | yes | |
+| Literature notes and syntheses (`/lit-note`, `/synthesis`) | yes | |
+| Literature review with a screening log (`/lit`) | yes | |
+| Works that you do not have, new publications (`/gaps`, `/alert`) | yes | |
+| Comparisons and digests (`/compare`, `/digest`) | yes | |
+| Citation check and bibliography for a manuscript (`/manuscript`) | yes | |
+| Review of a manuscript against a reporting guideline (`/review`) | yes | |
+| Reference checks with Starbuck (`/verify`) | yes | |
+| Draft email to ask an author for a copy (`/request-copy`) | yes | |
+| Drafted text for a manuscript, when you ask | yes | |
 
-| | Reader | Scholar | Author | Editor |
-|---|---|---|---|---|
-| Explains each step | yes | | | |
-| Tag items, with tags from your tag list | yes | yes | yes | yes |
-| Import by DOI, PMID or ISBN | yes | yes | yes | yes |
-| Attach open-access PDFs, add notes, file items in collections, set citekeys | yes | yes | yes | yes |
-| Find duplicates, check retractions, check tags and metadata | yes | yes | yes | yes |
-| Rename or remove tags, remove automatic tags | | yes | yes | yes |
-| Edit fields, repair metadata | | yes | yes | yes |
-| Move items to the Zotero trash | | yes | yes | yes |
-| Items per tag review note | 10 | 25 | 25 | 25 |
+## Library
 
-In both modes and in every profile, each library change shows a preview first and runs only after you select Yes. `/history` and `/undo` work in every profile.
+| | Researcher | Librarian |
+|---|---|---|
+| Tag items, with tags from your tag list (`/tag-batch`, `/clean-tags`) | yes | yes |
+| Import by DOI, PMID or ISBN (`/import-queue`) | yes | yes |
+| Attach open-access PDFs, add notes, file items in collections, set citekeys | yes | yes |
+| Find duplicates, check retractions, check tags and metadata | yes | yes |
+| Rename or remove tags, remove automatic tags | yes | yes |
+| Edit fields, repair metadata | yes | yes |
+| Move items to the Zotero trash | yes | yes |
 
-## Reader
+`/subsub`, `/history`, `/undo` and `/ai-statement` work in both modes. In both modes, each library change shows a preview first and runs only after you select Yes.
 
-For someone who wants to do the reading and the writing: a student who is new to a field, or anyone who starts in a new area. Sub-Sub says what it will do before each step. A reading note has the reference, direct quotes with page numbers, and under each quote a question for you to answer. Sub-Sub does not write summaries or text that you could hand in as your own.
+## Tools
 
-`/lit` in Reader gives a reading list, not a review. Sub-Sub plans the search, searches your library and PubMed, Europe PMC and OpenAlex, screens the results and keeps the screening log, as in the other profiles. Then it writes the works to read, the order to read them in, one line on what each work studies (not what it found), and questions to read each one with. It does not state results or conclusions.
+The Librarian uses one server, zotero: the library tools. The Researcher uses zotero and scholar (searches of PubMed, Europe PMC and OpenAlex, full texts, notes and manuscripts). If you turn on Starbuck, the Researcher also uses verify, for reference checks. Both modes read and write files in your Sub-Sub folder. For a map, see [How it works](/how-it-works/).
 
-For library changes, Reader tags, imports and attaches PDFs, with 10 items per review note. It cannot rename or remove tags, edit fields, repair metadata or move items to the trash. For those, change the profile to Scholar.
+## What Sub-Sub writes
 
-## Scholar
+Sub-Sub writes literature notes, syntheses and reviews from what it read, with a source for every claim. Each note says what Sub-Sub read: the full text, the abstract or only the metadata.
 
-The default. Literature notes and syntheses from what Sub-Sub read, with a source for every claim, and all library changes, including the bulk changes. It does not draft text for your manuscripts.
+It drafts text for your manuscript only when you ask. It cites library items as `[@citekey]`, uses only claims from sources it read, and marks the drafted text so that you can check it.
 
-## Author
+## Learn to read the literature
 
-Scholar, plus help with your manuscripts: it checks the citations against your library, exports the bibliography for Quarto or Pandoc, and comments on the argument, the structure and the evidence that is missing. You write the paragraphs.
+Two commands help you read papers yourself. Sub-Sub finds the passages and asks questions. You read and write the answers.
 
-## Editor
+- `/read [reason] <citekey>` is a guided reading of one paper. Select why you read it: background, one fact, extraction or critique. Sub-Sub reads only as deep as that reason needs, quotes the passages with their place and asks questions. For an extraction, it also adds a row for the paper to your extraction sheet in `Research/`. In the browser, select Read a paper. See [Read a paper](/guide/#read-a-paper) in the guide.
+- `/lit reading list: <topic>` searches and screens as `/lit` does. Then it writes a reading list: the works to read, the order to read them in, what each work studies (not what it found) and questions to read each one with. It states no results. In the browser, select Reading list.
 
-Everything. When you ask, it drafts text for a manuscript, cites library items as `[@citekey]`, uses only claims from sources it read, and marks the drafted text so that you can check it.
+If a course has rules about AI, those rules apply.
 
-## Change the profile
-
-- Type `/profile` to see the current profile.
-- Type `/profile reader` (or `scholar`, `author`, `editor`) to change it. Sub-Sub saves the change.
-
-If you type a command that your profile does not run, Sub-Sub refuses it and names the profiles that run it.
-
-A profile is your choice, not a lock: you can change it at any time. If a course has rules about AI, those rules apply, whatever the profile.
+Up to version 0.16, Sub-Sub had profiles (Reader, Scholar, Author, Editor). They are gone: every command is in the Researcher. If you type `/profile`, Sub-Sub tells you where things went.

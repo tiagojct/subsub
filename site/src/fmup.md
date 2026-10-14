@@ -13,10 +13,9 @@ New to Sub-Sub? [Para estudantes](/pt/estudantes/) explains it in Portuguese, fr
 1. [Install Sub-Sub](/install/).
 2. When `subsub init` asks for the set-up, select "FMUP / U.Porto".
 
-This gives you:
+This gives you a starter tag list for the health sciences: clinical areas, public health, methods and study designs.
 
-- A starter tag list for the health sciences: clinical areas, public health, methods and study designs.
-- The [Reader profile](/profiles/), which explains each step and writes reading notes with quotes and questions. `/lit` gives a reading list with the screening log: the works to read and questions to read them with. You can change the profile at any time with `/profile`.
+To learn to read papers, use `/read` and a citekey. Sub-Sub finds the passages and asks questions, and you write the answers. `/lit reading list:` and a topic gives a reading list with the screening log: the works to read and questions to read them with. See [Learn to read the literature](/profiles/#learn-to-read-the-literature).
 
 ## Papers that are not open access
 
@@ -33,6 +32,6 @@ Soon, the FMUP set-up will include a model service at no cost to you. Until then
 
 ## Rules for the use of AI
 
-Sub-Sub helps you find, organise and read the literature. The rules of your course and of the faculty about AI apply to what you hand in, whatever the profile.
+Sub-Sub helps you find, organise and read the literature. The rules of your course and of the faculty about AI apply to what you hand in.
 
 [FMUP · IA](https://tiagojacinto.eu/fmup-ia/) is a proposed reference framework for the use of generative AI at FMUP, with Themis, a tool that helps you write a declaration of AI use. It is a proposal for institutional review, not approved faculty policy.

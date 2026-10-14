@@ -10,7 +10,7 @@ description: What runs where, the two modes, the browser and the terminal, and w
 	<div class="wrap">
 		<p class="eyebrow">How it works</p>
 		<h1>What runs where, and who may do what.</h1>
-		<p class="lead">Sub-Sub runs on your computer. The model and the literature services are online. The mode decides what Sub-Sub works on; the profile decides how much it writes for you; every library change waits for your Yes.</p>
+		<p class="lead">Sub-Sub runs on your computer. The model and the literature services are online. The mode decides what Sub-Sub works on, and every library change waits for your Yes.</p>
 	</div>
 </header>
 
@@ -18,7 +18,7 @@ description: What runs where, the two modes, the browser and the terminal, and w
 	<div class="wrap">
 		<p class="eyebrow">How it fits together</p>
 		<h2>What runs where.</h2>
-		<p class="section-lead">Everything except the model and the online services runs on your computer. The mode decides which servers Sub-Sub may use: the Librarian uses zotero only, the Researcher uses zotero, scholar and verify. The profile removes tools from what is left.</p>
+		<p class="section-lead">Everything except the model and the online services runs on your computer. The mode decides which servers Sub-Sub may use: the Librarian uses zotero only, the Researcher uses zotero, scholar and verify.</p>
 		{% include "diagram.njk" %}
 	</div>
 </section>
@@ -61,12 +61,12 @@ description: What runs where, the two modes, the browser and the terminal, and w
 		<div>
 			<p class="eyebrow">Browser or terminal</p>
 			<h2>The same Sub-Sub in both.</h2>
-			<p>Open Sub-Sub from its shortcut and it opens in your browser. Type <code>subsub</code> and it opens in the terminal. The modes, the profiles and the approvals are the same.</p>
+			<p>Open Sub-Sub from its shortcut and it opens in your browser. Type <code>subsub</code> and it opens in the terminal. The modes and the approvals are the same.</p>
 			<p>The browser view is a small server on your own computer. It listens only on 127.0.0.1 and stops 10 minutes after you close the page.</p>
 		</div>
 <div class="terminal" role="img" aria-label="Sub-Sub in the terminal: it shows a preview of a tag change and asks Yes or No.">
 <pre><span class="t-dim">$</span> subsub --librarian
-<span class="t-acc">Sub-Sub {{ release.version }}</span>  <span class="t-dim">Librarian, Scholar · Zotero: 1,024 items</span>
+<span class="t-acc">Sub-Sub {{ release.version }}</span>  <span class="t-dim">Librarian · Zotero: 1,024 items</span>
 
 <span class="t-acc">&gt;</span> Tag the next 10 items without a topic.</pre>
 <div class="t-box"><span class="t-box-title">Sub-Sub: apply tag_items?</span>

@@ -14,11 +14,11 @@ lead: Tag your first items, import a paper, write a literature note and undo a c
 
 Sub-Sub has two modes. The Researcher is the default. It reads your library, searches the literature, writes notes and also changes the library. The Librarian manages the library only: tags, imports, metadata, PDFs and collections. To change the mode, select Researcher or Librarian at the top. Each mode can have its own model. In both modes, every library change shows a preview first and runs only after you select Yes.
 
-The profile menu and the model button are at the top right. The panel on the left has the most used commands and your earlier conversations. In the Researcher, the commands are in two groups, Research and Library. In the Librarian, only the Library group shows.
+The model button is at the top right. The panel on the left has the most used commands and your earlier conversations. In the Researcher, the commands are in two groups, Research and Library. In the Librarian, only the Library group shows.
 
 This guide gives the commands that you type. In the browser, most of them are also buttons.
 
-For a map of the parts (the apps, the servers, the modes, the profiles and the folders), see [How it works](/how-it-works/).
+For a map of the parts (the apps, the servers, the modes and the folders), see [How it works](/how-it-works/).
 
 ### In the terminal
 
@@ -98,7 +98,7 @@ Use the Researcher for this part. The Librarian does not search or write notes.
 
 Each literature note says what Sub-Sub read: the full text, the abstract or only the metadata. Page numbers come only from the full text. Sub-Sub refuses a note that breaks this rule.
 
-What Sub-Sub writes depends on your [profile](/profiles/). The note formats are in `Zotero/Zotero agent.md`. You can edit them.
+Sub-Sub drafts text for a manuscript only when you ask, and marks the drafted text. The note formats are in `Zotero/Zotero agent.md`. You can edit them.
 
 ## Review the literature
 
@@ -111,15 +111,17 @@ What Sub-Sub writes depends on your [profile](/profiles/). The note formats are 
 
 `/lit` is a rapid review, not a systematic review: one AI screens, with no second reviewer, no registered protocol and no formal risk-of-bias assessment. Each note says so in a section, "What this review is". Use it to scope a question, for a background section or as a first search. For a systematic review, start from its searches and screening log, then screen in duplicate, assess the risk of bias and report to PRISMA.
 
+To get a reading list in place of a review, type `/lit reading list:` and your topic, for example `/lit reading list: home spirometry in children with asthma`. In the browser, select Reading list. Sub-Sub searches and screens in the same way. Then it writes the works to read, the order to read them in and questions to read each one with. It states no results.
+
 Other research commands:
 
 - `/compare <question or citekeys>` writes a source matrix: the claim, the type of evidence, the caveats and the confidence for each source.
 - `/review <file>` comments on your own manuscript against the reporting guideline that applies: CONSORT, STROBE, PRISMA, STARD, TRIPOD, CHEERS, or SRQR or COREQ. It writes comments only, next to the manuscript in `<name>-review.md`, and does not change the manuscript.
 - `/digest [days] [topic]` summarises the alerts and notes of the last days (7 by default).
-- `/ai-statement [what you used it for]` writes a draft of the statement on the use of AI that journals ask for, with the Sub-Sub version, its DOI and your models, in `Research/`. Complete the parts in brackets. In every profile.
+- `/ai-statement [what you used it for]` writes a draft of the statement on the use of AI that journals ask for, with the Sub-Sub version, its DOI and your models, in `Research/`. Complete the parts in brackets. In both modes.
 - `/request-copy <citekey, DOI or PMID>` drafts an email to the corresponding author to ask for a copy of a paper that is not open access. The address comes from the PubMed record. Sub-Sub writes the draft in `Inbox/`; you send it.
 
-Some profiles do not run all of these commands. See [Profiles](/profiles/).
+For the commands of each mode, see [Modes and commands](/profiles/).
 
 ## Check references
 
@@ -137,7 +139,6 @@ Sub-Sub does not change the manuscript. Starbuck writes an HTML report in a `_st
 | Command | What it does |
 |---|---|
 | `/librarian`, `/researcher` | Change the mode (each mode can have its own model) |
-| `/profile` | Show or change the profile |
 | `/subsub` | Zotero connection and library overview |
 | `/history`, `/undo` | Recent changes; revert one |
 | `/ai-statement [uses]` | A draft statement on the use of AI for a manuscript |
@@ -145,6 +146,7 @@ Sub-Sub does not change the manuscript. Starbuck writes an HTML report in a `_st
 | `/tag-batch [size]`, `/clean-tags`, `/import-queue` | Library templates (both modes) |
 | `/lit-note <citekey>`, `/synthesis <topic>`, `/gaps <topic>`, `/manuscript <file>`, `/alert` | Research templates (Researcher) |
 | `/lit <question>`, `/compare <question>`, `/review <file>`, `/digest [days]`, `/request-copy <citekey>` | Research templates (Researcher) |
+| `/lit reading list: <topic>` | A reading list with questions to read with, and no results (Researcher) |
 | `/verify <file> [claims]` | Reference checks (Researcher, needs Starbuck) |
 | `subsub -c`, `subsub -r` | Continue the last session; select an older one (terminal) |
 | `subsub web` | Open Sub-Sub in the browser |

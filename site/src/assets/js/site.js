@@ -103,7 +103,7 @@
 			if (start > 1) ol.style.counterReset = "li " + (start - 1);
 		});
 
-		// ---- tables scroll on narrow screens; the profile matrix gets centred marks
+		// ---- tables scroll on narrow screens; a matrix of marks gets centred cells
 		prose.querySelectorAll("table").forEach(function (table) {
 			if (!table.parentElement.classList.contains("table-wrap")) {
 				var wrap = document.createElement("div");

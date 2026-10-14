@@ -14,10 +14,9 @@ lead: Os estudantes, docentes e funcionários da FMUP e da Universidade do Porto
 1. [Instale o Sub-Sub](/pt/instalar/).
 2. Quando o `subsub init` perguntar pela configuração, selecione "FMUP / U.Porto".
 
-Esta configuração dá-lhe:
+Esta configuração dá-lhe uma lista de etiquetas inicial para as ciências da saúde: áreas clínicas, saúde pública, métodos e desenhos de estudo.
 
-- Uma lista de etiquetas inicial para as ciências da saúde: áreas clínicas, saúde pública, métodos e desenhos de estudo.
-- O [perfil Reader](/pt/perfis/), que explica cada passo e escreve notas de leitura com citações e perguntas. O `/lit` dá uma lista de leitura com o registo da triagem: as obras a ler e perguntas para as ler. Pode mudar de perfil em qualquer momento com `/profile`.
+Para aprender a ler artigos, use o `/read` e uma citekey. O Sub-Sub encontra as passagens e faz perguntas, e as respostas ficam a seu cargo. O `/lit reading list:` e um tema dão uma lista de leitura com o registo da triagem: as obras a ler e perguntas para as ler. Veja [Aprender a ler a literatura](/pt/perfis/#aprender-a-ler-a-literatura).
 
 ## Artigos que não estão em acesso aberto
 
@@ -34,6 +33,6 @@ Em breve, a configuração da FMUP vai incluir um serviço de modelos sem custos
 
 ## Regras para o uso de IA
 
-O Sub-Sub ajuda a encontrar, organizar e ler a literatura. As regras do seu curso e da faculdade sobre IA aplicam-se ao que entrega, seja qual for o perfil.
+O Sub-Sub ajuda a encontrar, organizar e ler a literatura. As regras do seu curso e da faculdade sobre IA aplicam-se ao que entrega.
 
 O [FMUP · IA](https://tiagojacinto.eu/fmup-ia/) é uma proposta de quadro de referência para o uso de IA generativa na FMUP. Inclui o Themis, uma ferramenta que ajuda a escrever a declaração de uso de IA. É uma proposta para apreciação institucional. Ainda não é uma política aprovada pela faculdade.

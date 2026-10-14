@@ -58,7 +58,6 @@ O instalador instala o uv, o Node.js (se for preciso) e o Sub-Sub na sua pasta p
 | Language for replies and notes | Escreva European Portuguese. |
 | Sub-Sub folder | Prima Enter para aceitar a pasta proposta. Se usa o Obsidian, escreva o caminho do seu cofre: o Sub-Sub cria lá dentro uma pasta Sub-Sub e não mexe no resto do cofre. |
 | Set-up | Escreva 2 (FMUP / U.Porto) e prima Enter. |
-| Profile | Prima Enter (Reader). |
 | Starter tag list | Prima Enter (health sciences). |
 | Email | O seu email da U.Porto. Serve para encontrar PDF em acesso aberto. |
 | Reference checks | Prima Enter (Off). |
@@ -125,7 +124,7 @@ Faça as tarefas por esta ordem. Durante as tarefas, anote o que correu mal e o 
 1. No topo da página, selecione Investigador.
 2. No painel da esquerda, em Investigação, selecione Nota de leitura. A caixa de mensagem fica com `/lit-note`.
 3. Acrescente a citekey de um item com PDF e prima Enter. As respostas do Sub-Sub mostram as citekeys entre `[@` e `]`.
-4. Quando a nota estiver escrita, selecione Abrir na linha "escrever um ficheiro". Com o perfil Reader, a nota tem citações com a página e perguntas para si.
+4. Quando a nota estiver escrita, selecione Abrir na linha "escrever um ficheiro". A nota diz o que o Sub-Sub leu e tem citações com a página. Para ler o artigo por si, com perguntas em vez de um resumo, use o `/read` (veja [Ler um artigo](/pt/guia/#ler-um-artigo)).
 5. Confirme duas citações no PDF.
 
 ### 5. Desfazer uma alteração

@@ -2,7 +2,7 @@
 <div class="diagram-scroll">
 <svg class="dg" viewBox="0 0 1100 712" role="img" aria-labelledby="dg-title dg-desc">
 <title id="dg-title">How Sub-Sub works</title>
-<desc id="dg-desc">You use Sub-Sub in the browser view or in the terminal. Sub-Sub runs in pi on your computer and sends your messages to the model provider that you choose. It works with the library through the zotero server, searches through the scholar server and, if it is on, checks references through the verify server (Starbuck). The mode decides which servers it may use. The Librarian uses the zotero server only and manages the library. The Researcher uses the zotero, scholar and verify servers: it reads, searches, writes notes and changes the library too. The profile removes some tools. Every library change goes through the approval gate. The zotero server talks to Zotero on 127.0.0.1 and keeps a journal of changes for undo. The servers use online services such as PubMed, Europe PMC, OpenAlex, Crossref, Unpaywall and Open Library. Sub-Sub writes everything in one Sub-Sub folder, which can sit inside an Obsidian vault, and reads its settings from your configuration folder.</desc>
+<desc id="dg-desc">You use Sub-Sub in the browser view or in the terminal. Sub-Sub runs in pi on your computer and sends your messages to the model provider that you choose. It works with the library through the zotero server, searches through the scholar server and, if it is on, checks references through the verify server (Starbuck). The mode decides which servers it may use. The Librarian uses the zotero server only and manages the library. The Researcher uses the zotero, scholar and verify servers: it reads, searches, writes notes and changes the library too. Every library change goes through the approval gate. The zotero server talks to Zotero on 127.0.0.1 and keeps a journal of changes for undo. The servers use online services such as PubMed, Europe PMC, OpenAlex, Crossref, Unpaywall and Open Library. Sub-Sub writes everything in one Sub-Sub folder, which can sit inside an Obsidian vault, and reads its settings from your configuration folder.</desc>
 <defs>
 	<marker id="dg-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0 1 L9 5 L0 9 Z"/></marker>
 	<marker id="dg-al" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah lib" d="M0 1 L9 5 L0 9 Z"/></marker>
@@ -32,23 +32,17 @@
 <text class="cap acc" x="270" y="128">Sub-Sub</text>
 <text class="s" x="336" y="128">a pi extension, on your computer</text>
 
-<text class="s" x="270" y="158">Mode: which tools it may use</text>
-<rect class="pill res" x="270" y="166" width="145" height="34" rx="6"/>
-<text class="t res" x="342" y="188" text-anchor="middle">Researcher</text>
-<rect class="pill lib" x="425" y="166" width="145" height="34" rx="6"/>
-<text class="t lib" x="497" y="188" text-anchor="middle">Librarian</text>
+<text class="s" x="270" y="182">Mode: which tools it may use</text>
+<rect class="pill res" x="270" y="190" width="145" height="34" rx="6"/>
+<text class="t res" x="342" y="212" text-anchor="middle">Researcher</text>
+<rect class="pill lib" x="425" y="190" width="145" height="34" rx="6"/>
+<text class="t lib" x="497" y="212" text-anchor="middle">Librarian</text>
 
-<text class="s" x="270" y="228">Profile: what it writes for you</text>
-<rect class="chip" x="270" y="236" width="70" height="28" rx="5"/><text class="c" x="305" y="255" text-anchor="middle">Reader</text>
-<rect class="chip" x="346" y="236" width="70" height="28" rx="5"/><text class="c" x="381" y="255" text-anchor="middle">Scholar</text>
-<rect class="chip" x="422" y="236" width="70" height="28" rx="5"/><text class="c" x="457" y="255" text-anchor="middle">Author</text>
-<rect class="chip" x="498" y="236" width="72" height="28" rx="5"/><text class="c" x="534" y="255" text-anchor="middle">Editor</text>
-
-<rect class="soft" x="270" y="290" width="300" height="120" rx="8"/>
-<text class="t" x="286" y="317">Approval gate</text>
-<text class="s" x="286" y="342">Library change: a preview, then Yes or No</text>
-<text class="s" x="286" y="364">Other files: Yes or No, except the current folder</text>
-<text class="s" x="286" y="386">Item changes are journaled; /undo reverts them</text>
+<rect class="soft" x="270" y="267" width="300" height="120" rx="8"/>
+<text class="t" x="286" y="294">Approval gate</text>
+<text class="s" x="286" y="319">Library change: a preview, then Yes or No</text>
+<text class="s" x="286" y="341">Other files: Yes or No, except the current folder</text>
+<text class="s" x="286" y="363">Item changes are journaled; /undo reverts them</text>
 
 <!-- tool lanes: rust is the Librarian (zotero only), blue is the Researcher (zotero, scholar, verify) -->
 <path class="ln lib w" d="M590 152 H648" marker-end="url(#dg-al)"/>
@@ -113,7 +107,7 @@
 <rect class="box" x="570" y="476" width="280" height="220" rx="10"/>
 <text class="t" x="590" y="504">Settings</text>
 <text class="m" x="590" y="536">~/.config/subsub/config.json</text>
-<text class="s" x="590" y="555">profile, models, default mode, add-ons</text>
+<text class="s" x="590" y="555">models, default mode, add-ons</text>
 <text class="m" x="590" y="590">~/.config/zotero-local-mcp/env</text>
 <text class="s" x="590" y="609">tag list, contact email</text>
 <text class="m" x="590" y="644">~/.subsub/agent/auth.json</text>

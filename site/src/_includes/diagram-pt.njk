@@ -2,7 +2,7 @@
 <div class="diagram-scroll">
 <svg class="dg" viewBox="0 0 1100 712" role="img" aria-labelledby="dg-title dg-desc">
 <title id="dg-title">Como funciona o Sub-Sub</title>
-<desc id="dg-desc">Usa o Sub-Sub na vista no navegador ou no terminal. O Sub-Sub corre no pi, no seu computador, e envia as suas mensagens ao fornecedor do modelo que escolher. Trabalha com a biblioteca através do servidor zotero, pesquisa através do servidor scholar e, se estiver ligado, verifica referências através do servidor verify (Starbuck). O modo decide que servidores pode usar. O Bibliotecário usa só o servidor zotero e gere a biblioteca. O Investigador usa os servidores zotero, scholar e verify: lê, pesquisa, escreve notas e também altera a biblioteca. O perfil retira algumas ferramentas. Cada alteração à biblioteca passa pelo controlo de aprovação. O servidor zotero comunica com o Zotero em 127.0.0.1 e guarda um registo de alterações para as poder anular. Os servidores usam serviços online como a PubMed, a Europe PMC, o OpenAlex, a Crossref, o Unpaywall e a Open Library. O Sub-Sub escreve tudo numa só pasta, Sub-Sub, que pode ficar dentro de um cofre do Obsidian, e lê as definições da sua pasta de configuração.</desc>
+<desc id="dg-desc">Usa o Sub-Sub na vista no navegador ou no terminal. O Sub-Sub corre no pi, no seu computador, e envia as suas mensagens ao fornecedor do modelo que escolher. Trabalha com a biblioteca através do servidor zotero, pesquisa através do servidor scholar e, se estiver ligado, verifica referências através do servidor verify (Starbuck). O modo decide que servidores pode usar. O Bibliotecário usa só o servidor zotero e gere a biblioteca. O Investigador usa os servidores zotero, scholar e verify: lê, pesquisa, escreve notas e também altera a biblioteca. Cada alteração à biblioteca passa pelo controlo de aprovação. O servidor zotero comunica com o Zotero em 127.0.0.1 e guarda um registo de alterações para as poder anular. Os servidores usam serviços online como a PubMed, a Europe PMC, o OpenAlex, a Crossref, o Unpaywall e a Open Library. O Sub-Sub escreve tudo numa só pasta, Sub-Sub, que pode ficar dentro de um cofre do Obsidian, e lê as definições da sua pasta de configuração.</desc>
 <defs>
 	<marker id="dg-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0 1 L9 5 L0 9 Z"/></marker>
 	<marker id="dg-al" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah lib" d="M0 1 L9 5 L0 9 Z"/></marker>
@@ -32,23 +32,17 @@
 <text class="cap acc" x="270" y="128">Sub-Sub</text>
 <text class="s" x="336" y="128">extensão do pi, no seu computador</text>
 
-<text class="s" x="270" y="158">Modo: que ferramentas pode usar</text>
-<rect class="pill res" x="270" y="166" width="145" height="34" rx="6"/>
-<text class="t res" x="342" y="188" text-anchor="middle">Investigador</text>
-<rect class="pill lib" x="425" y="166" width="145" height="34" rx="6"/>
-<text class="t lib" x="497" y="188" text-anchor="middle">Bibliotecário</text>
+<text class="s" x="270" y="182">Modo: que ferramentas pode usar</text>
+<rect class="pill res" x="270" y="190" width="145" height="34" rx="6"/>
+<text class="t res" x="342" y="212" text-anchor="middle">Investigador</text>
+<rect class="pill lib" x="425" y="190" width="145" height="34" rx="6"/>
+<text class="t lib" x="497" y="212" text-anchor="middle">Bibliotecário</text>
 
-<text class="s" x="270" y="228">Perfil: o que escreve por si</text>
-<rect class="chip" x="270" y="236" width="70" height="28" rx="5"/><text class="c" x="305" y="255" text-anchor="middle">Reader</text>
-<rect class="chip" x="346" y="236" width="70" height="28" rx="5"/><text class="c" x="381" y="255" text-anchor="middle">Scholar</text>
-<rect class="chip" x="422" y="236" width="70" height="28" rx="5"/><text class="c" x="457" y="255" text-anchor="middle">Author</text>
-<rect class="chip" x="498" y="236" width="72" height="28" rx="5"/><text class="c" x="534" y="255" text-anchor="middle">Editor</text>
-
-<rect class="soft" x="270" y="290" width="300" height="120" rx="8"/>
-<text class="t" x="286" y="317">Controlo de aprovação</text>
-<text class="s" x="286" y="342">Biblioteca: pré-visualização e Sim/Não</text>
-<text class="s" x="286" y="364">Ficheiros: Sim/Não, fora da pasta atual</text>
-<text class="s" x="286" y="386">Alterações registadas; /undo anula-as</text>
+<rect class="soft" x="270" y="267" width="300" height="120" rx="8"/>
+<text class="t" x="286" y="294">Controlo de aprovação</text>
+<text class="s" x="286" y="319">Biblioteca: pré-visualização e Sim/Não</text>
+<text class="s" x="286" y="341">Ficheiros: Sim/Não, fora da pasta atual</text>
+<text class="s" x="286" y="363">Alterações registadas; /undo anula-as</text>
 
 <!-- tool lanes: rust is the Librarian (zotero only), blue is the Researcher (zotero, scholar, verify). Portuguese copy of diagram.njk. -->
 <path class="ln lib w" d="M590 152 H648" marker-end="url(#dg-al)"/>
@@ -113,7 +107,7 @@
 <rect class="box" x="570" y="476" width="280" height="220" rx="10"/>
 <text class="t" x="590" y="504">Definições</text>
 <text class="m" x="590" y="536">~/.config/subsub/config.json</text>
-<text class="s" x="590" y="555">perfil, modelos, modo, complementos</text>
+<text class="s" x="590" y="555">modelos, modo, complementos</text>
 <text class="m" x="590" y="590">~/.config/zotero-local-mcp/env</text>
 <text class="s" x="590" y="609">lista de etiquetas, e-mail</text>
 <text class="m" x="590" y="644">~/.subsub/agent/auth.json</text>

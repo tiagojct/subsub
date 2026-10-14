@@ -5,7 +5,7 @@ lang: pt-PT
 alt: /students/
 eyebrow: Novo no Zotero ou em ferramentas de IA
 description: O que é o Sub-Sub para um estudante, o que não faz, como começar sem pagar e as palavras que vai encontrar.
-lead: O Sub-Sub ajuda a encontrar, organizar e ler artigos. Não escreve os seus trabalhos. Pode experimentá-lo sem pagar.
+lead: O Sub-Sub ajuda a encontrar, organizar e ler artigos. Só redige texto para os seus trabalhos quando o pede. Pode experimentá-lo sem pagar.
 ---
 
 In English: [For students](/students/).
@@ -18,7 +18,7 @@ O Sub-Sub abre no navegador, como um site, mas corre no seu computador. Fala por
 
 ## O que não faz
 
-- Não escreve os seus trabalhos nem a sua tese. Os estudantes começam no perfil Reader (leitor): o Sub-Sub dá-lhe citações com o número da página e perguntas para responder enquanto lê, e uma lista de leitura para uma revisão da literatura. Não escreve resumos nem conclusões que possa entregar como seus.
+- Não escreve os seus trabalhos nem a sua tese por iniciativa própria. Só redige texto quando o pede, e marca o texto redigido. Para aprender a ler artigos, use o `/read`: o Sub-Sub dá-lhe citações com o sítio onde estão e perguntas para responder enquanto lê. Para uma revisão da literatura, o `/lit reading list:` dá-lhe as obras a ler e perguntas para as ler, sem resultados.
 - Não substitui a leitura do artigo. Uma nota feita com um modelo gratuito pode ser pobre. Confirme cada citação na página antes de a usar.
 - Não muda a sua biblioteca do Zotero sem perguntar. Vê cada alteração antes e escolhe Sim ou Não. Pode anulá-la depois.
 
@@ -46,7 +46,7 @@ Precisa de um computador com macOS, Windows ou Linux, e de cerca de 15 minutos.
 2. No Zotero, abra as definições e o separador Avançado. Ligue a opção que permite a outras aplicações deste computador comunicar com o Zotero ("Allow other applications on this computer to communicate with Zotero").
 3. Obtenha uma chave gratuita da Google. Abra [aistudio.google.com/apikey](https://aistudio.google.com/apikey), entre com a sua conta e escolha "Create API key". Copie a chave. A Google não pede cartão. Tem de ter 18 anos ou mais.
 4. Instale o Sub-Sub com o comando da página [Instalar](/pt/instalar/). Se o comando lhe parecer estranho, leia primeiro [Sobre o comando de instalação](/pt/instalar/#sobre-o-comando-de-instalacao).
-5. Responda às perguntas. Quando o Sub-Sub perguntar quem é, escolha "A student". Em Models, escolha "Free, to try Sub-Sub" e cole a chave.
+5. Responda às perguntas. Em Models, escolha "Free, to try Sub-Sub" e cole a chave.
 6. O Sub-Sub abre no navegador. Confirme que o topo da página mostra o número de itens da sua biblioteca do Zotero.
 
 Na FMUP ou na Universidade do Porto, escolha a configuração "FMUP / U.Porto". Veja [FMUP](/pt/fmup/).
@@ -54,8 +54,8 @@ Na FMUP ou na Universidade do Porto, escolha a configuração "FMUP / U.Porto". 
 ## Três coisas para experimentar primeiro
 
 1. Escolha Resumo da biblioteca. O Sub-Sub mostra o que tem na biblioteca.
-2. Escreva `/lit` e uma pergunta, por exemplo `/lit espirometria em casa em crianças com asma`. Recebe uma lista de leitura: as obras a ler, a ordem em que as deve ler e perguntas para as ler.
-3. Escreva `/lit-note` e a citekey de um artigo. Recebe uma nota de leitura: citações com o número da página e uma pergunta debaixo de cada citação.
+2. Escreva `/lit reading list:` e um tema, por exemplo `/lit reading list: espirometria em casa em crianças com asma`. Recebe uma lista de leitura: as obras a ler, a ordem em que as deve ler e perguntas para as ler.
+3. Escreva `/read` e a citekey de um artigo, por exemplo `/read smith2021`. Escolha porque vai ler o artigo. Recebe uma nota de leitura: citações com o sítio onde estão e perguntas para responder.
 
 Depois leia o [Guia](/pt/guia/).
 
@@ -88,4 +88,4 @@ Os seus artigos ficam no Zotero. As suas notas são ficheiros de texto simples (
 | Etiqueta (tag) | Uma marca num item do Zotero, por exemplo `topic/asthma`. O Sub-Sub só usa as etiquetas da sua lista. |
 | Terminal | Uma janela onde se escrevem comandos. Precisa dele uma vez, para instalar. Depois, o Sub-Sub abre a partir do atalho. |
 | Markdown | Texto simples com algumas marcas para títulos e listas. As notas do Sub-Sub são ficheiros Markdown. O [Obsidian](https://obsidian.md) mostra-os bem, mas qualquer editor os abre. |
-| Perfil | Quanto o Sub-Sub escreve por si. Os estudantes começam no Reader. Veja [Perfis](/pt/perfis/). |
+| Modo | Aquilo em que o Sub-Sub trabalha. O Investigador lê, pesquisa, escreve notas e altera a biblioteca. O Bibliotecário só gere a biblioteca. Veja [Modos e comandos](/pt/perfis/). |

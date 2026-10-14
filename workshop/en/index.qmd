@@ -299,7 +299,7 @@ This is what most reassures people with years of references in Zotero. Show the 
 
 ::: {.note-card}
 ```{=html}
-<div class="note-bar"><span>Literature/smith2021.md</span><span>Reader</span></div>
+<div class="note-bar"><span>Literature/smith2021.md</span><span>/read</span></div>
 ```
 
 ::: {.note-body}
@@ -325,7 +325,7 @@ type: reading-note
 [An illustration: the paper was invented for this example.]{.ref}
 
 ::: notes
-In the Reader profile, for students, a note is quotes and questions, and the student writes the summary. In the other profiles a note has a summary, key points and methods. The quote check is the same in all of them.
+With /read, for people who learn to read papers, a note is quotes and questions, and the reader writes the answers. With /lit-note, a note has a summary, key points and methods. The quote check is the same in both.
 :::
 
 ## A review with `/lit`, step by step
@@ -417,7 +417,7 @@ This is what a reviewer or a supervisor will ask about. /lit is a good start for
 | Add a paper | `import 10.1183/13993003.00289-2020` | the preview; Yes; then `/undo` | 3 min |
 | Read one paper well | `/lit-note` and title words | a note with checked quotes | 4 min |
 | Know what is published | `/lit` and the question | a rapid review with an evidence table | 5 min |
-| Check a manuscript | `/profile author`, then `/review` and `/verify` with the file | STROBE comments and checked references | 3 min |
+| Check a manuscript | `/review` and `/verify` with the file | STROBE comments and checked references | 3 min |
 
 ::: {.cols style="margin-top:0.5em"}
 ::: {.look}
@@ -435,14 +435,14 @@ Demonstration script (15 min):
 1. (3 min) Import the DOI of Hall 2021 (GLI static lung volumes). Show the preview, say Yes, show the journal, run /undo.
 2. (4 min) /lit-note on a paper with a PDF. Open the note, show evidence: full text, find one quote in the PDF.
 3. (5 min) /lit with a clinical question from the audience. While it runs, show the plan in Research/.plans. At the end, the evidence table and the section What this review is.
-4. (3 min) Switch to the Author profile (/profile author): the Scholar profile, the default, does not have /review. Then /review on an observational manuscript (STROBE) and /verify on its references.
+4. (3 min) /review on an observational manuscript (STROBE) and /verify on its references.
 :::
 
 ## Sub-Sub in the browser
 
 ::: {.cols .wide-left .mid}
 ::: {.shot .pins}
-![](../assets/img/web-view-light.webp){fig-alt="The Sub-Sub browser view: commands and conversations on the left, the conversation in the middle, the mode, profile and model at the top."}
+![](../assets/img/web-view-light.webp){fig-alt="The Sub-Sub browser view: commands and conversations on the left, the conversation in the middle, the mode and model at the top."}
 
 [1]{.pin style="left:17.5%;top:21%"}
 [2]{.pin style="left:31.6%;top:0.4%"}
@@ -454,7 +454,7 @@ Demonstration script (15 min):
 the most used commands and your earlier conversations
 
 [[2]{.pin-i} At the top]{.h3}
-the mode (Researcher or Librarian), the profile and the model
+the mode (Researcher or Librarian) and the model
 
 [[3]{.pin-i} In the middle]{.h3}
 the conversation, with each tool Sub-Sub used
@@ -728,11 +728,12 @@ Questions. Leave this slide on the screen during questions.
 <div><p class="cmds-h">Research</p><div class="cmd-grid">
 <div><code>/lit</code> <i>question</i></div><span>rapid review: library, PubMed, Europe PMC, OpenAlex</span>
 <div><code>/lit-note</code> <i>title</i></div><span>reading note for one paper</span>
+<div><code>/read</code> <i>citekey</i></div><span>guided reading: Sub-Sub asks, the reader answers</span>
 <div><code>/synthesis</code> <i>topic</i></div><span>synthesis of the library on a topic</span>
 <div><code>/gaps</code> <i>topic</i></div><span>what is missing on a topic</span>
 <div><code>/compare</code> <i>question</i></div><span>source matrix: claim, evidence, caveats</span>
 <div><code>/verify</code> <i>file</i></div><span>checks the references of a manuscript</span>
-<div><code>/review</code> <i>file</i></div><span>critical review; Author and Editor profiles</span>
+<div><code>/review</code> <i>file</i></div><span>critical review of a manuscript</span>
 <div><code>/ai-statement</code></div><span>draft statement on the use of AI</span>
 </div></div>
 <div><p class="cmds-h">Library</p><div class="cmd-grid">
@@ -741,8 +742,8 @@ Questions. Leave this slide on the screen during questions.
 <div><code>/import-queue</code></div><span>imports the ticked lines of the queue</span>
 <div><code>/history</code></div><span>recent library changes</span>
 <div><code>/undo</code></div><span>reverts the last change, after asking</span>
-<div><code>/profile</code></div><span>shows or changes the profile</span>
-</div><p class="cmds-foot">Or write in plain language. In the message box, <code>/</code> shows every command. The Reader and Scholar profiles do not have <code>/review</code>.</p></div>
+<div><code>/subsub</code></div><span>Zotero connection and library overview</span>
+</div><p class="cmds-foot">Or write in plain language. In the message box, <code>/</code> shows every command.</p></div>
 </div>
 ```
 
