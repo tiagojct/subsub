@@ -937,7 +937,7 @@ test("web: Open judges the real file, not a link inside the notes folder", async
 });
 
 test("prompt commands: research ones need the Researcher; /profile is gone; /lit makes a reading list on request", async () => {
-	assert.match(readFileSync(new URL("../prompts/lit.md", import.meta.url), "utf8"), /## A reading list\n\nWhen the user asks for a reading list[\s\S]*type: reading-list/);
+	assert.match(readFileSync(new URL("../prompts/lit.md", import.meta.url), "utf8"), /## A reading list\r?\n\r?\nWhen the user asks for a reading list[\s\S]*type: reading-list/);
 	const { fp, ctx, notes } = await setup();
 	const input = (text: string) => fp.handlers.input[0]({ type: "input", text, source: "interactive" }, ctx);
 	for (const c of ["/lit FeNO", "/compare FeNO", "/review draft.qmd", "/digest", "/verify paper.qmd"]) assert.deepEqual(await input(c), { action: "continue" }, c);
