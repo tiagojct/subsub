@@ -8,6 +8,12 @@ For people who are learning to read the literature:
 
 - `/read <citekey>` is a guided reading of one paper. Sub-Sub asks why you read it: background (the title and abstract, then keep or drop), one fact, extraction for a review, or critique. It reads only as deep as that reason needs, quotes the passages with their place and asks questions; you write the answers. It writes no results or summaries in this note. For an extraction, it also adds a row for the paper to your extraction sheet in `Research/`, with where to find each value. Put the reason first to skip the question: `/read extract smith2021`. In the browser it is the button Read a paper.
 - Sub-Sub has no profiles any more (Reader, Scholar, Author, Editor). The two modes stay: the Researcher has every command and tool, and every library change still needs your yes. Sub-Sub writes notes and syntheses with a source for every claim, and drafts manuscript text only when you ask. What the Reader profile did is now `/read` (a guided reading of one paper) and `/lit reading list: <topic>` (a reading list with questions, no results). `subsub init` no longer asks whether you are a student or which profile you want, and removes the old setting. `/profile` says where things went.
+- The browser view is more useful:
+  - A library search in the left panel. Each result has Read, Note and a link to the item in Zotero.
+  - A notes pane: Notes at the top lists the notes in your Sub-Sub folder, and a note opens next to the conversation. Note paths in replies, `[[links]]` and the Open button on a written file open there too; Open in app still hands it to Obsidian or your editor.
+  - After a command and a space, the message box shows what the command needs.
+  - Conversations can be renamed and deleted. Delete moves the file to `~/.subsub/trash`. Export is in the language of the interface and includes the tools that Sub-Sub used and their results.
+  - The reasons of `/read` show as a list. The undo question has its own title again, and the page no longer scrolls as a whole when the left panel is long.
 - In the browser, a command that asks a question (`/read`, `/undo`) no longer shows an error when the answer takes more than 30 seconds.
 
 ## 0.16.0 (2026-10-08)

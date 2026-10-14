@@ -19,6 +19,13 @@ O botão do modelo está no canto superior direito. O painel da esquerda tem os 
 
 Este guia dá os comandos que escreve. No navegador, a maior parte deles também são botões.
 
+Mais no navegador:
+
+- Biblioteca: escreva na caixa de pesquisa no topo do painel da esquerda para encontrar itens no Zotero. Cada resultado tem Ler (`/read`), Nota (`/lit-note`) e uma ligação que abre o item no Zotero.
+- Notas: selecione Notas no topo para ver as notas da sua pasta do Sub-Sub, das mais recentes para as mais antigas. Selecione uma nota para a ler ao lado da conversa. Os caminhos de notas nas respostas, as `[[ligações]]` e o botão Abrir de um ficheiro escrito também abrem a nota aí. Abrir na aplicação abre-a no Obsidian ou no seu editor de Markdown.
+- Comandos: depois de escrever um comando e um espaço, a caixa mostra o que o comando precisa, por exemplo `<citekey or title words>`.
+- Conversas: aponte para uma conversa na lista para lhe mudar o nome ou a apagar. Apagar move-a para `~/.subsub/trash`, para que a possa recuperar. Exportar guarda a conversa aberta num ficheiro Markdown, com as ferramentas que o Sub-Sub usou e os resultados.
+
 Para um mapa das partes (as aplicações, os servidores, os modos e as pastas), veja [Como funciona](/pt/como-funciona/).
 
 ### No terminal

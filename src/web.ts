@@ -16,16 +16,17 @@
 
 import { spawn, type ChildProcess } from "node:child_process";
 import { randomBytes, timingSafeEqual } from "node:crypto";
-import { createReadStream, existsSync, mkdirSync, readFileSync, renameSync, statSync, writeFileSync, appendFileSync } from "node:fs";
+import { createReadStream, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, statSync, writeFileSync, appendFileSync } from "node:fs";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { homedir } from "node:os";
-import { extname, join, normalize, resolve, sep } from "node:path";
+import { basename, dirname, extname, join, normalize, resolve, sep } from "node:path";
 import { StringDecoder } from "node:string_decoder";
 import { agentDirFor, chooseCwd, PACKAGE_DIR, packageVersion } from "./cli.ts";
 import { configPath, expand, loadConfig, RECOMMENDED_MODELS, readConfigFile, saveConfig, type SubsubConfig, uiLanguage, withStarbuck } from "./config.ts";
 import { TESTED_MODELS } from "./init.ts";
 import { KEY_PROVIDERS, saveApiKey } from "./keys.ts";
-import { obsidianRoot } from "./layout.ts";
+import { NOTE_DIRS, obsidianRoot, SETTINGS_DIR } from "./layout.ts";
+import { field, frontMatter } from "./notes.ts";
 import { realish, within } from "./paths.ts";
 
 // ---------------------------------------------------------------- options
@@ -199,8 +200,45 @@ const TYPES: Record<string, string> = {
 	".ico": "image/x-icon",
 };
 
+/** Files that the notes pane shows. */
+const NOTE_TYPES = new Set([".md", ".markdown"]);
+
 /** Files that the Open button may hand to the system (never programs or scripts). */
 export const OPENABLE = new Set([".md", ".markdown", ".txt", ".pdf", ".bib", ".csv", ".qmd"]);
+
+/** A file inside the working folder or the Sub-Sub folder, judged by its real path, so a link cannot point outside. */
+export function allowedFile(raw: string, cwd: string, vault?: string): string | undefined {
+	// expand() resolves against the process folder: use it for "~" only.
+	const target = resolve(cwd, raw.startsWith("~") ? expand(raw) : raw);
+	const real = realish(target);
+	const inside = within(real, realish(cwd)) || Boolean(vault && within(real, realish(vault)));
+	return inside && existsSync(target) && statSync(target).isFile() ? target : undefined;
+}
+
+/** The note a [[wikilink]] names: the first <folder>/<name>.md in the Sub-Sub folder, as Obsidian would find it. */
+export function wikilinkTarget(name: string, root: string): string | undefined {
+	const file = name.endsWith(".md") ? name : `${name}.md`;
+	return ["", ...NOTE_DIRS, SETTINGS_DIR].map((d) => join(root, d, file)).find((f) => existsSync(f));
+}
+
+/** The notes in the Sub-Sub folders, newest first (dot folders such as Research/.plans left out). */
+export function listNotes(root: string, max = 300): Array<{ path: string; rel: string; modified: number }> {
+	const out: Array<{ path: string; rel: string; modified: number }> = [];
+	for (const d of [...NOTE_DIRS, SETTINGS_DIR]) {
+		let names: string[] = [];
+		try {
+			names = readdirSync(join(root, d), { recursive: true }) as string[];
+		} catch {
+			continue;
+		}
+		for (const n of names) {
+			if (!n.endsWith(".md") || n.split(/[\\/]/).some((x) => x.startsWith("."))) continue;
+			const path = join(root, d, n);
+			out.push({ path, rel: join(d, n), modified: statSync(path).mtimeMs });
+		}
+	}
+	return out.sort((a, b) => b.modified - a.modified).slice(0, max);
+}
 
 const CSP = [
 	"default-src 'none'",
@@ -213,6 +251,14 @@ const CSP = [
 	"form-action 'none'",
 	"frame-ancestors 'none'",
 ].join("; ");
+
+function readText(path: string): string {
+	try {
+		return readFileSync(path, "utf8");
+	} catch {
+		return "";
+	}
+}
 
 function same(a: string, b: string): boolean {
 	const x = Buffer.from(a);
@@ -300,6 +346,7 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 	const agentDir = agentDirFor(env, home);
 	const cwd = chooseCwd(process.cwd(), home, cfg.vault, opts.here);
 	const lang = uiLanguage(cfg.language);
+	const notesRoot = cfg.vault ?? cwd;
 	const token = randomBytes(24).toString("base64url");
 	const webDir = join(PACKAGE_DIR, "web");
 	const bin = join(PACKAGE_DIR, "bin", "subsub.js");
@@ -313,6 +360,7 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 	const clients = new Set<ServerResponse>();
 	const dialogs = new Map<string, any>();
 	let subsubState: unknown = null;
+	let lastFind: { q?: string } | null = null;
 	let busy = false;
 	let lastSeen = Date.now();
 	let restarting = false;
@@ -347,6 +395,12 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 					subsubState = null;
 				}
 				broadcast({ type: "subsub_state", state: subsubState });
+			} else if (ev.method === "setStatus" && ev.statusKey === "subsub.find") {
+				try {
+					lastFind = ev.statusText ? JSON.parse(ev.statusText) : null;
+				} catch {
+					lastFind = null;
+				}
 			} else if (ev.method === "notify") {
 				broadcast(ev);
 			}
@@ -388,11 +442,21 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 			out.session = await agent.request({ type: "get_state" });
 			lastSession = (out.session as { sessionFile?: string }).sessionFile ?? lastSession;
 			out.messages = ((await agent.request({ type: "get_messages" })) as { messages: unknown[] }).messages;
-			out.commands = ((await agent.request({ type: "get_commands" })) as { commands: unknown[] }).commands;
+			const commands = ((await agent.request({ type: "get_commands" })) as { commands: Array<Record<string, any>> }).commands;
+			// RPC has no argument hints: read them from the prompt files.
+			out.commands = commands.map((c) => {
+				const front = c.source === "prompt" && c.sourceInfo?.path ? frontMatter(readText(c.sourceInfo.path)) : undefined;
+				const hint = front && field(front, "argument-hint");
+				return hint ? { ...c, hint } : c;
+			});
 		} catch (err) {
 			out.error = (err as Error).message;
 		}
 		return out;
+	}
+
+	async function currentSession(): Promise<string | undefined> {
+		return ((await agent.request({ type: "get_state" })) as { sessionFile?: string }).sessionFile;
 	}
 
 	async function sessions(): Promise<unknown[]> {
@@ -610,14 +674,54 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 						if (body.provider === "opencode-go" && Object.keys(current.models).length === 0) saveConfig({ models: TESTED_MODELS, model: undefined }, env);
 					});
 				}
+				case "GET /api/notes":
+					return send(res, 200, { root: notesRoot, notes: listNotes(notesRoot) });
+				case "GET /api/note": {
+					const raw = url.searchParams.get("path") ?? "";
+					const wiki = !/[\\/]/.test(raw) && !/\.\w+$/.test(raw) ? wikilinkTarget(raw, notesRoot) : undefined;
+					// A relative path is tried in the working folder, then in the Sub-Sub folder (Literature/x.md).
+					const file = allowedFile(wiki ?? raw, cwd, cfg.vault) ?? allowedFile(raw, notesRoot, cfg.vault);
+					if (!file) return send(res, 404, { error: "not found in the Sub-Sub folder" });
+					if (!NOTE_TYPES.has(extname(file).toLowerCase())) return send(res, 415, { error: "not a note" });
+					if (statSync(file).size > 2_000_000) return send(res, 413, { error: "too large to show" });
+					return send(res, 200, { path: file, name: basename(file), text: readFileSync(file, "utf8") });
+				}
+				case "GET /api/library": {
+					const q = (url.searchParams.get("q") ?? "").replace(/\s+/g, " ").trim().slice(0, 200);
+					if (!q) return send(res, 200, { q, items: [] });
+					await agent.request({ type: "prompt", message: `/subsub-find ${q}` });
+					return send(res, 200, lastFind?.q === q ? lastFind : { q, items: [] });
+				}
+				case "POST /api/session/name": {
+					const body = await readJson(req);
+					const name = String(body.name ?? "").replace(/\s+/g, " ").trim();
+					if (!name || name.length > 120) return send(res, 400, { error: "a name of 1 to 120 characters" });
+					const known = (await sessions()) as Array<{ path: string }>;
+					if (!known.some((x) => x.path === body.path)) return send(res, 404, { error: "no such session" });
+					if (body.path === (await currentSession())) await agent.request({ type: "set_session_name", name });
+					else {
+						const { SessionManager } = await import("@earendil-works/pi-coding-agent");
+						SessionManager.open(String(body.path)).appendSessionInfo(name);
+					}
+					return send(res, 200, { ok: true });
+				}
+				case "POST /api/session/trash": {
+					const body = await readJson(req);
+					const known = (await sessions()) as Array<{ path: string }>;
+					if (!known.some((x) => x.path === body.path)) return send(res, 404, { error: "no such session" });
+					if (body.path === (await currentSession())) return send(res, 409, { error: "the open conversation" });
+					// Nothing is deleted: the file moves to a trash folder next to the agent folder.
+					const trash = join(dirname(agentDir), "trash");
+					mkdirSync(trash, { recursive: true });
+					renameSync(String(body.path), join(trash, basename(String(body.path))));
+					return send(res, 200, { ok: true });
+				}
 				case "POST /api/open": {
 					const body = await readJson(req);
-					const target = resolve(cwd, expand(String(body.path ?? "")));
 					const vault = cfg.vault;
 					// Judge the real file, so a link inside the Sub-Sub folder cannot open a document outside it.
-					const real = realish(target);
-					const inside = within(real, realish(cwd)) || Boolean(vault && within(real, realish(vault)));
-					if (!inside || !existsSync(target)) return send(res, 404, { error: "not found in the Sub-Sub folder" });
+					const target = allowedFile(String(body.path ?? ""), cwd, vault);
+					if (!target) return send(res, 404, { error: "not found in the Sub-Sub folder" });
 					// Documents only: a file that the model wrote must never be run.
 					if (!OPENABLE.has(extname(target).toLowerCase())) return send(res, 403, { error: "Sub-Sub opens only notes and documents (.md, .txt, .pdf, .bib, .csv, .qmd)." });
 					if (vault && within(target, vault) && obsidianRoot(vault)) openExternal(`obsidian://open?path=${encodeURIComponent(target)}`);

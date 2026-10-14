@@ -18,6 +18,13 @@ The model button is at the top right. The panel on the left has the most used co
 
 This guide gives the commands that you type. In the browser, most of them are also buttons.
 
+More in the browser:
+
+- Library: type in the search box at the top of the left panel to find items in Zotero. Each result has Read (`/read`), Note (`/lit-note`) and a link that opens the item in Zotero.
+- Notes: select Notes at the top to see the notes in your Sub-Sub folder, newest first. Select a note to read it next to the conversation. Note paths in replies, `[[links]]` and the Open button on a written file also open the note there. Open in app opens it in Obsidian or your Markdown editor.
+- Commands: after you type a command and a space, the box shows what the command needs, for example `<citekey or title words>`.
+- Conversations: point to a conversation in the list to rename it or delete it. Delete moves it to `~/.subsub/trash`, so you can get it back. Export saves the open conversation as a Markdown file, with the tools that Sub-Sub used and their results.
+
 For a map of the parts (the apps, the servers, the modes and the folders), see [How it works](/how-it-works/).
 
 ### In the terminal

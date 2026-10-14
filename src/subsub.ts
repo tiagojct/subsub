@@ -665,6 +665,23 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		},
 	});
 
+	// The web view's library search: the result goes to the page through a status, like the library counts.
+	pi.registerCommand("subsub-find", {
+		description: "Sub-Sub: search the library for the web view",
+		handler: async (args, ctx) => {
+			if (ctx.mode !== "rpc") return;
+			const q = String(args ?? "").trim();
+			let out: Record<string, unknown>;
+			try {
+				const r = await current().call("zotero_find_items", { query: q, limit: 25 });
+				out = r.isError ? { error: r.text } : { items: (r.data as { items?: unknown[] })?.items ?? [] };
+			} catch (err) {
+				out = { error: (err as Error).message };
+			}
+			ctx.ui.setStatus("subsub.find", JSON.stringify({ q, ...out }));
+		},
+	});
+
 	pi.registerCommand("ai-statement", {
 		description: "Sub-Sub: a draft statement on the use of AI for a manuscript (what journals ask for)",
 		handler: async (args, ctx) => {

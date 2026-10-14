@@ -901,6 +901,29 @@ test("every tool a mode offers is either a server tool, a read-only file tool, o
 	}
 });
 
+test("web: the notes pane reads notes in the Sub-Sub folder only; wikilinks find their note", async () => {
+	const { allowedFile, listNotes, wikilinkTarget } = await import("../src/web.ts");
+	const dir = realpathSync(mkdtempSync(join(tmpdir(), "subsub-notes-")));
+	const vault = join(dir, "vault");
+	for (const d of ["Literature", "Research/.plans", "Research/sub"]) mkdirSync(join(vault, d), { recursive: true });
+	writeFileSync(join(vault, "Literature", "smith2021.md"), "# Smith");
+	writeFileSync(join(vault, "Research", "sub", "a.md"), "a");
+	writeFileSync(join(vault, "Research", ".plans", "plan.md"), "hidden");
+	writeFileSync(join(dir, "outside.md"), "outside");
+	symlinkSync(join(dir, "outside.md"), join(vault, "Literature", "link.md"));
+	assert.equal(allowedFile("Literature/smith2021.md", vault), join(vault, "Literature", "smith2021.md"));
+	assert.equal(allowedFile("../outside.md", vault), undefined, "outside the folder");
+	assert.equal(allowedFile("Literature/link.md", vault), undefined, "a link that points outside");
+	assert.equal(allowedFile("Literature/none.md", vault), undefined, "missing");
+	assert.equal(allowedFile("Literature", vault), undefined, "a folder");
+	assert.equal(allowedFile(join(vault, "Literature", "smith2021.md"), "/elsewhere", vault), join(vault, "Literature", "smith2021.md"), "the Sub-Sub folder from another working folder");
+	assert.equal(wikilinkTarget("smith2021", vault), join(vault, "Literature", "smith2021.md"));
+	assert.equal(wikilinkTarget("nobody", vault), undefined);
+	const rels = listNotes(vault).map((n) => n.rel.replaceAll("\\", "/"));
+	assert.ok(rels.includes("Literature/smith2021.md") && rels.includes("Research/sub/a.md"));
+	assert.ok(!rels.some((r) => r.includes(".plans")), "dot folders are left out");
+});
+
 test("web: Open judges the real file, not a link inside the notes folder", async () => {
 	const { realish, within } = await import("../src/paths.ts");
 	const dir = realpathSync(mkdtempSync(join(tmpdir(), "subsub-open-")));

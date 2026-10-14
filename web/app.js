@@ -49,9 +49,27 @@ async function api(path, body) {
 // ---------------------------------------------------------------- markdown (no raw HTML, safe links)
 
 const SAFE_LINK = /^(https?:|mailto:|zotero:|obsidian:)/i;
+/** A path or name that the notes pane can open: a .md file without a scheme. */
+const NOTE_PATH = /^(?![a-z][\w+.-]*:)[^\n]*\.md$/i;
+const noteLink = (target, inner) => `<a href="#" data-note="${escapeHtml(target)}">${inner}</a>`;
 function escapeHtml(s) {
 	return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 }
+// [[citekey]] and [[name|label]], as in Obsidian: a link to the note in the notes pane.
+marked.use({
+	extensions: [
+		{
+			name: "wikilink",
+			level: "inline",
+			start: (src) => src.indexOf("[["),
+			tokenizer(src) {
+				const m = /^\[\[([^\]|\n#]+)(?:#[^\]|\n]*)?(?:\|([^\]\n]+))?\]\]/.exec(src);
+				if (m) return { type: "wikilink", raw: m[0], target: m[1].trim(), label: (m[2] ?? m[1]).trim() };
+			},
+			renderer: (tok) => noteLink(tok.target, escapeHtml(tok.label)),
+		},
+	],
+});
 marked.use({
 	gfm: true,
 	breaks: false,
@@ -61,8 +79,13 @@ marked.use({
 		},
 		link(token) {
 			const text = this.parser.parseInline(token.tokens);
+			if (NOTE_PATH.test(decodeURI(token.href ?? ""))) return noteLink(decodeURI(token.href), text);
 			if (!SAFE_LINK.test(token.href ?? "")) return text;
 			return `<a href="${escapeHtml(token.href)}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+		},
+		codespan(token) {
+			const code = `<code>${escapeHtml(token.text)}</code>`;
+			return NOTE_PATH.test(token.text) ? noteLink(token.text, code) : code;
 		},
 		image(token) {
 			return escapeHtml(token.text || token.href || "");
@@ -243,6 +266,7 @@ function actionButton(a) {
 		type: "button",
 		text: a[lang] ?? a.en,
 		onclick: () => {
+			if (a.item) return $("library-search").focus();
 			closeSide();
 			if (a.send) sendMessage(`/${a.cmd}`);
 			else {
@@ -265,6 +289,130 @@ function renderBanner() {
 	} else b.hidden = true;
 }
 
+// ---------------------------------------------------------------- library search
+
+let libraryTimer = 0;
+let libraryQuery = "";
+
+function renderItems(items, message) {
+	const ul = $("items");
+	ul.replaceChildren();
+	if (message) return ul.append(el("li", { class: "muted", text: message }));
+	const researcher = mode() === "researcher";
+	for (const it of items) {
+		const ref = it.citekey || it.key;
+		const run = (cmd) => () => {
+			closeSide();
+			sendMessage(`/${cmd} ${ref}`);
+		};
+		ul.append(
+			el(
+				"li",
+				{},
+				el("div", { class: "item-title", text: it.title || it.key }),
+				el("div", { class: "item-meta", text: [it.authors, it.year, it.citekey].filter(Boolean).join(" · ") }),
+				el(
+					"div",
+					{ class: "item-actions" },
+					researcher ? el("button", { type: "button", text: t("readItem"), onclick: run("read") }) : null,
+					researcher ? el("button", { type: "button", text: t("noteItem"), onclick: run("lit-note") }) : null,
+					el("a", { href: `zotero://select/library/items/${encodeURIComponent(it.key)}`, text: "Zotero" }),
+				),
+			),
+		);
+	}
+}
+
+function searchLibrary() {
+	const q = $("library-search").value.replace(/\s+/g, " ").trim();
+	libraryQuery = q;
+	clearTimeout(libraryTimer);
+	if (!q) return renderItems([]);
+	libraryTimer = setTimeout(async () => {
+		renderItems([], t("searching"));
+		try {
+			const data = await api(`/api/library?q=${encodeURIComponent(q)}`);
+			if (data.q !== libraryQuery) return; // an older search answered late
+			if (data.error) renderItems([], data.error);
+			else renderItems(data.items ?? [], data.items?.length ? "" : t("noItems"));
+		} catch (err) {
+			if (q === libraryQuery) renderItems([], err.message);
+		}
+	}, 350);
+}
+
+// ---------------------------------------------------------------- notes pane
+
+let noteShown = null; // the note on screen, or null for the list
+let notesList = [];
+
+function showPane(open) {
+	$("note-pane").hidden = !open;
+	document.querySelector(".app").classList.toggle("note-open", open);
+	$("notes-btn").setAttribute("aria-expanded", String(open));
+}
+
+function renderNoteList() {
+	const body = $("note-body");
+	const q = $("note-filter").value.trim().toLowerCase();
+	const list = notesList.filter((n) => !q || n.rel.toLowerCase().includes(q));
+	const fmt = new Intl.DateTimeFormat(lang === "pt" ? "pt-PT" : "en-GB", { day: "numeric", month: "short", year: "numeric" });
+	body.replaceChildren(
+		list.length
+			? el(
+					"ul",
+					{ class: "note-list" },
+					list.map((n) =>
+						el(
+							"li",
+							{},
+							el("button", { type: "button", onclick: () => openNote(n.path) }, el("span", { class: "rel", text: n.rel }), el("span", { class: "when", text: fmt.format(new Date(n.modified)) })),
+						),
+					),
+				)
+			: el("p", { class: "muted small", text: t("noNotes") }),
+	);
+}
+
+async function showNoteList() {
+	noteShown = null;
+	$("note-name").textContent = t("notes");
+	$("note-back").hidden = true;
+	$("note-app").hidden = true;
+	$("note-filter").hidden = false;
+	showPane(true);
+	try {
+		notesList = (await api("/api/notes")).notes ?? [];
+	} catch (err) {
+		notesList = [];
+		note(err.message, "warning");
+	}
+	renderNoteList();
+}
+
+/** Show a note in the pane; anything that is not a note in the Sub-Sub folder goes to the system, as before. */
+async function openNote(path) {
+	let data;
+	try {
+		data = await api(`/api/note?path=${encodeURIComponent(path)}`);
+	} catch {
+		return api("/api/open", { path }).catch((err) => note(err.message, "warning"));
+	}
+	noteShown = data;
+	$("note-name").textContent = data.name;
+	$("note-name").title = data.path;
+	$("note-back").hidden = false;
+	$("note-app").hidden = false;
+	$("note-filter").hidden = true;
+	const front = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/.exec(data.text);
+	const content = el("div", { class: "md" });
+	content.innerHTML = md(front ? data.text.slice(front[0].length) : data.text);
+	attachCopyButtons(content);
+	$("note-body").replaceChildren(front ? el("details", { class: "front" }, el("summary", { text: t("properties") }), el("pre", { text: front[1] })) : "", content);
+	$("note-body").scrollTop = 0;
+	showPane(true);
+}
+
 let loadedSessions = [];
 
 function renderSessionsList(filterText = "") {
@@ -279,12 +427,30 @@ function renderSessionsList(filterText = "") {
 		return;
 	}
 	const fmt = new Intl.DateTimeFormat(lang === "pt" ? "pt-PT" : "en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+	// shortcut: the browser's own prompt and confirm; move to the page's dialog if they look out of place.
+	const rename = (s) => async () => {
+		const name = window.prompt(t("renamePrompt"), s.name || s.first || "");
+		if (!name?.trim()) return;
+		await api("/api/session/name", { path: s.path, name }).catch((err) => note(err.message, "warning"));
+		loadSessions();
+	};
+	const trash = (s) => async () => {
+		if (!window.confirm(t("trashConfirm"))) return;
+		await api("/api/session/trash", { path: s.path }).catch((err) => note(err.message, "warning"));
+		loadSessions();
+	};
 	for (const s of filtered) {
 		const current = session?.sessionFile === s.path;
 		ul.append(
 			el(
 				"li",
 				{ class: current ? "current" : "" },
+				el(
+					"span",
+					{ class: "session-tools" },
+					el("button", { type: "button", text: t("rename"), onclick: rename(s) }),
+					current ? null : el("button", { type: "button", text: t("trash"), onclick: trash(s) }),
+				),
 				el(
 					"button",
 					{
@@ -329,18 +495,30 @@ function exportConversation() {
 		note(t("noConversations"), "warning");
 		return;
 	}
+	const fence = (x) => `\`\`\`text\n${x.length > 3000 ? `${x.slice(0, 3000)}\n...` : x}\n\`\`\``;
 	for (const m of items) {
 		if (m.classList.contains("user")) {
-			const text = m.querySelector(".bubble")?.innerText ?? "";
-			if (text && text !== "/subsub-refresh") msgs.push(`### User\n\n${text}\n`);
+			const b = m.querySelector(".bubble");
+			// A long message is folded: export its full text, not the summary line.
+			const text = (b?.tagName === "DETAILS" ? b.querySelector("div")?.innerText : b?.innerText) ?? "";
+			if (text && text !== "/subsub-refresh") msgs.push(`### ${t("exportUser")}\n\n${text}\n`);
 		} else if (m.classList.contains("assistant")) {
-			const text = Array.from(m.querySelectorAll(".md")).map((d) => d.innerText).join("\n\n");
-			if (text) msgs.push(`### Sub-Sub\n\n${text}\n`);
+			const parts = [];
+			for (const c of m.children) {
+				if (c.classList.contains("md")) parts.push(c.innerText);
+				else if (c.classList.contains("tool")) {
+					const label = c.querySelector(".label")?.textContent ?? "";
+					const args = c.querySelector(".args")?.textContent ?? "";
+					const out = c.querySelector("pre")?.innerText;
+					parts.push(`> ${label}${args ? `: ${args}` : ""}${out ? `\n\n${fence(out)}` : ""}`);
+				}
+			}
+			if (parts.length) msgs.push(`### Sub-Sub\n\n${parts.join("\n\n")}\n`);
 		}
 	}
 	if (!msgs.length) return;
 	const date = new Date().toISOString().slice(0, 10);
-	const content = `# Sub-Sub Research Session (${date})\n\n**Mode**: ${mode()}  \n\n---\n\n${msgs.join("\n---\n\n")}`;
+	const content = `# ${t("exportHeading")} (${date})\n\n${t("exportMode")}: ${t(mode())}\n\n---\n\n${msgs.join("\n---\n\n")}`;
 	const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
 	const url = URL.createObjectURL(blob);
 	const a = document.createElement("a");
@@ -517,7 +695,7 @@ function updateTool(row, name, args) {
 				text: t("open"),
 				onclick: (e) => {
 					e.preventDefault();
-					api("/api/open", { path: args.path }).catch((err) => note(err.message, "warning"));
+					openNote(args.path);
 				},
 			}),
 		);
@@ -843,7 +1021,7 @@ function dialogTitle(d) {
 	// The program sends the title in the user's language; both forms get the same friendly title.
 	if ((m = raw.match(/^(?:apply|aplicar) (\S+)\?$/))) return t("apply", { x: toolLabel(m[1]) });
 	if ((m = raw.match(/^(?:run|executar) (\S+)\?$/))) return t("run", { x: toolLabel(m[1]) });
-	if (raw === "undo?" || raw === "anular?") return t("undo");
+	if (raw === "undo?" || raw === "anular?") return t("undoAsk");
 	if ((m = raw.match(/^(?:write the Starbuck report to|escrever o relatório do Starbuck em) (.+)\?$/))) return t("starbuckReport", { x: m[1] });
 	if ((m = raw.match(/^(write|edit) (.+)\?$/))) return t("write", { x: m[2] });
 	return raw;
@@ -891,6 +1069,7 @@ function nextDialog() {
 	body.replaceChildren();
 	const buttons = $("dialog-buttons");
 	buttons.replaceChildren();
+	buttons.classList.toggle("choices", d.method === "select" && (d.options ?? []).some((o) => o.length > 24));
 	const answer = async (reply) => {
 		try {
 			await api("/api/dialog", { id: d.id, ...reply });
@@ -1116,12 +1295,20 @@ let suggestIndex = 0;
 function suggest() {
 	const box = $("suggest");
 	const v = input.value;
+	// "/lit-note " (a command and a space): show what it needs.
+	const chosen = /^\/(\S+) $/.exec(v) && commands.find((c) => c.name === v.slice(1, -1));
+	if (chosen?.hint) {
+		box.replaceChildren(el("div", { class: "hint-row" }, el("span", { class: "name", text: `/${chosen.name}` }), el("span", { class: "desc", text: chosen.hint })));
+		box.hidden = false;
+		box.list = null;
+		return;
+	}
 	if (!/^\/\S*$/.test(v)) {
 		box.hidden = true;
 		return;
 	}
 	const q = v.slice(1).toLowerCase();
-	const list = commands.filter((c) => c.name !== "subsub-refresh" && c.name.toLowerCase().startsWith(q)).slice(0, 12);
+	const list = commands.filter((c) => !c.name.startsWith("subsub-") && c.name.toLowerCase().startsWith(q)).slice(0, 12);
 	if (!list.length) {
 		box.hidden = true;
 		return;
@@ -1137,7 +1324,7 @@ function suggest() {
 					"aria-selected": String(i === suggestIndex),
 					onclick: () => pick(c),
 				},
-				el("span", { class: "name", text: `/${c.name}` }),
+				el("span", { class: "name", text: c.hint ? `/${c.name} ${c.hint}` : `/${c.name}` }),
 				el("span", { class: "desc", text: (c.description ?? "").replace(/^Sub-Sub:\s*/, "") }),
 			),
 		),
@@ -1147,8 +1334,8 @@ function suggest() {
 }
 function pick(c) {
 	input.value = `/${c.name} `;
-	$("suggest").hidden = true;
 	input.focus();
+	suggest();
 }
 
 input.addEventListener("input", () => {
@@ -1245,6 +1432,22 @@ $("theme-btn-side")?.addEventListener("click", () => {
 	toggleTheme();
 });
 $("session-search")?.addEventListener("input", (e) => renderSessionsList(e.target.value));
+$("library-search").addEventListener("input", searchLibrary);
+$("notes-btn").addEventListener("click", () => ($("note-pane").hidden ? showNoteList() : showPane(false)));
+$("note-back").addEventListener("click", showNoteList);
+$("note-close").addEventListener("click", () => showPane(false));
+$("note-app").addEventListener("click", () => noteShown && api("/api/open", { path: noteShown.path }).catch((err) => note(err.message, "warning")));
+$("note-filter").addEventListener("input", renderNoteList);
+$("note-pane").addEventListener("keydown", (e) => {
+	if (e.key === "Escape") showPane(false);
+});
+// Links to notes, in replies and in notes: [[wikilinks]], .md paths in code, relative .md links.
+document.addEventListener("click", (e) => {
+	const a = e.target.closest?.("a[data-note]");
+	if (!a) return;
+	e.preventDefault();
+	openNote(a.dataset.note);
+});
 $("export-btn")?.addEventListener("click", exportConversation);
 $("quit-btn").addEventListener("click", async () => {
 	try {

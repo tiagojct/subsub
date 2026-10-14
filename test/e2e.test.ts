@@ -10,7 +10,7 @@ import { spawn, type ChildProcess } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, symlinkSync, writeFileSync } from "node:fs";
 import { createServer, request as httpRequest, type Server } from "node:http";
 import { homedir, tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import { after, before, test } from "node:test";
 import { fileURLToPath } from "node:url";
 
@@ -546,6 +546,7 @@ test("the web view: the page answers Sub-Sub's approval; other sites and hosts a
 		const hello = await stream.wait((e) => e.type === "hello");
 		assert.equal(hello.lang, "en");
 		assert.ok(Array.isArray(hello.commands) && hello.commands.some((c: any) => c.name === "tag-batch"));
+		assert.equal(hello.commands.find((c: any) => c.name === "lit-note")?.hint, "<citekey or title words>", "argument hints from the prompt files");
 		await stream.wait((e) => e.type === "subsub_state" && e.state?.mode === "librarian");
 
 		// A library change: Sub-Sub asks, the page answers, the change is made.
@@ -584,6 +585,38 @@ test("the web view: the page answers Sub-Sub's approval; other sites and hosts a
 		const reading = await stream.wait((e) => e.type === "message_start" && e.message.role === "user", 30_000, mark4);
 		assert.match(JSON.stringify(reading.message.content), /\/read background jacinto2026\\n/);
 		await stream.wait((e) => e.type === "agent_settled", 90_000, mark4);
+
+		// The notes pane: notes in the Sub-Sub folder by path or by [[name]], never a file outside it.
+		mkdirSync(join(vault, "Literature"), { recursive: true });
+		writeFileSync(join(vault, "Literature", "jacinto2026.md"), "---\ncitekey: jacinto2026\n---\n# FeNO\n");
+		const listed = JSON.parse((await call(port, "GET", "/api/notes", { headers: ok })).body);
+		assert.ok(listed.notes.some((n: any) => n.rel.replaceAll("\\", "/") === "Literature/jacinto2026.md"));
+		const byName = await call(port, "GET", "/api/note?path=jacinto2026", { headers: ok });
+		assert.equal(byName.status, 200);
+		assert.match(JSON.parse(byName.body).text, /# FeNO/);
+		assert.equal((await call(port, "GET", `/api/note?path=${encodeURIComponent("Literature/jacinto2026.md")}`, { headers: ok })).status, 200);
+		for (const bad of ["../outside.md", "link-out.md", "run-me.command"]) {
+			assert.notEqual((await call(port, "GET", `/api/note?path=${encodeURIComponent(bad)}`, { headers: ok })).status, 200, bad);
+		}
+
+		// The library search goes through the Zotero server.
+		const found = JSON.parse((await call(port, "GET", "/api/library?q=Asthma", { headers: ok })).body);
+		assert.ok(found.items?.some((i: any) => i.key === "BBBB3333"), JSON.stringify(found));
+
+		// Conversations: rename; the open one cannot be deleted; another goes to the trash folder, not away.
+		const cur = JSON.parse((await call(port, "GET", "/api/state", { headers: ok })).body).sessionFile;
+		assert.equal((await call(port, "POST", "/api/session/name", { headers: ok, body: { path: cur, name: "FeNO reading" } })).status, 200);
+		const named = JSON.parse((await call(port, "GET", "/api/sessions", { headers: ok })).body).sessions;
+		assert.ok(named.some((x: any) => x.path === cur && x.name === "FeNO reading"), JSON.stringify(named));
+		assert.equal((await call(port, "POST", "/api/session/trash", { headers: ok, body: { path: cur } })).status, 409);
+		assert.equal((await call(port, "POST", "/api/new", { headers: ok, body: {} })).status, 200);
+		script = [{ text: "Hello." }];
+		const mark5 = stream.events.length;
+		await call(port, "POST", "/api/prompt", { headers: ok, body: { message: "Hello" } });
+		await stream.wait((e) => e.type === "agent_settled", 90_000, mark5);
+		assert.equal((await call(port, "POST", "/api/session/trash", { headers: ok, body: { path: cur } })).status, 200);
+		assert.ok(!JSON.parse((await call(port, "GET", "/api/sessions", { headers: ok })).body).sessions.some((x: any) => x.path === cur));
+		assert.ok(existsSync(join(home, ".subsub", "trash", basename(cur))));
 
 		// Reference checks: the toggle saves the setting and restarts pi with the verify server.
 		if (existsSync(join(STARBUCK, ".venv"))) {

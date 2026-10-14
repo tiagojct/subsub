@@ -86,6 +86,8 @@ subsub --help        # all commands
 
 In the browser view, connect a model provider with the model button. In the terminal, type `/login`.
 
+The browser view also has a library search (each result can start `/read` or `/lit-note`), a notes pane that shows the notes of your Sub-Sub folder next to the conversation (note paths and `[[links]]` in replies open there), argument hints for the commands, and rename, delete (to `~/.subsub/trash`) and export for conversations.
+
 Commands in Sub-Sub:
 
 | Command | What it does |
