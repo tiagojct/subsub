@@ -21,13 +21,16 @@ fi
 npm run build
 node scripts/check.mjs
 
-# The workshop slides (../workshop, Quarto): served at /workshop/ and /workshop/en/,
-# not linked from the site and marked noindex. Copied after the link check.
+# The workshop slides (../workshop) and the test tutorial (../tutorial), both Quarto: served at
+# /workshop/, /workshop/en/ and /tutorial/, not linked from the site and marked noindex.
+# Copied after the link check.
 if command -v quarto >/dev/null 2>&1; then
-  (cd ../workshop && quarto render >/dev/null)
-  rm -rf _site/workshop && cp -R ../workshop/_output _site/workshop
+  for d in workshop tutorial; do
+    (cd ../$d && quarto render >/dev/null)
+    rm -rf _site/$d && cp -R ../$d/_output _site/$d
+  done
 else
-  echo "quarto not found: the workshop is not in this release" >&2
+  echo "quarto not found: the workshop and the tutorial are not in this release" >&2
 fi
 
 SHA=$(git rev-parse --short HEAD)

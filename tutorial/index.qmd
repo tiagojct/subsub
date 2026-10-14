@@ -1,0 +1,403 @@
+---
+title: "Test everything in Sub-Sub"
+subtitle: "A tutorial to follow along, one command at a time. Sub-Sub 0.17."
+---
+
+```{=html}
+<div class="progress-bar-box"><span id="progress-count">Steps done</span><button type="button" id="progress-reset">Clear the ticks</button></div>
+```
+
+This page takes you through every command and every part of Sub-Sub. Do the steps in order. Each step has an action and the result to expect. Tick the box when the result is correct. The ticks stay in this browser.
+
+If a result is different, write down the step number and what you saw. At the end, [report it](#report-a-problem).
+
+## Before you start {#before-you-start}
+
+You need:
+
+- Zotero 10 or later, open, with Settings > Advanced > "Allow other applications on this computer to communicate with Zotero" on.
+- Sub-Sub installed, with a model for each mode. The tested models of OpenCode Go are the reference.
+- About three hours for the whole page. Each section also works alone.
+- A text editor for Markdown files, or Obsidian.
+
+About your library:
+
+- Every library change shows a preview first and runs only after you select Yes. You can undo each change.
+- To keep your real library apart, start Zotero with a second profile (Zotero's Profile Manager), or work only with the test items of @sec-import.
+- The research commands use the model and cost a few cents each with OpenCode Go.
+
+The test items of this page are five papers with stable identifiers:
+
+| Paper | DOI |
+|---|---|
+| PRISMA 2020 statement | `10.1136/bmj.n71` |
+| CONSORT 2010 statement | `10.1136/bmj.c332` |
+| STROBE statement | `10.1371/journal.pmed.0040296` |
+| ATS/ERS spirometry standard, 2019 update | `10.1164/rccm.201908-1590ST` |
+| Wakefield 1998 (retracted) | `10.1016/S0140-6736(97)11096-0` |
+
+## Install and check the set-up {#sec-setup}
+
+Use a terminal for this section.
+
+- [ ] Type `subsub --version`.\
+  Result: the versions of Sub-Sub and pi, for example `subsub 0.17.0 (pi 1.0.4)`.
+- [ ] Type `subsub --help`.\
+  Result: the list of `subsub` commands and options.
+- [ ] Type `subsub doctor`.\
+  Result: one line for each check (Node, uv, Settings, Zotero, Zotero server, Tag list, Models). A line marked FIX says what to do. Do each fix, then type `subsub doctor` again until no line says FIX.
+- [ ] Type `subsub init`. Press Enter at each question to keep the current value.\
+  Result: no setting changes, and no file in your Sub-Sub folder is replaced.
+- [ ] Open `~/.config/subsub/config.json` in a text editor.\
+  Result: your settings, with no `profile` line.
+- [ ] Type `subsub shortcut`.\
+  Result: Sub-Sub adds the shortcut again (Applications on macOS, the Start menu and the desktop on Windows, the applications menu on Linux).
+- [ ] If the usage log is on, type `subsub usage`.\
+  Result: a summary of the log and the place of the file. If the log is off, Sub-Sub says so.
+
+## Open Sub-Sub in the browser {#sec-open}
+
+- [ ] Open Sub-Sub from its shortcut, or type `subsub web`.\
+  Result: Sub-Sub opens in your browser. The top bar shows Researcher and Librarian, the Zotero line with the number of items, Notes, the model button, the width button and the theme button.
+- [ ] Look at the empty conversation.\
+  Result: "What would you like to do?", and three suggestions. If something is missing (Zotero, a model, the servers), a short list says what to fix.
+- [ ] Select the model button.\
+  Result: the model window names the current mode. The tested models come first, with labels such as tested, cheaper, free or EU.
+- [ ] In the model window, type part of a model name in the search box.\
+  Result: the list shows only the models that match. Select Close.
+- [ ] Select the theme button three times.\
+  Result: the page changes from automatic to light, to dark, and back to automatic.
+- [ ] Select the width button.\
+  Result: the conversation uses the whole width. Select it again to go back.
+- [ ] Select Library overview in the left panel.\
+  Result: the mode, the model, the Zotero connection, the number of items, items without tags, missing facets and items awaiting review.
+
+## The two modes {#sec-modes}
+
+- [ ] Select Librarian at the top.\
+  Result: the accent colour changes to rust. The left panel shows only the Library group of actions.
+- [ ] Type `/lit spirometry`.\
+  Result: a notice: "/lit is part of the Researcher. Switch with /researcher." Nothing goes to the model.
+- [ ] Type `/read smith2021`.\
+  Result: the same notice for `/read`.
+- [ ] Type `search PubMed for home spirometry`.\
+  Result: Sub-Sub says that searches are part of the Researcher. It does not search.
+- [ ] Type `/researcher`.\
+  Result: the accent colour changes to blue, and the Research group of actions comes back.
+- [ ] Type `/profile`.\
+  Result: a notice: Sub-Sub no longer has profiles; every command is in the Researcher; to read a paper with guidance, type `/read`.
+
+## Import the test items {#sec-import}
+
+Use the Researcher.
+
+- [ ] Type `import 10.1136/bmj.n71`.\
+  Result: a preview of one new item, the PRISMA 2020 statement. Nothing changes yet.
+- [ ] Select No.\
+  Result: Sub-Sub says that the change was declined. Zotero has no new item.
+- [ ] Type the same request again. In the preview, press Y.\
+  Result: the item is in Zotero. The tool line in the conversation has an Undo button.
+- [ ] Type `import 10.1136/bmj.c332, 10.1371/journal.pmed.0040296, 10.1164/rccm.201908-1590ST and 10.1016/S0140-6736(97)11096-0`.\
+  Result: one preview for the four items. Select Yes. The four items are in Zotero.
+- [ ] Type `import 10.1136/bmj.n71` again.\
+  Result: Sub-Sub skips it: already in the library, with its citekey. No duplicate.
+- [ ] Type `import pmid:33782057` (the PMID of PRISMA 2020).\
+  Result: skipped as well. Sub-Sub matches the item by its PMID.
+- [ ] Type `import ISBN` and the ISBN of a book that you own.\
+  Result: a preview of a book item. Select No if you do not want it.
+- [ ] Ask `what are the citekeys of the five items I imported today?`.\
+  Result: five citekeys. Write them down: the next sections use them.
+
+## Approvals and undo {#sec-undo}
+
+- [ ] Type `/history`.\
+  Result: the recent changes, newest first, each with an id.
+- [ ] On the PRISMA import line in the conversation, select Undo.\
+  Result: a preview of what Undo restores. Select Yes. The item goes to the Zotero trash.
+- [ ] Type `import 10.1136/bmj.n71` once more and select Yes.\
+  Result: PRISMA 2020 is back in the library.
+- [ ] Ask Sub-Sub to add a tag from your tag list to the CONSORT item. While the preview is open, change the title of that item in Zotero. Then select Yes.\
+  Result: Sub-Sub shows the new preview before it changes anything.
+- [ ] Ask for another tag change. When the preview opens, press N at once.\
+  Result: keys pressed in the first moment after the window opens do not count. Press N again: the change is declined.
+- [ ] Type `/undo`.\
+  Result: a preview of the last change, then the change is reverted after Yes.
+- [ ] Ask Sub-Sub to add the tag `not-in-my-list` to one item.\
+  Result: the server refuses it: only tags from your tag list can be added.
+
+## Tags {#sec-tags}
+
+- [ ] Open `Zotero/Zotero tags.md` in your Sub-Sub folder.\
+  Result: your tag list, in facets (topic/, method/, type/, status/).
+- [ ] If the list has no topic/ tags, type `propose topics for my tag list`.\
+  Result: `Inbox/Zotero topic proposal.md` with 15 to 30 topics. Copy the ones you want into the tag list.
+- [ ] Select Tag 10 items in the left panel.\
+  Result: a review note `Inbox/Zotero tag review NN.md`, with one row per item: the current tags, the proposed tags and a reason.
+- [ ] Open the note. Change one tag in the Proposed tags column. Save the file.\
+  Result: the file has your change.
+- [ ] In a terminal, type `subsub review preview NN` (the number of the note).\
+  Result: what the note would change. Nothing changes.
+- [ ] In Sub-Sub, type `apply the tag review Inbox/Zotero tag review NN.md`.\
+  Result: one preview with your edited tags. Select Yes. The note gets an "Applied" line.
+- [ ] Type the same request again.\
+  Result: Sub-Sub says that the note was already applied.
+- [ ] Type `/tag-batch 5`.\
+  Result: a review note with five items.
+- [ ] Select Clean up tags in the left panel.\
+  Result: a check of the tags (items over the limits, tags that always come together, tags outside the list) and review notes for the items it flags.
+- [ ] In Zotero, add the manual tag `spiro-test` to one test item. In Sub-Sub, type `rename the tag spiro-test to` and a topic tag from your list.\
+  Result: a preview of the rename. Select Yes.
+- [ ] If some items in your library have automatic tags (for example from the Zotero Connector), type `remove the automatic tags from` and one such item.\
+  Result: a preview that removes them. Select Yes, or No to keep them. The items that Sub-Sub imports have no automatic tags: it imports no keywords or MeSH tags.
+
+## Metadata, PDFs, duplicates and collections {#sec-library}
+
+- [ ] Type `check the metadata of the items I imported today`.\
+  Result: a list of missing or odd fields, if any.
+- [ ] Type `repair the metadata of those items`.\
+  Result: a preview of the repairs, with a confidence for each match. Select Yes or No.
+- [ ] Select the suggestion `Which items have no PDF?` or type it.\
+  Result: the items without a PDF.
+- [ ] Type `attach open-access PDFs to the items I imported today`.\
+  Result: a preview of the open-access PDFs that Sub-Sub finds. Select Yes. The PDFs are in Zotero.
+- [ ] In Zotero, right-click the CONSORT item and select Duplicate Item. In Sub-Sub, type `find duplicates`.\
+  Result: a group with the two CONSORT items and the evidence (identifiers, fields, files). Sub-Sub does not merge them.
+- [ ] In Zotero, merge the two items (Duplicate Items view, Merge).\
+  Result: one CONSORT item.
+- [ ] Type `check the items I imported today for retractions`.\
+  Result: the Wakefield paper is retracted. Sub-Sub proposes the tag `_retracted`. Select Yes.
+- [ ] Type `create a collection Sub-Sub test and file the items I imported today in it`.\
+  Result: one preview for the collection and the items. Select Yes.
+- [ ] Type `add a note to the PRISMA item: test note from the tutorial`.\
+  Result: a preview, then a child note on the item in Zotero.
+- [ ] Type `set citekeys for the items that have none`.\
+  Result: a preview of new citekeys (surname and year), or a message that every item has one.
+- [ ] Type `set the short title of the PRISMA item to PRISMA 2020`.\
+  Result: a preview of the field change. Select Yes.
+- [ ] Type `move the STROBE item to the trash`.\
+  Result: a preview, then the item is in the Zotero trash. Undo it with the Undo button. The item comes back.
+
+## Files without a parent item {#sec-files}
+
+- [ ] Drag a PDF that is not in Zotero into the Zotero window, outside any item.\
+  Result: a file without a parent item.
+- [ ] Type `list the files without a parent item`.\
+  Result: the file, with the title that Sub-Sub reads in it.
+- [ ] Type `create a fitting parent item for my files without a parent item`.\
+  Result: Sub-Sub looks the work up (Crossref, Google Books, Internet Archive, Open Library, Wikidata, and Brave if you saved a key) and shows a preview. Select Yes or No.
+
+## Questions and searches {#sec-search}
+
+- [ ] Type `What do I have on spirometry?`.\
+  Result: an answer from your library, one line per item, with citekeys.
+- [ ] Select What is missing in the left panel. Complete the command: `/gaps home spirometry in children`.\
+  Result: how many results are already in your library, and a list of relevant works that are missing. Sub-Sub asks before it imports.
+- [ ] Answer `queue the first three for later`.\
+  Result: three lines in `Inbox/Zotero import queue.md`.
+- [ ] Open the queue note and tick two lines. Select Import the queue in the left panel.\
+  Result: one preview for the two ticked works. Select Yes, or No to keep your library as it is.
+- [ ] Type `which works cite the PRISMA 2020 statement? Give five recent ones`.\
+  Result: five citing works from OpenAlex, with their identifiers.
+
+## Read a paper with guidance (/read) {#sec-read}
+
+Use a primary study with a PDF in your library for the steps with the full text.
+
+- [ ] Select Read a paper in the left panel.\
+  Result: a window asks "Which paper?".
+- [ ] Type the citekey of the PRISMA item and select OK.\
+  Result: a second window asks "Why are you reading it?", with four reasons in a list.
+- [ ] Select Background.\
+  Result: the conversation shows `/read background` and the citekey. Sub-Sub reads the title and abstract only, then writes `Literature/<citekey>.md`.
+- [ ] Select Notes at the top, then the new note.\
+  Result: the note opens next to the conversation. It has "Why I am reading this", quotes from the title or abstract, the question "Does this paper fit your reason?", empty Keep and Drop boxes, and a "Next step" line. It states no results.
+- [ ] In the note, select Properties.\
+  Result: the front matter, with `type: reading-note`, `purpose: background` and `evidence: abstract`.
+- [ ] Type `/read fact` and the citekey of your primary study. At the question, type `the age of the participants`.\
+  Result: the passages that give the age, quoted with the page (full text) or the section (abstract), each with a question and an empty answer line.
+- [ ] Type `/read extract` and the same citekey. At the question about the sheet, select New sheet. Type a review question.\
+  Result: a reading note with the passage for each field (question, design, population, setting, outcome, main finding) and empty answer lines. A new sheet `Research/<slug> extraction.md` with one row: the citekey and, in each column, only the place to look.
+- [ ] Type `/read extract` and a second citekey. Select the sheet that you made.\
+  Result: a second row in the same sheet.
+- [ ] Type `/read critique` and the citekey of your primary study.\
+  Result: quotes from the methods, results and discussion, each with a question, and an Appraisal section that names the reporting guideline for the design (for example CONSORT or STROBE). The checklist itself is not copied.
+- [ ] Type `/read critique` and the citekey of an item without a PDF.\
+  Result: Sub-Sub says that a critique needs the full text and offers `/request-copy`.
+- [ ] Type `/read critique` and the DOI of a paper that is not in your library.\
+  Result: Sub-Sub reads the open-access text or the abstract and offers to import the paper.
+- [ ] Open the PRISMA note again.\
+  Result: when you read the same paper twice, the note gets a new section "Reading <date>: <reason>" at the end. The rest does not change.
+
+## Literature notes and syntheses {#sec-notes}
+
+- [ ] Select Literature note in the left panel.\
+  Result: the cursor moves to the library search box.
+- [ ] Type `spirometry` in the library search. On a result, select Note.\
+  Result: Sub-Sub starts `/lit-note` for that item and writes `Literature/<citekey>.md` with a summary, key points and methods. The front matter says what it read (`evidence: full text`, `abstract` or `metadata`).
+- [ ] Open the note and check two quotes against the PDF.\
+  Result: each quote is in the PDF, word for word, on the page given.
+- [ ] Type `write a literature note for` and a citekey `from the abstract only, and give page numbers`.\
+  Result: a note with `evidence: abstract` and no page numbers. If Sub-Sub tries to add page numbers, the write fails first, with the reason: page numbers come only from the full text.
+- [ ] Type `/synthesis spirometry`.\
+  Result: a list of candidate items from your library, and important works that are missing. Sub-Sub waits for your choice.
+- [ ] Choose three items.\
+  Result: a note in `Syntheses/` with a table of the items and a source for each claim.
+
+## Reviews of the literature {#sec-lit}
+
+- [ ] Select Literature review in the left panel. Complete the command: `/lit home spirometry in children with asthma`.\
+  Result: a three-line plan, then searches of your library and of PubMed, Europe PMC and OpenAlex. Then a note `Research/<date> <slug>.md` with an answer, an evidence table, agreement, disagreement, open questions, methods, the section "What this review is" and the sources.
+- [ ] Open `Research/.plans/`.\
+  Result: the plan and the screening log, with the counts for a flow diagram.
+- [ ] While `/lit` runs, select Stop.\
+  Result: Sub-Sub stops. Type `continue` to go on.
+- [ ] Select Reading list in the left panel. Complete the command: `/lit reading list: home spirometry in children with asthma`.\
+  Result: a note with `type: reading-list`: the order to read the works, what each work studies, and questions to read each one with. No results, in the note or in the reply.
+- [ ] Select Compare sources. Complete the command: `/compare does home spirometry agree with clinic spirometry?`.\
+  Result: `Research/<date> <slug> comparison.md` with a matrix: claim, evidence type, population, caveats, confidence.
+- [ ] Select Digest of the week.\
+  Result: a digest of the alerts and notes of the last 7 days.
+- [ ] If an alert note `Inbox/Literature alerts <date>.md` exists, select New publications.\
+  Result: the new works of the alert, grouped by theme. Sub-Sub ticks nothing. Skip this step if you have no alert note.
+
+## A test manuscript {#sec-manuscript}
+
+Make a folder outside your Sub-Sub folder, for example `~/Desktop/subsub-test`. In it, save this file as `draft.qmd`. Replace `KEY1` to `KEY4` with the citekeys of CONSORT, STROBE, PRISMA and Wakefield.
+
+```markdown
+---
+title: "Home spirometry in children: a test draft"
+bibliography: references.json
+---
+
+## Background
+
+Reporting guidelines help authors describe their studies in full [@KEY1; @KEY2].
+A systematic review must report how the studies were found [@KEY3].
+MMR vaccination was linked to autism in children [@KEY4].
+This sentence cites a work that does not exist [@nobody2099].
+Home spirometry is feasible in school-age children.
+```
+
+- [ ] Type `/manuscript ~/Desktop/subsub-test/draft.qmd`.\
+  Result: `@nobody2099` is missing from your library, with similar keys if any. Sub-Sub offers to write `references.json`.
+- [ ] Accept.\
+  Result: Sub-Sub asks before it writes outside your Sub-Sub folder. Select Yes. `references.json` is next to the draft.
+- [ ] Type `/review ~/Desktop/subsub-test/draft.qmd`.\
+  Result: `draft-review.md` next to the draft (after you allow the write), with FATAL, MAJOR and MINOR issues and the reporting guideline it used. The draft does not change.
+- [ ] In the left panel, turn on Reference checks (Starbuck).\
+  Result: Sub-Sub restarts. `subsub doctor` shows Starbuck ok.
+- [ ] Type `/verify ~/Desktop/subsub-test/draft.qmd`.\
+  Result: the Wakefield paper is flagged as retracted, and `@nobody2099` cannot be checked. The last sentence is listed as a finding without a citation. The report goes in `_starbuck` next to the draft, after you allow it.
+- [ ] Type `/verify ~/Desktop/subsub-test/draft.qmd claims`.\
+  Result: for each citing sentence, a verdict on whether the source supports it, with the passage quoted word for word.
+- [ ] Type `draft one sentence for the background of my manuscript on home spirometry, citing my library`.\
+  Result: a sentence with `[@citekey]`, marked as drafted text.
+- [ ] Type `write the essay for my course assignment on asthma in children`.\
+  Result: Sub-Sub does not draft text for assignments. It offers `/read`, quotes and questions.
+- [ ] Select Statement on AI use. Complete the command: `/ai-statement literature searches and reading notes`.\
+  Result: `Research/<date> AI use statement.md` with the Sub-Sub version, its DOI and your models. The parts in brackets are for you.
+- [ ] Select Ask an author for a copy. Complete the command with the DOI of a paper that is not open access.\
+  Result: a draft email to the corresponding author in `Inbox/`. Sub-Sub sends nothing.
+
+## The browser view {#sec-web}
+
+- [ ] In the library search, type a word from a title.\
+  Result: up to 25 items, each with the title, the authors, the year, the citekey, Read, Note and Zotero.
+- [ ] On a result, select Zotero.\
+  Result: Zotero selects the item.
+- [ ] On a result, select Read.\
+  Result: Sub-Sub starts `/read` for that item and asks why you read it. Select Cancel: nothing is sent.
+- [ ] Type `/lit-note` and a space in the message box.\
+  Result: above the box, the command and what it needs: `<citekey or title words>`.
+- [ ] Type `/` in the message box. Use the arrow keys and Tab.\
+  Result: the list of commands with their descriptions; Tab puts the chosen command in the box.
+- [ ] In a reply that gives the path of a note in code font (for example `Literature/<citekey>.md`), select the path.\
+  Result: the note opens in the notes pane.
+- [ ] In the notes pane, select All notes and type a word in the filter.\
+  Result: the list shows only the notes whose path has that word.
+- [ ] Open a synthesis note and select a `[[citekey]]` link in it.\
+  Result: the literature note of that item opens in the pane.
+- [ ] Select Open in app.\
+  Result: the note opens in Obsidian or in your Markdown editor.
+- [ ] Press Escape in the pane, or select Close.\
+  Result: the pane closes.
+- [ ] On a write line in the conversation, select Open.\
+  Result: the written note opens in the pane.
+- [ ] While Sub-Sub works on a request, type a second message and send it.\
+  Result: the second message waits for the first to finish.
+- [ ] In the conversation list, type a word in Search conversations.\
+  Result: only the conversations with that word.
+- [ ] Point to a conversation and select Rename. Type a name.\
+  Result: the list shows the new name.
+- [ ] Point to an older conversation and select Delete. Confirm.\
+  Result: the conversation leaves the list. The file is in `~/.subsub/trash`, in the same subfolder as under `~/.subsub/agent/sessions/`. The open conversation has no Delete button.
+- [ ] Select Export.\
+  Result: a Markdown file `Sub-Sub-<date>.md` in your downloads folder, with the messages and the tools that Sub-Sub used, with their results.
+- [ ] Select New conversation.\
+  Result: an empty conversation. The earlier one is in the list.
+- [ ] Make the browser window narrow, like a phone.\
+  Result: the left panel becomes a menu (the button at the top left), and the notes pane covers the page when it is open.
+- [ ] Select Close Sub-Sub at the bottom of the left panel.\
+  Result: Sub-Sub stops. Open it again from the shortcut.
+
+## The terminal {#sec-terminal}
+
+- [ ] Type `subsub`.\
+  Result: the banner, the version, the mode and model, and the library line. The status line at the bottom shows the mode and the model.
+- [ ] Type `/` and look at the list.\
+  Result: every command, including `/read`.
+- [ ] Ask for a tag change on a test item.\
+  Result: the preview in the terminal, with added tags in green and removed tags in red. Answer No.
+- [ ] Type `/librarian`, then `/researcher`.\
+  Result: the mode changes, and the header shows it.
+- [ ] Quit, then type `subsub -c`.\
+  Result: the last conversation continues.
+- [ ] Quit, then type `subsub -r`.\
+  Result: a list of earlier conversations to choose from.
+- [ ] Quit, then type `subsub --librarian`.\
+  Result: Sub-Sub starts in the Librarian.
+- [ ] Go to `~/Desktop/subsub-test` and type `subsub --here`. Ask `write a file notes.md here with one line`.\
+  Result: Sub-Sub works in that folder and writes `notes.md` without a question: the current folder is allowed, like the Sub-Sub folder.
+
+## Safety checks {#sec-safety}
+
+- [ ] Ask `read the file ~/.subsub/agent/auth.json`.\
+  Result: Sub-Sub refuses: the file holds keys.
+- [ ] Ask `write a file test.md in my home folder`.\
+  Result: Sub-Sub asks before it writes outside the Sub-Sub folder. Select No. No file.
+- [ ] Ask `delete the five test items`.\
+  Result: a preview that moves them to the Zotero trash. Nothing is deleted for good. Select No.
+
+## Portuguese {#sec-portuguese}
+
+- [ ] Type `subsub init`. At the language question, type `European Portuguese`. Press Enter at the other questions.\
+  Result: the settings file says `"language": "European Portuguese"`.
+- [ ] Close Sub-Sub and open it again.\
+  Result: the page is in Portuguese: Investigador, Bibliotecário, Notas, Ler um artigo, Lista de leitura, Nota de literatura.
+- [ ] Ask for a tag change.\
+  Result: the preview and the buttons Sim and Não are in Portuguese. Press S to approve, or N to decline.
+- [ ] Type `/profile`.\
+  Result: "O Sub-Sub já não tem perfis...".
+- [ ] Select Ler um artigo and look at the reasons.\
+  Result: Contexto, Um dado, Extração, Crítica.
+- [ ] Type `subsub init` again and set the language back to English.\
+  Result: the page is in English after you open Sub-Sub again.
+
+## Clean up {#sec-cleanup}
+
+- [ ] In Zotero, delete the collection Sub-Sub test, and the test items if you do not want them.\
+  Result: your library as before the tutorial.
+- [ ] Delete the test notes in `Literature/`, `Syntheses/`, `Research/` and `Inbox/` of your Sub-Sub folder.\
+  Result: only your own notes.
+- [ ] Delete `~/Desktop/subsub-test`.
+- [ ] If you turned on Starbuck for the tutorial only, turn it off in the left panel.
+- [ ] Empty `~/.subsub/trash` if you do not need the deleted conversations.
+
+## Report a problem {#report-a-problem}
+
+For each step whose result was different, write down the step number, what you did and what you saw. Then:
+
+1. Type `subsub doctor` and `subsub --version`, and copy the output.
+2. In the browser view, select Export to save the conversation.
+3. Open an issue on [GitHub](https://github.com/tiagojct/subsub/issues) with the above. Do not include API keys.

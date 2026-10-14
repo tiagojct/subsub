@@ -1,0 +1,30 @@
+# A tutorial to test every Sub-Sub command: /tutorial/ on the site.
+# quarto render here writes _output/, which site/scripts/deploy.sh copies into the site.
+# Not linked from the site, and marked noindex.
+project:
+  type: default
+  output-dir: _output
+  render:
+    - index.qmd
+  resources:
+    - assets/checks.js
+
+format:
+  html:
+    lang: en-GB
+    toc: true
+    toc-depth: 2
+    toc-title: Steps
+    number-sections: true
+    smooth-scroll: true
+    anchor-sections: true
+    theme:
+      light: [cosmo, theme.scss]
+      dark: [cosmo, theme-dark.scss]
+    include-in-header:
+      text: |
+        <meta name="robots" content="noindex, nofollow">
+        <link rel="icon" href="https://subsub.tiagojacinto.eu/assets/favicon.svg" type="image/svg+xml">
+    include-after-body:
+      text: |
+        <script src="assets/checks.js"></script>
