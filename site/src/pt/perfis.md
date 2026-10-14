@@ -49,7 +49,7 @@ O Bibliotecário usa um servidor, o zotero: as ferramentas da biblioteca. O Inve
 
 O Sub-Sub escreve notas de literatura, sínteses e revisões a partir do que leu, com uma fonte para cada afirmação. Cada nota diz o que o Sub-Sub leu: o texto completo, o resumo ou apenas os metadados.
 
-Só redige texto para o seu manuscrito quando o pede. Cita os itens da biblioteca como `[@citekey]`, usa apenas afirmações de fontes que leu e marca o texto redigido para que o possa verificar.
+Não redige texto para trabalhos de avaliação, mesmo que o peça. Só redige texto para o seu manuscrito ou tese quando o pede. Cita os itens da biblioteca como `[@citekey]`, usa apenas afirmações de fontes que leu e marca o texto redigido para que o possa verificar.
 
 ## Aprender a ler a literatura
 

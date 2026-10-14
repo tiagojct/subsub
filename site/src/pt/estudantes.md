@@ -5,7 +5,7 @@ lang: pt-PT
 alt: /students/
 eyebrow: Novo no Zotero ou em ferramentas de IA
 description: O que é o Sub-Sub para um estudante, o que não faz, como começar sem pagar e as palavras que vai encontrar.
-lead: O Sub-Sub ajuda a encontrar, organizar e ler artigos. Só redige texto para os seus trabalhos quando o pede. Pode experimentá-lo sem pagar.
+lead: O Sub-Sub ajuda a encontrar, organizar e ler artigos. Não escreve os seus trabalhos de avaliação. Pode experimentá-lo sem pagar.
 ---
 
 In English: [For students](/students/).
@@ -18,7 +18,7 @@ O Sub-Sub abre no navegador, como um site, mas corre no seu computador. Fala por
 
 ## O que não faz
 
-- Não escreve os seus trabalhos nem a sua tese por iniciativa própria. Só redige texto quando o pede, e marca o texto redigido. Para aprender a ler artigos, use o `/read`: o Sub-Sub dá-lhe citações com o sítio onde estão e perguntas para responder enquanto lê. Para uma revisão da literatura, o `/lit reading list:` dá-lhe as obras a ler e perguntas para as ler, sem resultados.
+- Não escreve os seus trabalhos de avaliação, mesmo que o peça. Para uma tese, só redige texto quando o pede, e marca o texto redigido. Para aprender a ler artigos, use o `/read`: o Sub-Sub dá-lhe citações com o sítio onde estão e perguntas para responder enquanto lê. Para uma revisão da literatura, o `/lit reading list:` dá-lhe as obras a ler e perguntas para as ler, sem resultados.
 - Não substitui a leitura do artigo. Uma nota feita com um modelo gratuito pode ser pobre. Confirme cada citação na página antes de a usar.
 - Não muda a sua biblioteca do Zotero sem perguntar. Vê cada alteração antes e escolhe Sim ou Não. Pode anulá-la depois.
 

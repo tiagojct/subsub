@@ -48,7 +48,7 @@ The Librarian uses one server, zotero: the library tools. The Researcher uses zo
 
 Sub-Sub writes literature notes, syntheses and reviews from what it read, with a source for every claim. Each note says what Sub-Sub read: the full text, the abstract or only the metadata.
 
-It drafts text for your manuscript only when you ask. It cites library items as `[@citekey]`, uses only claims from sources it read, and marks the drafted text so that you can check it.
+It does not draft text for assignments, even when you ask. It drafts text for your manuscript or thesis only when you ask. It cites library items as `[@citekey]`, uses only claims from sources it read, and marks the drafted text so that you can check it.
 
 ## Learn to read the literature
 

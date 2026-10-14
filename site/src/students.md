@@ -4,7 +4,7 @@ layout: base.njk
 title: For students
 eyebrow: New to Zotero or to AI tools
 description: What Sub-Sub is for a student, what it does not do, how to start for free, and the words you will meet.
-lead: Sub-Sub helps you find, organise and read papers. It drafts text for your work only when you ask. You can try it for free.
+lead: Sub-Sub helps you find, organise and read papers. It does not write your assignments. You can try it for free.
 ---
 
 Em português: [Para estudantes](/pt/estudantes/).
@@ -17,7 +17,7 @@ Sub-Sub opens in your web browser, like a website, but it runs on your own compu
 
 ## What it does not do
 
-- It does not write your assignments or your thesis on its own. It drafts text only when you ask, and marks the drafted text. To learn to read papers, use `/read`: Sub-Sub gives you quotes with their place and questions to answer as you read. For a literature review, `/lit reading list:` gives you the works to read and questions to read them with, and no results.
+- It does not write your assignments, even when you ask. For a thesis, it drafts text only when you ask, and marks the drafted text. To learn to read papers, use `/read`: Sub-Sub gives you quotes with their place and questions to answer as you read. For a literature review, `/lit reading list:` gives you the works to read and questions to read them with, and no results.
 - It does not replace reading the paper. A note from a free model can be thin. Check each quote against the page before you use it.
 - It does not change your Zotero library without asking. You see every change first and select Yes or No. You can undo it later.
 

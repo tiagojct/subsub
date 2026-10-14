@@ -31,7 +31,7 @@ Every library change works the same way in both modes:
 
 ## What Sub-Sub writes
 
-Sub-Sub writes literature notes, syntheses and reviews from what it read, with a source for every claim. It drafts text for your manuscript only when you ask, and marks the drafted text so that you can check it.
+Sub-Sub writes literature notes, syntheses and reviews from what it read, with a source for every claim. It drafts text for your manuscript or thesis only when you ask, and marks the drafted text so that you can check it. It does not draft text for assignments, even when you ask.
 
 To learn to read papers yourself, use `/read`: Sub-Sub finds the passages and asks questions, and you write the answers. `/lit reading list: <topic>` gives a reading list with questions to read with, and no results.
 

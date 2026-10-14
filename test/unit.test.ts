@@ -629,7 +629,8 @@ test("modes: reasons and prompt text", () => {
 	assert.match(languageRule("Portuguese", "Ana"), /Always reply in Portuguese, even when Ana writes/);
 	const sys = systemAddition("researcher", { ...CFG, userName: "Ana", language: "auto" }, "/elsewhere");
 	assert.match(sys, /the researcher for Ana's Zotero library/);
-	assert.match(sys, /Draft text for Ana's manuscripts, theses or assignments only when Ana asks/);
+	assert.match(sys, /Draft text for Ana's manuscripts or theses only when Ana asks/);
+	assert.match(sys, /Never draft text for an assignment/);
 	assert.match(sys, /# Language\n\nReply in the language Ana writes in/);
 	assert.doesNotMatch(sys, /# Profile|Tiago|\{\{/);
 });
