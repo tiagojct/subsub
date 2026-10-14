@@ -521,7 +521,8 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 					const message = String(body.message ?? "").trim();
 					if (!message) return send(res, 400, { error: "empty message" });
 					try {
-						await agent.request({ type: "prompt", message, ...(busy ? { streamingBehavior: "followUp" } : {}) });
+						// A command answers only after its dialogs close (/read, /undo), so wait longer than the default.
+						await agent.request({ type: "prompt", message, ...(busy ? { streamingBehavior: "followUp" } : {}) }, 60 * 60_000);
 					} catch (err) {
 						// No provider yet: the page opens the model dialog instead of showing pi's text.
 						if (/no api key|no model|no models available/i.test((err as Error).message)) return send(res, 409, { error: "nomodel" });

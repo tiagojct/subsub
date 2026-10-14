@@ -574,6 +574,18 @@ test("the web view: the page answers Sub-Sub's approval; other sites and hosts a
 		assert.ok(sessions.length >= 1);
 		assert.match(sessions[0].first, /Tag BBBB3333/);
 
+		// /read asks why as a choice that the page answers; then the reading goes to the model under its command line.
+		script = [{ text: "Read." }];
+		const mark4 = stream.events.length;
+		const posted = call(port, "POST", "/api/prompt", { headers: ok, body: { message: "/read jacinto2026" } });
+		const why = await stream.wait((e) => e.type === "extension_ui_request" && e.method === "select", 30_000, mark4);
+		assert.equal(why.options.length, 4);
+		assert.equal((await call(port, "POST", "/api/dialog", { headers: ok, body: { id: why.id, value: why.options[0] } })).status, 200);
+		assert.equal((await posted).status, 200);
+		const reading = await stream.wait((e) => e.type === "message_start" && e.message.role === "user", 30_000, mark4);
+		assert.match(JSON.stringify(reading.message.content), /\/read background jacinto2026\\n/);
+		await stream.wait((e) => e.type === "agent_settled", 90_000, mark4);
+
 		// Reference checks: the toggle saves the setting and restarts pi with the verify server.
 		if (existsSync(join(STARBUCK, ".venv"))) {
 			const cf = baseEnv.SUBSUB_CONFIG!;

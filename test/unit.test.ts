@@ -55,7 +55,9 @@ function fakePi() {
 	const commands: Record<string, { handler: Function }> = {};
 	let active: string[] = [];
 	const entries: unknown[] = [];
+	const sent: Array<{ text: string; opts: unknown }> = [];
 	const pi = {
+		sendUserMessage: (text: string, opts?: unknown) => { sent.push({ text, opts }); },
 		registerTool: (t: any) => tools.push(t),
 		registerFlag: () => {},
 		flags: {} as Record<string, boolean>,
@@ -68,7 +70,7 @@ function fakePi() {
 		setModel: async (m: unknown) => { (pi as any).model = m; return true; },
 		appendEntry: (type: string, data: unknown) => entries.push({ customType: type, data }),
 	};
-	return { pi, handlers, tools, commands, entries, get active() { return active; } };
+	return { pi, handlers, tools, commands, entries, sent, get active() { return active; } };
 }
 
 function fakeCtx(opts: { hasUI?: boolean; confirm?: boolean; cwd?: string; branch?: unknown[] } = {}) {
@@ -1261,6 +1263,60 @@ test("/ai-statement: a draft with the version, the models and the checks", async
 	assert.match(readFileSync(join(vault, "Research", `${date} AI use statement.md`), "utf8"), /for reading notes\./);
 	assert.ok(existsSync(join(vault, "Research", `${date} AI use statement-2.md`)), "a second draft does not overwrite the first");
 	assert.match(notes[0], /AI use statement\.md/);
+});
+
+test("/read: the reason sets the depth; Sub-Sub points to the passages, the user answers", async () => {
+	const { PURPOSES, readArgs, readInstruction } = await import("../src/read.ts");
+	assert.deepEqual(readArgs("extract smith2026"), { purpose: "extract", ref: "smith2026" });
+	assert.deepEqual(readArgs("Smith 2026 asthma"), { ref: "Smith 2026 asthma" });
+	assert.deepEqual(readArgs("toString x"), { ref: "toString x" }, "only the four reasons count");
+	const base = { ref: "smith2026", date: "2026-10-14" };
+	for (const purpose of Object.keys(PURPOSES) as Array<keyof typeof PURPOSES>) {
+		const t = readInstruction({ ...base, purpose, fact: "the dose", question: "q1" });
+		assert.match(t, new RegExp(`^/read ${purpose} smith2026\n`), "the chat shows the command");
+		assert.match(t, /State no results/);
+		assert.match(t, /## Why I am reading this[\s\S]*Next step:/);
+		assert.match(t, new RegExp(`purpose: ${purpose}`));
+		assert.match(t, /the page only with evidence: full text/);
+	}
+	const background = readInstruction({ ...base, purpose: "background" });
+	assert.match(background, /Do not read the full text/);
+	assert.match(background, /- \[ \] Keep", "- \[ \] Drop"/);
+	assert.match(readInstruction({ ...base, purpose: "fact", fact: "the dose" }), /The user looks for: the dose/);
+	assert.match(readInstruction({ ...base, purpose: "extract", question: "q1" }), /a new sheet Research\/<slug> extraction\.md[\s\S]*question: "q1"/);
+	assert.match(readInstruction({ ...base, purpose: "extract", sheet: "Research/feno extraction.md" }), /the sheet Research\/feno extraction\.md/);
+	assert.match(readInstruction({ ...base, purpose: "critique" }), /CONSORT[\s\S]*STROBE[\s\S]*Do not copy the checklist/);
+
+	// The command: the reason as a choice, then one message to the model.
+	const vault = mkdtempSync(join(tmpdir(), "subsub-read-"));
+	mkdirSync(join(vault, "Research"));
+	writeFileSync(join(vault, "Research", "feno extraction.md"), "");
+	const fp = fakePi();
+	await createSubsub(fp.pi as any, { config: { ...CFG, vault }, bridge: new FakeBridge() as unknown as Bridge });
+	const { ctx, notes } = fakeCtx();
+	const choices: string[][] = [];
+	ctx.isIdle = () => true;
+	ctx.ui.select = async (_title: string, options: string[]) => { choices.push(options); return options[0]; };
+	ctx.ui.input = async () => "q";
+	await fp.commands.read.handler("smith2026", ctx);
+	assert.equal(choices[0].length, 4);
+	assert.match(fp.sent[0].text, /^\/read background smith2026\n/);
+	assert.equal(fp.sent[0].opts, undefined);
+	await fp.commands.read.handler("extract smith2026", ctx);
+	assert.equal(choices.length, 2, "a reason given in the command is not asked");
+	assert.deepEqual(choices[1], ["feno extraction.md", "New sheet"], "the existing sheets, then a new one");
+	assert.match(fp.sent[1].text, /^\/read extract smith2026\n[\s\S]*the sheet Research\/feno extraction\.md/);
+	ctx.isIdle = () => false;
+	await fp.commands.read.handler("fact", ctx);
+	assert.match(fp.sent[2].text, /^\/read fact q\n[\s\S]*The user looks for: q/, "the paper and the fact are asked");
+	assert.deepEqual(fp.sent[2].opts, { deliverAs: "followUp" }, "while busy, the reading waits for the current turn");
+	ctx.ui.select = async () => undefined;
+	await fp.commands.read.handler("smith2026", ctx);
+	assert.equal(fp.sent.length, 3, "cancelled: nothing is sent");
+	await fp.commands.librarian.handler("", ctx);
+	await fp.commands.read.handler("background smith2026", ctx);
+	assert.equal(fp.sent.length, 3);
+	assert.match(notes.at(-1)!, /\/read is part of the Researcher/);
 });
 
 test("/lit: the review says what it is not", () => {

@@ -74,6 +74,20 @@ Um PDF ou uma nota que acrescentou ao Zotero como ficheiro independente não tem
 
 A anulação devolve os ficheiros ao sítio onde estavam e move os itens novos para o lixo do Zotero. O Sub-Sub não consegue ler uma digitalização sem camada de texto: nesse caso, usa o nome do ficheiro e diz isso. No Zotero, clique com o botão direito num ficheiro e escolha Reindex Item se o ficheiro tiver texto que o Zotero ainda não indexou.
 
+## Ler um artigo
+
+O `/read` ensina a ler um artigo. O Sub-Sub encontra as passagens e faz perguntas. O utilizador lê as passagens e escreve as respostas. O Sub-Sub não escreve resultados nem resumos nesta nota. Use o modo Investigador.
+
+1. Escreva `/read smith2021`, ou selecione Ler um artigo no navegador.
+2. Selecione porque vai ler o artigo:
+   - Contexto: apenas o título e o resumo. Decide se mantém o artigo ou se o põe de parte.
+   - Um dado: o Sub-Sub pergunta que dado procura e mostra as passagens que o dão.
+   - Extração: a pergunta, o desenho, a população, o contexto, o resultado medido e o resultado principal, cada um com a sua passagem. O Sub-Sub também acrescenta uma linha para o artigo à sua folha de extração em `Research/`. A linha diz onde encontrar cada valor; o utilizador preenche os valores.
+   - Crítica: o artigo inteiro, secção a secção, com perguntas sobre o risco de viés e a norma de relato com que o deve comparar.
+3. Abra `Literature/smith2021.md` e escreva as respostas por baixo das perguntas.
+
+Para não ter de responder à pergunta, escreva o motivo primeiro: `/read extract smith2021`. Leia a maior parte dos artigos ao nível do contexto, e leia com atenção apenas os poucos que o exigem.
+
 ## Escrever uma nota de literatura
 
 Use o modo Investigador nesta parte. O modo Bibliotecário não pesquisa nem escreve notas.
@@ -127,6 +141,7 @@ O Sub-Sub não altera o manuscrito. O Starbuck escreve um relatório HTML numa p
 | `/subsub` | Ligação ao Zotero e resumo da biblioteca |
 | `/history`, `/undo` | Alterações recentes; anular uma delas |
 | `/ai-statement [usos]` | Um rascunho da declaração sobre o uso de IA para um manuscrito |
+| `/read [motivo] <citekey>` | Leitura guiada de um artigo: o Sub-Sub encontra as passagens e pergunta, o utilizador escreve as respostas (Investigador) |
 | `/tag-batch [tamanho]`, `/clean-tags`, `/import-queue` | Tarefas predefinidas da biblioteca (os dois modos) |
 | `/lit-note <citekey>`, `/synthesis <tema>`, `/gaps <tema>`, `/manuscript <ficheiro>`, `/alert` | Tarefas predefinidas de investigação (Investigador) |
 | `/lit <pergunta>`, `/compare <pergunta>`, `/review <ficheiro>`, `/digest [dias]`, `/request-copy <citekey>` | Tarefas predefinidas de investigação (Investigador) |

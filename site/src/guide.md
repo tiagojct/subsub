@@ -74,6 +74,20 @@ A PDF or a note that you added to Zotero on its own has no parent item: no title
 Undo puts the files back where they were and moves the new items to the Zotero trash. A scan without a text layer cannot be read: Sub-Sub then uses the file name, and says so. In Zotero, right-click a file and choose Reindex Item if it has text that Zotero has not indexed yet.
 
 
+## Read a paper
+
+`/read` teaches you to read a paper. Sub-Sub finds the passages and asks questions. You read them and write the answers. Sub-Sub does not write results or summaries in this note. Use the Researcher.
+
+1. Type `/read smith2021`, or select Read a paper in the browser.
+2. Select why you read it:
+   - Background: the title and the abstract only. You decide to keep or drop the paper.
+   - One fact: Sub-Sub asks which fact, then shows the passages that give it.
+   - Extraction: the question, design, population, setting, outcome and main finding, each with its passage. Sub-Sub also adds a row for the paper to your extraction sheet in `Research/`. The row tells you where to find each value; you fill in the values.
+   - Critique: the whole paper, section by section, with questions on the risk of bias and the reporting guideline to check it against.
+3. Open `Literature/smith2021.md` and write your answers under the questions.
+
+To skip the question, put the reason first: `/read extract smith2021`. Read most papers at the background level, and read closely only the few that need it.
+
 ## Write a literature note
 
 Use the Researcher for this part. The Librarian does not search or write notes.
@@ -127,6 +141,7 @@ Sub-Sub does not change the manuscript. Starbuck writes an HTML report in a `_st
 | `/subsub` | Zotero connection and library overview |
 | `/history`, `/undo` | Recent changes; revert one |
 | `/ai-statement [uses]` | A draft statement on the use of AI for a manuscript |
+| `/read [reason] <citekey>` | Guided reading of one paper: Sub-Sub finds the passages and asks, you write the answers (Researcher) |
 | `/tag-batch [size]`, `/clean-tags`, `/import-queue` | Library templates (both modes) |
 | `/lit-note <citekey>`, `/synthesis <topic>`, `/gaps <topic>`, `/manuscript <file>`, `/alert` | Research templates (Researcher) |
 | `/lit <question>`, `/compare <question>`, `/review <file>`, `/digest [days]`, `/request-copy <citekey>` | Research templates (Researcher) |

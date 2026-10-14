@@ -17,7 +17,7 @@
  */
 
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Bridge, type ServerSpec } from "./bridge.ts";
@@ -41,6 +41,7 @@ import {
 import { profileList, profileSpec, promptBlocked } from "./profiles.ts";
 import { coerceArgs, loosenArrays, resolvePathArgs } from "./args.ts";
 import { aiStatement } from "./statement.ts";
+import { PURPOSES, type Purpose, readArgs, readInstruction, type ReadRequest } from "./read.ts";
 import { applyEdits, checkLiteratureNote, field, frontMatter, itemKeyOf, missingQuotes, quoteProblem, quotesIn } from "./notes.ts";
 import { buildPolicy, isSecret, judgePath, normalizeToolPath, realish, within } from "./paths.ts";
 import { describeArgs, formatPreview, isEmptyPreview } from "./preview.ts";
@@ -347,6 +348,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 
 	/** Prompt commands for the Researcher; the Librarian has the library ones (tag-batch, clean-tags, import-queue). */
 	const RESEARCH_PROMPTS = ["lit", "compare", "lit-note", "synthesis", "gaps", "manuscript", "verify", "review", "alert", "request-copy", "digest"];
+	const researcherOnly = (cmd: string) => L(`Sub-Sub: /${cmd} is part of the Researcher. Switch with /researcher.`, `Sub-Sub: /${cmd} faz parte do Investigador. Mude com /researcher.`);
 
 	// /tree moves to another branch: take that branch's mode (pi restores its model itself).
 	pi.on("session_tree", async (_event, ctx) => {
@@ -403,7 +405,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		// The usage log keeps the kind of request and its length, never its text.
 		if (cmd !== "subsub-refresh") logUsage(cfg.usageLog, { ev: "ask", kind: cmd ? `/${cmd}` : "message", words: event.text.trim().split(/\s+/).filter(Boolean).length });
 		if (mode === "librarian" && cmd && RESEARCH_PROMPTS.includes(cmd)) {
-			ctx.ui.notify(L(`Sub-Sub: /${cmd} is part of the Researcher. Switch with /researcher.`, `Sub-Sub: /${cmd} faz parte do Investigador. Mude com /researcher.`), "warning");
+			ctx.ui.notify(researcherOnly(cmd), "warning");
 			return { action: "handled" };
 		}
 		const why = promptBlocked(event.text, profile);
@@ -718,6 +720,43 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 				),
 				"info",
 			);
+		},
+	});
+
+	// A registered command runs before the input hook, so /read checks the mode itself.
+	pi.registerCommand("read", {
+		description: "Sub-Sub: read a paper with guidance; Sub-Sub finds the passages and asks, you write the answers. /read [background|fact|extract|critique] <citekey, DOI, PMID or title words>",
+		handler: async (args, ctx) => {
+			if (mode === "librarian") return ctx.ui.notify(researcherOnly("read"), "warning");
+			let { purpose, ref } = readArgs(String(args ?? ""));
+			ref ||= (await ctx.ui.input(L("Which paper?", "Que artigo?"), L("citekey, DOI, PMID or title words", "citekey, DOI, PMID ou palavras do título")))?.trim() ?? "";
+			if (!ref) return;
+			if (!purpose) {
+				const labels = Object.values(PURPOSES).map(([en, pt]) => L(en, pt));
+				purpose = (Object.keys(PURPOSES) as Purpose[])[labels.indexOf((await ctx.ui.select(L("Why are you reading it?", "Porque vai ler este artigo?"), labels)) ?? "")];
+				if (!purpose) return;
+			}
+			const req: ReadRequest = { ref, purpose, date: new Date().toISOString().slice(0, 10) };
+			if (purpose === "fact") {
+				req.fact = (await ctx.ui.input(L("Which fact are you looking for?", "Que dado procura?")))?.trim();
+				if (!req.fact) return;
+			}
+			if (purpose === "extract") {
+				let sheets: string[] = [];
+				try {
+					sheets = readdirSync(join(cfg.vault ?? ctx.cwd, "Research")).filter((f) => f.endsWith(" extraction.md")).sort();
+				} catch {
+					// No Research folder yet: the first sheet is a new one.
+				}
+				const fresh = L("New sheet", "Nova folha");
+				const pick = sheets.length ? await ctx.ui.select(L("Which extraction sheet?", "Que folha de extração?"), [...sheets, fresh]) : fresh;
+				if (!pick) return;
+				if (pick === fresh) {
+					req.question = (await ctx.ui.input(L("The question of your review", "A pergunta da sua revisão")))?.trim();
+					if (!req.question) return;
+				} else req.sheet = `Research/${pick}`;
+			}
+			pi.sendUserMessage(readInstruction(req), ctx.isIdle() ? undefined : { deliverAs: "followUp" });
 		},
 	});
 
