@@ -1,9 +1,9 @@
 /**
  * The Sub-Sub part of the system prompt: role text for the current mode, the
- * profile rules, the shared Zotero rules from the Sub-Sub folder, the vault
+ * shared Zotero rules from the Sub-Sub folder, the vault
  * conventions when pi runs inside the Sub-Sub folder, and the language rule.
  *
- * Role and profile texts use placeholders: {{user}} / {{User}} (the user's name,
+ * Role texts use placeholders: {{user}} / {{User}} (the user's name,
  * or "the user"), {{about}} (one line about the user) and {{batch}}.
  */
 
@@ -11,7 +11,6 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type Mode, type SubsubConfig, who } from "./config.ts";
-import { profileSpec } from "./profiles.ts";
 
 const ROLE_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "roles");
 
@@ -41,18 +40,18 @@ function capital(s: string): string {
 	return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-export function fill(text: string, cfg: Pick<SubsubConfig, "userName" | "about" | "profile">): string {
+export function fill(text: string, cfg: Pick<SubsubConfig, "userName" | "about">): string {
 	const user = who(cfg);
 	const about = cfg.about ? `${capital(user)} is ${cfg.about}.` : "";
 	return text
 		.replaceAll("{{User}}", capital(user))
 		.replaceAll("{{user}}", user)
 		.replaceAll("{{about}}", about)
-		.replaceAll("{{batch}}", String(profileSpec(cfg.profile).batch))
+		.replaceAll("{{batch}}", "25")
 		.replace(/[ \t]+\n/g, "\n");
 }
 
-export function roleText(mode: Mode, cfg?: Pick<SubsubConfig, "userName" | "about" | "profile">): string {
+export function roleText(mode: Mode, cfg?: Pick<SubsubConfig, "userName" | "about">): string {
 	const raw = readIf(join(ROLE_DIR, `${mode}.md`)) ?? `You are Sub-Sub, the ${mode}.`;
 	return cfg ? fill(raw, cfg) : raw;
 }
@@ -86,8 +85,7 @@ export function systemAddition(mode: Mode, cfg: SubsubConfig, cwd: string): stri
 			`${capital(user)} works at the University of Porto. Papers that are not open access often open through the university's subscriptions when ${user} uses Sub-Sub on the U.Porto network: say so when a work is not open access.`,
 		);
 	}
-	// The profile and the language rule come last, so they win over the shared rules and the vault conventions.
-	parts.push("# Profile", fill(profileSpec(cfg.profile).rules, cfg));
+	// The language rule comes last, so it wins over the shared rules and the vault conventions.
 	parts.push("# Language", languageRule(cfg.language, user));
 	return parts.join("\n\n");
 }

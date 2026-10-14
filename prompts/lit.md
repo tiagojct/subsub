@@ -88,9 +88,9 @@ reference_check: "<path of the Starbuck report, or none>"
 
 If a step fails (a service does not answer, a full text cannot be read), do not stop. Finish the note, mark the step "BLOCKED: <what failed>", and set verification: BLOCKED.
 
-## In the Reader profile: a reading list
+## A reading list
 
-When the profile is Reader, do sections 1, 2, 4 and 5 as written, but do not synthesise (skip section 3). Write the note with `type: reading-list` and this body in place of Answer, Agreement, Disagreement and Open questions:
+When the user asks for a reading list (for example `/lit reading list: <topic>`, in any language), do sections 1, 2, 4 and 5 as written, but do not synthesise (skip section 3). Write the note with `type: reading-list` and this body in place of Answer, Agreement, Disagreement and Open questions:
 
 ```markdown
 ## How to read this list

@@ -2,12 +2,11 @@
  * Which tools each mode may use, and which calls need the user's approval.
  */
 
-import type { Mode, Profile } from "./config.ts";
-import { profileSpec } from "./profiles.ts";
+import type { Mode } from "./config.ts";
 
 export const FILE_TOOLS = ["read", "edit", "write", "grep", "find", "ls"];
 
-/** Prefixes of the tools that Sub-Sub's servers provide (the gate checks the mode and the profile for these). */
+/** Prefixes of the tools that Sub-Sub's servers provide (the gate checks the mode for these). */
 export const SERVER_PREFIXES = ["zotero_", "scholar_", "verify_"];
 
 export const ZOTERO_READ = [
@@ -66,19 +65,17 @@ export const ZOTERO_CHECKS = [
 
 
 export interface ToolOptions {
-	profile?: Profile;
 	/** The model test: also the bakeoff_ tools. */
 	bench?: boolean;
 }
 
 /**
  * The tools of a mode. The Librarian manages the library: Zotero tools and files.
- * The Researcher has the same, plus searches, notes and reference checks. The
- * profile then removes tools. Every library change is still previewed (gateKind).
+ * The Researcher has the same, plus searches, notes and reference checks. Every
+ * library change is still previewed (gateKind).
  */
 export function toolsFor(mode: Mode, registered: string[], opts: ToolOptions = {}): string[] {
 	const has = new Set(registered);
-	const without = new Set(profileSpec(opts.profile ?? "editor").without);
 	const zotero = registered.filter((n) => n.startsWith("zotero_") && (opts.bench || !n.startsWith("zotero_bakeoff_")));
 	const wanted = [
 		...ZOTERO_READ,
@@ -87,16 +84,12 @@ export function toolsFor(mode: Mode, registered: string[], opts: ToolOptions = {
 		...(mode === "researcher" ? registered.filter((n) => n.startsWith("scholar_") || n.startsWith("verify_")) : []),
 		...FILE_TOOLS,
 	];
-	return [...new Set(wanted)].filter((n) => has.has(n) && !without.has(n));
+	return [...new Set(wanted)].filter((n) => has.has(n));
 }
 
 /** Why a Sub-Sub tool is not available now, or undefined when it is. */
 export function unavailableReason(name: string, mode: Mode, registered: string[], opts: ToolOptions = {}): string | undefined {
 	if (toolsFor(mode, registered, opts).includes(name)) return undefined;
-	const profile = opts.profile ?? "editor";
-	if (profileSpec(profile).without.includes(name)) {
-		return `${name} is not part of the ${profileSpec(profile).label} profile. The user can change the profile with /profile.`;
-	}
 	if (mode === "librarian" && toolsFor("researcher", registered, opts).includes(name)) {
 		return `${name} is part of the Researcher, which also does everything the Librarian does. The user can switch with /researcher.`;
 	}

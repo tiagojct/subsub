@@ -29,18 +29,13 @@ Every library change works the same way in both modes:
 - Every change is journaled, including new collections. `/undo` reverts the last one, and the browser view shows an Undo button under each change.
 - Nothing is deleted: items go to the Zotero trash. Only tags from your tag list can be added.
 
-## Profiles
+## What Sub-Sub writes
 
-The profile sets how much Sub-Sub writes for you and which tools it offers. Choose it in `subsub init`, or change it with `/profile`. Students start with Reader.
+Sub-Sub writes literature notes, syntheses and reviews from what it read, with a source for every claim. It drafts text for your manuscript only when you ask, and marks the drafted text so that you can check it.
 
-| Profile | What Sub-Sub does |
-|---|---|
-| Reader | Reading notes with quotations, page numbers and questions for you. No summaries or syntheses unless you ask. No bulk library changes. |
-| Scholar | Literature notes, syntheses, searches, alerts and all library changes. |
-| Author | Scholar, plus manuscript work: citation checks against your library, bibliographies for Pandoc and Quarto, and comments on the argument. It does not write your paragraphs. |
-| Editor | Everything, including drafts of manuscript sections and abstracts when you ask. |
+To learn to read papers yourself, use `/read`: Sub-Sub finds the passages and asks questions, and you write the answers. `/lit reading list: <topic>` gives a reading list with questions to read with, and no results.
 
-The [Profiles page](https://subsub.tiagojacinto.eu/profiles/) lists the tools and commands for each profile and mode.
+The [Commands page](https://subsub.tiagojacinto.eu/profiles/) lists the tools and commands of each mode.
 
 ## Requirements
 
@@ -96,7 +91,6 @@ Commands in Sub-Sub:
 | Command | What it does |
 |---|---|
 | `/researcher`, `/librarian` | Switch the mode |
-| `/profile [name]` | Show or change the profile |
 | `/subsub` | Zotero connection, mode, model and library counts |
 | `/history`, `/undo [id]` | Recent library changes; undo the last one or one by its id |
 | `/ai-statement [uses]` | A draft statement on the use of AI for a manuscript, with the Sub-Sub version, its DOI and your models |
@@ -116,7 +110,7 @@ Commands in Sub-Sub:
 | `/digest [days] [topic]` | What changed in the last days: new notes, alerts, works worth reading |
 | `/request-copy <citekey, DOI or PMID>` | A draft email to the corresponding author for a paper that is not open access. You send it yourself |
 
-The library commands work in both modes; the research commands need the Researcher. Some commands depend on the profile (see the Profiles page).
+The library commands work in both modes; the research commands need the Researcher.
 
 To check or apply a tag review note from `Inbox/` outside Sub-Sub:
 
@@ -131,7 +125,6 @@ subsub review apply 13-31
 
 | Setting | Meaning | Default |
 |---|---|---|
-| `profile` | `reader`, `scholar`, `author` or `editor` | `reader` for students, `scholar` for others (`subsub init` asks) |
 | `userName`, `about` | Your name and one line about you, for the replies | none |
 | `language` | Language of replies and notes, or `auto` for the language you write in | `English` |
 | `vault` | The Sub-Sub folder | from the server settings |

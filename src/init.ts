@@ -3,7 +3,7 @@
  * existing one. Press Enter to keep the value in brackets.
  *
  * Writes:
- * - the settings file (~/.config/subsub/config.json): profile, name, language,
+ * - the settings file (~/.config/subsub/config.json): name, language,
  *   Sub-Sub folder, models;
  * - the server settings file (~/.config/zotero-local-mcp/env, or the one that
  *   already exists): the Sub-Sub folder, tag list, alerts file, contact email.
@@ -18,7 +18,7 @@
  *
  * Flags (for scripts and tests): --yes (take every default), --setup
  * standard|fmup, --name, --about, --language, --folder (or --notes), --move
- * yes|no, --profile, --tags health-sciences|health-informatics|any-field,
+ * yes|no, --tags health-sciences|health-informatics|any-field,
  * --email, --starbuck on|off, --models keep|later|opencode-go|mistral-eu|google-free.
  */
 
@@ -33,10 +33,8 @@ import {
 	EU_MODELS,
 	FREE_MODELS,
 	expand,
-	isProfile,
 	loadConfig,
 	parseEnvFile,
-	PROFILES,
 	readConfigFile,
 	saveConfig,
 	starbuckEnabled,
@@ -46,7 +44,6 @@ import {
 import { defaultRunner, starbuckCheck } from "./doctor.ts";
 import { applyMoves, FOLDER_NAME, leftBehind, NOTE_DIRS, planMoves, SETTINGS_DIR, SETTINGS_FILES, subsubFolder } from "./layout.ts";
 import { KEY_PROVIDERS, saveApiKey } from "./keys.ts";
-import { PROFILE_SPECS } from "./profiles.ts";
 
 const TEMPLATES = resolve(dirname(fileURLToPath(import.meta.url)), "..", "templates");
 
@@ -176,39 +173,17 @@ export async function runInit(
 		}
 	}
 
-	// Asked here, not first: it only changes the defaults of the next two questions.
-	explain("Faculty of Medicine, Porto", "Sub-Sub has a set-up for the Faculty of Medicine of the University of Porto (FMUP): health-sciences tags and the Reader profile. Everyone else keeps the standard set-up.");
+	// Asked here, not first: it only changes the default of the tag list question.
+	explain("Faculty of Medicine, Porto", "Sub-Sub has a set-up for the Faculty of Medicine of the University of Porto (FMUP): health-sciences tags. Everyone else keeps the standard set-up.");
 	const setup = await io.choose(
 		"Set-up",
 		[
 			{ value: "standard", label: "Standard (any field, any institution)" },
-			{ value: "fmup", label: "FMUP / U.Porto: health-sciences tags, Reader profile (the FMUP model service is coming soon)" },
+			{ value: "fmup", label: "FMUP / U.Porto: health-sciences tags (the FMUP model service is coming soon)" },
 		],
 		flags.setup ?? existing.setup ?? "standard",
 	);
 	const fmup = setup === "fmup";
-
-	// Students start in Reader: Sub-Sub helps them read and does not write syntheses for them unless asked.
-	let student = fmup;
-	if (!flags.profile && !existing.profile && !fmup) {
-		explain("Who you are", "Students start with the Reader profile: Sub-Sub helps you read (notes with quotations, page numbers and questions) and does not write summaries or syntheses unless you ask. You can change the profile at any time.");
-		student = (await io.choose(
-			"You are",
-			[
-				{ value: "student", label: "A student" },
-				{ value: "researcher", label: "A researcher, teacher or clinician" },
-			],
-			flags.student === "no" ? "researcher" : "student",
-		)) === "student";
-	}
-
-	explain("Profile", "The profile sets how much Sub-Sub writes for you and which tools it offers. Change it at any time with /profile.");
-	const profileDefault = flags.profile ?? existing.profile ?? (student ? "reader" : "scholar");
-	const profile = await io.choose(
-		"Profile",
-		PROFILES.map((p) => ({ value: p, label: `${PROFILE_SPECS[p].label}: ${PROFILE_SPECS[p].summary}` })),
-		isProfile(profileDefault) ? profileDefault : "scholar",
-	);
 
 	// The tag list: a custom path in the server settings stays; otherwise Zotero/Zotero tags.md (moved, kept or new).
 	const vocabTarget = join(notes, SETTINGS_DIR, SETTINGS_FILES.tags);
@@ -322,7 +297,7 @@ export async function runInit(
 	if (brave || hadBrave) chmodSync(envFile, 0o600); // the file holds a key
 
 	const patch: Record<string, unknown> = {
-		profile,
+		profile: undefined,
 		userName: userName || undefined,
 		about: about || undefined,
 		language,

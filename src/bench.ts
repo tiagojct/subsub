@@ -901,7 +901,7 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
 			const cf = join(cfgDir, `${j.code}.json`);
 			// A bare name is an OpenCode Go model; provider/id (google/gemini-..., openrouter/x/y:free) is any provider.
 			const spec = j.model.includes("/") ? j.model : `opencode-go/${j.model}`;
-			writeFileSync(cf, JSON.stringify({ ...userCfg, profile: "editor", models: { librarian: spec, researcher: spec }, model: undefined, libraryChanges: undefined }));
+			writeFileSync(cf, JSON.stringify({ ...userCfg, profile: undefined, models: { librarian: spec, researcher: spec }, model: undefined, libraryChanges: undefined }));
 			const s = await runOne({ ...j, prompt, out, cwd: cfg.vault!, configFile: cf, timeoutSec });
 			n++;
 			console.log(`${n}/${jobs.length}  ${j.code}  ${j.task}  ${s.seconds}s  ${s.error ?? (s.settled ? "done" : "?")}`);

@@ -44,7 +44,7 @@ Shared rules for Sub-Sub. Sub-Sub reads this file at the start of every session.
 - Do not copy the abstract in full. Give page numbers for quotes when the text shows them.
 - If a note for the citekey exists, do not overwrite it. Add a dated section or ask.
 - After the note is written, offer to link it in Zotero with attach_note.
-- The profile can change this format: the Reader profile writes quotes and questions instead of a summary.
+- /read writes a reading note instead: quotes with their place and questions, which the user answers.
 
 Template:
 

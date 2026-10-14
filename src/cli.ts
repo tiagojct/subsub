@@ -140,7 +140,7 @@ Usage:
   subsub                 Start Sub-Sub in the terminal
   subsub --librarian     Start in the Librarian, which only manages the library
   subsub web             Open Sub-Sub in the browser
-  subsub init            Set up or change the settings (folder, tag list, profile, models)
+  subsub init            Set up or change the settings (folder, tag list, models)
   subsub doctor          Check the set-up; each line marked FIX says what to do
   subsub usage           The pilot's usage log (if turned on): a summary and where the file is
   subsub shortcut        Add a Sub-Sub shortcut (--remove takes it away)
@@ -152,7 +152,7 @@ Options:
   --here                 Work in the current folder, not in the Sub-Sub folder
 
 In Sub-Sub, type /subsub for the state, /researcher or /librarian to switch modes,
-/profile to change the profile, /undo to undo the last change, and / for all commands.
+/read to read a paper with guidance, /undo to undo the last change, and / for all commands.
 Sub-Sub runs on pi: pi's options (for example --model, --resume) also work.
 
 Docs: https://subsub.tiagojacinto.eu`;

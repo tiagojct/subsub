@@ -3,7 +3,6 @@
 
 export const STRINGS = {
 	en: {
-		profile: "Profile",
 		model: "Model",
 		noModel: "Connect a model",
 		noModelSend: "No model is connected yet. Choose a provider and save its key; your message is still in the box.",
@@ -128,7 +127,6 @@ export const STRINGS = {
 		groupLibrary: "Library",
 	},
 	pt: {
-		profile: "Perfil",
 		model: "Modelo",
 		noModel: "Ligar um modelo",
 		noModelSend: "Ainda não há um modelo ligado. Escolha um fornecedor e guarde a chave; a sua mensagem continua na caixa.",
@@ -256,23 +254,24 @@ export const STRINGS = {
 
 /**
  * Buttons in the side panel, in two groups. `fill` puts the command in the message box; `send` runs it at once.
- * The Librarian sees the Library group only. `profiles` and `needs` limit a button to some profiles or add-ons.
+ * The Librarian sees the Library group only. `needs` limits a button to an add-on.
  */
 export const ACTIONS = {
 	research: [
 		{ cmd: "read", send: true, en: "Read a paper", pt: "Ler um artigo" },
 		{ cmd: "lit", fill: true, en: "Literature review", pt: "Revisão da literatura" },
-		{ cmd: "compare", fill: true, profiles: ["scholar", "author", "editor"], en: "Compare sources", pt: "Comparar fontes" },
+		{ cmd: "lit reading list:", fill: true, en: "Reading list", pt: "Lista de leitura" },
+		{ cmd: "compare", fill: true, en: "Compare sources", pt: "Comparar fontes" },
 		{ cmd: "lit-note", fill: true, en: "Literature note", pt: "Nota de leitura" },
 		{ cmd: "synthesis", fill: true, en: "Synthesis", pt: "Síntese" },
 		{ cmd: "gaps", fill: true, en: "What is missing", pt: "O que falta" },
 		{ cmd: "manuscript", fill: true, en: "Check a manuscript", pt: "Verificar um manuscrito" },
 		{ cmd: "verify", fill: true, needs: "starbuck", en: "Check references", pt: "Verificar referências" },
-		{ cmd: "review", fill: true, profiles: ["author", "editor"], en: "Review a manuscript", pt: "Rever um manuscrito" },
+		{ cmd: "review", fill: true, en: "Review a manuscript", pt: "Rever um manuscrito" },
 		{ cmd: "alert", send: true, en: "New publications", pt: "Novas publicações" },
 		{ cmd: "request-copy", fill: true, en: "Ask an author for a copy", pt: "Pedir uma cópia ao autor" },
 		{ cmd: "ai-statement", fill: true, en: "Statement on AI use", pt: "Declaração de uso de IA" },
-		{ cmd: "digest", send: true, profiles: ["scholar", "author", "editor"], en: "Digest of the week", pt: "Resumo da semana" },
+		{ cmd: "digest", send: true, en: "Digest of the week", pt: "Resumo da semana" },
 	],
 	library: [
 		{ cmd: "subsub", send: true, en: "Library overview", pt: "Resumo da biblioteca" },

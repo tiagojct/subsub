@@ -8,7 +8,6 @@ import { test } from "node:test";
 import type { Bridge, BridgeTool, CallResult } from "../src/bridge.ts";
 import { agentDirFor, chooseCwd, ensureSettings, isSelfUpdate, reviewCommand, shareAuth } from "../src/cli.ts";
 import { findUv, loadConfig as loadCfg, refreshedArgs, SERVER_VERSION } from "../src/config.ts";
-import { profileSpec, promptBlocked } from "../src/profiles.ts";
 import { fill, languageRule } from "../src/prompt.ts";
 import { unavailableReason } from "../src/roles.ts";
 import { runInit, upsertEnv } from "../src/init.ts";
@@ -20,7 +19,7 @@ import { gateKind, toolsFor } from "../src/roles.ts";
 import { createSubsub, serverSpecs, starbuckEnv } from "../src/subsub.ts";
 import { STARBUCK_SOURCE } from "../src/config.ts";
 
-// Commands such as /library and /profile save the settings: never the user's real file.
+// Commands that save the settings must never touch the user's real file.
 process.env.SUBSUB_CONFIG ??= join(mkdtempSync(join(tmpdir(), "subsub-test-")), "config.json");
 import { starbuckCheck } from "../src/doctor.ts";
 
@@ -94,7 +93,7 @@ function fakeCtx(opts: { hasUI?: boolean; confirm?: boolean; cwd?: string; branc
 }
 
 const CFG: SubsubConfig = {
-	configFile: "/nonexistent/subsub.json", profile: "editor", language: "English",
+	configFile: "/nonexistent/subsub.json", language: "English",
 	serverDir: "/x", vault: "/vault", models: { librarian: "opencode-go/glm-5.3-flash", researcher: "opencode-go/mimo-v2.6-pro" },
 	defaultMode: "researcher", vaultContext: [], startTimeout: 5,
 };
@@ -525,10 +524,10 @@ test("bench: prompts, tag scoring, identifiers and citekeys", async () => {
 
 test("look: banner, narrow terminal, scheme, theme names, coloured preview", async () => {
 	const { headerLines, schemeFromAnsi, themeName, paintPreview, BANNER, QUOTES } = await import("../src/look.ts");
-	const wide = headerLines({ version: "0.3.0", mode: "researcher", profile: "Scholar", model: "mimo-v2.6-pro", library: { zotero: "reachable", items: 990, toReview: 975 }, quote: QUOTES[4], width: 100 });
+	const wide = headerLines({ version: "0.3.0", mode: "researcher", model: "mimo-v2.6-pro", library: { zotero: "reachable", items: 990, toReview: 975 }, quote: QUOTES[4], width: 100 });
 	assert.equal(wide[1], BANNER[0]);
 	assert.match(wide[3], /0\.3\.0$/);
-	assert.ok(wide.some((l) => l === "Researcher, Scholar  mimo-v2.6-pro  |  Zotero: 990 items, 975 to review"));
+	assert.ok(wide.some((l) => l === "Researcher  mimo-v2.6-pro  |  Zotero: 990 items, 975 to review"));
 	assert.ok(wide.some((l) => l === '"Very like a whale." (Hamlet, in the Extracts)'));
 	const narrow = headerLines({ version: "0.3.0", mode: "librarian", model: "glm-5.3-flash", library: { zotero: "down" }, width: 18 });
 	assert.equal(narrow.length, 3);
@@ -615,55 +614,24 @@ test("preview: already applied notes and tags changed since the note", () => {
 });
 
 
-// ---------------------------------------------------------------- profiles, init, doctor
+// ---------------------------------------------------------------- modes, init, doctor
 
-test("profiles: tools, reasons and prompt text", () => {
+test("modes: reasons and prompt text", () => {
 	const all = [...TOOL_NAMES, "read", "edit", "write"];
-	const reader = toolsFor("librarian", all, { profile: "reader" });
-	assert.ok(reader.includes("zotero_tag_items") && reader.includes("zotero_undo"));
-	assert.ok(!reader.includes("zotero_trash_items"));
-	assert.ok(!toolsFor("researcher", all, { profile: "reader" }).includes("zotero_trash_items"), "Reader limits the Researcher too");
-	assert.ok(!toolsFor("researcher", all, { profile: "scholar" }).includes("scholar_export_bibliography"));
-	assert.ok(toolsFor("researcher", all, { profile: "author" }).includes("scholar_export_bibliography"));
-	assert.match(unavailableReason("zotero_trash_items", "researcher", all, { profile: "reader" })!, /not part of the Reader profile.*\/profile/);
-	assert.match(unavailableReason("scholar_search_pubmed", "librarian", all, { profile: "editor" })!, /part of the Researcher.*\/researcher/);
-	assert.equal(unavailableReason("zotero_tag_items", "librarian", all, { profile: "reader" }), undefined);
-	assert.equal(profileSpec("reader").batch, 10);
-	const t = fill("{{User}} edits; tell {{user}}. {{about}} limit={{batch}}", { userName: "Ana", about: "a master's student", profile: "reader" });
-	assert.equal(t, "Ana edits; tell Ana. Ana is a master's student. limit=10");
-	assert.equal(fill("{{User}} can undo. {{about}}", { profile: "scholar" }), "The user can undo. ");
+	const researcher = toolsFor("researcher", all);
+	assert.ok(researcher.includes("zotero_trash_items") && researcher.includes("scholar_export_bibliography"), "every tool in the Researcher");
+	assert.match(unavailableReason("scholar_search_pubmed", "librarian", all)!, /part of the Researcher.*\/researcher/);
+	assert.equal(unavailableReason("zotero_tag_items", "librarian", all), undefined);
+	const t = fill("{{User}} edits; tell {{user}}. {{about}} limit={{batch}}", { userName: "Ana", about: "a master's student" });
+	assert.equal(t, "Ana edits; tell Ana. Ana is a master's student. limit=25");
+	assert.equal(fill("{{User}} can undo. {{about}}", {}), "The user can undo. ");
 	assert.match(languageRule("auto"), /language the user writes in/);
 	assert.match(languageRule("Portuguese", "Ana"), /Always reply in Portuguese, even when Ana writes/);
-	const sys = systemAddition("researcher", { ...CFG, profile: "reader", userName: "Ana", language: "auto" }, "/elsewhere");
+	const sys = systemAddition("researcher", { ...CFG, userName: "Ana", language: "auto" }, "/elsewhere");
 	assert.match(sys, /the researcher for Ana's Zotero library/);
-	assert.match(sys, /Tag review notes: at most 10 items/);
-	assert.match(sys, /# Profile\n\nProfile: Reader[\s\S]*# Language\n\nReply in the language Ana writes in/);
-	assert.doesNotMatch(sys, /Tiago|\{\{/);
-});
-
-test("profile command: changes tools and saves the setting", async () => {
-	const dir = mkdtempSync(join(tmpdir(), "subsub-cfg-"));
-	const file = join(dir, "config.json");
-	writeFileSync(file, JSON.stringify({ language: "English", models: {} }));
-	const old = process.env.SUBSUB_CONFIG;
-	process.env.SUBSUB_CONFIG = file;
-	try {
-		const { fp, ctx, notes, toolCall } = await setup();
-		assert.ok(fp.active.includes("scholar_export_bibliography"));
-		await fp.commands.profile.handler("reader", ctx);
-		assert.equal(JSON.parse(readFileSync(file, "utf8")).profile, "reader");
-		assert.equal(JSON.parse(readFileSync(file, "utf8")).language, "English");
-		assert.ok(!fp.active.includes("scholar_export_bibliography"));
-		const r = await toolCall("scholar_export_bibliography", { manuscript: "/vault/x.qmd" });
-		assert.match(r.reason, /Reader profile/);
-		await fp.commands.profile.handler("nonsense", ctx);
-		assert.match(notes.at(-1)!, /Unknown profile/);
-		await fp.commands.profile.handler("", ctx);
-		assert.match(notes.at(-1)!, /Profile: Reader[\s\S]*\* Reader/);
-	} finally {
-		if (old === undefined) delete process.env.SUBSUB_CONFIG;
-		else process.env.SUBSUB_CONFIG = old;
-	}
+	assert.match(sys, /Draft text for Ana's manuscripts, theses or assignments only when Ana asks/);
+	assert.match(sys, /# Language\n\nReply in the language Ana writes in/);
+	assert.doesNotMatch(sys, /# Profile|Tiago|\{\{/);
 });
 
 test("uv on Windows and the server command", () => {
@@ -682,7 +650,6 @@ test("init: new user with defaults, then again without replacing files", async (
 	const notFound = (async () => { throw new Error("no zotero"); }) as unknown as typeof fetch;
 	const r = await runInit(io, { setup: "fmup", name: "Ana", email: "ana@example.org" }, env, { home, fetch: notFound });
 	const cfg = JSON.parse(readFileSync(r.configFile, "utf8"));
-	assert.equal(cfg.profile, "reader");
 	assert.equal(cfg.userName, "Ana");
 	assert.equal(cfg.setup, "fmup");
 	assert.deepEqual(cfg.models, {});
@@ -695,13 +662,12 @@ test("init: new user with defaults, then again without replacing files", async (
 	const envText = readFileSync(r.envFile, "utf8");
 	assert.match(envText, /ZOTERO_VAULT=.*Sub-Sub\nZOTERO_VOCAB=.*Zotero tags\.md\nZOTERO_ALERTS=.*Zotero.Literature alerts\.md\nZOTERO_CONTACT_EMAIL=ana@example\.org/);
 	assert.ok(said.some((l) => /Zotero: not reachable/.test(l)) && said.some((l) => /FMUP model service/.test(l)));
-	assert.equal(loadCfg(env).profile, "reader");
 	assert.equal(cfg.addons, undefined);
-	// again: the tag list the user edited stays, other env lines stay, the profile changes
+	// again: the tag list the user edited stays, other env lines stay
 	writeFileSync(vocab, "MY TAGS");
 	writeFileSync(r.envFile, `${envText}NCBI_API_KEY=abc\n`);
 	const prepared: unknown[] = [];
-	const r2 = await runInit(io, { profile: "author", models: "opencode-go", starbuck: "on" }, env, {
+	const r2 = await runInit(io, { models: "opencode-go", starbuck: "on" }, env, {
 		home, fetch: notFound, prepareStarbuck: (c) => { prepared.push(c.addons); return "Reference checks: on (starbuck 0.2.0)."; },
 	});
 	assert.deepEqual(prepared, [["starbuck"]]);
@@ -709,7 +675,6 @@ test("init: new user with defaults, then again without replacing files", async (
 	assert.equal(readFileSync(vocab, "utf8"), "MY TAGS");
 	assert.match(readFileSync(r2.envFile, "utf8"), /NCBI_API_KEY=abc/);
 	const cfg2 = JSON.parse(readFileSync(r2.configFile, "utf8"));
-	assert.equal(cfg2.profile, "author");
 	assert.equal(cfg2.userName, "Ana");
 	assert.equal(cfg2.models.librarian, "opencode-go/mimo-v2.6-flash");
 	assert.equal(cfg2.models.researcher, "opencode-go/mimo-v2.6-pro");
@@ -729,14 +694,12 @@ test("init: new user with defaults, then again without replacing files", async (
 	const env3 = { SUBSUB_CONFIG: join(home3, "c.json"), ZOTERO_MCP_ENV: join(home3, "env"), SUBSUB_AGENT_DIR: join(home3, "agent") } as any;
 	await runInit(io, {}, env3, { home: home3, fetch: notFound });
 	assert.equal(JSON.parse(readFileSync(join(home3, "c.json"), "utf8")).models.researcher, "opencode-go/mimo-v2.6-pro");
-	// a new user: students start in Reader, others in Scholar
+	// a settings file from 0.16 or earlier: the profile key goes
 	const home5 = mkdtempSync(join(tmpdir(), "subsub-init5-"));
 	const env5 = { SUBSUB_CONFIG: join(home5, "c.json"), ZOTERO_MCP_ENV: join(home5, "env"), SUBSUB_AGENT_DIR: join(home5, "agent") } as any;
-	await runInit(io, { student: "no" }, env5, { home: home5, fetch: notFound });
-	assert.equal(JSON.parse(readFileSync(join(home5, "c.json"), "utf8")).profile, "scholar");
-	rmSync(join(home5, "c.json"));
+	writeFileSync(join(home5, "c.json"), JSON.stringify({ profile: "reader" }));
 	await runInit(io, {}, env5, { home: home5, fetch: notFound });
-	assert.equal(JSON.parse(readFileSync(join(home5, "c.json"), "utf8")).profile, "reader");
+	assert.equal(JSON.parse(readFileSync(join(home5, "c.json"), "utf8")).profile, undefined);
 	// the free choice: the free model in both modes, and the Google key saved like /login does
 	const home4 = mkdtempSync(join(tmpdir(), "subsub-init4-"));
 	const env4 = { SUBSUB_CONFIG: join(home4, "c.json"), ZOTERO_MCP_ENV: join(home4, "env"), SUBSUB_AGENT_DIR: join(home4, "agent") } as any;
@@ -758,7 +721,7 @@ test("usage log: off by default, counts only, and a summary", async () => {
 	const env = { HOME: home } as NodeJS.ProcessEnv;
 	logUsage(false, { ev: "ask", kind: "message", words: 3 }, env);
 	assert.ok(!existsSync(usageFile(env)), "nothing is written when the log is off");
-	logUsage(true, { ev: "session", mode: "researcher", profile: "reader" }, env);
+	logUsage(true, { ev: "session", mode: "researcher" }, env);
 	logUsage(true, { ev: "ask", kind: "/lit-note", words: 2 }, env);
 	logUsage(true, { ev: "ask", kind: "message", words: 12 }, env);
 	logUsage(true, { ev: "turn", seconds: 90, tools: 4 }, env);
@@ -801,7 +764,7 @@ test("doctor: checks and fixes", () => {
 	mkdirSync(agent);
 	const cfgFile = join(home, "config.json");
 	writeFileSync(cfgFile, "{}");
-	const cfg = { ...CFG, configFile: cfgFile, vault: home, serverDir: "/nonexistent", profile: "scholar" as const };
+	const cfg = { ...CFG, configFile: cfgFile, vault: home, serverDir: "/nonexistent" };
 	const status = { zotero: "reachable", write_key_remembered: false, vocabulary: { path: "/v.md", tags: 26, facets: ["method", "type", "status"], problems: [] }, contact_email_set: false };
 	const run = (cmd: string, args: string[]) =>
 		args[0] === "--version" ? { status: 0, stdout: "uv 0.9.0", stderr: "" } : { status: 0, stdout: JSON.stringify(status), stderr: "" };
@@ -892,11 +855,9 @@ test("starbuck add-on: off by default; server, environment and release when on",
 	assert.deepEqual(starbuckEnv({}, {}), {});
 });
 
-test("starbuck add-on: Researcher tools in every profile, not in the Librarian", () => {
+test("starbuck add-on: Researcher tools, not in the Librarian", () => {
 	const all = ["zotero_find_items", "zotero_tag_items", "scholar_search_pubmed", "verify_check_manuscript", "verify_prepare_claims", "read"];
-	for (const p of ["reader", "scholar", "author", "editor"] as const) {
-		assert.ok(toolsFor("researcher", all, { profile: p }).includes("verify_check_manuscript"), p);
-	}
+	assert.ok(toolsFor("researcher", all).includes("verify_check_manuscript"));
 	assert.ok(!toolsFor("librarian", all).some((n) => n.startsWith("verify_")));
 });
 
@@ -932,12 +893,10 @@ test("every tool a mode offers is either a server tool, a read-only file tool, o
 	];
 	const readOnly = new Set(["read", "grep", "find", "ls"]);
 	for (const mode of ["librarian", "researcher"] as const) {
-		for (const p of ["reader", "scholar", "author", "editor"] as const) {
-			for (const name of toolsFor(mode, all, { profile: p })) {
-				const known = ["zotero_", "scholar_", "verify_"].some((x) => name.startsWith(x)) || readOnly.has(name)
-					|| gateKind(name, {}) === "path";
-				assert.ok(known, `${mode}/${p} offers ${name}, which the gate does not judge`);
-			}
+		for (const name of toolsFor(mode, all)) {
+			const known = ["zotero_", "scholar_", "verify_"].some((x) => name.startsWith(x)) || readOnly.has(name)
+				|| gateKind(name, {}) === "path";
+			assert.ok(known, `${mode} offers ${name}, which the gate does not judge`);
 		}
 	}
 });
@@ -953,36 +912,17 @@ test("web: Open judges the real file, not a link inside the notes folder", async
 	assert.ok(!within(realish(join(vault, "link.md")), realish(vault)), "the real path is outside");
 });
 
-test("profiles: prompt commands per profile, blocked before the template is expanded", async () => {
-	assert.equal(promptBlocked("/lit FeNO in children", "reader"), undefined, "Reader runs /lit as a reading list");
-	assert.match(profileSpec("reader").rules, /\/lit gives a reading list/);
-	assert.match(readFileSync(new URL("../prompts/lit.md", import.meta.url), "utf8"), /## In the Reader profile: a reading list[\s\S]*type: reading-list/);
-	assert.match(promptBlocked("/compare x", "reader")!, /\/compare is not part of the Reader profile \(it is in: Scholar, Author, Editor\)/);
-	assert.equal(promptBlocked("/lit FeNO", "scholar"), undefined);
-	assert.match(promptBlocked("/review draft.qmd", "scholar")!, /it is in: Author, Editor/);
-	assert.equal(promptBlocked("/review draft.qmd", "author"), undefined);
-	assert.equal(promptBlocked("/verify draft.qmd", "reader"), undefined);
-	assert.equal(promptBlocked("/compare", "reader")?.startsWith("/compare"), true);
-	assert.equal(promptBlocked("/literature", "reader"), undefined);
-	assert.equal(promptBlocked("please run /lit on FeNO", "reader"), undefined);
-	const dir = mkdtempSync(join(tmpdir(), "subsub-cfg-"));
-	const file = join(dir, "config.json");
-	writeFileSync(file, "{}");
-	const old = process.env.SUBSUB_CONFIG;
-	process.env.SUBSUB_CONFIG = file;
-	try {
-		const { fp, ctx, notes } = await setup();
-		const input = (text: string) => fp.handlers.input[0]({ type: "input", text, source: "interactive" }, ctx);
-		assert.deepEqual(await input("/lit FeNO"), { action: "continue" });
-		await fp.commands.profile.handler("reader", ctx);
-		assert.deepEqual(await input("/lit FeNO"), { action: "continue" });
-		assert.deepEqual(await input("/compare FeNO"), { action: "handled" });
-		assert.match(notes.at(-1)!, /Sub-Sub: \/compare is not part of the Reader profile/);
-		assert.deepEqual(await input("/verify paper.qmd"), { action: "continue" });
-	} finally {
-		if (old === undefined) delete process.env.SUBSUB_CONFIG;
-		else process.env.SUBSUB_CONFIG = old;
-	}
+test("prompt commands: research ones need the Researcher; /profile is gone; /lit makes a reading list on request", async () => {
+	assert.match(readFileSync(new URL("../prompts/lit.md", import.meta.url), "utf8"), /## A reading list\n\nWhen the user asks for a reading list[\s\S]*type: reading-list/);
+	const { fp, ctx, notes } = await setup();
+	const input = (text: string) => fp.handlers.input[0]({ type: "input", text, source: "interactive" }, ctx);
+	for (const c of ["/lit FeNO", "/compare FeNO", "/review draft.qmd", "/digest", "/verify paper.qmd"]) assert.deepEqual(await input(c), { action: "continue" }, c);
+	assert.deepEqual(await input("/profile reader"), { action: "handled" });
+	assert.match(notes.at(-1)!, /no longer has profiles[\s\S]*\/read/);
+	await fp.commands.librarian.handler("", ctx);
+	assert.deepEqual(await input("/compare FeNO"), { action: "handled" });
+	assert.match(notes.at(-1)!, /\/compare is part of the Researcher/);
+	assert.deepEqual(await input("/tag-batch 10"), { action: "continue" });
 });
 
 test("literature notes: evidence field required, page numbers only from the full text", async () => {
@@ -1125,12 +1065,10 @@ test("uv: a pinned version missing from uv's cached index is retried once with a
 	assert.equal(refreshedArgs(["run", "--directory", "/x", "zotero-local-mcp"], stale), undefined, "a local checkout needs no index");
 });
 
-test("files without a parent item: tools in every mode and profile, the preview, the Brave key", async () => {
+test("files without a parent item: tools in every mode, the preview, the Brave key", async () => {
 	const registered = ["zotero_standalone_items", "zotero_set_parent_items", "zotero_find_reference", "zotero_web_search", "zotero_find_items"];
 	for (const mode of ["librarian", "researcher"] as const) {
-		for (const profile of ["reader", "scholar", "author", "editor"] as const) {
-			assert.deepEqual(toolsFor(mode, registered, { profile }).sort(), [...registered].sort(), `${mode}/${profile}`);
-		}
+		assert.deepEqual(toolsFor(mode, registered).sort(), [...registered].sort(), mode);
 	}
 	assert.equal(gateKind("zotero_set_parent_items", { dry_run: false }), "preview");
 	assert.equal(gateKind("zotero_set_parent_items", {}), null);

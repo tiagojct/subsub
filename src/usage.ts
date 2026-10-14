@@ -10,7 +10,7 @@ import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 
 export type UsageEvent =
-	| { ev: "session"; mode: string; profile: string; model?: string }
+	| { ev: "session"; mode: string; model?: string }
 	| { ev: "ask"; kind: string; words: number }
 	| { ev: "turn"; seconds: number; tools: number; error?: string }
 	| { ev: "change"; tool: string; approved: boolean };

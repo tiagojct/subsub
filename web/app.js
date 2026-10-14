@@ -7,7 +7,7 @@ import { ACTIONS, STRINGS, SUGGESTIONS, TOOLS } from "/i18n.js";
 // ---------------------------------------------------------------- state
 
 let lang = "en";
-let state = null; // Sub-Sub's own state: mode, profile, model, library, down
+let state = null; // Sub-Sub's own state: mode, model, library, down
 let session = null; // pi's session state
 let busy = false;
 let commands = [];
@@ -179,7 +179,6 @@ function renderHeader() {
 		b.setAttribute("aria-pressed", String(b.dataset.mode === mode()));
 		b.title = t(b.dataset.mode === "librarian" ? "librarianHint" : "researcherHint");
 	}
-	if (state?.profile) $("profile").value = $("profile-side").value = state.profile;
 	$("starbuck-toggle").checked = Boolean(state?.starbuck);
 	$("starbuck-label").title = t("starbuckHint");
 	const m = state?.model ?? session?.model;
@@ -229,10 +228,7 @@ function renderActions() {
 	const box = $("actions");
 	box.replaceChildren();
 	const shown = (a) =>
-		hasCommand(a.cmd) &&
-
-		(!a.needs || state?.[a.needs]) &&
-		(!a.profiles || a.profiles.includes(state?.profile ?? "scholar"));
+		hasCommand(a.cmd) && (!a.needs || state?.[a.needs]);
 	const groups = mode() === "librarian" ? [["library", "groupLibrary"]] : [["research", "groupResearch"], ["library", "groupLibrary"]];
 	for (const [group, label] of groups) {
 		const list = ACTIONS[group].filter(shown);
@@ -344,7 +340,7 @@ function exportConversation() {
 	}
 	if (!msgs.length) return;
 	const date = new Date().toISOString().slice(0, 10);
-	const content = `# Sub-Sub Research Session (${date})\n\n**Profile**: ${state?.profile ?? "scholar"}  \n\n---\n\n${msgs.join("\n---\n\n")}`;
+	const content = `# Sub-Sub Research Session (${date})\n\n**Mode**: ${mode()}  \n\n---\n\n${msgs.join("\n---\n\n")}`;
 	const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
 	const url = URL.createObjectURL(blob);
 	const a = document.createElement("a");
@@ -1206,7 +1202,6 @@ for (const b of document.querySelectorAll(".modes button")) {
 		if (b.dataset.mode !== mode()) sendMessage(`/${b.dataset.mode}`);
 	});
 }
-$("profile").addEventListener("change", (e) => sendMessage(`/profile ${e.target.value}`));
 $("starbuck-toggle").addEventListener("change", async (e) => {
 	const on = e.target.checked;
 	e.target.disabled = true;
@@ -1220,7 +1215,6 @@ $("starbuck-toggle").addEventListener("change", async (e) => {
 		e.target.disabled = false;
 	}
 });
-$("profile-side").addEventListener("change", (e) => sendMessage(`/profile ${e.target.value}`));
 $("model-btn").addEventListener("click", showModels);
 $("model-btn-side").addEventListener("click", () => {
 	closeSide();

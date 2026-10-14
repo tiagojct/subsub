@@ -6,9 +6,7 @@
  *   and writes notes. Each mode can have its own model.
  * - An approval gate: every library change is previewed by the server (dry run)
  *   and shown to the user; nothing is applied without a yes.
- * - Profiles (reader, scholar, author, editor) set what Sub-Sub writes and which
- *   tools it offers; /profile changes it.
- * - Commands: /librarian, /researcher, /profile, /subsub, /history, /undo.
+ * - Commands: /librarian, /researcher, /read, /subsub, /history, /undo.
  * - Add-on: with "addons": ["starbuck"], Starbuck runs as a third server
  *   ("verify") for reference checks.
  *
@@ -25,12 +23,9 @@ import {
 	expand,
 	findUv,
 	FREE_MODELS,
-	isProfile,
 	loadConfig,
 	parseEnvFile,
-	type Profile,
 	type Mode,
-	saveConfig,
 	serverCommand,
 	starbuckCommand,
 	starbuckEnabled,
@@ -38,7 +33,6 @@ import {
 	uiLanguage,
 	who,
 } from "./config.ts";
-import { profileList, profileSpec, promptBlocked } from "./profiles.ts";
 import { coerceArgs, loosenArrays, resolvePathArgs } from "./args.ts";
 import { aiStatement } from "./statement.ts";
 import { PURPOSES, type Purpose, readArgs, readInstruction, type ReadRequest } from "./read.ts";
@@ -144,8 +138,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 
 	let mode: Mode = cfg.defaultMode;
 	const benchRun = Boolean(process.env.SUBSUB_BENCH_OUT);
-	const toolOpts = () => ({ profile, bench: benchRun });
-	let profile: Profile = cfg.profile;
+	const toolOpts = () => ({ bench: benchRun });
 	const user = who(cfg);
 	/** True when started with the `subsub` command (not as a package inside plain pi). */
 	const standalone = process.env.SUBSUB_CLI === "1";
@@ -172,8 +165,6 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		const down = bridge ? Object.keys(bridge.errors) : ["zotero", "scholar"];
 		const state = {
 			mode,
-			profile,
-			profileLabel: profileSpec(profile).label,
 			model: ctx.model ? { provider: ctx.model.provider, id: ctx.model.id } : null,
 			down,
 			library,
@@ -239,7 +230,6 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 					return headerLines({
 						version,
 						mode,
-						profile: profileSpec(profile).label,
 						model: modelId,
 						library,
 						quote,
@@ -261,7 +251,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	function status(ctx: ExtensionContext): void {
 		modelId = ctx.model ? `${ctx.model.id}` : "no model";
 		const down = bridge ? Object.keys(bridge.errors) : ["zotero", "scholar"];
-		ctx.ui.setStatus("subsub", `Sub-Sub: ${mode} | ${profileSpec(profile).label} | ${modelId}${down.length ? ` | not running: ${down.join(", ")}` : ""}`);
+		ctx.ui.setStatus("subsub", `Sub-Sub: ${mode} | ${modelId}${down.length ? ` | not running: ${down.join(", ")}` : ""}`);
 		if (standalone) ctx.ui.setTitle(`Sub-Sub: ${mode}`);
 		headerTui?.requestRender();
 		webCtx = ctx;
@@ -325,7 +315,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		if (lookOn(ctx)) scheme ??= schemeFromAnsi(ctx.ui.theme.getFgAnsi("text"), ctx.ui.theme.name);
 		applyTheme(ctx);
 		await applyMode(ctx, restored ?? (pi.getFlag("librarian") ? "librarian" : pi.getFlag("researcher") ? "researcher" : cfg.defaultMode), false, !modelChosen);
-		logUsage(cfg.usageLog, { ev: "session", mode, profile, model: ctx.model ? `${ctx.model.provider}/${ctx.model.id}` : undefined });
+		logUsage(cfg.usageLog, { ev: "session", mode, model: ctx.model ? `${ctx.model.provider}/${ctx.model.id}` : undefined });
 		if (lookOn(ctx)) {
 			setHeader(ctx);
 			void refreshLibrary();
@@ -395,8 +385,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	});
 
 
-	// Prompt commands that the profile does not run (/lit for Reader, /review for Reader and Scholar).
-	// The input event comes before pi expands a prompt template.
+	// Research prompts in the Librarian. The input event comes before pi expands a prompt template.
 	pi.on("input", async (event, ctx) => {
 		if (resumeTimer) clearTimeout(resumeTimer);
 		resumeTimer = undefined;
@@ -408,10 +397,12 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			ctx.ui.notify(researcherOnly(cmd), "warning");
 			return { action: "handled" };
 		}
-		const why = promptBlocked(event.text, profile);
-		if (!why) return { action: "continue" };
-		ctx.ui.notify(`Sub-Sub: ${why}`, "warning");
-		return { action: "handled" };
+		// shortcut: a notice for the habit of 0.16 and earlier; drop it a few versions on.
+		if (cmd === "profile") {
+			ctx.ui.notify(L("Sub-Sub no longer has profiles: every command is in the Researcher. To read a paper with guidance, type /read.", "O Sub-Sub já não tem perfis: todos os comandos estão no Investigador. Para ler um artigo com orientação, escreva /read."), "info");
+			return { action: "handled" };
+		}
+		return { action: "continue" };
 	});
 
 	pi.on("agent_start", async () => {
@@ -420,7 +411,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	});
 
 	pi.on("before_agent_start", async (event, ctx) => ({
-		systemPrompt: `${event.systemPrompt}\n\n${systemAddition(mode, { ...cfg, profile }, ctx.cwd)}`,
+		systemPrompt: `${event.systemPrompt}\n\n${systemAddition(mode, cfg, ctx.cwd)}`,
 	}));
 
 	/** Model test (subsub-bench): record every change instead of asking, and apply none. */
@@ -635,34 +626,10 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		},
 	});
 
-	pi.registerCommand("profile", {
-		description: "Sub-Sub: show or change the profile (reader, scholar, author, editor)",
-		handler: async (args, ctx) => {
-			const want = args.trim().toLowerCase();
-			if (!want) {
-				ctx.ui.notify(`Profile: ${profileSpec(profile).label}. To change it, type /profile <name>.\n${profileList(profile)}`, "info");
-				return;
-			}
-			if (!isProfile(want)) {
-				ctx.ui.notify(`Unknown profile "${want}". Choose one of:\n${profileList(profile)}`, "warning");
-				return;
-			}
-			profile = want;
-			let saved = "";
-			try {
-				saved = ` Saved in ${saveConfig({ profile })}.`;
-			} catch (err) {
-				saved = ` Not saved: ${(err as Error).message}`;
-			}
-			await applyMode(ctx, mode, false, false);
-			ctx.ui.notify(`Sub-Sub: ${profileSpec(profile).label} profile (${profileSpec(profile).summary}).${saved}`, "info");
-		},
-	});
-
 	pi.registerCommand("subsub", {
 		description: "Sub-Sub: Zotero connection and library overview",
 		handler: async (_args, ctx) => {
-			const lines = [`Mode: ${mode}. Profile: ${profileSpec(profile).label}. Model: ${ctx.model?.id ?? "none"}.`];
+			const lines = [`Mode: ${mode}. Model: ${ctx.model?.id ?? "none"}.`];
 			if (!bridge) {
 				ctx.ui.notify(`${lines[0]}\nThe Zotero servers are not running. Try /reload.`, "warning");
 				return;

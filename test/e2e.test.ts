@@ -422,7 +422,7 @@ test("subsub init and subsub doctor from the command line", { timeout: 180_000 }
 	assert.ok(existsSync(join(home, "Notes", "Zotero", "Zotero agent.md")));
 	const cfg = JSON.parse(readFileSync(join(home, "config.json"), "utf8"));
 	assert.equal(cfg.userName, "Ana");
-	assert.equal(cfg.profile, "reader", "without questions, a new user starts as a student, in Reader");
+	assert.equal(cfg.profile, undefined, "no profiles");
 	// run the server from this checkout, not from PyPI
 	writeFileSync(join(home, "config.json"), JSON.stringify({ ...cfg, serverDir: ZLM }));
 	const doc = spawnSync(process.execPath, [cli, "doctor"], { env, encoding: "utf8", timeout: 120_000 });
@@ -546,8 +546,7 @@ test("the web view: the page answers Sub-Sub's approval; other sites and hosts a
 		const hello = await stream.wait((e) => e.type === "hello");
 		assert.equal(hello.lang, "en");
 		assert.ok(Array.isArray(hello.commands) && hello.commands.some((c: any) => c.name === "tag-batch"));
-		const st = await stream.wait((e) => e.type === "subsub_state" && e.state?.mode === "librarian");
-		assert.equal(st.state.profile, "scholar");
+		await stream.wait((e) => e.type === "subsub_state" && e.state?.mode === "librarian");
 
 		// A library change: Sub-Sub asks, the page answers, the change is made.
 		script = [
@@ -638,7 +637,7 @@ test("the npm package: installed with npm install -g, it starts pi with Sub-Sub"
 		assert.ok(String(settings.packages[0]).includes("node_modules"), "the installed copy is the package");
 		const sys = JSON.stringify(requests[0].messages[0]);
 		assert.match(sys, /# Sub-Sub: Researcher mode\\n\\nYou are Sub-Sub/);
-		assert.match(sys, /# Profile/);
+		assert.match(sys, /# Language/);
 	} finally {
 		pi.kill();
 	}

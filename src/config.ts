@@ -3,7 +3,6 @@
  * (~/.config/subsub/config.json, or SUBSUB_CONFIG) overrides it.
  *
  * {
- *   "profile": "scholar",
  *   "userName": "Ana", "about": "a master's student in health informatics", "language": "English",
  *   "vault": "~/Documents/Sub-Sub",
  *   "models": { "librarian": "opencode-go/mimo-v2.6-flash", "researcher": "opencode-go/mimo-v2.6-pro" },
@@ -61,8 +60,6 @@ export const RECOMMENDED_MODELS: Array<{ spec: string; modes: Mode[]; why: "test
 export function uiLanguage(language: string | undefined): "pt" | "en" {
 	return /portug|^pt\b|^pt-/i.test(language ?? "") ? "pt" : "en";
 }
-export type Profile = "reader" | "scholar" | "author" | "editor";
-export const PROFILES: Profile[] = ["reader", "scholar", "author", "editor"];
 
 /** The Zotero server release that this Sub-Sub version runs when there is no local server folder. */
 export const SERVER_VERSION = "0.5.5";
@@ -72,10 +69,8 @@ export const STARBUCK_VERSION = "0.2.0";
 export const STARBUCK_SOURCE = `starbuck==${STARBUCK_VERSION}`;
 
 export interface SubsubConfig {
-	/** The settings file (written by `subsub init` and `/profile`). */
+	/** The settings file (written by `subsub init`). */
 	configFile: string;
-	/** How much Sub-Sub does for the user: reader, scholar, author or editor. */
-	profile: Profile;
 	/** How the prompts name the user ("the user" when not set). */
 	userName?: string;
 	/** One line about the user, e.g. "a master's student in health informatics". */
@@ -157,10 +152,6 @@ export function saveConfig(patch: Record<string, unknown>, env: NodeJS.ProcessEn
 	return file;
 }
 
-export function isProfile(x: unknown): x is Profile {
-	return typeof x === "string" && (PROFILES as string[]).includes(x);
-}
-
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): SubsubConfig {
 	const home = env.HOME;
 	const file = configPath(env);
@@ -194,7 +185,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): SubsubConfig {
 	const themes = user.themes === false ? false : typeof user.themes === "string" ? user.themes : user.themes?.researcher;
 	return {
 		configFile: file,
-		profile: isProfile(user.profile) ? user.profile : "scholar",
 		userName: typeof user.userName === "string" && user.userName.trim() ? user.userName.trim() : undefined,
 		about: typeof user.about === "string" && user.about.trim() ? user.about.trim() : undefined,
 		language: typeof user.language === "string" && user.language.trim() ? user.language.trim() : "English",

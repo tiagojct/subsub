@@ -23,7 +23,6 @@ import {
 	refreshedArgs,
 } from "./config.ts";
 import { isObsidianVault, LEGACY_SETTINGS_DIR, SETTINGS_FILES, settingsFile } from "./layout.ts";
-import { profileSpec } from "./profiles.ts";
 
 export interface Check {
 	name: string;
@@ -79,7 +78,7 @@ export function runChecks(
 	);
 	out.push(
 		existsSync(cfg.configFile)
-			? { name: "Settings", ok: true, detail: `${cfg.configFile}, profile ${profileSpec(cfg.profile).label}, replies in ${cfg.language}` }
+			? { name: "Settings", ok: true, detail: `${cfg.configFile}, replies in ${cfg.language}` }
 			: { name: "Settings", ok: false, detail: `no ${cfg.configFile}`, fix: "Type subsub init." },
 	);
 

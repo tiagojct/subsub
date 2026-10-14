@@ -7,6 +7,7 @@ Sub-Sub follows the version numbers of npm: a change in the second number (0.13)
 For people who are learning to read the literature:
 
 - `/read <citekey>` is a guided reading of one paper. Sub-Sub asks why you read it: background (the title and abstract, then keep or drop), one fact, extraction for a review, or critique. It reads only as deep as that reason needs, quotes the passages with their place and asks questions; you write the answers. It writes no results or summaries in this note. For an extraction, it also adds a row for the paper to your extraction sheet in `Research/`, with where to find each value. Put the reason first to skip the question: `/read extract smith2021`. In the browser it is the button Read a paper.
+- Sub-Sub has no profiles any more (Reader, Scholar, Author, Editor). The two modes stay: the Researcher has every command and tool, and every library change still needs your yes. Sub-Sub writes notes and syntheses with a source for every claim, and drafts manuscript text only when you ask. What the Reader profile did is now `/read` (a guided reading of one paper) and `/lit reading list: <topic>` (a reading list with questions, no results). `subsub init` no longer asks whether you are a student or which profile you want, and removes the old setting. `/profile` says where things went.
 - In the browser, a command that asks a question (`/read`, `/undo`) no longer shows an error when the answer takes more than 30 seconds.
 
 ## 0.16.0 (2026-10-08)
