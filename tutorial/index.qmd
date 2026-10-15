@@ -1,6 +1,6 @@
 ---
 title: "Test everything in Sub-Sub"
-subtitle: "A tutorial to follow along, one command at a time. Sub-Sub 0.17."
+subtitle: "A tutorial to follow along, one command at a time. Sub-Sub 0.18."
 ---
 
 ```{=html}
@@ -191,7 +191,7 @@ Use the Researcher.
 - [ ] Type `What do I have on spirometry?`.\
   Result: an answer from your library, one line per item, with citekeys.
 - [ ] Select What is missing in the left panel. Complete the command: `/gaps home spirometry in children`.\
-  Result: how many results are already in your library, and a list of relevant works that are missing. Sub-Sub asks before it imports.
+  Result: how many results are already in your library, and a ranked list of 5 to 15 relevant works that are missing, the best fit first. Sub-Sub does not read them, and asks before it imports.
 - [ ] Answer `queue the first three for later`.\
   Result: three lines in `Inbox/Zotero import queue.md`.
 - [ ] Open the queue note and tick two lines. Select Import the queue in the left panel.\
@@ -240,6 +240,8 @@ Use a primary study with a PDF in your library for the steps with the full text.
   Result: Zotero opens the PDF at the page of the quote. The quote is there, word for word. Check a second quote.
 - [ ] Type `write a literature note for` and a citekey `from the abstract only, and give page numbers`.\
   Result: a note with `evidence: abstract` and no page numbers. If Sub-Sub tries to add page numbers, the write fails first, with the reason: page numbers come only from the full text.
+- [ ] Type `write a literature note for` and the citekey of an item with a PDF, `and quote two sentences of the methods that are not next to each other as one quote`.\
+  Result: the note has the two sentences with [...] between them, or as two quotes. If Sub-Sub first joins them without [...], the write fails with the reason, and Sub-Sub corrects the quote. A quote that joins two passages never reaches the note.
 - [ ] Type `/synthesis spirometry`.\
   Result: a list of candidate items from your library, and important works that are missing. Sub-Sub waits for your choice.
 - [ ] Choose three items.\
@@ -248,7 +250,17 @@ Use a primary study with a PDF in your library for the steps with the full text.
 ## Reviews of the literature {#sec-lit}
 
 - [ ] Select Literature review in the left panel. Complete the command: `/lit home spirometry in children with asthma`.\
-  Result: a three-line plan, then searches of your library and of PubMed, Europe PMC and OpenAlex. Then a note `Research/<date> <slug>.md` with an answer, an evidence table, agreement, disagreement, open questions, methods, the section "What this review is" and the sources.
+  Result: a three-line plan with a rating of how hard the search is (1 to 10) and a publication window, then searches of your library and of PubMed, Europe PMC and OpenAlex. Then a note `Research/<date> <slug>.md` with an answer, an evidence table, agreement, disagreement, open questions, methods, the section "What this review is" and the sources.
+- [ ] Open the review in the notes pane and go to Methods.\
+  Result: the rating, the follow-up rounds (none, one or two, as the rating allows) and what each round found. Under the text, the flow of works drawn as boxes: found, unique, screened, read and used, with what was left out at each step to the side.
+- [ ] Check the numbers of the flow.\
+  Result: they add up. Unique works = pre-screen excluded + screened; screened = excluded at screening + read; read = not used + used.
+- [ ] Open the same note in Obsidian.\
+  Result: Obsidian draws the same flow from its Mermaid block.
+- [ ] In the notes pane, under the evidence table, select Download CSV.\
+  Result: a file named after the note in your downloads folder. Open it in Excel: one column for each column of the table, accents correct.
+- [ ] Look at the Design column of the evidence table.\
+  Result: a work that is a preprint (medRxiv, bioRxiv, Research Square, SSRN, arXiv) says "(preprint)". If the same work has a journal version, the table uses that. Skip this step if the review has no preprint.
 - [ ] Open `Research/.plans/`.\
   Result: the plan and the screening log, with the counts for a flow diagram.
 - [ ] While `/lit` runs, select Stop.\
@@ -256,7 +268,7 @@ Use a primary study with a PDF in your library for the steps with the full text.
 - [ ] Select Reading list in the left panel. Complete the command: `/lit reading list: home spirometry in children with asthma`.\
   Result: a note with `type: reading-list`: the order to read the works, what each work studies, and questions to read each one with. No results, in the note or in the reply.
 - [ ] Select Compare sources. Complete the command: `/compare does home spirometry agree with clinic spirometry?`.\
-  Result: `Research/<date> <slug> comparison.md` with a matrix: claim, evidence type, population, caveats, confidence.
+  Result: `Research/<date> <slug> comparison.md` with a matrix: claim, evidence type, population, caveats, confidence. A preprint says "(preprint)" in the evidence type. The matrix also has a Download CSV button in the notes pane.
 - [ ] Select Digest of the week.\
   Result: a digest of the alerts and notes of the last 7 days.
 - [ ] If an alert note `Inbox/Literature alerts <date>.md` exists, select New publications.\
@@ -336,6 +348,10 @@ Home spirometry is feasible in school-age children.
   Result: the conversation leaves the list. The file is in `~/.subsub/trash`, in the same subfolder as under `~/.subsub/agent/sessions/`. The open conversation has no Delete button.
 - [ ] Select Export.\
   Result: a Markdown file `Sub-Sub-<date>.md` in your downloads folder, with the messages and the tools that Sub-Sub used, with their results.
+- [ ] Under a table in a reply, select Download CSV.\
+  Result: a CSV file of that table. With the interface in Portuguese, the columns are separated by semicolons, as Excel expects there.
+- [ ] Select Report a problem in the left panel. Complete the command: `/feedback the notes pane did not open`.\
+  Result: a draft report `Inbox/<date> Sub-Sub feedback.md` with the versions, the mode and model, the output of `subsub doctor` and the last error. Your home and Sub-Sub folders show as `~` and `<Sub-Sub folder>`; no email address or key. Sub-Sub says that it has sent nothing.
 - [ ] Select New conversation.\
   Result: an empty conversation. The earlier one is in the list.
 - [ ] Make the browser window narrow, like a phone.\
