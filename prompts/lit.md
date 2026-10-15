@@ -86,6 +86,21 @@ reference_check: "<path of the Starbuck report, or none>"
 1. [@citekey] for library items; for other works: Authors, year, title, journal. doi:... (not in library)
 ```
 
+Under Methods, after the text, draw the flow of works with the counts of the screening log, in this form (Obsidian draws it, and so does Sub-Sub's browser view):
+
+```mermaid
+flowchart TD
+  A["Found by the searches: <n>"] --> B["Unique works: <n>"]
+  B -.-> X1["Excluded by the pre-screen: <n>"]
+  B --> C["Screened: <n>"]
+  C -.-> X2["Excluded at screening: <n>"]
+  C --> D["Read: <n>"]
+  D -.-> X3["Read, not used: <n>"]
+  D --> E["Used in this note: <n>"]
+```
+
+The counts must add up: unique works = pre-screen excluded + screened; screened = excluded at screening + read; read = not used + used.
+
 If a step fails (a service does not answer, a full text cannot be read), do not stop. Finish the note, mark the step "BLOCKED: <what failed>", and set verification: BLOCKED.
 
 ## A reading list
@@ -107,6 +122,6 @@ When the user asks for a reading list (for example `/lit reading list: <topic>`,
 ## Sources
 ```
 
-"What it studies" says what the work asks and how, never what it found. Do not state results, effect sizes or conclusions anywhere in the note. Then give the user the path, the first work to read and why, and the works worth adding to the library.
+The Methods section has the same flow diagram, with "On the reading list: <n>" as the last box. "What it studies" says what the work asks and how, never what it found. Do not state results, effect sizes or conclusions anywhere in the note. Then give the user the path, the first work to read and why, and the works worth adding to the library.
 
 Before you answer, read the note back to confirm that it exists. For a review, give the user the path, the answer in three lines, and the works worth adding to the library (offer to import them). For a reading list, give the user what the section above says, with no results.

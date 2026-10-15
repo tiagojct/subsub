@@ -83,6 +83,9 @@ marked.use({
 			if (!SAFE_LINK.test(token.href ?? "")) return text;
 			return `<a href="${escapeHtml(token.href)}" target="_blank" rel="noopener noreferrer">${text}</a>`;
 		},
+		code(token) {
+			return (token.lang === "mermaid" && flowHtml(token.text)) || false;
+		},
 		codespan(token) {
 			const code = `<code>${escapeHtml(token.text)}</code>`;
 			return NOTE_PATH.test(token.text) ? noteLink(token.text, code) : code;
@@ -110,6 +113,45 @@ marked.use({
 		},
 	},
 });
+/**
+ * The flow of works that /lit writes as Mermaid (a chain of boxes, with dotted branches to the side
+ * for what was left out), drawn as boxes. Any other diagram stays as code; Obsidian draws it.
+ */
+function flowHtml(src) {
+	const lines = String(src).split("\n").map((l) => l.trim()).filter(Boolean);
+	if (!/^(flowchart|graph)\s+(TD|TB)\b/.test(lines.shift() ?? "")) return null;
+	const label = {};
+	const next = {};
+	const side = {};
+	const into = new Set();
+	for (const line of lines) {
+		const n = /^(\w+)\["([^"]*)"\]$/.exec(line);
+		if (n) {
+			label[n[1]] = n[2];
+			continue;
+		}
+		const m = /^(\w+)(?:\["([^"]*)"\])?\s*(-->|-\.->)\s*(\w+)(?:\["([^"]*)"\])?$/.exec(line);
+		if (!m) return null;
+		const [, a, la, arrow, b, lb] = m;
+		if (la !== undefined) label[a] = la;
+		if (lb !== undefined) label[b] = lb;
+		if (arrow === "-->") {
+			if (next[a]) return null; // a branch of the main chain: not this kind of diagram
+			next[a] = b;
+			into.add(b);
+		} else (side[a] ??= []).push(b);
+	}
+	const rows = [];
+	const seen = new Set();
+	for (let id = Object.keys(next).find((k) => !into.has(k)); id && !seen.has(id); id = next[id]) {
+		seen.add(id);
+		const sides = (side[id] ?? []).map((s) => `<div class="flow-side">${escapeHtml(label[s] ?? s)}</div>`).join("");
+		rows.push(`<div class="flow-row"><div class="flow-box">${escapeHtml(label[id] ?? id)}</div>${sides}</div>`);
+	}
+	if (rows.length < 2) return null;
+	return `<div class="flow">${rows.join("")}</div>`;
+}
+
 function md(text) {
 	try {
 		return marked.parse(String(text ?? ""));

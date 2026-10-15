@@ -1291,4 +1291,5 @@ test("/lit: the review says what it is not", () => {
 	const lit = readFileSync(resolve(import.meta.dirname, "..", "prompts", "lit.md"), "utf8");
 	assert.match(lit, /review_type: AI-assisted rapid review \(not a systematic review\)/);
 	assert.match(lit, /## What this review is[\s\S]*no second reviewer[\s\S]*PRISMA/);
+	assert.match(lit, /```mermaid\nflowchart TD\n  A\["Found by the searches: <n>"\] --> B/, "the flow of works, in the form the browser view draws");
 });

@@ -856,6 +856,15 @@ body > p.empty { text-align: center; color: var(--muted); padding: 30vh 1rem 0; 
 .settings button { width: 100%; text-align: left; color: var(--text); }
 .settings .model-btn { font-family: var(--mono); font-size: 0.78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+/* ---------------------------------------------------------------- the flow of works (/lit) */
+
+.flow { display: grid; gap: 1rem; margin: 1rem 0; font-family: var(--sans); }
+.flow-row { display: grid; grid-template-columns: minmax(0, 15rem) repeat(auto-fit, minmax(0, 13rem)); gap: 1.4rem; align-items: center; }
+.flow-box { position: relative; padding: 0.45rem 0.7rem; border: 1px solid var(--rule-strong); border-radius: var(--radius); background: var(--raised); font-size: 0.84rem; text-align: center; }
+.flow-row + .flow-row .flow-box::before { content: ""; position: absolute; left: 50%; top: calc(-1rem - 1px); height: 1rem; border-left: 1px solid var(--muted); }
+.flow-side { position: relative; padding: 0.35rem 0.6rem; border: 1px dashed var(--rule-strong); border-radius: var(--radius); color: var(--muted); font-size: 0.78rem; }
+.flow-side::before { content: ""; position: absolute; right: 100%; top: 50%; width: 1.4rem; border-top: 1px dashed var(--muted); }
+
 /* ---------------------------------------------------------------- library search and notes */
 
 #notes-btn { font-family: var(--sans); }

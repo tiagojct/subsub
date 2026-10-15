@@ -4,6 +4,7 @@ Sub-Sub follows the version numbers of npm: a change in the second number (0.13)
 
 ## Unreleased
 
+- A `/lit` note (and a reading list) shows the flow of works under Methods: found, unique, screened, read and used, with what was left out at each step. It is a Mermaid diagram, so Obsidian, Quarto and GitHub draw it; the browser view draws it too.
 - The quote check is stricter. A quote may skip text only at a page break (the running footer and header); two passages of one page joined into one quote, without [...] for the omission, are refused. Zotero marks page breaks in the full text, so the check knows where they are.
 - `/lit reading list:` no longer ends with "the answer in three lines": a reading list states no results, in the reply too.
 - In Portuguese, the browser button for `/lit-note` is now Nota de literatura, so that it is not confused with the reading notes of `/read`.
