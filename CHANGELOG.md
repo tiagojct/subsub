@@ -4,6 +4,7 @@ Sub-Sub follows the version numbers of npm: a change in the second number (0.13)
 
 ## Unreleased
 
+- `/lit` rates how hard the search is (1 to 10) and allows none, one or two follow-up search rounds to match, with one publication window for every search; it stops early when the sources cover the question. The note's Methods give the rating and the rounds. `/gaps` gives a ranked list of 5 to 15 works and does not read them. This keeps the cost of a search in proportion to the question.
 - In the browser view, every table in a note or a reply has a Download CSV button: evidence tables, extraction sheets, comparison matrices. The file opens in Excel (with semicolons when the interface is in Portuguese, as Excel expects there), Rayyan or Covidence.
 - A `/lit` note (and a reading list) shows the flow of works under Methods: found, unique, screened, read and used, with what was left out at each step. It is a Mermaid diagram, so Obsidian, Quarto and GitHub draw it; the browser view draws it too.
 - The quote check is stricter. A quote may skip text only at a page break (the running footer and header); two passages of one page joined into one quote, without [...] for the omission, are refused. Zotero marks page breaks in the full text, so the check knows where they are.

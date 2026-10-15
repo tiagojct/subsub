@@ -12,7 +12,9 @@ Make a short slug from the topic: lower case, hyphens, at most five words. Use t
 2. Decide the scale:
    - Narrow question ("what is X", one fact, one test): at most 10 tool calls, a short answer, no plan file.
    - Review question: write the plan to `Research/.plans/<slug>.md` in the Sub-Sub folder: the question, the search phrasings, the study designs that answer it (for example randomised trials, cohorts, diagnostic accuracy studies, systematic reviews), the years, and a task list.
-3. Tell the user the plan in three lines. Then continue at once. Do not wait for an answer unless the user asked to see the plan first.
+3. Rate how hard the search is, from 1 (one named test, drug or condition) to 10 (a broad question across populations, designs and fields). The rating sets the follow-up rounds of section 4: 1 to 3, none; 4 to 7, one; 8 to 10, two. The rounds are a limit, not a target.
+4. Set one publication window from the question (for example 2015 onwards for current practice), or none when the question does not need one. Keep the same window in every search, the follow-up rounds included.
+5. Tell the user the plan in three lines, with the rating and the window. Then continue at once. Do not wait for an answer unless the user asked to see the plan first.
 
 ## 2. Gather
 
@@ -35,9 +37,11 @@ Make a short slug from the topic: lower case, hyphens, at most five words. Use t
 
 ## 4. Check the draft for gaps
 
-1. Read your draft as a critical reviewer. Name at most three gaps that matter for the question (a population, outcome, design or recent period that the draft does not cover), each as one self-contained search question.
-2. Search only for those questions (scholar_search_multi), read what you add, and give the new sources the next numbers.
-3. Edit only the parts of the draft that a gap names. Do not shorten the draft by more than a tenth. If a search finds nothing new, say so in Methods.
+Do as many rounds as section 1 allows (none, one or two). Stop early when the sources cover the question.
+
+1. Read your draft as a critical reviewer. Name at most three gaps that matter for the question (a population, outcome, design or recent period that the draft does not cover), each as one self-contained search question. A gap is a new angle: do not search again with other words for what the first searches covered.
+2. Search only for those questions (scholar_search_multi, with the window of section 1), read what you add, and give the new sources the next numbers.
+3. Edit only the parts of the draft that a gap names. Do not shorten the draft by more than a tenth. In Methods, give the rating, the rounds you did and what each found (or that it found nothing new).
 
 ## 5. Verify
 
