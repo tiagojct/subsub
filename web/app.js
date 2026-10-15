@@ -450,6 +450,7 @@ async function openNote(path) {
 	const content = el("div", { class: "md" });
 	content.innerHTML = md(front ? data.text.slice(front[0].length) : data.text);
 	attachCopyButtons(content);
+	attachTableButtons(content, data.name.replace(/\.md$/i, ""));
 	$("note-body").replaceChildren(front ? el("details", { class: "front" }, el("summary", { text: t("properties") }), el("pre", { text: front[1] })) : "", content);
 	$("note-body").scrollTop = 0;
 	showPane(true);
@@ -561,15 +562,38 @@ function exportConversation() {
 	if (!msgs.length) return;
 	const date = new Date().toISOString().slice(0, 10);
 	const content = `# ${t("exportHeading")} (${date})\n\n${t("exportMode")}: ${t(mode())}\n\n---\n\n${msgs.join("\n---\n\n")}`;
-	const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
-	const url = URL.createObjectURL(blob);
-	const a = document.createElement("a");
-	a.href = url;
-	a.download = `Sub-Sub-${date}.md`;
+	download(content, `Sub-Sub-${date}.md`, "text/markdown;charset=utf-8");
+}
+
+/** Save text as a file in the downloads folder. */
+function download(content, name, type) {
+	const url = URL.createObjectURL(new Blob([content], { type }));
+	const a = el("a", { href: url, download: name });
 	document.body.append(a);
 	a.click();
 	a.remove();
 	URL.revokeObjectURL(url);
+}
+
+/** A table as CSV for Excel, Rayyan or Covidence. Excel in Portuguese expects semicolons; the BOM keeps the accents. */
+function tableCsv(table) {
+	const sep = lang === "pt" ? ";" : ",";
+	const cell = (c) => {
+		const v = c.textContent.replace(/\s+/g, " ").trim(); // not innerText: the header is upper case only in CSS
+		return /[",;\n]/.test(v) ? `"${v.replaceAll('"', '""')}"` : v;
+	};
+	return `\ufeff${[...table.rows].map((r) => [...r.cells].map(cell).join(sep)).join("\r\n")}\r\n`;
+}
+
+/** A "Download CSV" button under each table (evidence tables, extraction sheets, matrices). */
+function attachTableButtons(root, name) {
+	const wraps = [...root.querySelectorAll(".md-table-wrap")];
+	wraps.forEach((wrap, i) => {
+		if (wrap.nextElementSibling?.classList.contains("table-actions")) return;
+		const file = `${name}${wraps.length > 1 ? `-${i + 1}` : ""}.csv`;
+		const btn = el("button", { type: "button", class: "msg-action-btn", text: t("downloadCsv"), onclick: () => download(tableCsv(wrap.querySelector("table")), file, "text/csv;charset=utf-8") });
+		wrap.after(el("div", { class: "table-actions" }, btn));
+	});
 }
 
 function closeSide() {
@@ -843,6 +867,7 @@ function renderAssistantFinal(message, msg = startAssistant()) {
 			const node = el("div", { class: "md" });
 			node.innerHTML = md(c.text);
 			attachCopyButtons(node);
+			attachTableButtons(node, `Sub-Sub-${new Date().toISOString().slice(0, 10)}`);
 			msg.box.append(node);
 		} else if (c.type === "toolCall") {
 			const row = toolRow(c.id, c.name, c.arguments);
