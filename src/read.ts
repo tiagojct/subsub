@@ -98,7 +98,7 @@ export function readInstruction(r: ReadRequest): string {
 		"",
 		"Rules:",
 		"- State no results, effect sizes, summaries or conclusions, in the note or in the chat. Quote the paper and ask; the user writes the answers.",
-		"- Copy quotes word for word from what you read. After each quote give its place: the page only with evidence: full text, otherwise the section (Abstract, Methods, Results).",
+		"- Copy quotes word for word from what you read, and mark every omission with [...]. After each quote give its place: the page only with evidence: full text, otherwise the section (Abstract, Methods, Results).",
 		`- The note is Literature/<citekey>.md in the Sub-Sub folder, with the front matter of a literature note from the shared rules plus type: reading-note and purpose: ${r.purpose}; evidence says what you read. If the note exists, do not overwrite it: add a section "## Reading ${r.date}: ${r.purpose}" at the end with edit, with the content below one heading level lower.`,
 		'- Start with "## Why I am reading this" (the reason, in the user\'s words when they gave them) and end with one line "Next step:" (what to read or do next).',
 		"",

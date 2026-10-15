@@ -1121,8 +1121,9 @@ test("files without a parent item: tools in every mode, the preview, the Brave k
 });
 
 test("literature notes: quotes must be in the full text", async () => {
-	const { quotesIn, missingQuotes, itemKeyOf, appearsIn, matchable } = await import("../src/notes.ts");
-	const full = "Background. Fractional exhaled nitric oxide predicts asthma attacks in adults with\nAllergy 2025 page 4 footer\ntype 2 inflammation (Table 2). We studied 120 adults.";
+	const { quotesIn, missingQuotes, itemKeyOf, appearsIn, sourceOf, pageOf } = await import("../src/notes.ts");
+	// Zotero's full text marks a page break with a form feed; the footer and the next header lie around it.
+	const full = "Background. Fractional exhaled nitric oxide predicts asthma attacks in adults with\nAllergy 2025 page 4 footer\fAllergy 2025 header\ntype 2 inflammation (Table 2). We studied 120 adults.";
 	const note = (body: string, evidence = "full text") =>
 		`---\ntitle: "FeNO"\ncitekey: jacinto2026\nzotero: zotero://select/library/items/ABCD1234\nevidence: ${evidence}\n---\n\n${body}\n`;
 	assert.equal(itemKeyOf(note("x")), "ABCD1234");
@@ -1131,8 +1132,13 @@ test("literature notes: quotes must be in the full text", async () => {
 		["nitric oxide predicts asthma attacks in adults", "We studied 120 adults in total here"]);
 	assert.deepEqual(quotesIn(note("> Fractional exhaled nitric oxide predicts asthma attacks (p. 1)")), ["Fractional exhaled nitric oxide predicts asthma attacks"]);
 	assert.deepEqual(quotesIn(note('a "short one" here')), []);
-	// A footer in the middle of the sentence, a line break, other quote marks: still found.
-	assert.ok(appearsIn(matchable(full), "predicts asthma attacks in adults with type 2 inflammation"));
+	// A footer and a header in the middle of the sentence, at a page break; a line break; other quote marks: still found.
+	assert.ok(appearsIn(sourceOf(full), "predicts asthma attacks in adults with type 2 inflammation"));
+	assert.equal(pageOf(sourceOf(full), "type 2 inflammation (Table 2). We studied"), 2, "the page of the PDF where the quote starts");
+	assert.equal(pageOf(sourceOf(full), "predicts asthma attacks in adults with type 2 inflammation"), 1);
+	// Two passages of one page joined into one quote, without a mark for the omission: missing.
+	assert.ok(!appearsIn(sourceOf(full), "Fractional exhaled nitric oxide predicts asthma attacks. We studied 120 adults"));
+	assert.ok(!appearsIn(sourceOf("Alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron pi rho."), "alpha beta gamma delta epsilon zeta pi rho"), "a skipped stretch on the same page");
 	assert.deepEqual(missingQuotes(note("“Fractional exhaled nitric-oxide predicts asthma attacks” (p. 1)"), full), []);
 	assert.deepEqual(missingQuotes(note('"Fractional exhaled nitric oxide [...] asthma attacks in adults" (p. 1)'), full), []);
 	// A changed word, or an invented sentence, is missing.

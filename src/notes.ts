@@ -83,12 +83,17 @@ export function matchable(s: string): string {
 		.replace(/[^\p{L}\p{N}]+/gu, "");
 }
 
+/** The full text as matchable pages joined by "|": Zotero marks a page break with a form feed. */
+export function sourceOf(fullText: string): string {
+	return fullText.split("\f").map(matchable).join("|");
+}
+
 /**
  * The quotes that are not in the full text. A quote with an ellipsis is checked in parts;
  * square brackets (an editor's insertion) are left out of the comparison.
  */
 export function missingQuotes(note: string, fullText: string, already: string[] = []): string[] {
-	const source = matchable(fullText);
+	const source = sourceOf(fullText);
 	const old = new Set(already);
 	return quotesIn(note)
 		.filter((q) => !old.has(q))
@@ -99,29 +104,42 @@ export function missingQuotes(note: string, fullText: string, already: string[] 
 }
 
 /**
- * Whether a passage is in the (matchable) source: whole, or as groups of three words in order with
- * short gaps, because a PDF's running header or footer can fall in the middle of a sentence.
+ * Where a passage starts in the source (from sourceOf), or -1. It must be there word for word.
+ * The only gap allowed is a page break with the running footer and header around it (groups of
+ * three words in order, at most `gap` characters apart), so that a quote cannot join two passages
+ * of one page without marking the omission.
  */
-export function appearsIn(source: string, passage: string, gap = 300): boolean {
-	if (source.includes(matchable(passage))) return true;
+export function locate(source: string, passage: string, gap = 300): number {
+	const whole = source.indexOf(matchable(passage));
+	if (whole >= 0) return whole;
 	const words = passage.split(/\s+/).map(matchable).filter(Boolean);
 	const groups: string[] = [];
 	for (let i = 0; i < words.length; i += 3) groups.push(words.slice(i, i + 3).join(""));
-	if (groups.length < 2) return false;
+	if (groups.length < 2) return -1;
 	for (let start = source.indexOf(groups[0]), tries = 0; start >= 0 && tries < 50; start = source.indexOf(groups[0], start + 1), tries++) {
 		let end = start + groups[0].length;
 		let ok = true;
 		for (const g of groups.slice(1)) {
 			const at = source.indexOf(g, end);
-			if (at < 0 || at - end > gap) {
+			if (at < 0 || (at > end && (at - end > gap || !source.slice(end, at).includes("|")))) {
 				ok = false;
 				break;
 			}
 			end = at + g.length;
 		}
-		if (ok) return true;
+		if (ok) return start;
 	}
-	return false;
+	return -1;
+}
+
+export function appearsIn(source: string, passage: string, gap = 300): boolean {
+	return locate(source, passage, gap) >= 0;
+}
+
+/** The page of the PDF (1-based, as Zotero's reader counts) where a passage starts, or undefined. */
+export function pageOf(source: string, passage: string): number | undefined {
+	const at = locate(source, passage);
+	return at < 0 ? undefined : source.slice(0, at).split("|").length;
 }
 
 export function quoteProblem(missing: string[]): string | undefined {
@@ -130,6 +148,6 @@ export function quoteProblem(missing: string[]): string | undefined {
 	return [
 		`${missing.length} quote(s) in this note are not in the item's full text:`,
 		...shown,
-		"Copy each quote word for word from the full text (zotero_get_fulltext), or remove the quote marks and say it in your own words. Then write the note again.",
+		"Copy each quote word for word from the full text (zotero_get_fulltext). Mark every omission with [...]: two passages joined without that mark are not a quote. Or remove the quote marks and say it in your own words. Then write the note again.",
 	].join("\n");
 }
