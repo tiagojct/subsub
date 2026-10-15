@@ -25,7 +25,7 @@ Make a short slug from the topic: lower case, hyphens, at most five words. Use t
    - Library items: zotero_get_fulltext, or the abstract when there is no full text.
    - Open-access works: scholar_read_oa_fulltext, first the section list, then only the sections you need (usually methods and results).
    - Other works: scholar_get_work for the abstract.
-5. Keep an evidence table as you read. Give each source a number that does not change: [1], [2], ... At most two rows from one paper, so that no single paper dominates. In the Read column write exactly one of: full text, abstract, metadata.
+5. Keep an evidence table as you read. Give each source a number that does not change: [1], [2], ... At most two rows from one paper, so that no single paper dominates. In the Read column write exactly one of: full text, abstract, metadata. In the Design column, mark a preprint: for example "cohort (preprint)".
 
 ## 3. Synthesise
 

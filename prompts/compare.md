@@ -12,7 +12,7 @@ Make a short slug: lower case, hyphens, at most five words. Use today's date (YY
 2. Read each source before you describe it: zotero_get_fulltext for library items, scholar_read_oa_fulltext (methods and results) for open-access works, scholar_get_work for the abstract of the others. Note whether you read the full text or only the abstract.
 3. Build the matrix, one row per source:
    | # | Source | Claim on the question | Evidence type | Population and setting | Caveats | Confidence |
-   - Evidence type: for example randomised trial, cohort, case-control, cross-sectional, diagnostic accuracy, systematic review, guideline, expert opinion, modelling.
+   - Evidence type: for example randomised trial, cohort, case-control, cross-sectional, diagnostic accuracy, systematic review, guideline, expert opinion, modelling. Add "(preprint)" to a work that is not peer reviewed yet.
    - Caveats: risk of bias, small sample, surrogate outcome, short follow-up, industry funding, abstract only.
    - Confidence: high, moderate or low, with one reason.
 4. Below the matrix, write: where the sources agree; where they disagree and the most likely reason (population, design, outcome definition, analysis); what no source answers. Cite source numbers in every sentence. Write "inference:" before a statement that no single source makes.
