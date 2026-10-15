@@ -4,6 +4,7 @@ Sub-Sub follows the version numbers of npm: a change in the second number (0.13)
 
 ## Unreleased
 
+- In a note written from the full text, the page after each quote, "(p. N)", becomes a link that opens the PDF in Zotero at the page where Sub-Sub found the quote. The label stays as written; the link goes to the right page even when the printed page number differs from the PDF's.
 - `/feedback [what happened]` (Report a problem in the browser) writes a draft bug report in `Inbox/`: the versions, the mode and model, the output of `subsub doctor` and the last error, with your folders, email addresses and keys taken out. You read it and post it on GitHub; Sub-Sub sends nothing.
 - Preprints (medRxiv, bioRxiv, Research Square, SSRN, arXiv) are marked as not peer reviewed wherever Sub-Sub uses them: "(preprint)" in evidence tables and comparison matrices, and in the text. When a journal version exists, Sub-Sub uses and cites it instead.
 - `/lit` rates how hard the search is (1 to 10) and allows none, one or two follow-up search rounds to match, with one publication window for every search; it stops early when the sources cover the question. The note's Methods give the rating and the rounds. `/gaps` gives a ranked list of 5 to 15 works and does not read them. This keeps the cost of a search in proportion to the question.

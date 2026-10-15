@@ -142,6 +142,22 @@ export function pageOf(source: string, passage: string): number | undefined {
 	return at < 0 ? undefined : source.slice(0, at).split("|").length;
 }
 
+/**
+ * Each "(p. N)" after a quote becomes a link that opens the PDF in Zotero at the page where the quote
+ * is. The label stays as written (the page printed on the paper may differ from the PDF's count).
+ */
+export function withPageLinks(text: string, source: string, attachment: string): string {
+	const link = (quote: string, label: string) => {
+		const page = pageOf(source, quote.split(/\s*(?:\.\.\.|…|\[\s*(?:\.\.\.|…)\s*\])\s*/)[0]);
+		return page ? `([${label}](zotero://open-pdf/library/items/${attachment}?page=${page}))` : `(${label})`;
+	};
+	const PAGE = String.raw`\((pp?\.\s?\d+(?:\s?[-–]\s?\d+)?)\)`;
+	return text
+		.replace(new RegExp(String.raw`(")([^"\n]{25,600})("\s*)${PAGE}`, "g"), (_m, o, q, c, label) => `${o}${q}${c}${link(q, label)}`)
+		.replace(new RegExp(String.raw`(“)([^“”\n]{25,600})(”\s*)${PAGE}`, "g"), (_m, o, q, c, label) => `${o}${q}${c}${link(q, label)}`)
+		.replace(new RegExp(String.raw`^(>[ \t]*)(.{25,}?)(\s*)${PAGE}[ \t]*$`, "gm"), (_m, o, q, c, label) => `${o}${q}${c}${link(q.replace(/^["“]|["”]$/g, ""), label)}`);
+}
+
 export function quoteProblem(missing: string[]): string | undefined {
 	if (!missing.length) return undefined;
 	const shown = missing.slice(0, 5).map((q) => `- "${q.length > 160 ? `${q.slice(0, 160)}...` : q}"`);

@@ -39,7 +39,7 @@ import { aiStatement } from "./statement.ts";
 import { feedbackNote, ISSUES_URL } from "./feedback.ts";
 import { formatChecks, runChecks } from "./doctor.ts";
 import { PURPOSES, type Purpose, readArgs, readInstruction, type ReadRequest } from "./read.ts";
-import { applyEdits, checkLiteratureNote, field, frontMatter, itemKeyOf, missingQuotes, quoteProblem, quotesIn } from "./notes.ts";
+import { applyEdits, checkLiteratureNote, field, frontMatter, itemKeyOf, missingQuotes, quoteProblem, quotesIn, sourceOf, withPageLinks } from "./notes.ts";
 import { buildPolicy, isSecret, judgePath, normalizeToolPath, realish, within } from "./paths.ts";
 import { describeArgs, formatPreview, isEmptyPreview } from "./preview.ts";
 import { perMinuteWait, providerTrouble, TROUBLE_TEXT, TROUBLE_TEXT_PT } from "./keys.ts";
@@ -540,28 +540,39 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		if (!front || !key || field(front, "evidence")?.toLowerCase() !== "full text" || !quotesIn(text).length) return undefined;
 		const full = await fullTextOf(key, signal);
 		// Without the full text (no PDF indexed, Zotero closed) there is nothing to check against.
-		return full ? quoteProblem(missingQuotes(text, full, quotesIn(before))) : undefined;
+		if (!full) return undefined;
+		const missing = quoteProblem(missingQuotes(text, full.text, quotesIn(before)));
+		// A note that passes is written with its page references linked to the PDF.
+		if (!missing && full.attachment) {
+			const link = (s: string) => withPageLinks(s, sourceOf(full.text), full.attachment!);
+			if (name === "write") input.content = link(String(input.content ?? ""));
+			else for (const e of input.edits as Array<{ newText?: unknown }>) if (typeof e.newText === "string") e.newText = link(e.newText);
+		}
+		return missing;
 	}
 
-	/** The whole indexed full text of an item, read in parts, kept for the session. */
-	const fullTexts = new Map<string, string | null>();
-	async function fullTextOf(key: string, signal?: AbortSignal): Promise<string | undefined> {
+	/** The whole indexed full text of an item and its attachment, read in parts, kept for the session. */
+	const fullTexts = new Map<string, { text: string; attachment?: string } | null>();
+	async function fullTextOf(key: string, signal?: AbortSignal): Promise<{ text: string; attachment?: string } | undefined> {
 		if (fullTexts.has(key)) return fullTexts.get(key) ?? undefined;
 		let text = "";
+		let attachment: string | undefined;
 		let offset: number | null = 0;
 		try {
 			for (let part = 0; offset !== null && part < 20; part++) {
 				const res = await current().call("zotero_get_fulltext", { key, offset, max_chars: 60000 }, signal);
 				if (res.isError) break;
-				const data = (res.data ?? {}) as { text?: string; next_offset?: number | null };
+				const data = (res.data ?? {}) as { text?: string; next_offset?: number | null; attachment?: string };
 				text += data.text ?? "";
+				attachment ??= data.attachment;
 				offset = data.next_offset ?? null;
 			}
 		} catch {
 			/* no full text: the check is skipped */
 		}
-		fullTexts.set(key, text || null);
-		return text || undefined;
+		const full = text ? { text, attachment } : null;
+		fullTexts.set(key, full);
+		return full ?? undefined;
 	}
 
 	/**

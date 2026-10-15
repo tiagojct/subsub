@@ -234,8 +234,8 @@ Use a primary study with a PDF in your library for the steps with the full text.
   Result: the cursor moves to the library search box.
 - [ ] Type `spirometry` in the library search. On a result, select Note.\
   Result: Sub-Sub starts `/lit-note` for that item and writes `Literature/<citekey>.md` with a summary, key points and methods. The front matter says what it read (`evidence: full text`, `abstract` or `metadata`).
-- [ ] Open the note and check two quotes against the PDF.\
-  Result: each quote is in the PDF, word for word, on the page given.
+- [ ] Open the note and select the page link after a quote.\
+  Result: Zotero opens the PDF at the page of the quote. The quote is there, word for word. Check a second quote.
 - [ ] Type `write a literature note for` and a citekey `from the abstract only, and give page numbers`.\
   Result: a note with `evidence: abstract` and no page numbers. If Sub-Sub tries to add page numbers, the write fails first, with the reason: page numbers come only from the full text.
 - [ ] Type `/synthesis spirometry`.\

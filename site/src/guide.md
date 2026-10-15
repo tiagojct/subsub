@@ -103,7 +103,7 @@ Use the Researcher for this part. The Librarian does not search or write notes.
 2. Type `/lit-note smith2021`, or search your library in the left panel and select Note. Sub-Sub reads the full text (or the abstract, and says so) and writes `Literature/smith2021.md` in your Sub-Sub folder.
 3. Type `/synthesis <topic>` for a note on several items, or `/gaps <topic>` to search PubMed and OpenAlex for works you do not have.
 
-Each literature note says what Sub-Sub read: the full text, the abstract or only the metadata. Page numbers come only from the full text. Sub-Sub refuses a note that breaks this rule.
+Each literature note says what Sub-Sub read: the full text, the abstract or only the metadata. Page numbers come only from the full text. Sub-Sub refuses a note that breaks this rule. In a note from the full text, the page after each quote is a link: it opens the PDF in Zotero at the page where Sub-Sub found the quote.
 
 Sub-Sub drafts text for a manuscript or a thesis only when you ask, and marks the drafted text. It does not draft text for assignments, even when you ask. The note formats are in `Zotero/Zotero agent.md`. You can edit them.
 

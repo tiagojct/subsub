@@ -41,7 +41,7 @@ Shared rules for Sub-Sub. Sub-Sub reads this file at the start of every session.
 - Create a note only when the user asks. Ask before creating more than 10 notes.
 - Write from the full text (get_fulltext) when it exists. Otherwise use the abstract and the Zotero notes, and write "(from abstract)" after the summary.
 - Front matter field evidence: full text, abstract or metadata (what you read). Page numbers only with evidence: full text. Sub-Sub refuses a literature note without this field.
-- Do not copy the abstract in full. Give page numbers for quotes when the text shows them.
+- Do not copy the abstract in full. Give the page of a quote as (p. N) right after it, when you read the full text; Sub-Sub links it to that page of the PDF in Zotero.
 - If a note for the citekey exists, do not overwrite it. Add a dated section or ask.
 - After the note is written, offer to link it in Zotero with attach_note.
 - /read writes a reading note instead: quotes with their place and questions, which the user answers.

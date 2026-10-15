@@ -1121,7 +1121,7 @@ test("files without a parent item: tools in every mode, the preview, the Brave k
 });
 
 test("literature notes: quotes must be in the full text", async () => {
-	const { quotesIn, missingQuotes, itemKeyOf, appearsIn, sourceOf, pageOf } = await import("../src/notes.ts");
+	const { quotesIn, missingQuotes, itemKeyOf, appearsIn, sourceOf, pageOf, withPageLinks } = await import("../src/notes.ts");
 	// Zotero's full text marks a page break with a form feed; the footer and the next header lie around it.
 	const full = "Background. Fractional exhaled nitric oxide predicts asthma attacks in adults with\nAllergy 2025 page 4 footer\fAllergy 2025 header\ntype 2 inflammation (Table 2). We studied 120 adults.";
 	const note = (body: string, evidence = "full text") =>
@@ -1155,6 +1155,16 @@ test("literature notes: quotes must be in the full text", async () => {
 	assert.match(bad.reason, /1 quote\(s\) in this note are not in the item's full text/);
 	assert.equal(await toolCall("write", { path: "/vault/Literature/jacinto2026.md", content: note('- "nitric oxide predicts asthma attacks in adults" (p. 1)') }), undefined);
 	assert.equal(bridge.calls.filter((c) => c.name === "zotero_get_fulltext").length, 1, "the full text is read once per session");
+	// A quote's "(p. N)" becomes a link to its page of the PDF in Zotero; the label stays as written.
+	const linked = withPageLinks('- "type 2 inflammation (Table 2). We studied 120 adults" (p. 5)\n> Fractional exhaled nitric oxide predicts asthma attacks (p. 4)\n- "a sentence that the paper does not have" (p. 9)', sourceOf(full), "ATT00001");
+	assert.match(linked, /adults" \(\[p\. 5\]\(zotero:\/\/open-pdf\/library\/items\/ATT00001\?page=2\)\)/);
+	assert.match(linked, /asthma attacks \(\[p\. 4\]\(zotero:\/\/open-pdf\/library\/items\/ATT00001\?page=1\)\)$/m);
+	assert.match(linked, /does not have" \(p\. 9\)$/, "a quote that is not found keeps its plain page");
+	const { toolCall: call3, bridge: b3 } = await setup();
+	b3.responses.zotero_get_fulltext = { isError: false, text: "", data: { text: full, next_offset: null, attachment: "ATT00001" } };
+	const input = { path: "/vault/Literature/jacinto2026.md", content: note('- "type 2 inflammation (Table 2). We studied 120 adults" (p. 2)') };
+	assert.equal(await call3("write", input), undefined);
+	assert.match(input.content, /\(\[p\. 2\]\(zotero:\/\/open-pdf\/library\/items\/ATT00001\?page=2\)\)/, "the note is written with the link");
 	// From the abstract, or without a readable full text, there is nothing to check against.
 	assert.equal(await toolCall("write", { path: "/vault/Literature/x.md", content: note('- "FeNO halves the rate of hospital admission in children"', "abstract") }), undefined);
 	const { toolCall: call2, bridge: b2 } = await setup();
@@ -1245,7 +1255,7 @@ test("/read: the reason sets the depth; Sub-Sub points to the passages, the user
 		assert.match(t, /State no results/);
 		assert.match(t, /## Why I am reading this[\s\S]*Next step:/);
 		assert.match(t, new RegExp(`purpose: ${purpose}`));
-		assert.match(t, /the page only with evidence: full text/);
+		assert.match(t, /\(p\. N\) only with evidence: full text/);
 	}
 	const background = readInstruction({ ...base, purpose: "background" });
 	assert.match(background, /Do not read the full text/);

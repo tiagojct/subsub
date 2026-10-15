@@ -103,7 +103,7 @@ Use o modo Investigador nesta parte. O modo Bibliotecário não pesquisa nem esc
 2. Escreva `/lit-note smith2021`, ou pesquise a biblioteca no painel da esquerda e selecione Nota. O Sub-Sub lê o texto completo (ou o resumo, e diz isso) e escreve `Literature/smith2021.md` na sua pasta do Sub-Sub.
 3. Escreva `/synthesis <tema>` para uma nota sobre vários itens, ou `/gaps <tema>` para procurar na PubMed e no OpenAlex obras que ainda não tem.
 
-Cada nota de literatura diz o que o Sub-Sub leu: o texto completo, o resumo ou apenas os metadados. Os números de página vêm apenas do texto completo. O Sub-Sub recusa uma nota que não cumpra esta regra.
+Cada nota de literatura diz o que o Sub-Sub leu: o texto completo, o resumo ou apenas os metadados. Os números de página vêm apenas do texto completo. O Sub-Sub recusa uma nota que não cumpra esta regra. Numa nota feita a partir do texto completo, a página depois de cada citação é uma ligação: abre o PDF no Zotero na página onde o Sub-Sub encontrou a citação.
 
 O Sub-Sub só redige texto para um manuscrito ou uma tese quando o pede, e marca o texto redigido. Não redige texto para trabalhos de avaliação, mesmo que o peça. Os formatos das notas estão em `Zotero/Zotero agent.md`. Pode editá-los.
 
