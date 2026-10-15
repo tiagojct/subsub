@@ -95,6 +95,7 @@ Commands in Sub-Sub:
 | `/researcher`, `/librarian` | Switch the mode |
 | `/subsub` | Zotero connection, mode, model and library counts |
 | `/history`, `/undo [id]` | Recent library changes; undo the last one or one by its id |
+| `/feedback [what happened]` | A draft bug report in `Inbox/`, with versions, `subsub doctor` and the last error, and without your folders, emails or keys. You post it on GitHub; Sub-Sub sends nothing |
 | `/ai-statement [uses]` | A draft statement on the use of AI for a manuscript, with the Sub-Sub version, its DOI and your models |
 | `/tag-batch [size]` | Tag items that have no topic, with your tag list |
 | `/clean-tags` | Find tags that are not in your tag list and propose fixes |

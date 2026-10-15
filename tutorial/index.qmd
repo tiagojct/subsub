@@ -398,6 +398,6 @@ Home spirometry is feasible in school-age children.
 
 For each step whose result was different, write down the step number, what you did and what you saw. Then:
 
-1. Type `subsub doctor` and `subsub --version`, and copy the output.
-2. In the browser view, select Export to save the conversation.
-3. Open an issue on [GitHub](https://github.com/tiagojct/subsub/issues) with the above. Do not include API keys.
+1. Type `/feedback` and what happened. Sub-Sub writes a draft report in `Inbox/`, with the versions, the output of `subsub doctor` and the last error, without your folders, email addresses or keys.
+2. Read the draft and add the step number and what you expected.
+3. Post it as an issue on [GitHub](https://github.com/tiagojct/subsub/issues). If the conversation helps, select Export and attach the file.

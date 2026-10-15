@@ -313,6 +313,7 @@ export const ACTIONS = {
 		{ cmd: "import-queue", send: true, en: "Import the queue", pt: "Importar a fila" },
 		{ cmd: "history", send: true, en: "Recent changes", pt: "Alterações recentes" },
 		{ cmd: "undo", send: true, en: "Undo the last change", pt: "Desfazer a última alteração" },
+		{ cmd: "feedback", en: "Report a problem", pt: "Comunicar um problema" },
 	],
 };
 

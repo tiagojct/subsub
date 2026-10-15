@@ -57,4 +57,4 @@ O Sub-Sub não usa fontes sem licença.
 
 ## Comunicar um problema
 
-Abra um relatório de problema (issue) no [GitHub](https://github.com/tiagojct/subsub/issues). Inclua o resultado de `subsub doctor` e de `subsub --version`. Não inclua chaves de API.
+Escreva `/feedback` e o que aconteceu, ou selecione Comunicar um problema no navegador. O Sub-Sub escreve um rascunho do relatório em `Inbox/`, com as versões, o resultado de `subsub doctor` e o último erro. Retira as suas pastas, endereços de email e chaves. Leia o rascunho, acrescente o que esperava e publique-o como relatório de problema (issue) no [GitHub](https://github.com/tiagojct/subsub/issues). O Sub-Sub não envia nada por si.

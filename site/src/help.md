@@ -56,4 +56,4 @@ Sub-Sub does not use unlicensed sources.
 
 ## Report a problem
 
-Open an issue on [GitHub](https://github.com/tiagojct/subsub/issues). Include the output of `subsub doctor` and `subsub --version`. Do not include API keys.
+Type `/feedback` and what happened, or select Report a problem in the browser. Sub-Sub writes a draft report in `Inbox/`, with the versions, the output of `subsub doctor` and the last error. It takes out your folders, email addresses and keys. Read the draft, add what you expected, then post it as an issue on [GitHub](https://github.com/tiagojct/subsub/issues). Sub-Sub sends nothing itself.

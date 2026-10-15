@@ -148,6 +148,7 @@ Sub-Sub does not change the manuscript. Starbuck writes an HTML report in a `_st
 | `/librarian`, `/researcher` | Change the mode (each mode can have its own model) |
 | `/subsub` | Zotero connection and library overview |
 | `/history`, `/undo` | Recent changes; revert one |
+| `/feedback [what happened]` | A draft bug report in `Inbox/` to post on GitHub yourself |
 | `/ai-statement [uses]` | A draft statement on the use of AI for a manuscript |
 | `/read [reason] <citekey>` | Guided reading of one paper: Sub-Sub finds the passages and asks, you write the answers (Researcher) |
 | `/tag-batch [size]`, `/clean-tags`, `/import-queue` | Library templates (both modes) |

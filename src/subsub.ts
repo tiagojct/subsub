@@ -16,6 +16,7 @@
 
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Bridge, type ServerSpec } from "./bridge.ts";
@@ -35,6 +36,8 @@ import {
 } from "./config.ts";
 import { coerceArgs, loosenArrays, resolvePathArgs } from "./args.ts";
 import { aiStatement } from "./statement.ts";
+import { feedbackNote, ISSUES_URL } from "./feedback.ts";
+import { formatChecks, runChecks } from "./doctor.ts";
 import { PURPOSES, type Purpose, readArgs, readInstruction, type ReadRequest } from "./read.ts";
 import { applyEdits, checkLiteratureNote, field, frontMatter, itemKeyOf, missingQuotes, quoteProblem, quotesIn } from "./notes.ts";
 import { buildPolicy, isSecret, judgePath, normalizeToolPath, realish, within } from "./paths.ts";
@@ -52,6 +55,8 @@ export interface SubsubDeps {
 	/** A ready bridge (tests). When given, Sub-Sub does not start or stop servers. */
 	bridge?: Bridge;
 	specs?: ServerSpec[];
+	/** The subsub doctor lines for /feedback (tests give their own). */
+	doctor?: () => string;
 }
 
 const PACKAGE_DIR = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -154,6 +159,8 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	/** True under `subsub web`: pi runs in RPC mode and the web view shows the state that the terminal header shows. */
 	const webView = process.env.SUBSUB_WEB === "1";
 	let lastError: string | undefined;
+	/** The last provider or tool error of the session, for /feedback. */
+	let recentError: string | undefined;
 	let resumes = 0;
 	let resumeTimer: ReturnType<typeof setTimeout> | undefined;
 	let turnStart = 0;
@@ -355,10 +362,16 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	pi.on("message_end", async (event, ctx) => {
 		const m = event.message as { role?: string; stopReason?: string; errorMessage?: string };
 		if (m.role !== "assistant" || m.stopReason !== "error") return;
-		lastError = m.errorMessage;
+		lastError = recentError = m.errorMessage;
 		if (webView || perMinuteWait(m.errorMessage) !== undefined) return;
 		const kind = providerTrouble(m.errorMessage);
 		if (kind) ctx.ui.notify(`Sub-Sub: ${trouble[kind]}`, "warning");
+	});
+
+	pi.on("tool_result", async (event) => {
+		if (!event.isError) return;
+		const text = event.content.map((c) => (c.type === "text" ? c.text : "")).join(" ");
+		recentError = `${(event as { toolName?: string }).toolName ?? "tool"}: ${text}`.slice(0, 2000);
 	});
 
 	// A per-minute limit (free tiers): wait as long as the provider says, then continue the task,
@@ -741,6 +754,56 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 				} else req.sheet = `Research/${pick}`;
 			}
 			pi.sendUserMessage(readInstruction(req), ctx.isIdle() ? undefined : { deliverAs: "followUp" });
+		},
+	});
+
+	pi.registerCommand("feedback", {
+		description: "Sub-Sub: a draft bug report or idea in Inbox/, to read and post on GitHub yourself; Sub-Sub sends nothing  [what happened]",
+		handler: async (args, ctx) => {
+			const date = new Date().toISOString().slice(0, 10);
+			let piVersion = "";
+			try {
+				piVersion = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.resolve("@earendil-works/pi-coding-agent"))), "..", "package.json"), "utf8")).version;
+			} catch {
+				/* not needed for the report */
+			}
+			let checks: string;
+			try {
+				checks = deps.doctor ? deps.doctor() : formatChecks(runChecks(cfg, process.env));
+			} catch (err) {
+				checks = `subsub doctor failed: ${(err as Error).message}`;
+			}
+			const text = feedbackNote({
+				what: String(args ?? ""),
+				date,
+				versions: `Sub-Sub ${ownVersion()}${piVersion ? `, pi ${piVersion}` : ""}, Node ${process.version}, ${process.platform} ${process.arch}`,
+				setup: [
+					`Mode: ${mode}. Model: ${ctx.model ? `${ctx.model.provider}/${ctx.model.id}` : "none"}.`,
+					`Language: ${cfg.language}. Reference checks (Starbuck): ${starbuckEnabled(cfg) ? "on" : "off"}.`,
+					`Zotero: ${library.zotero}.${bridge && Object.keys(bridge.errors).length ? ` Servers not running: ${Object.keys(bridge.errors).join(", ")}.` : ""}`,
+				],
+				checks,
+				lastError: recentError,
+				home: homedir(),
+				vault: cfg.vault,
+			});
+			const dir = join(cfg.vault ?? ctx.cwd, "Inbox");
+			let file = join(dir, `${date} Sub-Sub feedback.md`);
+			for (let n = 2; existsSync(file); n++) file = join(dir, `${date} Sub-Sub feedback-${n}.md`);
+			try {
+				mkdirSync(dir, { recursive: true });
+				writeFileSync(file, text);
+			} catch (err) {
+				ctx.ui.notify(`${L("Could not save it", "Não foi possível guardar")}: ${(err as Error).message}`, "warning");
+				return;
+			}
+			ctx.ui.notify(
+				L(
+					`Sub-Sub: a draft report is in ${file}. Read it, add what you expected, take out anything you do not want to share, and post it at ${ISSUES_URL}. Sub-Sub has sent nothing.`,
+					`Sub-Sub: há um rascunho do relatório em ${file}. Leia-o, acrescente o que esperava, retire o que não quer partilhar e publique-o em ${ISSUES_URL}. O Sub-Sub não enviou nada.`,
+				),
+				"info",
+			);
 		},
 	});
 

@@ -1287,6 +1287,30 @@ test("/read: the reason sets the depth; Sub-Sub points to the passages, the user
 	assert.match(notes.at(-1)!, /\/read is part of the Researcher/);
 });
 
+test("/feedback: a draft report in the Inbox, with folders, emails and keys taken out; nothing is sent", async () => {
+	const { redact, feedbackNote } = await import("../src/feedback.ts");
+	assert.equal(redact("/Users/ana/Documents/Sub-Sub/Literature/x.md and /Users/ana/.subsub", "/Users/ana", "/Users/ana/Documents/Sub-Sub"), "<Sub-Sub folder>/Literature/x.md and ~/.subsub");
+	assert.equal(redact("mail ana.silva@med.up.pt key AIzaSyA1234567890abcdefghij token abcdefghijklmnopqrstuvwxyz0123456789", "/h"), "mail <email> key <key> token <key>");
+	const draft = feedbackNote({ what: "", date: "2026-10-15", versions: "Sub-Sub 0.17.0", setup: ["Mode: researcher."], checks: "ok  Node v24", home: "/h" });
+	assert.match(draft, /## What happened\n\n\(what you did, and what you saw\)/);
+	assert.match(draft, /\(none in this session\)/);
+	assert.match(draft, /github\.com\/tiagojct\/subsub\/issues\/new/);
+
+	const vault = mkdtempSync(join(tmpdir(), "subsub-fb-"));
+	const fp = fakePi();
+	await createSubsub(fp.pi as any, { config: { ...CFG, vault }, bridge: new FakeBridge() as unknown as Bridge, doctor: () => `ok  Settings ${join(homedir(), ".config", "subsub", "config.json")}` });
+	const { ctx, notes } = fakeCtx();
+	for (const h of fp.handlers.tool_result) await h({ type: "tool_result", toolName: "zotero_tag_items", isError: true, content: [{ type: "text", text: `Zotero refused it; see ${join(vault, "Inbox", "x.md")}` }] }, ctx);
+	await fp.commands.feedback.handler("the preview did not open", ctx);
+	const date = new Date().toISOString().slice(0, 10);
+	const text = readFileSync(join(vault, "Inbox", `${date} Sub-Sub feedback.md`), "utf8");
+	assert.match(text, /## What happened\n\nthe preview did not open/);
+	assert.match(text, /ok  Settings ~[\\/]\.config[\\/]subsub[\\/]config\.json/);
+	assert.match(text, /zotero_tag_items: Zotero refused it; see <Sub-Sub folder>[\\/]Inbox[\\/]x\.md/);
+	assert.ok(!text.includes(homedir()) && !text.includes(vault), "no private folder in the draft");
+	assert.match(notes.at(-1)!, /Sub-Sub has sent nothing/);
+});
+
 test("/lit: the review says what it is not", () => {
 	const lit = readFileSync(resolve(import.meta.dirname, "..", "prompts", "lit.md"), "utf8");
 	assert.match(lit, /review_type: AI-assisted rapid review \(not a systematic review\)/);
