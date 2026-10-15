@@ -77,6 +77,7 @@ function depth(r: ReadRequest): string[] {
 				"Depth: the whole paper, section by section. A critique needs the full text: if you can read only the abstract, say so, write what the abstract allows, and offer /request-copy to ask the authors for the paper.",
 				'Under "## Methods", "## Results" and "## Discussion": the passages that matter to judge the study, quoted with their place, each with one question for the user (for example: how were the participants selected? what was compared? what else could explain the result?).',
 				`Under "## Appraisal": name the design and the reporting guideline that applies (${GUIDELINES}), and tell the user to check the paper against it item by item. Do not copy the checklist. Then five to eight questions on the risk of bias for this design (selection, confounding, measurement, missing data, selective reporting), each with the passage to look at.`,
+				"If the zotero_get_figure tool is available, show the table or figure with the main result: call it with the label of its caption and put the Markdown line it returns under the passage that cites it, with the page link, and a question about what the user sees in it.",
 			];
 	}
 }

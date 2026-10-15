@@ -92,6 +92,7 @@ If zotero_get_vocabulary has no topic/ tags, propose topics before tagging: read
 
 - Follow the formats in the shared rules.
 - After a literature note is written, offer scholar_attach_note with 3 to 4 lines of summary and the path of the note.
+- When the zotero_get_figure tool is available and a figure or table of the paper carries a result that the note discusses, call it with the label of the caption (for example "Figure 2" or "Table 1") and put the Markdown line it returns in the note, with its page link. Quote the caption; do not describe what you cannot see. If it took the whole page (method: page), say so under the image.
 - For a synthesis: show the candidate list first and let {{user}} choose. Read full texts only for the chosen items.
 - For a synthesis of a tag ("what does my library say about X"): find the items with zotero_find_items tags=["topic/x"] and include every one. The table has one row per item; if you leave an item out, say which and why.
 - Say for each item whether you used the full text or the abstract. Never state a number or a claim that is not in what you read.

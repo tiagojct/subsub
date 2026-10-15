@@ -91,6 +91,13 @@ marked.use({
 			return NOTE_PATH.test(token.text) ? noteLink(token.text, code) : code;
 		},
 		image(token) {
+			// In the notes pane, an image next to the note (a figure cut out of the PDF) is shown;
+			// anywhere else, and for any other address, only its description.
+			const href = decodeURI(token.href ?? "");
+			if (noteDir && /^(?![a-z][\w+.-]*:|[\\/])[^?#]+\.(png|jpe?g|gif|webp)$/i.test(href)) {
+				const src = `/api/note-file?path=${encodeURIComponent(`${noteDir}/${href}`)}`;
+				return `<img class="note-img" src="${escapeHtml(src)}" alt="${escapeHtml(token.text ?? "")}" loading="lazy">`;
+			}
 			return escapeHtml(token.text || token.href || "");
 		},
 		table(token) {
@@ -386,6 +393,7 @@ function searchLibrary() {
 // ---------------------------------------------------------------- notes pane
 
 let noteShown = null; // the note on screen, or null for the list
+let noteDir = ""; // while a note is rendered: its folder, for the images next to it
 let notesList = [];
 
 function showPane(open) {
@@ -448,7 +456,9 @@ async function openNote(path) {
 	$("note-filter").hidden = true;
 	const front = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/.exec(data.text);
 	const content = el("div", { class: "md" });
+	noteDir = data.path.replace(/[\\/][^\\/]*$/, "");
 	content.innerHTML = md(front ? data.text.slice(front[0].length) : data.text);
+	noteDir = "";
 	attachCopyButtons(content);
 	attachTableButtons(content, data.name.replace(/\.md$/i, ""));
 	$("note-body").replaceChildren(front ? el("details", { class: "front" }, el("summary", { text: t("properties") }), el("pre", { text: front[1] })) : "", content);

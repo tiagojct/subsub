@@ -1263,7 +1263,7 @@ test("/read: the reason sets the depth; Sub-Sub points to the passages, the user
 	assert.match(readInstruction({ ...base, purpose: "fact", fact: "the dose" }), /The user looks for: the dose/);
 	assert.match(readInstruction({ ...base, purpose: "extract", question: "q1" }), /a new sheet Research\/<slug> extraction\.md[\s\S]*question: "q1"/);
 	assert.match(readInstruction({ ...base, purpose: "extract", sheet: "Research/feno extraction.md" }), /the sheet Research\/feno extraction\.md/);
-	assert.match(readInstruction({ ...base, purpose: "critique" }), /CONSORT[\s\S]*STROBE[\s\S]*Do not copy the checklist/);
+	assert.match(readInstruction({ ...base, purpose: "critique" }), /CONSORT[\s\S]*STROBE[\s\S]*Do not copy the checklist[\s\S]*zotero_get_figure/);
 
 	// The command: the reason as a choice, then one message to the model.
 	const vault = mkdtempSync(join(tmpdir(), "subsub-read-"));

@@ -599,6 +599,15 @@ test("the web view: the page answers Sub-Sub's approval; other sites and hosts a
 			assert.notEqual((await call(port, "GET", `/api/note?path=${encodeURIComponent(bad)}`, { headers: ok })).status, 200, bad);
 		}
 
+		// Images next to a note (a figure cut out of a PDF): shown from the Sub-Sub folder only.
+		mkdirSync(join(vault, "Literature", "figures"), { recursive: true });
+		writeFileSync(join(vault, "Literature", "figures", "fig.png"), Buffer.from("89504e470d0a1a0a0000000d4948445200000001000000010806000000", "hex"));
+		const img = await call(port, "GET", `/api/note-file?path=${encodeURIComponent(join(vault, "Literature", "figures", "fig.png"))}`, { headers: ok });
+		assert.equal(img.status, 200);
+		assert.equal(img.headers["content-type"], "image/png");
+		assert.equal((await call(port, "GET", `/api/note-file?path=${encodeURIComponent("Literature/jacinto2026.md")}`, { headers: ok })).status, 415, "only images");
+		assert.equal((await call(port, "GET", `/api/note-file?path=${encodeURIComponent("../outside.md")}`, { headers: ok })).status, 404);
+
 		// The library search goes through the Zotero server.
 		const found = JSON.parse((await call(port, "GET", "/api/library?q=Asthma", { headers: ok })).body);
 		assert.ok(found.items?.some((i: any) => i.key === "BBBB3333"), JSON.stringify(found));

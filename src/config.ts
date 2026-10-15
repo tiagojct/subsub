@@ -62,7 +62,7 @@ export function uiLanguage(language: string | undefined): "pt" | "en" {
 }
 
 /** The Zotero server release that this Sub-Sub version runs when there is no local server folder. */
-export const SERVER_VERSION = "0.5.5";
+export const SERVER_VERSION = "0.6.0";
 
 /** The Starbuck release (PyPI) that this Sub-Sub version runs when there is no local Starbuck folder. */
 export const STARBUCK_VERSION = "0.2.0";

@@ -221,6 +221,8 @@ Use a primary study with a PDF in your library for the steps with the full text.
   Result: a second row in the same sheet.
 - [ ] Type `/read critique` and the citekey of your primary study.\
   Result: quotes from the methods, results and discussion, each with a question, and an Appraisal section that names the reporting guideline for the design (for example CONSORT or STROBE). The checklist itself is not copied.
+- [ ] In the critique note, look for the figure or table of the main result.\
+  Result: an image cut out of the PDF, with its caption and a page link, saved in `Literature/figures/`. The notes pane and Obsidian show it. If Sub-Sub could not cut it out, it took the whole page and says so.
 - [ ] Type `/read critique` and the citekey of an item without a PDF.\
   Result: Sub-Sub says that a critique needs the full text and offers `/request-copy`.
 - [ ] Type `/read critique` and the DOI of a paper that is not in your library.\

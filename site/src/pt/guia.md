@@ -90,7 +90,7 @@ O `/read` ensina a ler um artigo. O Sub-Sub encontra as passagens e faz pergunta
    - Contexto: apenas o título e o resumo. Decide se mantém o artigo ou se o põe de parte.
    - Um dado: o Sub-Sub pergunta que dado procura e mostra as passagens que o dão.
    - Extração: a pergunta, o desenho, a população, o contexto, o resultado medido e o resultado principal, cada um com a sua passagem. O Sub-Sub pergunta que folha de extração de `Research/` deve usar, ou a pergunta da sua revisão para uma folha nova (`Research/<slug> extraction.md`). Acrescenta uma linha para o artigo à folha. A linha diz onde encontrar cada valor; preenche os valores.
-   - Crítica: o artigo inteiro, secção a secção, com perguntas sobre o risco de viés e a norma de relato com que o deve comparar. Se só conseguir ler o resumo, o Sub-Sub diz isso e propõe o `/request-copy`.
+   - Crítica: o artigo inteiro, secção a secção, com perguntas sobre o risco de viés e a norma de relato com que o deve comparar. O Sub-Sub também recorta do PDF a tabela ou a figura com o resultado principal e mostra-a na nota. Se só conseguir ler o resumo, o Sub-Sub diz isso e propõe o `/request-copy`.
 3. Abra `Literature/smith2021.md` e escreva as respostas por baixo das perguntas. Se a nota já existir (por exemplo, de um `/lit-note`), o Sub-Sub acrescenta uma secção nova no fim e não altera o resto.
 
 Para não ter de responder à pergunta, escreva o motivo primeiro: `/read extract smith2021`. Leia a maior parte dos artigos ao nível do contexto, e leia com atenção apenas os poucos que o exigem.

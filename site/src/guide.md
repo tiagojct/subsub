@@ -90,7 +90,7 @@ Undo puts the files back where they were and moves the new items to the Zotero t
    - Background: the title and the abstract only. You decide to keep or drop the paper.
    - One fact: Sub-Sub asks which fact, then shows the passages that give it.
    - Extraction: the question, design, population, setting, outcome and main finding, each with its passage. Sub-Sub asks which extraction sheet in `Research/` to use, or the question of your review for a new sheet (`Research/<slug> extraction.md`). It adds a row for the paper to the sheet. The row tells you where to find each value; you fill in the values.
-   - Critique: the whole paper, section by section, with questions on the risk of bias and the reporting guideline to check it against. If Sub-Sub can read only the abstract, it says so and offers `/request-copy`.
+   - Critique: the whole paper, section by section, with questions on the risk of bias and the reporting guideline to check it against. Sub-Sub also cuts the table or figure with the main result out of the PDF and shows it in the note. If Sub-Sub can read only the abstract, it says so and offers `/request-copy`.
 3. Open `Literature/smith2021.md` and write your answers under the questions. If the note exists (for example from `/lit-note`), Sub-Sub adds a new section at the end and does not change the rest.
 
 To skip the question, put the reason first: `/read extract smith2021`. Read most papers at the background level, and read closely only the few that need it.

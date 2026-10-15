@@ -4,6 +4,7 @@ Sub-Sub follows the version numbers of npm: a change in the second number (0.13)
 
 ## Unreleased
 
+- Figures and tables from the PDF. With the Zotero server 0.6.0, Sub-Sub can cut a figure or a table out of an item's PDF (`zotero_get_figure`, with the label of its caption, such as "Figure 2" or "Table 1") and show it in a note, with its caption and a link to the page. `/read critique` shows the table or figure with the main result. The images are PNG files in `Literature/figures/`; the notes pane and Obsidian show them. When the figure cannot be cut out, Sub-Sub takes the whole page and says so.
 - In a note written from the full text, the page after each quote, "(p. N)", becomes a link that opens the PDF in Zotero at the page where Sub-Sub found the quote. The label stays as written; the link goes to the right page even when the printed page number differs from the PDF's.
 - `/feedback [what happened]` (Report a problem in the browser) writes a draft bug report in `Inbox/`: the versions, the mode and model, the output of `subsub doctor` and the last error, with your folders, email addresses and keys taken out. You read it and post it on GitHub; Sub-Sub sends nothing.
 - Preprints (medRxiv, bioRxiv, Research Square, SSRN, arXiv) are marked as not peer reviewed wherever Sub-Sub uses them: "(preprint)" in evidence tables and comparison matrices, and in the text. When a journal version exists, Sub-Sub uses and cites it instead.

@@ -203,6 +203,9 @@ const TYPES: Record<string, string> = {
 /** Files that the notes pane shows. */
 const NOTE_TYPES = new Set([".md", ".markdown"]);
 
+/** Images that a note shows (a figure cut out of a PDF, for example). */
+const IMAGE_TYPES: Record<string, string> = { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".gif": "image/gif", ".webp": "image/webp" };
+
 /** Files that the Open button may hand to the system (never programs or scripts). */
 export const OPENABLE = new Set([".md", ".markdown", ".txt", ".pdf", ".bib", ".csv", ".qmd"]);
 
@@ -685,6 +688,16 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 					if (!NOTE_TYPES.has(extname(file).toLowerCase())) return send(res, 415, { error: "not a note" });
 					if (statSync(file).size > 2_000_000) return send(res, 413, { error: "too large to show" });
 					return send(res, 200, { path: file, name: basename(file), text: readFileSync(file, "utf8") });
+				}
+				case "GET /api/note-file": {
+					const raw = url.searchParams.get("path") ?? "";
+					const file = allowedFile(raw, cwd, cfg.vault) ?? allowedFile(raw, notesRoot, cfg.vault);
+					if (!file) return send(res, 404, { error: "not found in the Sub-Sub folder" });
+					const type = IMAGE_TYPES[extname(file).toLowerCase()];
+					if (!type) return send(res, 415, { error: "not an image" });
+					if (statSync(file).size > 20_000_000) return send(res, 413, { error: "too large to show" });
+					res.writeHead(200, { ...common, "Content-Type": type, "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" });
+					return void createReadStream(file).pipe(res);
 				}
 				case "GET /api/library": {
 					const q = (url.searchParams.get("q") ?? "").replace(/\s+/g, " ").trim().slice(0, 200);
