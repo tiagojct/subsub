@@ -17,10 +17,11 @@ format:
     toc-title: Steps
     number-sections: true
     smooth-scroll: true
+    respect-user-color-scheme: true
     anchor-sections: true
     theme:
-      light: [cosmo, theme.scss]
-      dark: [cosmo, theme-dark.scss]
+      light: [cosmo, theme.scss, rules.scss]
+      dark: [cosmo, theme-dark.scss, rules.scss]
     include-in-header:
       text: |
         <meta name="robots" content="noindex, nofollow">

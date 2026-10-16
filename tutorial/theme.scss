@@ -1,30 +1,23 @@
 /*-- scss:defaults --*/
-// The site's type and colours. The fonts load from the site; elsewhere the system fonts stand in.
-$font-family-sans-serif: "IBM Plex Sans", system-ui, sans-serif;
-$font-family-monospace: "IBM Plex Mono", ui-monospace, monospace;
-$headings-font-family: "IBM Plex Serif", Georgia, serif;
-$headings-font-weight: 600;
-$body-bg: #f7f6f2;
-$body-color: #1c1b19;
-$primary: #1d4f7c;
-$link-color: #1d4f7c;
-$code-color: #a33b14;
-$border-color: #e0ddd4;
-
-/*-- scss:rules --*/
-@font-face { font-family: "IBM Plex Sans"; src: url("https://subsub.tiagojacinto.eu/assets/fonts/IBMPlexSans.woff2") format("woff2"); font-weight: 100 700; font-display: swap; }
-@font-face { font-family: "IBM Plex Serif"; src: url("https://subsub.tiagojacinto.eu/assets/fonts/IBMPlexSerif.woff2") format("woff2"); font-weight: 100 700; font-display: swap; }
-@font-face { font-family: "IBM Plex Mono"; src: url("https://subsub.tiagojacinto.eu/assets/fonts/IBMPlexMono.woff2") format("woff2"); font-weight: 400; font-display: swap; }
-
-// One step per line; the result reads as a second line under the action.
-ul.task-list { padding-left: 0.2rem; }
-ul.task-list li { margin: 0.55rem 0; line-height: 1.5; }
-ul.task-list li label { display: inline; }
-ul.task-list input[type="checkbox"] { width: 1.05rem; height: 1.05rem; margin-right: 0.45rem; vertical-align: -0.15rem; accent-color: $primary; cursor: pointer; }
-ul.task-list li:has(input:checked) { color: mix($body-color, $body-bg, 55%); }
-
-.progress-bar-box { position: sticky; top: 0; z-index: 5; display: flex; gap: 1rem; align-items: center; justify-content: space-between; padding: 0.45rem 0.75rem; margin: 0 0 1.5rem; background: $body-bg; border: 1px solid $border-color; border-radius: 6px; font-size: 0.88rem; }
-.progress-bar-box button { font-size: 0.82rem; padding: 0.15rem 0.6rem; border: 1px solid $border-color; border-radius: 4px; background: transparent; color: inherit; }
-
-// Long commands wrap instead of pushing the page sideways.
-ul.task-list li code:not(.sourceCode), main p code:not(.sourceCode) { white-space: pre-wrap; overflow-wrap: anywhere; }
+// The plate, as on the site: a grey-green sheet, copperplate ink, Prussian blue for links.
+// Literata for text, Atkinson Hyperlegible Next for the contents and controls. The fonts load from
+// the site; elsewhere the system fonts stand in. The rules are in rules.scss, for both themes.
+$font-family-base: "Literata", Georgia, serif;
+$font-family-sans-serif: "Atkinson Hyperlegible Next", system-ui, sans-serif;
+$font-family-monospace: "Atkinson Hyperlegible Mono", ui-monospace, monospace;
+$headings-font-family: "Literata", Georgia, serif;
+$headings-font-weight: 500;
+$body-bg: #e9ece6;
+$body-color: #16202a;
+$body-secondary-color: #44505b;
+$primary: #2c5d87;
+$link-color: #2c5d87;
+$code-color: #16202a;
+$code-bg: #dfe3dc;
+$border-color: #c6ccc6;
+$border-radius: 2px;
+$border-radius-sm: 2px;
+$border-radius-lg: 3px;
+$field: #f4f5f1;
+$rule-strong: #7d878e;
+$sap: #4f6a2e;

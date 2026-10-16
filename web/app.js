@@ -429,6 +429,7 @@ async function showNoteList() {
 	$("note-name").textContent = t("notes");
 	$("note-back").hidden = true;
 	$("note-app").hidden = true;
+	$("note-read").hidden = true;
 	$("note-filter").hidden = false;
 	showPane(true);
 	try {
@@ -461,7 +462,15 @@ async function openNote(path) {
 	noteDir = "";
 	attachCopyButtons(content);
 	attachTableButtons(content, data.name.replace(/\.md$/i, ""));
-	$("note-body").replaceChildren(front ? el("details", { class: "front" }, el("summary", { text: t("properties") }), el("pre", { text: front[1] })) : "", content);
+	// The evidence line: what the note was written from, drawn solid, dashed or dotted.
+	const evidence = front && /^evidence:\s*(.+?)\s*$/m.exec(front[1])?.[1];
+	const kind = evidence && (/full/i.test(evidence) ? "ev-full" : /abstract/i.test(evidence) ? "ev-abstract" : /metadata/i.test(evidence) ? "ev-meta" : "");
+	$("note-body").replaceChildren(
+		evidence ? el("p", { class: `evidence ${kind}` }, "evidence: ", el("span", { text: evidence })) : "",
+		front ? el("details", { class: "front" }, el("summary", { text: t("properties") }), el("pre", { text: front[1] })) : "",
+		content,
+	);
+	$("note-read").hidden = false;
 	$("note-body").scrollTop = 0;
 	showPane(true);
 }
@@ -1513,6 +1522,14 @@ $("library-search").addEventListener("input", searchLibrary);
 $("notes-btn").addEventListener("click", () => ($("note-pane").hidden ? showNoteList() : showPane(false)));
 $("note-back").addEventListener("click", showNoteList);
 $("note-close").addEventListener("click", () => showPane(false));
+// Reading mode for notes: larger type and wider spacing, remembered on this computer.
+function setReading(on) {
+	$("note-pane").classList.toggle("reading", on);
+	$("note-read").setAttribute("aria-pressed", String(on));
+	localStorage.setItem("subsub-reading", String(on));
+}
+$("note-read").addEventListener("click", () => setReading(!$("note-pane").classList.contains("reading")));
+setReading(localStorage.getItem("subsub-reading") === "true");
 $("note-app").addEventListener("click", () => noteShown && api("/api/open", { path: noteShown.path }).catch((err) => note(err.message, "warning")));
 $("note-filter").addEventListener("input", renderNoteList);
 $("note-pane").addEventListener("keydown", (e) => {

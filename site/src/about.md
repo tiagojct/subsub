@@ -22,7 +22,7 @@ Sub-Sub is made by Tiago Jacinto, assistant professor at the Faculty of Medicine
 - [Google Books](https://books.google.com), [Internet Archive](https://archive.org), [Wikidata](https://www.wikidata.org) and, with your key, [Brave Search](https://brave.com/search/api/), for the references of files without a parent item.
 - [Starbuck](https://github.com/tiagojct/starbuck), the optional add-on for reference checks.
 - The `/lit`, `/compare` and `/review` commands and the integrity rules of Sub-Sub adapt text from [Feynman](https://github.com/Companion-Inc/feynman) (MIT licence). The sections of `/digest` come from [alberto-research](https://github.com/gabriel-affonso/alberto-research) (MIT licence).
-- [IBM Plex](https://www.ibm.com/plex/) type (SIL Open Font License), for this site and the browser view.
+- [Literata](https://github.com/googlefonts/literata) and [Atkinson Hyperlegible Next and Mono](https://www.brailleinstitute.org/freefont/) type (SIL Open Font License), for this site and the browser view.
 - The Glauca and Try-Works design systems, for the terminal themes.
 
 ## If Sub-Sub stops

@@ -39,4 +39,24 @@
 		show();
 	});
 	show();
+
+	// Reading mode: larger type and wider lines, remembered in this browser.
+	const reading = document.getElementById("reading-mode");
+	const setReading = (on) => {
+		document.body.classList.toggle("reading", on);
+		reading?.setAttribute("aria-pressed", String(on));
+		try {
+			localStorage.setItem(`${KEY}-reading`, String(on));
+		} catch {
+			/* private window */
+		}
+	};
+	let on = false;
+	try {
+		on = localStorage.getItem(`${KEY}-reading`) === "true";
+	} catch {
+		on = false;
+	}
+	setReading(on);
+	reading?.addEventListener("click", () => setReading(!document.body.classList.contains("reading")));
 })();

@@ -1,4 +1,4 @@
-// Sub-Sub website: theme switch, menu, install tabs, copy buttons, page contents.
+// Sub-Sub website: theme switch, menu, install tabs, copy buttons, Plate I, page contents.
 
 (function () {
 	"use strict";
@@ -94,6 +94,10 @@
 			pre.appendChild(btn);
 		});
 
+		// ---- Plate I on the home page
+		var fig = document.querySelector("[data-plate]");
+		if (fig) plate(fig);
+
 		var prose = document.querySelector(".prose");
 		if (!prose) return;
 
@@ -155,6 +159,80 @@
 		heads.forEach(function (h) {
 			observer.observe(h);
 		});
+	}
+
+	// Plate I. Each figure number sits in the margin at the height of its part, with a leader line to
+	// the part's pin. Pointing at a number, a caption entry or a part inks that figure; a click keeps it.
+	function plate(fig) {
+		var spec = fig.querySelector(".specimen");
+		var svg = spec.querySelector(".leaders");
+		var margin = spec.querySelector(".margin");
+		var buttons = fig.querySelectorAll(".figs button");
+		var pinned = null;
+		spec.classList.add("drawn");
+		margin.hidden = false;
+
+		function layout() {
+			var box = spec.getBoundingClientRect();
+			var right = margin.getBoundingClientRect().right - box.left;
+			var last = -Infinity;
+			svg.textContent = "";
+			margin.querySelectorAll(".fig-no").forEach(function (no) {
+				var pins = spec.querySelectorAll('.pin[data-fig="' + no.dataset.fig + '"]');
+				if (!pins.length) return;
+				var first = pins[0].getBoundingClientRect();
+				var y = Math.max(first.top + first.height / 2 - box.top, last + 26);
+				last = y;
+				no.style.top = y + "px";
+				var x = right - no.offsetWidth;
+				pins.forEach(function (pin) {
+					var r = pin.getBoundingClientRect();
+					var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+					path.setAttribute("d", "M" + x + " " + y + "L" + (r.right - box.left) + " " + (r.top + r.height / 2 - box.top));
+					path.setAttribute("pathLength", "1");
+					path.setAttribute("data-fig", no.dataset.fig);
+					svg.appendChild(path);
+				});
+			});
+		}
+
+		function show(n) {
+			if (n) spec.dataset.focus = n;
+			else delete spec.dataset.focus;
+		}
+		function rest() {
+			show(pinned);
+		}
+		function keep(n) {
+			pinned = pinned === n ? null : n;
+			buttons.forEach(function (b) {
+				b.setAttribute("aria-pressed", String(b.dataset.fig === pinned));
+			});
+			rest();
+		}
+		fig.querySelectorAll(".figs button, .fig-no").forEach(function (el) {
+			el.addEventListener("pointerenter", function () {
+				show(el.dataset.fig);
+			});
+			el.addEventListener("pointerleave", rest);
+			el.addEventListener("focus", function () {
+				show(el.dataset.fig);
+			});
+			el.addEventListener("blur", rest);
+			el.addEventListener("click", function () {
+				keep(el.dataset.fig);
+			});
+		});
+		spec.querySelectorAll('[data-part]:not([data-part="0"])').forEach(function (el) {
+			el.addEventListener("pointerenter", function () {
+				show(el.dataset.part);
+			});
+			el.addEventListener("pointerleave", rest);
+		});
+
+		layout();
+		if ("ResizeObserver" in window) new ResizeObserver(layout).observe(spec);
+		if (document.fonts) document.fonts.ready.then(layout);
 	}
 
 	if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", ready);

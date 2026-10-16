@@ -18,3 +18,7 @@ site/_site/
 
 # Personal machine note (synced to the vault)
 docs/Subsub.md
+
+# Impeccable design reviews: screenshots and caches stay local
+.impeccable/review/
+.impeccable/hook.cache.json

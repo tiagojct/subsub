@@ -20,9 +20,6 @@ format:
 [**Tiago Jacinto**<br>Faculdade de Medicina da Universidade do Porto · MEDCIDS]{.who}
 :::
 
-::: {.shot}
-![](assets/img/web-view-pt-light.webp){fig-alt="O Sub-Sub no navegador: uma pergunta sobre a literatura e a resposta, com as ferramentas que usou."}
-:::
 
 ::: notes
 Boas-vindas. Apresentação curta. Dizer já o que vão levar: uma nota de leitura e uma revisão rápida feitas na sua própria biblioteca, e um critério para saber quando confiar no que a IA escreve.
@@ -77,9 +74,9 @@ Boas-vindas. Apresentação curta. Dizer já o que vão levar: uma nota de leitu
 Quem tem o Sub-Sub instalado faz os exercícios no seu computador. Quem não tem acompanha em par com um colega. Pedir que abram já o Zotero.
 :::
 
-## Porquê {.sect background-color="#1c1c1a"}
+## Porquê {.sect background-color="#12171c"}
 
-[01 · 0 a 15 min]{.sect-n}
+[0 a 15 min]{.sect-n}
 
 [Os modelos de linguagem escrevem bem. Nem sempre dizem a verdade sobre as fontes.]{.lead}
 
@@ -269,7 +266,7 @@ O que sai do computador: para o fornecedor do modelo, as mensagens e as passagen
 
 ::: {.cols .mid style="margin-top:0.3em"}
 ::: {.shot .bare}
-![](assets/img/web-approval-pt.webp){fig-alt="A janela de aprovação: dois itens, com as etiquetas a acrescentar a verde e a etiqueta a retirar a vermelho, e os botões Não e Sim."}
+![](assets/img/web-approval-pt.webp){fig-alt="A janela de aprovação: dois itens, com as etiquetas a acrescentar a verde e a etiqueta a retirar riscada, e os botões Não e Sim."}
 :::
 
 ::: {}
@@ -400,9 +397,9 @@ Demora alguns minutos. Mostrar o registo de triagem: é o que permite a outra pe
 Esta distinção é o que um revisor ou um orientador vai perguntar. O /lit é um bom ponto de partida para uma revisão sistemática: as pesquisas e o registo de triagem servem de base, e a equipa faz depois a triagem em duplicado e a avaliação do risco de viés.
 :::
 
-## Demonstração {.sect background-color="#1c1c1a"}
+## Demonstração {.sect background-color="#12171c"}
 
-[02 · 15 a 30 min]{.sect-n}
+[15 a 30 min]{.sect-n}
 
 [Quatro tarefas, em direto, numa biblioteca real.]{.lead}
 
@@ -444,8 +441,8 @@ Roteiro da demonstração (15 min):
 ::: {.shot .pins}
 ![](assets/img/web-view-pt-light.webp){fig-alt="A vista do Sub-Sub: à esquerda a pesquisa na biblioteca, os comandos e as conversas, ao centro a conversa, no topo o modo, as Notas e o modelo."}
 
-[1]{.pin style="left:17.5%;top:21%"}
-[2]{.pin style="left:31.6%;top:0.4%"}
+[1]{.pin style="left:18.6%;top:13.6%"}
+[2]{.pin style="left:28%;top:0.4%"}
 [3]{.pin style="left:27.5%;top:16.5%"}
 :::
 
@@ -460,6 +457,8 @@ o modo (Investigador ou Bibliotecário), as Notas e o modelo
 a conversa, com cada ferramenta que o Sub-Sub usou
 
 [Escreva `/` na caixa de mensagem para ver todos os comandos.]{.small .muted}
+
+[Os artigos deste exemplo são inventados.]{.small .muted}
 :::
 :::
 
@@ -467,9 +466,9 @@ a conversa, com cada ferramenta que o Sub-Sub usou
 Se a demonstração em direto falhar, usar esta imagem e a da aprovação para explicar.
 :::
 
-## Mãos à obra {.sect background-color="#1c1c1a"}
+## Mãos à obra {.sect background-color="#12171c"}
 
-[03 · 30 a 50 min]{.sect-n}
+[30 a 50 min]{.sect-n}
 
 [Três exercícios na sua biblioteca. Trabalhe em par se ainda não instalou o Sub-Sub.]{.lead}
 
@@ -621,9 +620,9 @@ Clique em «8 min» para iniciar o cronómetro; clique outra vez para o parar.
 Este exercício demora mais do que os outros. Quem não terminar vê o resultado em casa. Pedir a uma pessoa que mostre a sua tabela de evidência ao grupo.
 :::
 
-## Responsabilidade {.sect background-color="#1c1c1a"}
+## Responsabilidade {.sect background-color="#12171c"}
 
-[04 · 50 a 60 min]{.sect-n}
+[50 a 60 min]{.sect-n}
 
 [Quem assina o artigo responde pelo que publica, incluindo as referências.]{.lead}
 

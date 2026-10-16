@@ -1,10 +1,10 @@
 ---
-title: "Test everything in Sub-Sub"
-subtitle: "A tutorial to follow along, one command at a time. Sub-Sub 0.18."
+title: "Test everything in [Sub-Sub]{.nobr}"
+subtitle: "A tutorial to follow along, one command at a time. Sub-Sub 0.19."
 ---
 
 ```{=html}
-<div class="progress-bar-box"><span id="progress-count">Steps done</span><button type="button" id="progress-reset">Clear the ticks</button></div>
+<div class="progress-bar-box"><span id="progress-count">Steps done</span><button type="button" id="reading-mode" aria-pressed="false">Reading mode</button><button type="button" id="progress-reset">Clear the ticks</button></div>
 ```
 
 This page takes you through every command and every part of Sub-Sub. Do the steps in order. Each step has an action and the result to expect. Tick the box when the result is correct. The ticks stay in this browser.
@@ -213,6 +213,10 @@ Use a primary study with a PDF in your library for the steps with the full text.
   Result: the note opens next to the conversation. It has "Why I am reading this", quotes from the title or abstract, the question "Does this paper fit your reason?", empty Keep and Drop boxes, and a "Next step" line. It states no results.
 - [ ] In the note, select Properties.\
   Result: the front matter, with `type: reading-note`, `purpose: background` and `evidence: abstract`.
+- [ ] Look at the line above Properties.\
+  Result: `evidence: abstract`, with a dashed line under the value. A note from the full text has a solid line, a note from the metadata a dotted line.
+- [ ] At the top of the notes pane, select Reading mode. Then select it again.\
+  Result: the note shows in larger type with more space between the lines, then goes back. Sub-Sub keeps the choice for the next note.
 - [ ] Type `/read fact` and the citekey of your primary study. At the question, type `the age of the participants`.\
   Result: the passages that give the age, quoted with the page (full text) or the section (abstract), each with a question and an empty answer line.
 - [ ] Type `/read extract` and the same citekey. At the question about the sheet, select New sheet. Type a review question.\

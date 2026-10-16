@@ -1,32 +1,38 @@
-/* Sub-Sub workshop: the site's type and colours (site/src/assets/css/site.css) on 1600 x 900 slides. */
+/* Sub-Sub workshop: the site's plate (site/src/assets/css/site.css) on 1600 x 900 slides.
+   A grey-green sheet, copperplate ink, and four washes; Literata with its true italics,
+   Atkinson Hyperlegible Next for labels, Atkinson Hyperlegible Mono for commands.
+   The variable names stay from the first design: --rust is madder, --green is sap green. */
 
-@font-face { font-family: "IBM Plex Sans"; src: url("fonts/IBMPlexSans.woff2") format("woff2"); font-weight: 100 700; font-stretch: 75% 100%; font-display: block; }
-@font-face { font-family: "IBM Plex Serif"; src: url("fonts/IBMPlexSerif.woff2") format("woff2"); font-weight: 100 700; font-display: block; }
-@font-face { font-family: "IBM Plex Mono"; src: url("fonts/IBMPlexMono.woff2") format("woff2"); font-weight: 400; font-display: block; }
+@font-face { font-family: "Literata"; src: url("fonts/Literata.woff2") format("woff2"); font-weight: 400 700; font-style: normal; font-display: block; }
+@font-face { font-family: "Literata"; src: url("fonts/Literata-Italic.woff2") format("woff2"); font-weight: 400 700; font-style: italic; font-display: block; }
+@font-face { font-family: "Atkinson Hyperlegible Next"; src: url("fonts/AtkinsonHyperlegibleNext.woff2") format("woff2"); font-weight: 400 700; font-display: block; }
+@font-face { font-family: "Atkinson Hyperlegible Mono"; src: url("fonts/AtkinsonHyperlegibleMono.woff2") format("woff2"); font-weight: 400 600; font-display: block; }
 
 :root {
-	--sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-	--serif: "IBM Plex Serif", Georgia, serif;
-	--mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
-	--bg: #f7f6f2;
-	--surface: #efede7;
-	--raised: #ffffff;
-	--text: #1c1b19;
-	--muted: #5f5c55;
-	--faint: #6f6b63;
-	--rule: #e0ddd4;
-	--rule-strong: #c8c3b8;
-	--accent: #1d4f7c;
-	--accent-soft: #e3ebf3;
-	--rust: #a33b14;
-	--rust-soft: #f5e6de;
-	--green: #2f7a4b;
-	--green-soft: #e2efe6;
-	--ink: #1c1c1a;
-	--ink-text: #e6e2da;
-	--ink-dim: #a7a399;
-	--ink-acc: #7fb0de;
-	--shadow: 0 1px 2px rgb(28 27 25 / 0.05), 0 24px 48px -24px rgb(28 27 25 / 0.28);
+	--sans: "Atkinson Hyperlegible Next", system-ui, -apple-system, "Segoe UI", sans-serif;
+	--serif: "Literata", Georgia, serif;
+	--mono: "Atkinson Hyperlegible Mono", ui-monospace, Menlo, Consolas, monospace;
+	--bg: #e9ece6;
+	--surface: #dfe3dc;
+	--raised: #f4f5f1;
+	--text: #16202a;
+	--muted: #44505b;
+	--faint: #5d6870;
+	--rule: #c6ccc6;
+	--rule-strong: #7d878e;
+	--accent: #2c5d87;
+	--accent-soft: #d8e2eb;
+	--rust: #a8432d;
+	--rust-soft: #f0ddd6;
+	--green: #4f6a2e;
+	--green-soft: #dfe7d2;
+	--gamboge: #86601a;
+	--gamboge-soft: #f2e5c6;
+	--ink: #12171c;
+	--ink-text: #dce1de;
+	--ink-dim: #a6b0b3;
+	--ink-acc: #86b4da;
+	--shadow: none;
 }
 
 /* ---------------------------------------------------------------- base */
@@ -150,7 +156,7 @@
 .steps li { counter-increment: s; position: relative; padding-left: 2.1em; margin: 0.5em 0; }
 .steps li::before { content: counter(s); position: absolute; left: 0; top: 0.05em; width: 1.45em; height: 1.45em; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-family: var(--mono); font-size: 0.8em; display: grid; place-items: center; }
 .say { font-family: var(--mono); font-size: 0.8em; background: var(--raised); border: 1px solid var(--rule-strong); border-radius: 8px; padding: 0.35em 0.6em; display: inline-block; margin: 0.15em 0; }
-.look { border-left: 2px solid var(--accent); padding-left: 0.8em; color: var(--muted); font-size: 0.82em; }
+.look { border-top: 1px solid var(--accent); padding-top: 0.4em; color: var(--muted); font-size: 0.82em; }
 
 /* ---------------------------------------------------------------- diagrams (inline SVG) */
 
@@ -194,7 +200,6 @@
 
 /* A section slide: number, title and line, centred on the dark ground. */
 .reveal .slides section.sect { display: flex !important; flex-direction: column; justify-content: center; }
-.reveal .slides section.sect .sect-n { order: -1; }
 
 /* The evidence ladder: what each value of evidence: allows. */
 .ladder { display: grid; gap: 14px; font-size: 0.72em; }
@@ -214,7 +219,6 @@
 .reveal .slides section.title-slide-x { display: grid !important; grid-template-columns: 1.1fr 1fr; gap: 2.4em; align-content: center; }
 .reveal .slide-number a { text-decoration: none; color: var(--faint); }
 .steps ul { list-style: none; margin: 0 !important; padding: 0; counter-reset: s; }
-.sect p:has(.sect-n) { order: -1; margin-bottom: 0.4em; }
 .agenda p { margin: 0; line-height: 1.3; }
 .agenda p span { display: block; }
 .agenda .h { margin: 0.35em 0 0.45em; }
@@ -346,3 +350,52 @@ html.print-pdf .reveal .slides .pdf-page > section.slide:not(.title-slide-x) { d
 /* fourth pass */
 .cols.c3 > .card { align-self: stretch; }
 .card span.small { display: block; line-height: 1.45; }
+
+/* ---------------------------------------------------------------- the plate */
+
+/* Text in Literata; labels and controls in the interface face. */
+.reveal { font-family: var(--serif); font-variant-numeric: oldstyle-nums proportional-nums; }
+.reveal code, .reveal pre, .reveal table { font-variant-numeric: lining-nums tabular-nums; }
+.reveal h3, .reveal .h3 { font-family: var(--serif); font-weight: 600; }
+.reveal .footer, .reveal .slide-number, .brand, .scale, .agenda .t, .parts, .ex .min, .say, .expect .lab, .check, .pin, .pin-i { font-family: var(--sans); }
+.brand { font-family: var(--serif); font-weight: 600; font-size: 0.9em; }
+
+/* Square corners, as cut from a plate; no shadows. */
+.card, .shot, .agenda > div, .note-card, .note-card .fm, .stat-row div, .expect, .say, .ladder .rung span, .reveal code, .check, .reveal .shot.bare img, .steps.tick li::before, .mini .hl { border-radius: 2px !important; box-shadow: none !important; }
+.card { background: var(--raised); border-color: var(--rule-strong); }
+.shot { border-color: var(--text); }
+
+/* The running head over a title, in small capitals, with its rule. */
+.eyebrow { font-family: var(--serif); font-variant-caps: all-small-caps; letter-spacing: 0.08em; font-size: 0.78em; color: var(--muted); padding-bottom: 0.2em; border-bottom: 1px solid var(--text); max-width: 100%; }
+.eyebrow::before { content: none; }
+
+/* Tables as in a printed paper. */
+.reveal table { border-top: 2px solid var(--text); border-bottom: 2px solid var(--text); }
+.reveal table th { font-family: var(--serif); font-weight: 400; text-transform: none; font-variant-caps: all-small-caps; letter-spacing: 0.07em; font-size: 0.95em; color: var(--muted); border-bottom: 1px solid var(--text); }
+
+/* Numbered steps: the numeral hangs in the margin, in italic. */
+.steps li::before { content: counter(s) "."; background: none; color: var(--accent); font-family: var(--serif); font-style: italic; font-size: 1em; width: 1.5em; height: auto; top: 0; display: block; text-align: right; }
+.steps.tick li::before { content: ""; width: 0.95em; height: 0.95em; top: 0.25em; border: 2px solid var(--accent); background: var(--raised); }
+
+/* Pins on a screenshot: figure numbers in ink, as on a plate. */
+.pin, .pin-i { background: var(--text); color: var(--raised); font-family: var(--serif); font-style: italic; }
+.pin { box-shadow: 0 0 0 3px var(--raised) !important; }
+
+/* State by line: an expected result is dashed, as a preview. */
+.expect { border: 1px dashed var(--gamboge); background: color-mix(in srgb, var(--gamboge-soft) 50%, transparent); }
+.expect .lab { font-family: var(--serif); font-variant-caps: all-small-caps; text-transform: none; letter-spacing: 0.08em; font-size: 1em; color: var(--gamboge); }
+.ladder .full span { background: var(--green-soft); border-color: var(--green); color: var(--green); }
+.ladder .meta span { border-style: dotted; }
+.agenda .now { background: var(--accent-soft); border-color: var(--accent); }
+.ex .min { border-radius: 2px; }
+
+/* The title slide: one column, as the legend of a plate. */
+.reveal .slides section.title-slide-x { grid-template-columns: minmax(0, 60rem) !important; }
+
+/* Section slides: the steel plate. The part and its minutes follow the title, as a note. */
+.reveal .slides section.sect p:has(.sect-n) { order: 2; margin: 1.4em 0 0 !important; }
+.sect h2 { color: var(--ink-text) !important; }
+.sect .sect-n { font-family: var(--serif); font-variant-caps: all-small-caps; letter-spacing: 0.1em; font-size: 0.75em; }
+.parts .on { color: var(--ink-text); }
+.parts .done { border-top-color: rgb(134 180 218 / 0.45); }
+@media print { .reveal .slides section { background: var(--bg); } }

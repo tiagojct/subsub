@@ -1,6 +1,6 @@
 # Sub-Sub
 
-[![npm](https://img.shields.io/npm/v/@tiagojct/subsub.svg?style=flat-square&color=1d4f7c)](https://www.npmjs.com/package/@tiagojct/subsub)
+[![npm](https://img.shields.io/npm/v/@tiagojct/subsub.svg?style=flat-square&color=2c5d87)](https://www.npmjs.com/package/@tiagojct/subsub)
 [![Website](https://img.shields.io/badge/website-subsub.tiagojacinto.eu-a33b14.svg?style=flat-square)](https://subsub.tiagojacinto.eu)
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-5f5c55.svg?style=flat-square)](LICENSE)
 
@@ -24,7 +24,7 @@ Each mode can have its own model. Switch with `/researcher` and `/librarian`, or
 
 Every library change works the same way in both modes:
 
-- The Zotero server computes the change first. Sub-Sub shows it to you (added tags in green, removed tags in red) and applies it only when you select Yes. The check is in the program, so the model cannot skip it.
+- The Zotero server computes the change first. Sub-Sub shows it to you (the tags it adds and the tags it removes) and applies it only when you select Yes. The check is in the program, so the model cannot skip it.
 - If you edit an item in Zotero while the preview is open, Sub-Sub shows you the new preview before it changes anything. Each change also sends the item's version, so a field you edit at the moment of writing is not overwritten.
 - Every change is journaled, including new collections. `/undo` reverts the last one, and the browser view shows an Undo button under each change.
 - Nothing is deleted: items go to the Zotero trash. Only tags from your tag list can be added.
@@ -183,4 +183,4 @@ This DOI always points to the latest version; each version also has its own DOI 
 
 ## Licence
 
-[MIT](LICENSE), Tiago Jacinto. The `/lit`, `/compare` and `/review` prompts adapt text from [Feynman](https://github.com/Companion-Inc/feynman) (MIT); see [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES). IBM Plex fonts: SIL Open Font License.
+[MIT](LICENSE), Tiago Jacinto. The `/lit`, `/compare` and `/review` prompts adapt text from [Feynman](https://github.com/Companion-Inc/feynman) (MIT); see [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES). Literata and Atkinson Hyperlegible fonts: SIL Open Font License.

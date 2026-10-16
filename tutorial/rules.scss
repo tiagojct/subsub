@@ -1,0 +1,59 @@
+/*-- scss:rules --*/
+@font-face { font-family: "Literata"; src: url("https://subsub.tiagojacinto.eu/assets/fonts/Literata.woff2") format("woff2"); font-weight: 400 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Literata"; src: url("https://subsub.tiagojacinto.eu/assets/fonts/Literata-Italic.woff2") format("woff2"); font-weight: 400 700; font-style: italic; font-display: swap; }
+@font-face { font-family: "Atkinson Hyperlegible Next"; src: url("https://subsub.tiagojacinto.eu/assets/fonts/AtkinsonHyperlegibleNext.woff2") format("woff2"); font-weight: 400 700; font-display: swap; }
+@font-face { font-family: "Atkinson Hyperlegible Mono"; src: url("https://subsub.tiagojacinto.eu/assets/fonts/AtkinsonHyperlegibleMono.woff2") format("woff2"); font-weight: 400 600; font-display: swap; }
+
+body { font-variant-numeric: oldstyle-nums proportional-nums; caret-color: $primary; }
+::selection { background: rgba($primary, 0.22); }
+code, pre, kbd { font-variant-numeric: normal; }
+
+// The title as on a plate: the running head under it, the subtitle in italic.
+#title-block-header { border-bottom: 1px solid $body-color; padding-bottom: 0.9rem; margin-bottom: 1.5rem; }
+h1.title { font-weight: 500; letter-spacing: -0.015em; line-height: 1.08; }
+.subtitle { font-style: italic; color: $body-secondary-color; }
+h2 { font-weight: 500; letter-spacing: -0.01em; padding-top: 0.6rem; border-top: 1px solid $rule-strong; border-bottom: 0 !important; }
+.header-section-number { font-style: italic; font-weight: 400; color: $body-secondary-color; margin-right: 0.35em; font-variant-numeric: lining-nums; }
+
+// The contents in the interface face.
+#TOC, #quarto-margin-sidebar { font-family: $font-family-sans-serif; }
+#toc-title { font-family: $font-family-base; font-variant-caps: all-small-caps; letter-spacing: 0.08em; font-size: 1rem; }
+.sidebar nav[role="doc-toc"] ul > li > a.active { border-left-color: $body-color; color: $body-color; }
+
+// One step per line; the result reads as a second line under the action.
+ul.task-list { padding-left: 0.2rem; }
+ul.task-list li { margin: 0.55rem 0; line-height: 1.55; }
+ul.task-list li label { display: inline; }
+ul.task-list input[type="checkbox"] { width: 1.05rem; height: 1.05rem; margin-right: 0.5rem; vertical-align: -0.15rem; accent-color: $sap; cursor: pointer; }
+// A step done is struck through, as in a log: the line stays legible.
+ul.task-list li:has(input:checked) { color: $body-secondary-color; text-decoration: line-through; text-decoration-thickness: 1px; text-decoration-color: $rule-strong; }
+
+// The progress line: a running head that stays at the top.
+.progress-bar-box { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; align-items: baseline; justify-content: space-between; padding: 0.5rem 0 0.35rem; margin: 0 0 1.5rem; background: $body-bg; border-bottom: 1px solid $body-color; font-variant-caps: all-small-caps; letter-spacing: 0.06em; font-size: 1.02rem; }
+.progress-bar-box span:first-child { margin-right: auto; }
+.progress-bar-box button { white-space: nowrap; font-family: $font-family-sans-serif; font-variant-caps: normal; letter-spacing: 0; font-size: 0.82rem; padding: 0.15rem 0.6rem; border: 1px solid $rule-strong; border-radius: 2px; background: transparent; color: inherit; }
+.progress-bar-box button:hover { border-color: $body-color; }
+.progress-bar-box button[aria-pressed="true"] { border-color: $primary; color: $primary; }
+
+// Code on the plate field, framed by a fine line.
+div.sourceCode, pre.sourceCode { background: $field; border: 1px solid $border-color; border-radius: 2px; }
+code:not(.sourceCode) { padding: 0.05em 0.3em; border-radius: 2px; }
+// Long commands wrap instead of pushing the page sideways.
+ul.task-list li code:not(.sourceCode), main p code:not(.sourceCode) { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+// Tables as in a printed paper.
+table { border-top: 1.5px solid $body-color; border-bottom: 1.5px solid $body-color; font-variant-numeric: lining-nums tabular-nums; }
+table thead th { font-weight: 400; font-variant-caps: all-small-caps; letter-spacing: 0.07em; border-bottom: 1px solid $body-color !important; }
+
+blockquote { border-left: 2px solid $primary; font-style: italic; color: $body-secondary-color; }
+
+// Reading mode: larger type and wider lines, for long sessions and for dyslexic readers.
+body.reading main { font-size: 1.2rem; line-height: 1.9; word-spacing: 0.06em; }
+body.reading main p, body.reading main ul, body.reading main ol { max-width: 36rem; }
+body.reading main ul.task-list li { margin: 0.9rem 0; }
+
+// On a phone the colour-scheme toggle sits at the top right: the title keeps clear of it.
+@media (max-width: 767.98px) { h1.title { padding-right: 2.5rem; } }
+
+// The name breaks nowhere, least of all at its hyphen.
+.nobr { white-space: nowrap; }

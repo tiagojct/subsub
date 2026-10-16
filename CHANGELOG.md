@@ -2,6 +2,17 @@
 
 Sub-Sub follows the version numbers of npm: a change in the second number (0.13) adds features or changes how you use it; a change in the third (0.13.1) only fixes.
 
+## 0.19.0 (2026-10-16)
+
+A new look for the browser view, the website, the tutorial and the workshop, after the engraved plates of 19th-century natural history books.
+
+- A grey-green paper, blue-black ink, and four colours with one meaning each: blue for the Researcher and for links, madder red for the Librarian, green for what is applied or checked, ochre for a preview. In dark mode the page is a blue-black plate.
+- Type: Literata for text, with true italics; Atkinson Hyperlegible Next for the interface; Atkinson Hyperlegible Mono for commands. They replace IBM Plex.
+- The notes pane shows what a note was written from: a line under `evidence:`, solid for the full text, dashed for the abstract, dotted for the metadata.
+- Reading mode in the notes pane: larger type and more space between lines, for long notes. Sub-Sub remembers it on this computer. The tutorial has the same button.
+- In a preview, a tag that would be removed is struck through instead of red. Errors show in ink, with a word, so that red belongs to the Librarian only. Each mode button keeps its own colour, selected or not.
+- A preview has a dashed frame: nothing has changed yet.
+
 ## 0.18.0 (2026-10-15)
 
 - Figures and tables from the PDF. With the Zotero server 0.6.0, Sub-Sub can cut a figure or a table out of an item's PDF (`zotero_get_figure`, with the label of its caption, such as "Figure 2" or "Table 1") and show it in a note, with its caption and a link to the page. `/read critique` shows the table or figure with the main result. The images are PNG files in `Literature/figures/`; the notes pane and Obsidian show them. When the figure cannot be cut out, Sub-Sub takes the whole page and says so.

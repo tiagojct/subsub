@@ -1,0 +1,837 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-16T00:06:37+00:00",
+  "title": "Design System: Sub-Sub",
+  "extensions": {
+    "colorMeta": {
+      "sheet": {
+        "role": "neutral",
+        "displayName": "Sheet",
+        "canonical": "#e9ece6",
+        "oklch": "oklch(93.9% 0.009 128.6)",
+        "tonalRamp": [
+          "oklch(15% 0.009 128.6)",
+          "oklch(25% 0.009 128.6)",
+          "oklch(37% 0.009 128.6)",
+          "oklch(49% 0.009 128.6)",
+          "oklch(61% 0.009 128.6)",
+          "oklch(73% 0.009 128.6)",
+          "oklch(85% 0.009 128.6)",
+          "oklch(95% 0.009 128.6)"
+        ]
+      },
+      "sunk-field": {
+        "role": "neutral",
+        "displayName": "Sunk Field",
+        "canonical": "#dfe3dc",
+        "oklch": "oklch(91.1% 0.010 131.4)",
+        "tonalRamp": [
+          "oklch(15% 0.010 131.4)",
+          "oklch(25% 0.010 131.4)",
+          "oklch(37% 0.010 131.4)",
+          "oklch(49% 0.010 131.4)",
+          "oklch(61% 0.010 131.4)",
+          "oklch(73% 0.010 131.4)",
+          "oklch(85% 0.010 131.4)",
+          "oklch(95% 0.010 131.4)"
+        ]
+      },
+      "plate-field": {
+        "role": "neutral",
+        "displayName": "Plate Field",
+        "canonical": "#f4f5f1",
+        "oklch": "oklch(96.8% 0.005 117.9)",
+        "tonalRamp": [
+          "oklch(15% 0.005 117.9)",
+          "oklch(25% 0.005 117.9)",
+          "oklch(37% 0.005 117.9)",
+          "oklch(49% 0.005 117.9)",
+          "oklch(61% 0.005 117.9)",
+          "oklch(73% 0.005 117.9)",
+          "oklch(85% 0.005 117.9)",
+          "oklch(95% 0.005 117.9)"
+        ]
+      },
+      "copperplate-ink": {
+        "role": "neutral",
+        "displayName": "Copperplate Ink",
+        "canonical": "#16202a",
+        "oklch": "oklch(23.9% 0.024 248.9)",
+        "tonalRamp": [
+          "oklch(15% 0.024 248.9)",
+          "oklch(25% 0.024 248.9)",
+          "oklch(37% 0.024 248.9)",
+          "oklch(49% 0.024 248.9)",
+          "oklch(61% 0.024 248.9)",
+          "oklch(73% 0.024 248.9)",
+          "oklch(85% 0.024 248.9)",
+          "oklch(95% 0.024 248.9)"
+        ]
+      },
+      "ink-muted": {
+        "role": "neutral",
+        "displayName": "Ink Muted",
+        "canonical": "#44505b",
+        "oklch": "oklch(42.5% 0.024 246.1)",
+        "tonalRamp": [
+          "oklch(15% 0.024 246.1)",
+          "oklch(25% 0.024 246.1)",
+          "oklch(37% 0.024 246.1)",
+          "oklch(49% 0.024 246.1)",
+          "oklch(61% 0.024 246.1)",
+          "oklch(73% 0.024 246.1)",
+          "oklch(85% 0.024 246.1)",
+          "oklch(95% 0.024 246.1)"
+        ]
+      },
+      "ink-faint": {
+        "role": "neutral",
+        "displayName": "Ink Faint",
+        "canonical": "#5d6870",
+        "oklch": "oklch(51.1% 0.019 239.4)",
+        "tonalRamp": [
+          "oklch(15% 0.019 239.4)",
+          "oklch(25% 0.019 239.4)",
+          "oklch(37% 0.019 239.4)",
+          "oklch(49% 0.019 239.4)",
+          "oklch(61% 0.019 239.4)",
+          "oklch(73% 0.019 239.4)",
+          "oklch(85% 0.019 239.4)",
+          "oklch(95% 0.019 239.4)"
+        ]
+      },
+      "fine-rule": {
+        "role": "neutral",
+        "displayName": "Fine Rule",
+        "canonical": "#c6ccc6",
+        "oklch": "oklch(83.9% 0.011 145.5)",
+        "tonalRamp": [
+          "oklch(15% 0.011 145.5)",
+          "oklch(25% 0.011 145.5)",
+          "oklch(37% 0.011 145.5)",
+          "oklch(49% 0.011 145.5)",
+          "oklch(61% 0.011 145.5)",
+          "oklch(73% 0.011 145.5)",
+          "oklch(85% 0.011 145.5)",
+          "oklch(95% 0.011 145.5)"
+        ]
+      },
+      "plate-mark": {
+        "role": "neutral",
+        "displayName": "Plate Mark",
+        "canonical": "#7d878e",
+        "oklch": "oklch(61.7% 0.016 238.2)",
+        "tonalRamp": [
+          "oklch(15% 0.016 238.2)",
+          "oklch(25% 0.016 238.2)",
+          "oklch(37% 0.016 238.2)",
+          "oklch(49% 0.016 238.2)",
+          "oklch(61% 0.016 238.2)",
+          "oklch(73% 0.016 238.2)",
+          "oklch(85% 0.016 238.2)",
+          "oklch(95% 0.016 238.2)"
+        ]
+      },
+      "prussian-blue": {
+        "role": "primary",
+        "displayName": "Prussian Blue",
+        "canonical": "#2c5d87",
+        "oklch": "oklch(46.4% 0.087 246.9)",
+        "tonalRamp": [
+          "oklch(15% 0.087 246.9)",
+          "oklch(25% 0.087 246.9)",
+          "oklch(37% 0.087 246.9)",
+          "oklch(49% 0.087 246.9)",
+          "oklch(61% 0.087 246.9)",
+          "oklch(73% 0.087 246.9)",
+          "oklch(85% 0.087 246.9)",
+          "oklch(95% 0.087 246.9)"
+        ]
+      },
+      "prussian-wash": {
+        "role": "primary",
+        "displayName": "Prussian Wash",
+        "canonical": "#d8e2eb",
+        "oklch": "oklch(90.8% 0.016 245.1)",
+        "tonalRamp": [
+          "oklch(15% 0.016 245.1)",
+          "oklch(25% 0.016 245.1)",
+          "oklch(37% 0.016 245.1)",
+          "oklch(49% 0.016 245.1)",
+          "oklch(61% 0.016 245.1)",
+          "oklch(73% 0.016 245.1)",
+          "oklch(85% 0.016 245.1)",
+          "oklch(95% 0.016 245.1)"
+        ]
+      },
+      "madder": {
+        "role": "secondary",
+        "displayName": "Madder",
+        "canonical": "#a8432d",
+        "oklch": "oklch(51.6% 0.138 33.9)",
+        "tonalRamp": [
+          "oklch(15% 0.138 33.9)",
+          "oklch(25% 0.138 33.9)",
+          "oklch(37% 0.138 33.9)",
+          "oklch(49% 0.138 33.9)",
+          "oklch(61% 0.138 33.9)",
+          "oklch(73% 0.138 33.9)",
+          "oklch(85% 0.138 33.9)",
+          "oklch(95% 0.138 33.9)"
+        ]
+      },
+      "madder-wash": {
+        "role": "secondary",
+        "displayName": "Madder Wash",
+        "canonical": "#f0ddd6",
+        "oklch": "oklch(91.1% 0.023 41.4)",
+        "tonalRamp": [
+          "oklch(15% 0.023 41.4)",
+          "oklch(25% 0.023 41.4)",
+          "oklch(37% 0.023 41.4)",
+          "oklch(49% 0.023 41.4)",
+          "oklch(61% 0.023 41.4)",
+          "oklch(73% 0.023 41.4)",
+          "oklch(85% 0.023 41.4)",
+          "oklch(95% 0.023 41.4)"
+        ]
+      },
+      "sap-green": {
+        "role": "tertiary",
+        "displayName": "Sap Green",
+        "canonical": "#4f6a2e",
+        "oklch": "oklch(48.8% 0.092 129.4)",
+        "tonalRamp": [
+          "oklch(15% 0.092 129.4)",
+          "oklch(25% 0.092 129.4)",
+          "oklch(37% 0.092 129.4)",
+          "oklch(49% 0.092 129.4)",
+          "oklch(61% 0.092 129.4)",
+          "oklch(73% 0.092 129.4)",
+          "oklch(85% 0.092 129.4)",
+          "oklch(95% 0.092 129.4)"
+        ]
+      },
+      "sap-wash": {
+        "role": "tertiary",
+        "displayName": "Sap Wash",
+        "canonical": "#dfe7d2",
+        "oklch": "oklch(91.6% 0.029 124.0)",
+        "tonalRamp": [
+          "oklch(15% 0.029 124.0)",
+          "oklch(25% 0.029 124.0)",
+          "oklch(37% 0.029 124.0)",
+          "oklch(49% 0.029 124.0)",
+          "oklch(61% 0.029 124.0)",
+          "oklch(73% 0.029 124.0)",
+          "oklch(85% 0.029 124.0)",
+          "oklch(95% 0.029 124.0)"
+        ]
+      },
+      "gamboge": {
+        "role": "tertiary",
+        "displayName": "Gamboge",
+        "canonical": "#86601a",
+        "oklch": "oklch(51.6% 0.097 78.1)",
+        "tonalRamp": [
+          "oklch(15% 0.097 78.1)",
+          "oklch(25% 0.097 78.1)",
+          "oklch(37% 0.097 78.1)",
+          "oklch(49% 0.097 78.1)",
+          "oklch(61% 0.097 78.1)",
+          "oklch(73% 0.097 78.1)",
+          "oklch(85% 0.097 78.1)",
+          "oklch(95% 0.097 78.1)"
+        ]
+      },
+      "gamboge-wash": {
+        "role": "tertiary",
+        "displayName": "Gamboge Wash",
+        "canonical": "#f2e5c6",
+        "oklch": "oklch(92.4% 0.043 88.0)",
+        "tonalRamp": [
+          "oklch(15% 0.043 88.0)",
+          "oklch(25% 0.043 88.0)",
+          "oklch(37% 0.043 88.0)",
+          "oklch(49% 0.043 88.0)",
+          "oklch(61% 0.043 88.0)",
+          "oklch(73% 0.043 88.0)",
+          "oklch(85% 0.043 88.0)",
+          "oklch(95% 0.043 88.0)"
+        ]
+      },
+      "command-paper": {
+        "role": "neutral",
+        "displayName": "Command Paper",
+        "canonical": "#e3e7e3",
+        "oklch": "oklch(92.4% 0.007 145.5)",
+        "tonalRamp": [
+          "oklch(15% 0.007 145.5)",
+          "oklch(25% 0.007 145.5)",
+          "oklch(37% 0.007 145.5)",
+          "oklch(49% 0.007 145.5)",
+          "oklch(61% 0.007 145.5)",
+          "oklch(73% 0.007 145.5)",
+          "oklch(85% 0.007 145.5)",
+          "oklch(95% 0.007 145.5)"
+        ]
+      },
+      "command-dim": {
+        "role": "neutral",
+        "displayName": "Command Dim",
+        "canonical": "#8e9aa1",
+        "oklch": "oklch(67.9% 0.017 233.2)",
+        "tonalRamp": [
+          "oklch(15% 0.017 233.2)",
+          "oklch(25% 0.017 233.2)",
+          "oklch(37% 0.017 233.2)",
+          "oklch(49% 0.017 233.2)",
+          "oklch(61% 0.017 233.2)",
+          "oklch(73% 0.017 233.2)",
+          "oklch(85% 0.017 233.2)",
+          "oklch(95% 0.017 233.2)"
+        ]
+      },
+      "steel-ground": {
+        "role": "neutral",
+        "displayName": "Steel Ground",
+        "canonical": "#12171c",
+        "oklch": "oklch(20.2% 0.013 248.5)",
+        "tonalRamp": [
+          "oklch(15% 0.013 248.5)",
+          "oklch(25% 0.013 248.5)",
+          "oklch(37% 0.013 248.5)",
+          "oklch(49% 0.013 248.5)",
+          "oklch(61% 0.013 248.5)",
+          "oklch(73% 0.013 248.5)",
+          "oklch(85% 0.013 248.5)",
+          "oklch(95% 0.013 248.5)"
+        ],
+        "theme": "dark"
+      },
+      "steel-sunk": {
+        "role": "neutral",
+        "displayName": "Steel Sunk",
+        "canonical": "#0d1115",
+        "oklch": "oklch(17.5% 0.010 248.4)",
+        "tonalRamp": [
+          "oklch(15% 0.010 248.4)",
+          "oklch(25% 0.010 248.4)",
+          "oklch(37% 0.010 248.4)",
+          "oklch(49% 0.010 248.4)",
+          "oklch(61% 0.010 248.4)",
+          "oklch(73% 0.010 248.4)",
+          "oklch(85% 0.010 248.4)",
+          "oklch(95% 0.010 248.4)"
+        ],
+        "theme": "dark"
+      },
+      "steel-field": {
+        "role": "neutral",
+        "displayName": "Steel Field",
+        "canonical": "#192128",
+        "oklch": "oklch(24.3% 0.018 245.0)",
+        "tonalRamp": [
+          "oklch(15% 0.018 245.0)",
+          "oklch(25% 0.018 245.0)",
+          "oklch(37% 0.018 245.0)",
+          "oklch(49% 0.018 245.0)",
+          "oklch(61% 0.018 245.0)",
+          "oklch(73% 0.018 245.0)",
+          "oklch(85% 0.018 245.0)",
+          "oklch(95% 0.018 245.0)"
+        ],
+        "theme": "dark"
+      },
+      "steel-line": {
+        "role": "neutral",
+        "displayName": "Steel Line",
+        "canonical": "#dce1de",
+        "oklch": "oklch(90.5% 0.007 160.1)",
+        "tonalRamp": [
+          "oklch(15% 0.007 160.1)",
+          "oklch(25% 0.007 160.1)",
+          "oklch(37% 0.007 160.1)",
+          "oklch(49% 0.007 160.1)",
+          "oklch(61% 0.007 160.1)",
+          "oklch(73% 0.007 160.1)",
+          "oklch(85% 0.007 160.1)",
+          "oklch(95% 0.007 160.1)"
+        ],
+        "theme": "dark"
+      },
+      "steel-muted": {
+        "role": "neutral",
+        "displayName": "Steel Muted",
+        "canonical": "#a6b0b3",
+        "oklch": "oklch(75.0% 0.012 217.6)",
+        "tonalRamp": [
+          "oklch(15% 0.012 217.6)",
+          "oklch(25% 0.012 217.6)",
+          "oklch(37% 0.012 217.6)",
+          "oklch(49% 0.012 217.6)",
+          "oklch(61% 0.012 217.6)",
+          "oklch(73% 0.012 217.6)",
+          "oklch(85% 0.012 217.6)",
+          "oklch(95% 0.012 217.6)"
+        ],
+        "theme": "dark"
+      },
+      "steel-faint": {
+        "role": "neutral",
+        "displayName": "Steel Faint",
+        "canonical": "#8d989d",
+        "oklch": "oklch(67.2% 0.015 226.7)",
+        "tonalRamp": [
+          "oklch(15% 0.015 226.7)",
+          "oklch(25% 0.015 226.7)",
+          "oklch(37% 0.015 226.7)",
+          "oklch(49% 0.015 226.7)",
+          "oklch(61% 0.015 226.7)",
+          "oklch(73% 0.015 226.7)",
+          "oklch(85% 0.015 226.7)",
+          "oklch(95% 0.015 226.7)"
+        ],
+        "theme": "dark"
+      },
+      "steel-fine-rule": {
+        "role": "neutral",
+        "displayName": "Steel Fine Rule",
+        "canonical": "#2c363f",
+        "oklch": "oklch(32.7% 0.021 245.7)",
+        "tonalRamp": [
+          "oklch(15% 0.021 245.7)",
+          "oklch(25% 0.021 245.7)",
+          "oklch(37% 0.021 245.7)",
+          "oklch(49% 0.021 245.7)",
+          "oklch(61% 0.021 245.7)",
+          "oklch(73% 0.021 245.7)",
+          "oklch(85% 0.021 245.7)",
+          "oklch(95% 0.021 245.7)"
+        ],
+        "theme": "dark"
+      },
+      "steel-plate-mark": {
+        "role": "neutral",
+        "displayName": "Steel Plate Mark",
+        "canonical": "#66727c",
+        "oklch": "oklch(54.6% 0.021 243.2)",
+        "tonalRamp": [
+          "oklch(15% 0.021 243.2)",
+          "oklch(25% 0.021 243.2)",
+          "oklch(37% 0.021 243.2)",
+          "oklch(49% 0.021 243.2)",
+          "oklch(61% 0.021 243.2)",
+          "oklch(73% 0.021 243.2)",
+          "oklch(85% 0.021 243.2)",
+          "oklch(95% 0.021 243.2)"
+        ],
+        "theme": "dark"
+      },
+      "steel-prussian": {
+        "role": "primary",
+        "displayName": "Steel Prussian",
+        "canonical": "#86b4da",
+        "oklch": "oklch(75.1% 0.074 243.9)",
+        "tonalRamp": [
+          "oklch(15% 0.074 243.9)",
+          "oklch(25% 0.074 243.9)",
+          "oklch(37% 0.074 243.9)",
+          "oklch(49% 0.074 243.9)",
+          "oklch(61% 0.074 243.9)",
+          "oklch(73% 0.074 243.9)",
+          "oklch(85% 0.074 243.9)",
+          "oklch(95% 0.074 243.9)"
+        ],
+        "theme": "dark"
+      },
+      "steel-prussian-wash": {
+        "role": "primary",
+        "displayName": "Steel Prussian Wash",
+        "canonical": "#1e3042",
+        "oklch": "oklch(30.2% 0.040 249.3)",
+        "tonalRamp": [
+          "oklch(15% 0.040 249.3)",
+          "oklch(25% 0.040 249.3)",
+          "oklch(37% 0.040 249.3)",
+          "oklch(49% 0.040 249.3)",
+          "oklch(61% 0.040 249.3)",
+          "oklch(73% 0.040 249.3)",
+          "oklch(85% 0.040 249.3)",
+          "oklch(95% 0.040 249.3)"
+        ],
+        "theme": "dark"
+      },
+      "steel-madder": {
+        "role": "secondary",
+        "displayName": "Steel Madder",
+        "canonical": "#e6866d",
+        "oklch": "oklch(71.8% 0.124 35.5)",
+        "tonalRamp": [
+          "oklch(15% 0.124 35.5)",
+          "oklch(25% 0.124 35.5)",
+          "oklch(37% 0.124 35.5)",
+          "oklch(49% 0.124 35.5)",
+          "oklch(61% 0.124 35.5)",
+          "oklch(73% 0.124 35.5)",
+          "oklch(85% 0.124 35.5)",
+          "oklch(95% 0.124 35.5)"
+        ],
+        "theme": "dark"
+      },
+      "steel-madder-wash": {
+        "role": "secondary",
+        "displayName": "Steel Madder Wash",
+        "canonical": "#3d2620",
+        "oklch": "oklch(29.5% 0.037 35.3)",
+        "tonalRamp": [
+          "oklch(15% 0.037 35.3)",
+          "oklch(25% 0.037 35.3)",
+          "oklch(37% 0.037 35.3)",
+          "oklch(49% 0.037 35.3)",
+          "oklch(61% 0.037 35.3)",
+          "oklch(73% 0.037 35.3)",
+          "oklch(85% 0.037 35.3)",
+          "oklch(95% 0.037 35.3)"
+        ],
+        "theme": "dark"
+      },
+      "steel-sap": {
+        "role": "tertiary",
+        "displayName": "Steel Sap",
+        "canonical": "#a3c078",
+        "oklch": "oklch(76.9% 0.102 126.5)",
+        "tonalRamp": [
+          "oklch(15% 0.102 126.5)",
+          "oklch(25% 0.102 126.5)",
+          "oklch(37% 0.102 126.5)",
+          "oklch(49% 0.102 126.5)",
+          "oklch(61% 0.102 126.5)",
+          "oklch(73% 0.102 126.5)",
+          "oklch(85% 0.102 126.5)",
+          "oklch(95% 0.102 126.5)"
+        ],
+        "theme": "dark"
+      },
+      "steel-sap-wash": {
+        "role": "tertiary",
+        "displayName": "Steel Sap Wash",
+        "canonical": "#253220",
+        "oklch": "oklch(29.9% 0.036 137.2)",
+        "tonalRamp": [
+          "oklch(15% 0.036 137.2)",
+          "oklch(25% 0.036 137.2)",
+          "oklch(37% 0.036 137.2)",
+          "oklch(49% 0.036 137.2)",
+          "oklch(61% 0.036 137.2)",
+          "oklch(73% 0.036 137.2)",
+          "oklch(85% 0.036 137.2)",
+          "oklch(95% 0.036 137.2)"
+        ],
+        "theme": "dark"
+      },
+      "steel-gamboge": {
+        "role": "tertiary",
+        "displayName": "Steel Gamboge",
+        "canonical": "#e2b45a",
+        "oklch": "oklch(79.4% 0.120 82.3)",
+        "tonalRamp": [
+          "oklch(15% 0.120 82.3)",
+          "oklch(25% 0.120 82.3)",
+          "oklch(37% 0.120 82.3)",
+          "oklch(49% 0.120 82.3)",
+          "oklch(61% 0.120 82.3)",
+          "oklch(73% 0.120 82.3)",
+          "oklch(85% 0.120 82.3)",
+          "oklch(95% 0.120 82.3)"
+        ],
+        "theme": "dark"
+      },
+      "steel-gamboge-wash": {
+        "role": "tertiary",
+        "displayName": "Steel Gamboge Wash",
+        "canonical": "#3a3019",
+        "oklch": "oklch(31.4% 0.039 86.7)",
+        "tonalRamp": [
+          "oklch(15% 0.039 86.7)",
+          "oklch(25% 0.039 86.7)",
+          "oklch(37% 0.039 86.7)",
+          "oklch(49% 0.039 86.7)",
+          "oklch(61% 0.039 86.7)",
+          "oklch(73% 0.039 86.7)",
+          "oklch(85% 0.039 86.7)",
+          "oklch(95% 0.039 86.7)"
+        ],
+        "theme": "dark"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The h1 in the legend of Plate I. Roman."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Page h1s on the website and the tutorial title."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Plate h2s on the home page."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Website, tutorial and slide text; oldstyle figures."
+      },
+      "body-reading": {
+        "displayName": "Reading Mode",
+        "purpose": "Long notes and the tutorial in reading mode; word-spacing 0.06em, 36rem measure in the notes pane."
+      },
+      "running-head": {
+        "displayName": "Running Head",
+        "purpose": "Plate heads, table heads, contents titles; all small caps."
+      },
+      "interface": {
+        "displayName": "Interface",
+        "purpose": "Browser view controls and lists."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Buttons, tabs, navigation."
+      },
+      "mono": {
+        "displayName": "Mono",
+        "purpose": "Commands, paths, front matter, previews, the evidence line."
+      }
+    },
+    "shadows": [],
+    "stateMarks": [
+      {
+        "name": "mode-chosen",
+        "value": "box-shadow: inset 0 -2px 0 var(--accent)",
+        "purpose": "The chosen mode's underline; a state mark, not elevation."
+      },
+      {
+        "name": "composer-focus",
+        "value": "box-shadow: 0 0 0 3px var(--accent-soft)",
+        "purpose": "Focus wash around the browser view's composer."
+      },
+      {
+        "name": "engraved-hatch",
+        "value": "repeating-linear-gradient(to bottom, transparent 0 2px, color-mix(in srgb, var(--text) 9%, transparent) 2px 3px)",
+        "purpose": "The only gradient: the drawn window bar on Plate I."
+      }
+    ],
+    "motion": [
+      {
+        "name": "leader-draw",
+        "value": "0.5s cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "A leader line drawing to its part on Plate I."
+      },
+      {
+        "name": "plate-rest",
+        "value": "opacity 0.22s ease, background-color 0.22s ease",
+        "purpose": "Other parts resting to 30% while one figure is inked."
+      },
+      {
+        "name": "dialog-rise",
+        "value": "0.16s ease-out, translateY(6px) to 0",
+        "purpose": "Browser view dialogs opening."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "animation and transition none",
+        "purpose": "Lines are shown, not drawn."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "site-nav",
+        "value": "76rem"
+      },
+      {
+        "name": "plate-two-column",
+        "value": "62rem"
+      },
+      {
+        "name": "tablet",
+        "value": "64rem"
+      },
+      {
+        "name": "narrow",
+        "value": "52rem"
+      },
+      {
+        "name": "site-phone",
+        "value": "34rem"
+      },
+      {
+        "name": "app-phone",
+        "value": "30rem"
+      }
+    ],
+    "themes": {
+      "dark": "Steel plate: each steel-* token replaces its light counterpart; selected by prefers-color-scheme unless data-theme=\"light\", or forced by data-theme=\"dark\"."
+    },
+    "surfaceTokenAliases": {
+      "web/app.css": {
+        "--researcher": "prussian-blue",
+        "--librarian": "madder",
+        "--add": "sap-green",
+        "--warn": "gamboge",
+        "--rem": "madder (defined, unused by rules)"
+      },
+      "workshop/assets/deck.css": {
+        "--rust": "madder",
+        "--green": "sap-green"
+      },
+      "tutorial/theme.scss": {
+        "$primary": "prussian-blue",
+        "$field": "plate-field",
+        "$sap": "sap-green"
+      }
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Button (website)",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The install and main calls on the website: ink fill, Prussian blue on hover.",
+      "html": "<a class=\"ds-button\" href=\"#\">Install Sub-Sub</a>",
+      "css": ".ds-button{display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1.1rem;border-radius:2px;background:var(--text,#16202a);color:var(--bg,#e9ece6);border:1px solid var(--text,#16202a);font-family:'Atkinson Hyperlegible Next',system-ui,sans-serif;font-weight:600;font-size:.95rem;text-decoration:none}.ds-button:hover{background:var(--accent,#2c5d87);border-color:var(--accent,#2c5d87)}.ds-button:focus-visible{outline:2px solid var(--accent,#2c5d87);outline-offset:3px}"
+    },
+    {
+      "name": "Quiet Button (website)",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "Secondary website action: transparent, plate-mark border.",
+      "html": "<a class=\"ds-button-quiet\" href=\"#\">Read the guide</a>",
+      "css": ".ds-button-quiet{display:inline-flex;padding:.6rem 1.1rem;border-radius:2px;background:transparent;color:var(--text,#16202a);border:1px solid var(--rule-strong,#7d878e);font-family:'Atkinson Hyperlegible Next',system-ui,sans-serif;font-weight:600;font-size:.95rem;text-decoration:none}.ds-button-quiet:hover{border-color:var(--text,#16202a)}.ds-button-quiet:focus-visible{outline:2px solid var(--accent,#2c5d87);outline-offset:3px}"
+    },
+    {
+      "name": "Mode Switch",
+      "kind": "nav",
+      "refersTo": "mode-researcher",
+      "description": "Researcher and Librarian; each keeps its own colour, chosen or not.",
+      "html": "<div class=\"ds-modes\"><button aria-pressed=\"true\" class=\"ds-res\">Researcher</button><button aria-pressed=\"false\" class=\"ds-lib\">Librarian</button></div>",
+      "css": ".ds-modes{display:inline-flex;border:1px solid #7d878e;background:#f4f5f1}.ds-modes button{padding:.3rem .8rem;border:0;border-radius:0;background:none;font:400 .86rem 'Atkinson Hyperlegible Next',system-ui,sans-serif;cursor:pointer}.ds-res{color:#2c5d87}.ds-lib{color:#a8432d}.ds-res[aria-pressed=true]{background:#d8e2eb;font-weight:600;box-shadow:inset 0 -2px 0 #2c5d87}.ds-lib[aria-pressed=true]{background:#f0ddd6;font-weight:600;box-shadow:inset 0 -2px 0 #a8432d}.ds-modes button:focus-visible{outline:2px solid #2c5d87;outline-offset:2px}"
+    },
+    {
+      "name": "Running Head",
+      "kind": "custom",
+      "refersTo": "running-head",
+      "description": "Opens a plate or page; replaces kickers and eyebrows.",
+      "html": "<p class=\"ds-runhead\"><span>Sub-Sub</span><span class=\"mid\">What you get</span><span>Plate II.</span></p>",
+      "css": ".ds-runhead{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem 1.5rem;flex-wrap:wrap;padding:0 0 .35rem;border-bottom:1px solid #16202a;font:400 1.02rem/1.3 Literata,Georgia,serif;font-variant-caps:all-small-caps;font-variant-numeric:oldstyle-nums;letter-spacing:.08em;color:#44505b}.ds-runhead .mid{font-style:italic;font-variant-caps:normal;letter-spacing:0}"
+    },
+    {
+      "name": "Evidence Line",
+      "kind": "custom",
+      "refersTo": "mono",
+      "description": "What a note was written from, drawn by line.",
+      "html": "<p class=\"ds-ev\">evidence: <span class=\"full\">full text</span></p><p class=\"ds-ev\">evidence: <span class=\"abstract\">abstract</span></p><p class=\"ds-ev\">evidence: <span class=\"meta\">metadata</span></p>",
+      "css": ".ds-ev{margin:0 0 .6rem;font:400 .8rem 'Atkinson Hyperlegible Mono',ui-monospace,monospace;color:#44505b}.ds-ev span{color:#16202a;padding-bottom:2px;border-bottom:2px solid}.ds-ev .full{border-color:#4f6a2e;border-bottom-style:solid}.ds-ev .abstract{border-color:#86601a;border-bottom-style:dashed}.ds-ev .meta{border-color:#44505b;border-bottom-style:dotted}"
+    },
+    {
+      "name": "Preview Field",
+      "kind": "card",
+      "refersTo": "preview-field",
+      "description": "A library change before the yes: dashed gamboge; additions in sap, removals struck.",
+      "html": "<pre class=\"ds-preview\">tags: <span class=\"add\">+ asthma</span> <span class=\"rem\">astma</span></pre>",
+      "css": ".ds-preview{margin:0;padding:.8rem .95rem;background:#e9ece6;border:1px dashed #86601a;border-radius:0;font:400 .78rem/1.7 'Atkinson Hyperlegible Mono',ui-monospace,monospace;white-space:pre-wrap;color:#16202a}.ds-preview .add{padding:.1em .3em;color:#4f6a2e;background:#dfe7d2}.ds-preview .rem{padding:.1em .3em;color:#44505b;text-decoration:line-through;text-decoration-thickness:1px}"
+    },
+    {
+      "name": "Command Block",
+      "kind": "custom",
+      "refersTo": "command-block",
+      "description": "An install command on ink, with its prompt.",
+      "html": "<pre class=\"ds-cmd\"><code>npm install -g subsub</code></pre>",
+      "css": ".ds-cmd{margin:0;padding:.85rem 1rem;background:#16202a;color:#e3e7e3;border-radius:2px;font:400 .86rem/1.55 'Atkinson Hyperlegible Mono',ui-monospace,monospace;overflow-x:auto}.ds-cmd code::before{content:'$ ';color:#8e9aa1}"
+    },
+    {
+      "name": "Printed Table",
+      "kind": "custom",
+      "refersTo": "running-head",
+      "description": "Tables as in a printed paper.",
+      "html": "<table class=\"ds-table\"><thead><tr><th>Note</th><th>Evidence</th></tr></thead><tbody><tr><td>Smith 2021</td><td>full text</td></tr><tr><td>Lind 2020</td><td>abstract</td></tr></tbody></table>",
+      "css": ".ds-table{border-collapse:collapse;width:100%;border-top:1.5px solid #16202a;border-bottom:1.5px solid #16202a;font:400 .95rem Literata,Georgia,serif;font-variant-numeric:lining-nums tabular-nums;color:#16202a}.ds-table th,.ds-table td{text-align:left;padding:.55rem .9rem .55rem 0;border-bottom:1px solid #c6ccc6}.ds-table th{font-weight:400;font-variant-caps:all-small-caps;letter-spacing:.07em;color:#44505b;border-bottom:1px solid #16202a}.ds-table tr:last-child td{border-bottom:0}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Natural-History Plate",
+    "overview": "**Creative North Star: \"The Natural-History Plate\"**\n\nSub-Sub is drawn as an engraved plate from an 1839 natural history: a cool grey-green sheet, a lighter plate field inside a plate mark, copperplate ink for type and fine rules, and a few transparent hand-coloured washes as the only colour. The product is shown as a specimen. Its parts carry figure numbers in the margin and leader lines, and an italic caption below explains them. Every claim is a figure that can be checked.\n\nThe same world runs on four surfaces in four registers: the website (persuade, then read), the tutorial (read), the workshop slides (present) and the browser view (operate). Dark mode is the steel plate itself, with a blue-black ground, pale engraved line and brighter washes. The density is that of a printed paper. Type does the work and colour marks meaning. Decoration is limited to what an engraver would cut.\n\nThe world refuses the category's split hero (headline beside a screenshot, feature cards below) and the usual AI design tropes. It must also not become precious: the controls stay plain and legible.",
+    "keyCharacteristics": [
+      "Washes are the only colour, and each wash has one meaning.",
+      "State is drawn by line: solid, dashed, dotted, struck.",
+      "Running heads in small capitals replace labels above headings.",
+      "A serif with a true italic for text and captions, a hyperlegible sans for controls.",
+      "Square corners, flat surfaces, fine rules."
+    ],
+    "rules": [
+      {
+        "name": "The One Wash, One Meaning Rule",
+        "body": "Prussian blue is the Researcher and links; madder is the Librarian; sap green is applied, checked or full text; gamboge is preview, pending or abstract. No wash is used for decoration or for a second meaning.",
+        "section": "colors"
+      },
+      {
+        "name": "The Ink Error Rule",
+        "body": "An error is drawn in ink: a hollow mark and a word, in the text colour, at weight 600. Errors are never red, because madder belongs to the Librarian.",
+        "section": "colors"
+      },
+      {
+        "name": "The Struck Removal Rule",
+        "body": "A removal is struck through (1px line-through) in muted ink, with no fill. It is never coloured.",
+        "section": "colors"
+      },
+      {
+        "name": "The Own Colour Rule",
+        "body": "Each mode button in the browser view keeps its own colour whether it is chosen or not. The chosen one also gets its wash and a 2px underline in its colour.",
+        "section": "colors"
+      },
+      {
+        "name": "The Roman Heading Rule",
+        "body": "Headings are roman. True italics are for captions, figure numbers and labels, quotes and blockquotes, the subtitle, and the middle of a running head.",
+        "section": "typography"
+      },
+      {
+        "name": "The Small Capitals Rule",
+        "body": "Plate numbers, figure references, table heads and running heads use real small capitals (all-small-caps, 0.07 to 0.08em tracking), never uppercase letters with tracking.",
+        "section": "typography"
+      },
+      {
+        "name": "The Unbroken Name Rule",
+        "body": "The name Sub-Sub never breaks, least of all at its hyphen (white-space: nowrap on every occurrence in running text).",
+        "section": "typography"
+      },
+      {
+        "name": "The Engraved Surface Rule",
+        "body": "No drop shadows, no blur, no glassmorphism, no gradients. The one exception is the fine engraved hatch (1px lines every 3px at 9% ink) on the drawn window bar of Plate I.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Line State Rule",
+        "body": "State is drawn by line before colour: solid for full text and applied, dashed for abstract and preview, dotted for metadata, struck through for removed or done. The same four lines appear on the website's Plate II, in the browser view's evidence line, on the workshop's evidence ladder and in the tutorial's checklist.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "**Do** give each wash one meaning, and use the same meaning on every surface.",
+      "**Do** draw state by line (solid, dashed, dotted, struck) so it reads without colour.",
+      "**Do** open a plate or page with a running head in small capitals over a 1px ink rule.",
+      "**Do** keep headings roman and keep true italics for captions, figure labels, quotes and running-head middles.",
+      "**Do** set tables as in a printed paper: heavy rules above and below, a fine rule under the head, small-caps head.",
+      "**Do** keep the name Sub-Sub on one line.",
+      "**Do** offer reading mode for long text: 1.2rem, 1.9 leading, 0.06em word spacing, 36rem measure, remembered across visits.",
+      "**Do** give every figure a text equivalent and keep every interaction usable by keyboard and touch."
+    ],
+    "donts": [
+      "**Don't** put kickers, eyebrows or any label above a heading; the running head does that job.",
+      "**Don't** use red, or madder, for errors or removals; errors are ink with a hollow mark and a word, removals are struck.",
+      "**Don't** use shadows, blur, glass or gradients; the only gradient is the engraved hatch on Plate I's window bar.",
+      "**Don't** round corners past 3px or use pill shapes for buttons and fields.",
+      "**Don't** use uppercase with tracking for labels; use small capitals.",
+      "**Don't** set the h1 in italic.",
+      "**Don't** use a split hero with feature cards, or emoji, anywhere."
+    ]
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "title": "Choose the visual world for Sub-Sub",
+  "question": "The roll assigned The Natural-History Plate. Keep it, take my pick or the category standard, or re-roll.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "The Natural-History Plate",
+      "kicker": "THE ROLL",
+      "lineage": "Engraved natural-history plates, 1820-1850: Beale's Natural History of the Sperm Whale (1839) and Scoresby's Arctic Regions (1820), the plates Melville read",
+      "thesis": "Every claim is a figure. Sub-Sub is shown the way a plate shows a specimen: each part numbered, labelled with a leader line and captioned, so the page proves what the tool does instead of saying it.",
+      "palette": ["#eef0ec", "#16202a", "#2c5d87", "#a8432d", "#5f7a3c", "#c48b2c"],
+      "materials": ["engraved line and hatching", "the plate mark (the pressed border of a copperplate)", "transparent hand-coloured washes", "letterpress captions with a true italic"],
+      "viewport": "PLATE I, framed by a plate mark. The browser view at work is the specimen, drawn large, with Fig. 1 to Fig. 5 labelled by leader lines: the preview, the evidence line, a quote with its page link, Undo, the mode. Left of it, the legend: the name, one line on what it does, and the install command with its OS tabs, the primary action. Below, the italic caption that explains the figures.",
+      "risk": "Tips into museum-precious if the plates become ornament; every label must point at something real and the page must stay fast for a clinician with ten minutes.",
+      "raised": [
+        {"from": "challenger-jackfield", "raise": "State is drawn by line, never by colour alone: full text a solid rule, abstract dashed, metadata dotted; previewed, applied and undone each with their own mark."},
+        {"from": "challenger-splitflap", "raise": "Rows are live entities in a fixed grid: tool rows and library results change state in place, without reflowing the plate."},
+        {"from": "challenger-installer", "raise": "The install path is one numbered sequence with one default action at each step."},
+        {"from": "challenger-raku", "raise": "Processes are shown as stages with a still record of each result: the flow of works, the screening log."},
+        {"from": "challenger-miura", "raise": "Every figure and diagram has a full text equivalent: captions for figures, a table for the flow."},
+        {"from": "challenger-cascade", "raise": "Only the figure in focus is fully inked; the rest of the plate rests in plate tone until pointed at."}
+      ],
+      "html": "<div style='border:3px double #16202a;padding:14px;font-family:serif;background:#eef0ec;color:#16202a'><div style='display:flex;justify-content:space-between;font-size:11px;letter-spacing:.12em'><span>SUB-SUB</span><span>PLATE I.</span></div><div style='display:grid;grid-template-columns:1fr 1.6fr;gap:14px;margin-top:10px'><div><div style='font-size:22px;line-height:1.1'>Your research assistant, working from your own <i>Zotero</i> library.</div><div style='margin-top:10px;font:12px monospace;background:#16202a;color:#eef0ec;padding:6px'>curl -fsSL subsub…/install.sh | sh</div></div><div style='position:relative;border:1px solid #16202a;height:150px;background:#fff'><span style='position:absolute;left:-10px;top:20px;font-size:11px'>Fig. 1</span><span style='position:absolute;right:-12px;top:60px;font-size:11px'>Fig. 3</span><span style='position:absolute;left:30%;bottom:-14px;font-size:11px'>Fig. 4</span><div style='position:absolute;inset:20px 30px;border:1px dashed #2c5d87'></div></div></div><div style='margin-top:16px;font-style:italic;font-size:12px;text-align:center'>Fig. 1. The preview: nothing changes until you select Yes. Fig. 3. A quote, checked against the full text, linked to its page.</div></div>"
+    },
+    {
+      "id": "model-pick",
+      "label": "Melville's Marginalia",
+      "kicker": "IMPECCABLE’S PICK",
+      "lineage": "The pencil marks in the books Melville owned (Melville's Marginalia Online): underlines, X marks, ticks and notes in his Shakespeare and Milton",
+      "thesis": "Sub-Sub reads the way Melville read: the interface's marks are a reader's pencil marks, and every quote, question and check looks like a mark made in a real book.",
+      "palette": ["#e7e4dc", "#3e3d3a", "#6b6a66", "#29506e", "#8c2f22"],
+      "materials": ["graphite underline and marginal tick", "bound pages with a gutter", "bookcloth"],
+      "viewport": "An open spread: on the left page the product's claim set as text with pencil underlines; on the right, the margin where Sub-Sub's checks sit as notes, with the install command written as the last note.",
+      "risk": "Pencil on a pale page is where most bookish designs land; it needs a ground and colour that refuse the cream-and-serif default, or it reads like every literary site.",
+      "html": "<div style='display:grid;grid-template-columns:1fr 1fr;border:1px solid #3e3d3a;background:#e7e4dc;font-family:serif;color:#3e3d3a'><div style='padding:14px;border-right:2px solid #6b6a66'><div style='font-size:20px;line-height:1.2'>Your research assistant, working from your <u>own Zotero library</u>.</div><div style='margin-top:10px;font-size:12px'>It reads what you have, finds what you miss, and <u>says what it read</u>.</div></div><div style='padding:14px;font-style:italic;font-size:12px'><div>&#10003; quote checked, p. 4</div><div>&#215; not in the full text</div><div style='margin-top:10px;font:12px monospace'>curl -fsSL …/install.sh | sh</div></div></div>"
+    },
+    {
+      "id": "challenger-jackfield",
+      "label": "Normalled Jackfield",
+      "verdict": "declined",
+      "lineage": "machine-room normalling schedules",
+      "palette": ["#0b0b0b", "#f2a33a"],
+      "materials": ["black glass", "amber link lines"],
+      "case": "Fuses poorly: neither students nor clinicians see themselves in a patch bay, and it loses the Moby-Dick brief; its state grammar is strong.",
+      "kept": "State drawn by stroke pattern, never by colour alone.",
+      "hero": "https://impeccable.style/worlds/cards/operate-b-normalled-jackfield-hero.webp"
+    },
+    {
+      "id": "challenger-splitflap",
+      "label": "Split-Flap Concourse",
+      "verdict": "declined",
+      "lineage": "rail departure boards",
+      "palette": ["#111111", "#f4f4f0", "#e7a33e"],
+      "materials": ["flap faces", "steel frame"],
+      "case": "Fuses poorly: works as departing trains is a stretch for a reading tool, and it is far from the brief.",
+      "kept": "Live rows that change state in place without breaking the grid.",
+      "hero": "https://impeccable.style/worlds/cards/signals-instruments-split-flap-concourse-hero.webp"
+    },
+    {
+      "id": "challenger-installer",
+      "label": "Shareware Installer",
+      "verdict": "declined",
+      "lineage": "1990s install wizards",
+      "palette": ["#c0c0c0", "#000080"],
+      "materials": ["bevelled chrome", "dithered banner"],
+      "case": "Fuses poorly: retro novelty, and it reads as a joke beside research.",
+      "kept": "One linear sequence with one default action per step.",
+      "hero": "https://impeccable.style/worlds/cards/digital-design-canon-shareware-installer-screens-hero.webp"
+    },
+    {
+      "id": "challenger-raku",
+      "label": "Raku Smoke Flash",
+      "verdict": "declined",
+      "lineage": "raku firing",
+      "palette": ["#141414", "#d9d9d6", "#e0612a"],
+      "materials": ["carbonised clay", "crackle glaze"],
+      "case": "Fuses poorly: chance and smoke are the opposite of checked evidence.",
+      "kept": "Processes as stages, with a still record of each result.",
+      "hero": "https://impeccable.style/worlds/cards/clay-ceramics-fracture-raku-smoke-flash-hero.webp"
+    },
+    {
+      "id": "challenger-miura",
+      "label": "Miura-Fold Sheet",
+      "verdict": "declined",
+      "lineage": "deployable aerospace folds",
+      "palette": ["#f6f6f2", "#c9a227", "#7da7c9"],
+      "materials": ["scored sheet", "gold foil"],
+      "case": "Fuses poorly: elegant engineering with no line to readers or libraries.",
+      "kept": "Every diagram keeps a complete accessible equivalent.",
+      "hero": "https://impeccable.style/worlds/cards/paper-folds-pleats-deployable-miura-orbit-sheet-hero.webp"
+    },
+    {
+      "id": "challenger-cascade",
+      "label": "Code Cascade Terminal",
+      "verdict": "declined",
+      "lineage": "film glyph-rain terminals",
+      "palette": ["#000000", "#8cff8c"],
+      "materials": ["phosphor", "falling glyphs"],
+      "case": "Fuses poorly: the hacker register is the generic AI-tool look the brief rules out.",
+      "kept": "Only the item in focus is fully legible; the rest rests until pointed at.",
+      "hero": "https://impeccable.style/worlds/cards/pop-culture-shelf-code-cascade-terminal-hero.webp"
+    }
+  ],
+  "reroll": {"registers": ["safer", "bolder"]},
+  "canon": true,
+  "canonCard": {
+    "label": "The category standard",
+    "thesis": "A research-tool product site at full craft: white ground, a clean sans, a large product screenshot, one blue accent, features in a grid.",
+    "palette": ["#ffffff", "#111827", "#2563eb"],
+    "materials": ["clean grid", "product screenshots"],
+    "viewport": "Headline and install command on the left, the browser view on the right, features below.",
+    "risk": "Indistinguishable from every AI research tool by design, which is the look you ruled out.",
+    "html": "<div style='display:grid;grid-template-columns:1fr 1.3fr;gap:14px;padding:14px;background:#fff;font-family:sans-serif;color:#111827'><div><div style='font-size:20px;font-weight:700'>Your research assistant, from your own Zotero library</div><div style='margin-top:8px;padding:6px;background:#2563eb;color:#fff;font-size:12px;border-radius:6px'>Install</div></div><div style='height:120px;border-radius:10px;background:#f3f4f6'></div></div>"
+  },
+  "steer": true
+}

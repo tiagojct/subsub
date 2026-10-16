@@ -113,7 +113,7 @@ Faça as tarefas por esta ordem. Durante as tarefas, anote o que correu mal e o 
 3. Abra a nota, por exemplo com o Obsidian ou com um editor de texto. Cada linha tem o item, as etiquetas atuais, as etiquetas propostas e o motivo.
 4. Corrija a coluna das etiquetas propostas. Para deixar um item como está, escreva `skip`.
 5. No Sub-Sub, escreva: `aplica a revisão Inbox/Zotero tag review 01.md`.
-6. Leia a pré-visualização. As etiquetas a acrescentar aparecem a verde e as etiquetas a retirar aparecem a vermelho.
+6. Leia a pré-visualização. As etiquetas a acrescentar aparecem a verde e as etiquetas a retirar aparecem riscadas.
 7. Para aplicar, selecione Sim. Para cancelar, selecione Não.
 
 ### 3. Importar um artigo

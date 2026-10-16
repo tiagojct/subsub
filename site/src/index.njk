@@ -7,108 +7,128 @@ description: A research assistant that works from your own Zotero library. It se
 alt: /pt/
 ---
 
-<section class="hero">
-	<div class="wrap hero-grid">
-		<div class="hero-text">
-			<h1>Your research assistant, working from your own Zotero library.</h1>
-			<p class="lead">Sub-Sub reads the papers in your Zotero library, finds the ones you are missing in PubMed, Europe PMC and OpenAlex, and writes notes that say what it read. You see every change to your library before it happens. It runs on your computer, in English or Portuguese.</p>
-			<p class="newcomer">New to Zotero or to AI tools? <a href="/students/">Start here</a> · <a href="/pt/estudantes/" lang="pt-PT" hreflang="pt-PT">Para estudantes, em português</a><br>Clinical researcher? <a href="/clinicians/">What it does for you, and what it is not</a></p>
+<section class="plate" aria-labelledby="plate-1">
+	<div class="wrap plate-mark">
+		<p class="runhead"><span>Sub-Sub</span><span class="mid">A research assistant for Zotero</span><span>Plate I.</span></p>
+		<div class="plate-grid">
+			<div class="legend">
+				<h1 id="plate-1">A research assistant that shows its evidence.</h1>
+				<p class="lead">Sub-Sub reads the papers in your Zotero library, finds the ones you are missing in PubMed, Europe PMC and OpenAlex, and writes notes that say what it read. You see every change to your library before it happens. It runs on your computer, in English or Portuguese.</p>
 
-			<div class="install" data-tabs>
-				<div class="install-tabs" role="tablist" aria-label="Install">
-					<button type="button" role="tab" id="tab-unix" data-os="unix" aria-controls="panel-unix" aria-selected="true">macOS and Linux</button>
-					<button type="button" role="tab" id="tab-win" data-os="windows" aria-controls="panel-win" aria-selected="false" tabindex="-1">Windows</button>
-					<button type="button" role="tab" id="tab-npm" aria-controls="panel-npm" aria-selected="false" tabindex="-1">npm</button>
+				<div class="install" data-tabs>
+					<div class="install-tabs" role="tablist" aria-label="Install">
+						<button type="button" role="tab" id="tab-unix" data-os="unix" aria-controls="panel-unix" aria-selected="true">macOS and Linux</button>
+						<button type="button" role="tab" id="tab-win" data-os="windows" aria-controls="panel-win" aria-selected="false" tabindex="-1">Windows</button>
+						<button type="button" role="tab" id="tab-npm" aria-controls="panel-npm" aria-selected="false" tabindex="-1">npm</button>
+					</div>
+					<div class="install-panel" role="tabpanel" id="panel-unix" aria-labelledby="tab-unix">
+						<pre class="cmd"><code>curl -fsSL https://subsub.tiagojacinto.eu/<wbr>install.sh | sh</code></pre>
+						<p>Paste in Terminal. It installs in your user folder; no administrator rights. <a href="/install/#about-the-install-command">What this command does</a>.</p>
+					</div>
+					<div class="install-panel" role="tabpanel" id="panel-win" aria-labelledby="tab-win" hidden>
+						<pre class="cmd ps"><code>powershell -ExecutionPolicy ByPass -c "irm https://subsub.tiagojacinto.eu/<wbr>install.ps1 | iex"</code></pre>
+						<p>Paste in PowerShell. It installs in your user folder and adds a shortcut. <a href="/install/#about-the-install-command">What this command does</a>.</p>
+					</div>
+					<div class="install-panel" role="tabpanel" id="panel-npm" aria-labelledby="tab-npm" hidden>
+						<pre class="cmd"><code>npm install -g @tiagojct/subsub && subsub init</code></pre>
+						<p>Needs Node.js 22.19 or later and uv. In pi: <code>pi install npm:@tiagojct/subsub</code>.</p>
+					</div>
 				</div>
-				<div class="install-panel" role="tabpanel" id="panel-unix" aria-labelledby="tab-unix">
-					<pre class="cmd"><code>curl -fsSL https://subsub.tiagojacinto.eu/install.sh | sh</code></pre>
-					<p>Paste in Terminal. It installs in your user folder; no administrator rights. <a href="/install/#about-the-install-command">What this command does</a>.</p>
-				</div>
-				<div class="install-panel" role="tabpanel" id="panel-win" aria-labelledby="tab-win" hidden>
-					<pre class="cmd ps"><code>powershell -ExecutionPolicy ByPass -c "irm https://subsub.tiagojacinto.eu/install.ps1 | iex"</code></pre>
-					<p>Paste in PowerShell. It installs in your user folder and adds a shortcut. <a href="/install/#about-the-install-command">What this command does</a>.</p>
-				</div>
-				<div class="install-panel" role="tabpanel" id="panel-npm" aria-labelledby="tab-npm" hidden>
-					<pre class="cmd"><code>npm install -g @tiagojct/subsub && subsub init</code></pre>
-					<p>Needs Node.js 22.19 or later and uv. In pi: <code>pi install npm:@tiagojct/subsub</code>.</p>
-				</div>
+				<p class="hero-alt">You need Zotero and an account with a model provider; <a href="/models/#use-sub-sub-for-free">a free one is enough to try</a>. <a href="/install/">Install guide</a> · <a href="/guide/">The first half hour</a></p>
+				<p class="newcomer">New to Zotero or to AI tools? <a href="/students/">Start here</a> · <a href="/pt/estudantes/" lang="pt-PT" hreflang="pt-PT">Para estudantes, em português</a><br>Clinical researcher? <a href="/clinicians/">What it does for you, and what it is not</a></p>
 			</div>
-			<p class="hero-alt">You need Zotero and an account with a model provider; <a href="/models/#use-sub-sub-for-free">a free one is enough to try</a>. <a href="/install/">Install guide</a> · <a href="/guide/">The first half hour</a></p>
+
+			<figure class="specimen-fig" data-plate>
+				<div class="specimen" aria-hidden="true">
+					<div class="sp-window">
+						<div class="sp-bar">
+							<span class="sp-brand" data-part="0"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M6.5 9h7M6.5 12h11"/><circle cx="12" cy="16" r="1.1"/></svg>Sub-Sub</span>
+							<span class="sp-modes" data-part="1"><span class="on">Researcher</span><span>Librarian</span></span><i class="pin" data-fig="1"></i>
+						</div>
+						<div class="sp-body">
+							<p class="sp-ask" data-part="0">/read critique smith2021</p>
+							<div class="sp-note">
+								<p class="sp-path" data-part="0">Literature/smith2021.md</p>
+								<p class="sp-fm" data-part="2">evidence: <span class="sp-ev">full text</span><i class="pin" data-fig="2"></i></p>
+								<p class="sp-title" data-part="0">Smith 2021, Home spirometry in children with asthma</p>
+								<p class="sp-quote" data-part="3">"Of 1,140 home manoeuvres, 71% met the ATS/ERS acceptability criteria." <span class="sp-page">(p. 5)</span><i class="pin" data-fig="3"></i></p>
+								<p class="sp-q" data-part="0">Would that rate hold in children under six?</p>
+							</div>
+							<div class="sp-preview" data-part="4">
+								<p class="sp-h"><span class="sc">Preview</span>Apply tag items?<i class="pin" data-fig="4"></i></p>
+								<p class="sp-row">Smith 2021 <span class="add">+ topic/respiratory</span> <span class="add">+ type/cohort</span></p>
+								<p class="sp-row">Costa 2019 <span class="rem">− type/rct</span></p>
+								<p class="sp-actions"><span class="sp-btn">No</span><span class="sp-btn yes">Yes</span></p>
+							</div>
+							<p class="sp-tool" data-part="5"><span class="dot"></span>tag items <span class="sp-applied">applied, 2 items</span><span class="sp-btn">Undo</span><i class="pin" data-fig="5"></i></p>
+						</div>
+					</div>
+					<div class="margin" hidden>
+						<span class="fig-no" data-fig="1">1</span>
+						<span class="fig-no" data-fig="2">2</span>
+						<span class="fig-no" data-fig="3">3</span>
+						<span class="fig-no" data-fig="4">4</span>
+						<span class="fig-no" data-fig="5">5</span>
+					</div>
+					<svg class="leaders"></svg>
+				</div>
+				<figcaption class="caption">
+					<p><span class="sc">Plate I.</span> <i>Sub-Sub in the browser: a guided reading, then a change to the library, drawn part by part. The papers in these plates are invented for the example.</i></p>
+					<ol class="figs">
+						<li><button type="button" data-fig="1" aria-pressed="false"><span class="sc">Fig. 1.</span> <i>The mode.</i> The Researcher reads, searches and writes notes; the Librarian only keeps the library. Each has its own colour.</button></li>
+						<li><button type="button" data-fig="2" aria-pressed="false"><span class="sc">Fig. 2.</span> <i>The evidence line.</i> Every note says what it was written from: the full text, the abstract, or only the metadata.</button></li>
+						<li><button type="button" data-fig="3" aria-pressed="false"><span class="sc">Fig. 3.</span> <i>A checked quote.</i> Each quote is checked word for word against the full text; its page opens the PDF in Zotero.</button></li>
+						<li><button type="button" data-fig="4" aria-pressed="false"><span class="sc">Fig. 4.</span> <i>The preview.</i> A change to the library is shown before it happens. Nothing changes until you select Yes.</button></li>
+						<li><button type="button" data-fig="5" aria-pressed="false"><span class="sc">Fig. 5.</span> <i>The record.</i> Each change goes into a journal. Undo shows what it would restore, then restores it.</button></li>
+					</ol>
+				</figcaption>
+			</figure>
 		</div>
-		<figure class="shot hero-shot">
-			<img class="only-light" src="/assets/img/web-view-light.webp?v={{ assetVersion }}" width="1600" height="1100" alt="The Sub-Sub web view. On the left, a library search and the action buttons, with Read a paper first. In the middle, asked what the library has on home spirometry, Sub-Sub lists four items from the library and three recent works from PubMed that are not in it, offers to import them, and suggests /read smith2021 to read one with guidance.">
-			<img class="only-dark" src="/assets/img/web-view-dark.webp?v={{ assetVersion }}" width="1600" height="1100" alt="" loading="lazy">
-		</figure>
 	</div>
 </section>
 
-<section class="section">
-	<div class="wrap result">
-		<div>
-			<p class="eyebrow">What you get</p>
-			<h2>Notes you can check, in plain text files.</h2>
-			<p class="section-lead">Each note is a Markdown file in your Sub-Sub folder. Obsidian shows it well; any editor opens it.</p>
-			<ul class="result-points">
-				<li><strong>It says what it read.</strong> The full text, the abstract or only the metadata. Page numbers come only from a full text.</li>
-				<li><strong>It cites only works it found.</strong> Library items by citekey; other works with their DOI or PMID.</li>
-				<li><strong>You decide how much it writes.</strong> With <code>/read</code>, a note is quotes and questions, and you write the answers. Sub-Sub drafts text for a manuscript only when you ask.</li>
-			</ul>
-		</div>
-		<figure class="note-card">
-			<div class="note-bar"><span>Literature/smith2021.md</span><span>/read</span></div>
-			<div class="note-body">
-<pre class="fm">citekey: smith2021
-type: reading-note
-purpose: critique
-evidence: full text</pre>
-				<h3>Smith 2021, Home spirometry in children with asthma</h3>
-				<blockquote><p>"Children did home spirometry twice a day for 12 weeks, with a parent, after one training session in the clinic." <span class="page">p. 3</span></p></blockquote>
-				<p class="q">How did the authors check technique between clinic visits?</p>
-				<blockquote><p>"Of 1,140 home manoeuvres, 71% met the ATS/ERS acceptability criteria." <span class="page">p. 5</span></p></blockquote>
-				<p class="q">Would that rate hold in children under six?</p>
+<section class="plate" aria-labelledby="plate-2">
+	<div class="wrap plate-mark">
+		<p class="runhead"><span>Sub-Sub</span><span class="mid">What you get</span><span>Plate II.</span></p>
+		<div class="split">
+			<div>
+				<h2 id="plate-2">Notes you can check, in plain text files.</h2>
+				<p class="section-lead">Each note is a Markdown file in your Sub-Sub folder. Obsidian shows it well; any editor opens it.</p>
+				<ul class="result-points">
+					<li><strong>It says what it read.</strong> The full text, the abstract or only the metadata. Page numbers come only from a full text.</li>
+					<li><strong>It cites only works it found.</strong> Library items by citekey; other works with their DOI or PMID.</li>
+					<li><strong>You decide how much it writes.</strong> With <code>/read</code>, a note is quotes and questions, and you write the answers. Sub-Sub drafts text for a manuscript only when you ask.</li>
+				</ul>
 			</div>
-		</figure>
+			<figure class="lines-fig">
+				<div class="evidence-lines">
+					<div class="ev ev-full"><span class="ev-no">6.</span><p class="ev-file">Literature/smith2021.md</p><p class="ev-field">evidence: <span>full text</span></p><p class="ev-desc">Quotes with their page, each linked to that page of the PDF.</p></div>
+					<div class="ev ev-abstract"><span class="ev-no">7.</span><p class="ev-file">Literature/lind2020.md</p><p class="ev-field">evidence: <span>abstract</span></p><p class="ev-desc">Quotes from the abstract only, and no page numbers.</p></div>
+					<div class="ev ev-meta"><span class="ev-no">8.</span><p class="ev-file">Literature/okafor2023.md</p><p class="ev-field">evidence: <span>metadata</span></p><p class="ev-desc">Only the title and the details of the record. The note says so.</p></div>
+				</div>
+				<figcaption><span class="sc">Figs. 6–8.</span> <i>The three evidence lines. The notes pane draws them the same way: a solid line for the full text, a dashed line for the abstract, a dotted line for the metadata.</i></figcaption>
+			</figure>
+		</div>
 	</div>
 </section>
 
-<section class="band">
-	<div class="wrap split">
-		<div>
-			<p class="eyebrow">How a change happens</p>
-			<h2>You see the change before it happens. You can undo it after.</h2>
-			<ol class="steps">
-				<li><strong>You ask in plain language.</strong> For example: tag the next 10 items without a topic.</li>
-				<li><strong>Sub-Sub prepares the change as a dry run.</strong> The preview shows each item, with the tags it adds in green and the tags it removes in red.</li>
-				<li><strong>You select Yes or No.</strong> The check is in the program, not in the instructions to the model. The model cannot skip it.</li>
-				<li><strong>The change goes into a journal.</strong> <code>/undo</code> reverts it. Nothing is deleted: items go to the Zotero trash.</li>
-			</ol>
-		</div>
-		<figure class="shot approval-shot">
-			<img class="only-light" src="/assets/img/web-approval.webp?v={{ assetVersion }}" width="1280" height="640" loading="lazy" alt="An approval dialog. It asks: Apply tag items? Two items would change. One gets two topic tags and a type tag; the other gets one new tag and loses type/rct. Buttons: No and Yes.">
-			<img class="only-dark" src="/assets/img/web-approval-dark.webp?v={{ assetVersion }}" width="1280" height="640" loading="lazy" alt="">
-		</figure>
-	</div>
-</section>
-
-<section class="section">
-	<div class="wrap split">
-		<div>
-			<p class="eyebrow">For students</p>
-			<h2>It helps you learn to read the literature.</h2>
-		</div>
-		<div class="prose-block">
-			<p>Type <code>/read</code> and a citekey, DOI or PMID to read a paper with guidance. In the browser, select Read a paper, or Read next to a result of the library search. Sub-Sub finds the passages and asks questions; you read them and write the answers. For a literature review, type <code>/lit reading list:</code> and your topic. You get the works to read and questions to read them with, and no results.</p>
-			<p>Sub-Sub does not draft text for your assignments, even when you ask. For a thesis, it drafts text only when you ask, and marks it. The rules of your course about AI still apply.</p>
-			<p>You can try it for free with a Google key, and an empty Zotero library is fine.</p>
-			<p><a href="/students/">For students</a> · <a href="/pt/estudantes/" lang="pt-PT" hreflang="pt-PT">Para estudantes</a></p>
-		</div>
+<section class="plate" aria-labelledby="plate-3">
+	<div class="wrap plate-mark">
+		<p class="runhead"><span>Sub-Sub</span><span class="mid">How a change happens</span><span>Plate III.</span></p>
+		<h2 id="plate-3">You see the change before it happens. You can undo it after.</h2>
+		<ol class="stages">
+			<li class="stage ask"><span class="mark-line"></span><h3>You ask</h3><p>In plain language. For example: tag the next 10 items without a topic.</p></li>
+			<li class="stage dry"><span class="mark-line"></span><h3>A dry run</h3><p>The preview shows each item, with each tag it adds and each tag it removes.</p></li>
+			<li class="stage decide"><span class="mark-line"></span><h3>Yes or No</h3><p>The check is in the program, not in the instructions to the model. The model cannot skip it.</p></li>
+			<li class="stage record"><span class="mark-line"></span><h3>The journal</h3><p>The change goes into a journal. <code>/undo</code> reverts it. Nothing is deleted: items go to the Zotero trash.</p></li>
+		</ol>
 	</div>
 </section>
 
 {%- if trust.items.length %}
-<section class="section">
-	<div class="wrap">
-		<p class="eyebrow">In use</p>
+<section class="plate">
+	<div class="wrap plate-mark">
+		<p class="runhead"><span>Sub-Sub</span><span class="mid">In use</span></p>
 		<h2>What people say.</h2>
 		<div class="trust">
 			{%- for q in trust.items %}
@@ -123,15 +143,26 @@ evidence: full text</pre>
 {%- endif %}
 
 <section class="section">
-	<div class="wrap split">
+	<div class="wrap">
+		<p class="runhead"><span>Sub-Sub</span><span class="mid">Students and privacy</span></p>
+	</div>
+	<div class="wrap pair">
 		<div>
-			<p class="eyebrow">Privacy</p>
-			<h2>Your library stays in Zotero.</h2>
+			<h2>It helps you learn to read the literature.</h2>
+			<div class="prose-block">
+				<p>Type <code>/read</code> and a citekey, DOI or PMID to read a paper with guidance. In the browser, select Read a paper, or Read next to a result of the library search. Sub-Sub finds the passages and asks questions; you read them and write the answers. For a literature review, type <code>/lit reading list:</code> and your topic. You get the works to read and questions to read them with, and no results.</p>
+				<p>Sub-Sub does not draft text for your assignments, even when you ask. For a thesis, it drafts text only when you ask, and marks it. The rules of your course about AI still apply.</p>
+				<p>You can try it for free with a Google key, and an empty Zotero library is fine.</p>
+				<p><a href="/students/">For students</a> · <a href="/pt/estudantes/" lang="pt-PT" hreflang="pt-PT">Para estudantes</a></p>
+			</div>
 		</div>
-		<div class="prose-block">
-			<p>Sub-Sub talks to Zotero through its local API and never uses your zotero.org account. It sends no usage data.</p>
-			<p>The model provider that you choose receives your messages and what the tools return: titles, authors, abstracts, and parts of a full text when you ask for a note or a guided reading. PubMed, Europe PMC, OpenAlex, Crossref and Unpaywall receive search terms and identifiers, not your notes.</p>
-			<p><a href="/privacy/">What goes where</a></p>
+		<div>
+			<h2>Your library stays in Zotero.</h2>
+			<div class="prose-block">
+				<p>Sub-Sub talks to Zotero through its local API and never uses your zotero.org account. It sends no usage data.</p>
+				<p>The model provider that you choose receives your messages and what the tools return: titles, authors, abstracts, and parts of a full text when you ask for a note or a guided reading. PubMed, Europe PMC, OpenAlex, Crossref and Unpaywall receive search terms and identifiers, not your notes.</p>
+				<p><a href="/privacy/">What goes where</a></p>
+			</div>
 		</div>
 	</div>
 </section>
@@ -139,6 +170,7 @@ evidence: full text</pre>
 <section class="colophon">
 	<div class="wrap">
 		<blockquote>
+			<p class="extracts">Extracts <i>(supplied by a <span class="nobr">Sub-Sub-Librarian</span>)</i></p>
 			<p>"It will be seen that this mere painstaking burrower and grub-worm of a poor devil of a Sub-Sub appears to have gone through the long Vaticans and street-stalls of the earth, picking up whatever random allusions to whales he could anyways find in any book whatsoever, sacred or profane."</p>
 			<footer>Herman Melville, <cite>Moby-Dick</cite> (1851), the Extracts. <a href="/about/">About the name</a></footer>
 		</blockquote>

@@ -55,10 +55,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 
-web/fonts/ and the website use IBM Plex Sans, IBM Plex Serif and IBM Plex Mono,
-https://github.com/IBM/plex. Their licence:
+web/fonts/, the website, the tutorial and the workshop use Literata, Atkinson
+Hyperlegible Next and Atkinson Hyperlegible Mono, subset to Latin. Their licence:
 
-Copyright © 2017 IBM Corp. with Reserved Font Name "Plex"
+Copyright 2017 The Literata Project Authors (https://github.com/googlefonts/literata)
+Copyright 2020-2024 The Atkinson Hyperlegible Next Project Authors (https://github.com/googlefonts/atkinson-hyperlegible-next)
+Copyright 2020-2024 The Atkinson Hyperlegible Mono Project Authors (https://github.com/googlefonts/atkinson-hyperlegible-next-mono)
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 

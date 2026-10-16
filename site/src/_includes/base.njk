@@ -16,8 +16,8 @@
 	<link rel="alternate" hreflang="x-default" href="{{ site.url }}{{ alt if pt else page.url }}">
 	{%- endif %}
 	<meta name="color-scheme" content="light dark">
-	<meta name="theme-color" content="#f7f6f2" media="(prefers-color-scheme: light)">
-	<meta name="theme-color" content="#141413" media="(prefers-color-scheme: dark)">
+	<meta name="theme-color" content="#e9ece6" media="(prefers-color-scheme: light)">
+	<meta name="theme-color" content="#12171c" media="(prefers-color-scheme: dark)">
 	<meta property="og:title" content="{{ title or site.title }}">
 	<meta property="og:description" content="{{ description or site.description }}">
 	<meta property="og:url" content="{{ site.url }}{{ page.url }}">
@@ -31,8 +31,8 @@
 	<script type="application/ld+json">{{ { "@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Sub-Sub", "applicationCategory": "ResearchApplication", "operatingSystem": "macOS, Windows, Linux", "softwareVersion": release.version, "license": "https://opensource.org/licenses/MIT", "url": site.url, "description": description or site.description, "inLanguage": ["en", "pt-PT"], "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }, "author": { "@type": "Person", "name": "Tiago Jacinto", "affiliation": { "@type": "CollegeOrUniversity", "name": "Faculdade de Medicina da Universidade do Porto" } }, "codeRepository": site.repo, "identifier": "https://doi.org/" + site.doi } | dump | safe }}</script>
 	{%- endif %}
 	<link rel="icon" href="/assets/favicon.svg?v={{ assetVersion }}" type="image/svg+xml">
-	<link rel="preload" href="/assets/fonts/IBMPlexSans.woff2" as="font" type="font/woff2" crossorigin>
-	<link rel="preload" href="/assets/fonts/IBMPlexSerif.woff2" as="font" type="font/woff2" crossorigin>
+	<link rel="preload" href="/assets/fonts/Literata.woff2" as="font" type="font/woff2" crossorigin>
+	<link rel="preload" href="/assets/fonts/AtkinsonHyperlegibleNext.woff2" as="font" type="font/woff2" crossorigin>
 	<link rel="stylesheet" href="/assets/css/site.css?v={{ assetVersion }}">
 	<script>
 		// Set the theme before the first paint: the saved choice, or the system setting.
@@ -84,7 +84,7 @@
 		<main id="main" class="wrap doc">
 			{%- if title and not hideTitle %}
 			<header class="doc-header">
-				{% if eyebrow %}<p class="eyebrow">{{ eyebrow }}</p>{% endif %}
+				<p class="runhead"><span>Sub-Sub</span>{% if eyebrow %}<span class="mid">{{ eyebrow }}</span>{% endif %}</p>
 				<h1>{{ title }}</h1>
 				{% if lead %}<p class="lead">{{ lead }}</p>{% endif %}
 			</header>

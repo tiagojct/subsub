@@ -20,9 +20,6 @@ format:
 [**Tiago Jacinto**<br>Faculty of Medicine, University of Porto · MEDCIDS]{.who}
 :::
 
-::: {.shot}
-![](../assets/img/web-view-light.webp){fig-alt="Sub-Sub in the browser: a question about the literature and the answer, with the tools it used."}
-:::
 
 ::: notes
 Welcome. A short introduction. Say now what people take home: a reading note and a rapid review made on their own library, and a rule for when to trust what the AI writes.
@@ -77,9 +74,9 @@ Welcome. A short introduction. Say now what people take home: a reading note and
 People with Sub-Sub installed do the exercises on their own computer; the others pair with a colleague. Ask everyone to open Zotero now.
 :::
 
-## Why {.sect background-color="#1c1c1a"}
+## Why {.sect background-color="#12171c"}
 
-[01 · 0 to 15 min]{.sect-n}
+[0 to 15 min]{.sect-n}
 
 [Language models write well. They do not always tell the truth about their sources.]{.lead}
 
@@ -269,7 +266,7 @@ What leaves the computer: to the model provider, the messages and the passages S
 
 ::: {.cols .mid style="margin-top:0.3em"}
 ::: {.shot .bare}
-![](../assets/img/web-approval.webp){fig-alt="The approval dialog: two items, with the tags to add in green and the tag to remove in red, and the No and Yes buttons."}
+![](../assets/img/web-approval.webp){fig-alt="The approval dialog: two items, with the tags to add in green and the tag to remove struck through, and the No and Yes buttons."}
 :::
 
 ::: {}
@@ -400,9 +397,9 @@ It takes a few minutes. Show the screening log: it is what lets someone else che
 This is what a reviewer or a supervisor will ask about. /lit is a good start for a systematic review: the searches and the screening log are the base, and the team then screens in duplicate and assesses the risk of bias.
 :::
 
-## Demonstration {.sect background-color="#1c1c1a"}
+## Demonstration {.sect background-color="#12171c"}
 
-[02 · 15 to 30 min]{.sect-n}
+[15 to 30 min]{.sect-n}
 
 [Four tasks, live, on a real library.]{.lead}
 
@@ -444,8 +441,8 @@ Demonstration script (15 min):
 ::: {.shot .pins}
 ![](../assets/img/web-view-light.webp){fig-alt="The Sub-Sub browser view: a library search, commands and conversations on the left, the conversation in the middle, the mode, Notes and the model at the top."}
 
-[1]{.pin style="left:17.5%;top:21%"}
-[2]{.pin style="left:31.6%;top:0.4%"}
+[1]{.pin style="left:18.6%;top:13.6%"}
+[2]{.pin style="left:28%;top:0.4%"}
 [3]{.pin style="left:27.5%;top:16.5%"}
 :::
 
@@ -460,6 +457,8 @@ the mode (Researcher or Librarian), Notes and the model
 the conversation, with each tool Sub-Sub used
 
 [Type `/` in the message box to see all commands.]{.small .muted}
+
+[The papers in this example are invented.]{.small .muted}
 :::
 :::
 
@@ -467,9 +466,9 @@ the conversation, with each tool Sub-Sub used
 If the live demonstration fails, use this image and the approval image to explain.
 :::
 
-## Hands on {.sect background-color="#1c1c1a"}
+## Hands on {.sect background-color="#12171c"}
 
-[03 · 30 to 50 min]{.sect-n}
+[30 to 50 min]{.sect-n}
 
 [Three exercises in your own library. Work in pairs if you have not installed Sub-Sub yet.]{.lead}
 
@@ -621,9 +620,9 @@ Click "8 min" to start the timer; click again to stop it.
 This exercise takes longer than the others. Anyone who does not finish sees the result at home. Ask one person to show their evidence table to the group.
 :::
 
-## Responsibility {.sect background-color="#1c1c1a"}
+## Responsibility {.sect background-color="#12171c"}
 
-[04 · 50 to 60 min]{.sect-n}
+[50 to 60 min]{.sect-n}
 
 [Whoever signs the paper answers for what it says, the references included.]{.lead}
 
