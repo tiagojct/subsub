@@ -262,6 +262,46 @@ export function prf(pred: Set<string>, gold: Set<string>) {
 	return { tp, fp, fn };
 }
 
+/** A library item as the retrieval score needs it: the citekey and the title. */
+export interface LibraryItem {
+	citekey: string;
+	title: string;
+}
+
+function plainTitle(t: string): string {
+	return t.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+}
+
+/**
+ * The library items that an answer names. An item is named by its citekey, or by the first 40 characters of its title
+ * (at least 15). A duplicate copy (citekey ending in -dup) counts as its original.
+ */
+export function itemsNamed(text: string, library: LibraryItem[]): Set<string> {
+	const plain = plainTitle(text);
+	const found = new Set<string>();
+	for (const item of library) {
+		const key = item.citekey.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+		const title = plainTitle(item.title).slice(0, 40).trim();
+		if (new RegExp(`(?<![A-Za-z0-9_])${key}(?![A-Za-z0-9_])`).test(text) || (title.length >= 15 && plain.includes(title))) {
+			found.add(item.citekey.replace(/-dup$/, ""));
+		}
+	}
+	return found;
+}
+
+/**
+ * Precision and recall of the items in a retrieval answer against the gold items. Items in `acceptable` are on the topic but
+ * outside the gold list: they count as neither hits nor errors. "(copy)" and "-dup" mark a duplicate and count as the original.
+ */
+export function retrievalScore(text: string, gold: string[], acceptable: string[], library: LibraryItem[]) {
+	const original = (k: string) => k.replace(/\s*\(copy\)\s*$/, "").replace(/-dup$/, "");
+	const goldSet = new Set(gold.map(original));
+	const skip = new Set(acceptable.map(original));
+	const said = new Set([...itemsNamed(text, library)].filter((k) => goldSet.has(k) || !skip.has(k)));
+	const { tp, fp, fn } = prf(said, goldSet);
+	return { ...f1(tp, fp, fn), tp, fp, fn };
+}
+
 function f1(tp: number, fp: number, fn: number) {
 	const p = tp + fp ? tp / (tp + fp) : 0;
 	const r = tp + fn ? tp / (tp + fn) : 0;

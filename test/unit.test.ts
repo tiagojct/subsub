@@ -1329,3 +1329,20 @@ test("/lit: the review says what it is not", () => {
 	assert.match(lit, /mark a preprint: for example "cohort \(preprint\)"/);
 	assert.match(lit, /```mermaid\r?\nflowchart TD\r?\n  A\["Found by the searches: <n>"\] --> B/, "the flow of works, in the form the browser view draws");
 });
+
+test("retrievalScore names items by citekey or by title and treats duplicates and acceptable items as the evaluation does", async () => {
+	const { itemsNamed, retrievalScore } = await import("../src/bench.ts");
+	const lib = [
+		{ citekey: "kouri2021", title: "Exploring the 175-year history of spirometry and the vital lessons it can teach us today" },
+		{ citekey: "hutchinson1846", title: "On the Capacity of the Lungs, and on the Respiratory Functions" },
+		{ citekey: "baker1971", title: "Artificial Respiration, The History Of An Idea" },
+		{ citekey: "baker1971-dup", title: "Artificial Respiration, The History Of An Idea" },
+		{ citekey: "braun2014", title: "Breathing Race Into The Machine" },
+	];
+	const text = "- [@hutchinson1846] his paper\n- Exploring the 175-year history of spirometry and the vital lessons (Kouri)\n- baker1971-dup\n- braun2014";
+	assert.deepEqual([...itemsNamed(text, lib)].sort(), ["baker1971", "braun2014", "hutchinson1846", "kouri2021"]);
+	const s = retrievalScore(text, ["hutchinson1846", "kouri2021", "baker1971 (copy)"], ["braun2014"], lib);
+	assert.deepEqual([s.tp, s.fp, s.fn, s.precision, s.recall], [3, 0, 0, 1, 1]);
+	const t = retrievalScore("only [@kouri2021] and [@braun2014]", ["hutchinson1846", "kouri2021"], [], lib);
+	assert.deepEqual([t.tp, t.fp, t.fn, t.precision, t.recall], [1, 1, 1, 0.5, 0.5]);
+});
