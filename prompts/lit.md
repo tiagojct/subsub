@@ -18,7 +18,7 @@ Make a short slug from the topic: lower case, hyphens, at most five words. Use t
 
 ## 2. Gather
 
-1. Library first: zotero_find_items for the topic (and the topic tags). Note what the library already has.
+1. Library first: zotero_find_items for the topic, with the user's own words first and then with close synonyms and word forms, one call for each (and the topic tags). Note what the library already has.
 2. Outside: scholar_search_multi with three or four phrasings of the question (synonyms, the test or drug name, the condition name, MeSH terms). Give include_terms (the key concepts) and exclude_terms (populations or designs outside the question) so that the server pre-screens the results. Use year limits when the question needs recent work.
 3. Screen. For every work in the merged list, decide: read, maybe, or exclude, with a reason of a few words. Prefer systematic reviews, guidelines and primary studies with the right design. Write the screening log to `Research/.plans/<slug>-screening.md`: a table (#, work, identifier, pre-screen, decision, reason) and the counts for a flow diagram: found by the searches, unique works, pre-screen excluded, screened, read, used.
 4. Read before you summarise:

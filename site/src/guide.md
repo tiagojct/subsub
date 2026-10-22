@@ -135,9 +135,9 @@ For the commands of each mode, see [Modes and commands](/profiles/).
 Reference checks use Starbuck, an add-on. It is off by default. To turn it on, answer On to the question "Reference checks (Starbuck)" in `subsub init` (or type `subsub init --starbuck on`). In the browser, use the switch "Reference checks (Starbuck)" in the panel on the left. Sub-Sub restarts.
 
 1. Type `/verify <file>`, for example `/verify draft.qmd`.
-2. Starbuck checks each cited work: does it exist, does it match the citation, and does it still stand (retractions, corrections).
+2. Starbuck checks each cited work: does it exist, does it match the citation, and does it still stand (retractions, corrections). A Check with "not found by search" means "not confirmed", not "wrong": books, theses, reports, archives and works in Portuguese are often missing from Crossref and PubMed.
 3. Starbuck also lists the sentences that state a finding without a citation.
-4. To check whether each source supports the sentence that cites it, type `/verify <file> claims`. The model must quote the passage that it relies on. Starbuck checks that the quote is in the source, word for word.
+4. To check whether each source supports the sentence that cites it, type `/verify <file> claims`. The model must quote the passage that it relies on. Starbuck checks that the quote is in the source, word for word. Read a verdict as a sentence to check, not as a ruling: it can miss a changed size, direction or scope.
 
 Sub-Sub does not change the manuscript. Starbuck writes an HTML report in a `_starbuck` folder next to the manuscript.
 

@@ -8,7 +8,7 @@ Make a short slug: lower case, hyphens, at most five words. Use today's date (YY
 
 1. Find the sources.
    - If the user gave citekeys, DOIs or PMIDs, use exactly those.
-   - Otherwise: library first (zotero_find_items), then scholar_search_multi with three phrasings. Choose 3 to 10 sources and say why.
+   - Otherwise: library first (zotero_find_items, with the user's own words and then close synonyms), then scholar_search_multi with three phrasings. Choose 3 to 10 sources and say why.
 2. Read each source before you describe it: zotero_get_fulltext for library items, scholar_read_oa_fulltext (methods and results) for open-access works, scholar_get_work for the abstract of the others. Note whether you read the full text or only the abstract.
 3. Build the matrix, one row per source:
    | # | Source | Claim on the question | Evidence type | Population and setting | Caveats | Confidence |

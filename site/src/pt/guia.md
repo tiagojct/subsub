@@ -135,9 +135,9 @@ Para os comandos de cada modo, veja [Modos e comandos](/pt/perfis/).
 A verificação de referências usa o Starbuck, um complemento. Está desligado por omissão. Para o ligar, responda On à pergunta "Reference checks (Starbuck)" no `subsub init` (ou escreva `subsub init --starbuck on`). No navegador, use o interruptor "Verificação de referências (Starbuck)" no painel da esquerda. O Sub-Sub reinicia.
 
 1. Escreva `/verify <ficheiro>`, por exemplo `/verify draft.qmd`.
-2. O Starbuck verifica cada obra citada: se existe, se corresponde à citação e se continua válida (retratações, correções).
+2. O Starbuck verifica cada obra citada: se existe, se corresponde à citação e se continua válida (retratações, correções). Um "Check" com "not found by search" quer dizer "não confirmado", e não "errado": livros, teses, relatórios, arquivos e obras em português faltam muitas vezes no Crossref e no PubMed.
 3. O Starbuck também lista as frases que afirmam um resultado sem citação.
-4. Para verificar se cada fonte sustenta a frase que a cita, escreva `/verify <ficheiro> claims`. O modelo tem de citar a passagem em que se baseia. O Starbuck confirma que a citação está na fonte, palavra por palavra.
+4. Para verificar se cada fonte sustenta a frase que a cita, escreva `/verify <ficheiro> claims`. O modelo tem de citar a passagem em que se baseia. O Starbuck confirma que a citação está na fonte, palavra por palavra. Leia um veredicto como uma frase a verificar, e não como uma sentença: pode não detetar uma alteração de tamanho, de direção ou de âmbito.
 
 O Sub-Sub não altera o manuscrito. O Starbuck escreve um relatório HTML numa pasta `_starbuck` ao lado do manuscrito.
 
