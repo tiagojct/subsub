@@ -2,6 +2,16 @@
 
 Sub-Sub follows the version numbers of npm: a change in the second number (0.13) adds features or changes how you use it; a change in the third (0.13.1) only fixes.
 
+## Unreleased
+
+Changes from the LLMSSH 2026 evaluation of 0.19.0 (private study repository; the plan is in analysis/subsub-next-version-plan.md there). The version number is not set.
+
+- Searching the library: when you ask what you have on a topic, Sub-Sub first searches with your own words, then with close synonyms and other word forms, and says which words it searched. In the evaluation it missed items whose titles use a synonym or repeat your words.
+- Drafts: every factual sentence ends with a citation, and a table "Quotes for the check" follows the draft with the quote, word for word, and the page or section for each sentence. A sentence without a quote that states it is changed or cut. In the evaluation, 37% to 53% of the factual sentences in drafts were only partly supported or unsupported by the works they cited.
+- Reference checks: a Check with "not found by search" is reported as "not confirmed", with the note that books, theses, reports, archives and works in Portuguese are often missing from Crossref and PubMed. Claim verdicts are reported as sentences to check; Sub-Sub does not change the text or the citation because of a verdict.
+- Guide pages (English and Portuguese): the same two notes on reference checks.
+- Bench: `retrievalScore` scores a retrieval answer by precision and recall against gold items, naming items by citekey or by title.
+
 ## 0.19.0 (2026-10-16)
 
 A new look for the browser view, the website, the tutorial and the workshop, after the engraved plates of 19th-century natural history books.
