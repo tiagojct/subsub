@@ -100,6 +100,8 @@ function isEmptyAuth(file: string): boolean {
 export function shareAuth(agentDir: string, piAgentDir: string): boolean {
 	const mine = join(agentDir, "auth.json");
 	const theirs = join(piAgentDir, "auth.json");
+	// The web view and `subsub tui` start pi with PI_CODING_AGENT_DIR set to Sub-Sub's folder: a link to itself would make auth.json unreadable.
+	if (real(mine) === real(theirs)) return false;
 	if (!existsSync(theirs)) return false;
 	try {
 		const st = lstatSync(mine);
@@ -186,8 +188,8 @@ export async function run(argv: string[] = process.argv.slice(2)): Promise<void>
 	}
 	if (args[0] === "tui") {
 		const { runTui } = await import("./tui.ts");
-		process.exitCode = await runTui([...args.slice(1), ...(here ? ["--here"] : [])], env);
-		return;
+		// The terminal is given back before this returns; exit so that nothing else keeps the process alive.
+		process.exit(await runTui([...args.slice(1), ...(here ? ["--here"] : [])], env));
 	}
 	if (args[0] === "shortcut") {
 		const { shortcutMain } = await import("./shortcut.ts");

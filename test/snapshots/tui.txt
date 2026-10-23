@@ -62,7 +62,7 @@
  Alt+M mode                 │
 ────────────────────────────│
  Conversations              │
-› asthma in children        │
+  asthma in children        │
   spirometry review         │
                             │
                             │
@@ -92,7 +92,7 @@
  Alt+M mode                 │
 ────────────────────────────│
  Conversations              │  › What do I have on asthma?
-› asthma in children        │
+  asthma in children        │
   spirometry review         │  ─ search the library: asthma
                             │  ○ could not tag items: the user did not approve this change
                             │

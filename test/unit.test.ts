@@ -1,6 +1,6 @@
 import { homedir } from "node:os";
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, writeFileSync, mkdirSync, readFileSync, realpathSync, rmSync, statSync, symlinkSync } from "node:fs";
+import { existsSync, lstatSync, mkdtempSync, writeFileSync, mkdirSync, readFileSync, realpathSync, rmSync, statSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { test } from "node:test";
@@ -252,6 +252,12 @@ test("cli: settings, shared auth, start folder, self-update guard", () => {
 	const own = mkdtempSync(join(tmpdir(), "subsub-own-"));
 	writeFileSync(join(own, "auth.json"), '{"x":{}}');
 	assert.equal(shareAuth(own, piAgent), false); // Sub-Sub's own credentials are kept
+	// The web view and `subsub tui` give pi Sub-Sub's folder as its own: the empty file must not become a link to itself.
+	const same = mkdtempSync(join(tmpdir(), "subsub-same-"));
+	writeFileSync(join(same, "auth.json"), "{}");
+	assert.equal(shareAuth(same, same), false);
+	assert.equal(lstatSync(join(same, "auth.json")).isSymbolicLink(), false);
+	assert.equal(readFileSync(join(same, "auth.json"), "utf8"), "{}");
 
 	const vault = join(home, "Vault");
 	mkdirSync(vault);
@@ -920,7 +926,7 @@ function fakeAgent(answers: Record<string, unknown> = {}) {
 const strip = (s: string) => s.replace(/\x1b\[[0-9;?]*[ -/]*[@-~]|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)/g, "");
 const tick = (ms = 40) => new Promise((r) => setTimeout(r, ms));
 
-test("tui: the full-screen client draws the conversation, the side panel and the footer, and declines every dialog", async () => {
+test("tui: the full-screen client draws the conversation, the side panel and the footer", async () => {
 	const { TuiApp } = await import("../src/tui.ts");
 	const { loadPalette } = await import("../src/tui-view.ts");
 	const { UNICODE } = await import("../src/skin.ts");
@@ -959,10 +965,6 @@ test("tui: the full-screen client draws the conversation, the side panel and the
 		agent.emit({ type: "agent_settled" });
 		await tick(80);
 		screens[`${columns}x${rows} after a question`] = strip(app.tui.getScreenLines().join("\n")).split("\n").map((l) => l.trimEnd());
-		// every dialog is declined until the approval screen exists
-		agent.emit({ type: "extension_ui_request", id: "d1", method: "confirm", title: "apply?", message: "1 item would change" });
-		agent.emit({ type: "extension_ui_request", id: "d2", method: "select", title: "which?", options: ["a", "b"] });
-		assert.deepEqual(agent.written, [{ type: "extension_ui_response", id: "d1", confirmed: false }, { type: "extension_ui_response", id: "d2", cancelled: true }]);
 		await app.stop();
 		assert.equal(agent.stopped, 1);
 	}
@@ -1023,6 +1025,74 @@ test("tui: Alt+N, Alt+L, Alt+A, Alt+M and the commands open the screens and fill
 	for (const c of "/new") await keys(c);
 	await keys("\r");
 	assert.ok(agent.requests.some((r) => r.type === "new_session"));
+	await app.stop();
+});
+
+test("tui: the dialogs of the extension: only y applies a change; lists and questions are answered; one at a time; restart", async () => {
+	const { TuiApp } = await import("../src/tui.ts");
+	const { loadPalette } = await import("../src/tui-view.ts");
+	const { UNICODE } = await import("../src/skin.ts");
+	const term = fakeTerminal(100, 30);
+	const agent = fakeAgent({ get_state: { model: { id: "m" }, sessionFile: "/s/1.jsonl" }, get_messages: { messages: [] }, get_commands: { commands: [] }, get_available_models: { models: [{ provider: "p", id: "m1", name: "Model one" }, { provider: "p", id: "m2" }] }, set_model: { id: "m2" } });
+	const app = new TuiApp({ terminal: term as any, agent: agent as any, version: "0.22.0", lang: "en", cwd: "/vault", palette: (b) => loadPalette(join(import.meta.dirname, "..", "themes"), b, "dark", "truecolor"), glyphs: UNICODE, reduceMotion: true });
+	const screen = () => strip(app.tui.getScreenLines().join("\n"));
+	const keys = async (...k: string[]) => { for (const x of k) { term.input(x); await tick(15); } await tick(150); };
+	await app.start();
+	const answers = () => agent.written.map((w: any) => ({ id: w.id, ...(w.confirmed !== undefined ? { confirmed: w.confirmed } : {}), ...(w.value !== undefined ? { value: w.value } : {}), ...(w.cancelled ? { cancelled: true } : {}) }));
+	// two confirms at once: the first is on screen, the second waits
+	agent.emit({ type: "extension_ui_request", id: "c1", method: "confirm", title: "Sub-Sub: apply tag_items?", message: "1 item(s) would change.\nSmith 2020: + topic/asthma; - topic/copd" });
+	agent.emit({ type: "extension_ui_request", id: "c2", method: "confirm", title: "Sub-Sub: apply trash_items?", message: "1 item(s) would be moved to the trash." });
+	await tick(150);
+	assert.match(screen(), /apply tag_items/);
+	assert.doesNotMatch(screen(), /apply trash_items/);
+	await keys("y"); // too early: keys in the first half second are ignored
+	assert.deepEqual(answers(), []);
+	await tick(600);
+	await keys("\r"); // Enter does nothing
+	assert.deepEqual(answers(), []);
+	await keys("n");
+	assert.deepEqual(answers(), [{ id: "c1", confirmed: false }]);
+	assert.match(screen(), /apply trash_items/, "the next dialog follows");
+	await tick(600);
+	await keys("y");
+	assert.deepEqual(answers().at(-1), { id: "c2", confirmed: true });
+	// a list and a question
+	agent.emit({ type: "extension_ui_request", id: "s1", method: "select", title: "Which?", options: ["alpha", "beta"] });
+	await tick(100);
+	await keys("\x1b[B", "\r");
+	assert.deepEqual(answers().at(-1), { id: "s1", value: "beta" });
+	agent.emit({ type: "extension_ui_request", id: "i1", method: "input", title: "Which paper?", placeholder: "citekey" });
+	await tick(100);
+	for (const c of "smith2021") await keys(c);
+	await keys("\r");
+	assert.deepEqual(answers().at(-1), { id: "i1", value: "smith2021" });
+	agent.emit({ type: "extension_ui_request", id: "i2", method: "input", title: "Which paper?" });
+	await tick(100);
+	await keys("\x1b");
+	assert.deepEqual(answers().at(-1), { id: "i2", cancelled: true });
+	// a dialog of an unknown kind is declined at once
+	agent.emit({ type: "extension_ui_request", id: "x1", method: "custom" });
+	assert.equal(agent.written.length, answers().length);
+	// /model
+	for (const c of "/model") await keys(c);
+	await keys("\r");
+	assert.match(screen(), /Model one/);
+	await keys("\x1b[B", "\r");
+	assert.deepEqual(agent.requests.filter((r) => r.type === "set_model"), [{ type: "set_model", provider: "p", modelId: "m2" }]);
+	// pi stops: the screen says so and /restart starts it again in the same conversation and mode
+	const starts: string[][] = [];
+	agent.start = ((extra?: string[]) => { starts.push(extra ?? []); }) as never;
+	agent.onExit?.(1);
+	await tick(60);
+	assert.match(screen(), /pi stopped \(1\)\. Type \/restart/);
+	for (const c of "/restart") await keys(c);
+	await keys("\r");
+	assert.equal(agent.stopped, 1);
+	assert.deepEqual(starts, [["--researcher", "--session", "/s/1.jsonl"]]);
+	// commands that only pi's own screen has
+	for (const c of "/login") await keys(c);
+	await keys("\r");
+	assert.match(screen(), /\/login is not in subsub tui/);
 	await app.stop();
 });
 

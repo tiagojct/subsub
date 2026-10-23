@@ -12,11 +12,12 @@ import { CombinedAutocompleteProvider, Editor, HStack, Markdown, matchesKey, Pro
 import { agentDirFor, chooseCwd, PACKAGE_DIR, packageVersion } from "./cli.ts";
 import { fill, footerLines } from "./chrome.ts";
 import { loadConfig, uiLanguage } from "./config.ts";
-import { type LibraryState, LIBRARIAN_THEME, DEFAULT_THEME, QUOTES } from "./look.ts";
+import { type LibraryState, LIBRARIAN_THEME, DEFAULT_THEME, paintPreview, QUOTES } from "./look.ts";
 import { PURPOSES } from "./read.ts";
 import { allowedFile, listNotes, OPENABLE, openFile } from "./files.ts";
 import { Agent, findLibrary, isDialog, Side, withHints } from "./rpc.ts";
-import { type Choice, ChoiceView, LibraryView, type LibraryItem, NotesView } from "./screens.ts";
+import { ApprovalView } from "./dialogs.ts";
+import { type Choice, ChoiceView, InputView, LibraryView, type LibraryItem, NotesView } from "./screens.ts";
 import { glyphs as chooseGlyphs, type Glyphs, workingFrames } from "./skin.ts";
 import { bannerLines, type Entry, entriesFromMessages, loadPalette, messageText, type Palette, schemeFromEnv, type Scheme, SIDE_WIDTH, sideLines, transcriptLines } from "./tui-view.ts";
 import { loadWords, type Words } from "./words.ts";
@@ -72,6 +73,7 @@ export class TuiApp {
 	private frames: string[];
 	private timer: ReturnType<typeof setInterval> | undefined;
 	private model = "";
+	private sessionFile: string | undefined;
 	private percent: number | null = null;
 	private window: number | undefined;
 	private tokens: number | null = 0;
@@ -88,6 +90,9 @@ export class TuiApp {
 	private stopped = false;
 	/** The screen over the conversation (notes, library, a list), if one is open. */
 	private overlay: { hide(): void } | undefined;
+	/** A dialog of the extension that waits for an answer, and the ones behind it. */
+	private dialogHandle: { hide(): void } | undefined;
+	private dialogs: any[] = [];
 
 	constructor(d: TuiDeps) {
 		this.d = d;
@@ -178,6 +183,7 @@ export class TuiApp {
 			this.frame++;
 			this.tui.requestRender();
 		}, 160);
+		this.timer.unref();
 		await this.load();
 	}
 
@@ -186,6 +192,7 @@ export class TuiApp {
 		try {
 			const state = await this.d.agent.request({ type: "get_state" });
 			this.model = state?.model?.id ?? this.model;
+			this.sessionFile = state?.sessionFile ?? this.sessionFile;
 			const messages = (await this.d.agent.request({ type: "get_messages" }))?.messages ?? [];
 			this.entries = entriesFromMessages(messages);
 			const commands = withHints((await this.d.agent.request({ type: "get_commands" }))?.commands ?? []);
@@ -207,6 +214,8 @@ export class TuiApp {
 			{ name: "actions", description: pt ? "As ações da vista no navegador" : "The actions of the browser view" },
 			{ name: "sessions", description: pt ? "Conversas anteriores" : "Earlier conversations" },
 			{ name: "new", description: pt ? "Uma conversa nova" : "A new conversation" },
+			{ name: "model", description: pt ? "Escolher o modelo" : "Choose the model" },
+			{ name: "restart", description: pt ? "Recomeçar o pi na mesma conversa" : "Start pi again in the same conversation" },
 			{ name: "quit", description: pt ? "Sair" : "Quit" },
 		];
 		const fromPi: SlashCommand[] = commands
@@ -240,7 +249,7 @@ export class TuiApp {
 	async refreshConversations(): Promise<void> {
 		try {
 			const list = (await this.d.sessions?.()) ?? [];
-			this.conversations = list.slice(0, 12).map((s, i) => ({ title: SHORT(s.title || "...", SIDE_WIDTH - 4), open: i === 0 }));
+			this.conversations = list.slice(0, 12).map((s) => ({ title: SHORT(s.title || "...", SIDE_WIDTH - 4), open: Boolean(s.path && s.path === this.sessionFile) }));
 		} catch {
 			this.conversations = [];
 		}
@@ -258,7 +267,9 @@ export class TuiApp {
 	private exited(code: number | null): void {
 		if (this.stopped) return;
 		this.busy = false;
-		this.notice("error", `${this.lang === "pt" ? "O pi parou" : "pi stopped"} (${code}). ${this.d.agent.stderr.slice(-300).trim()}`);
+		const pt = this.lang === "pt";
+		const parts = [`${pt ? "O pi parou" : "pi stopped"} (${code}).`, this.d.agent.stderr.slice(-300).trim(), pt ? "Escreva /restart para recomeçar." : "Type /restart to start it again."];
+		this.notice("error", parts.filter(Boolean).join(" "));
 		this.tui.requestRender();
 	}
 
@@ -349,11 +360,93 @@ export class TuiApp {
 	}
 
 	/**
-	 * A dialog of the extension: nothing is applied without an answer, and no answer is a no. The approval screen, lists and questions
-	 * are in the next phases; until then every dialog is declined, so that a change of the library cannot happen by accident.
+	 * A dialog of the extension. Nothing is applied without an answer, and anything but a yes is a no: the approval screen (src/dialogs.ts) answers
+	 * `confirm`, a list answers `select`, a line answers `input` and `editor`. One dialog at a time, in the order they came.
 	 */
 	protected dialog(ev: any): void {
-		this.d.agent.write({ type: "extension_ui_response", id: ev.id, ...(ev.method === "confirm" ? { confirmed: false } : { cancelled: true }) });
+		this.dialogs.push(ev);
+		if (!this.dialogHandle) this.nextDialog();
+	}
+
+	private reply(id: string, payload: Record<string, unknown>): void {
+		this.d.agent.write({ type: "extension_ui_response", id, ...payload });
+		this.dialogHandle?.hide();
+		this.dialogHandle = undefined;
+		this.tui.requestRender();
+		this.nextDialog();
+	}
+
+	private nextDialog(): void {
+		const ev = this.dialogs.shift();
+		if (!ev) return;
+		const c = this.common();
+		const show = (component: Component, options: Record<string, unknown>) => {
+			this.dialogHandle = this.tui.showOverlay(component, options as never);
+			this.tui.requestRender();
+		};
+		const centered = { width: "72%", minWidth: 44, maxHeight: "80%", anchor: "center" };
+		const title = String(ev.title ?? "Sub-Sub");
+		if (ev.method === "confirm") {
+			const p = this.palette.paint();
+			const body = paintPreview(String(ev.message ?? ""), p.ok, p.strike, p.text);
+			show(new ApprovalView({ title, body, lang: this.lang, paint: p, glyphs: this.d.glyphs, rows: c.rows, redraw: c.redraw, done: (yes) => this.reply(ev.id, { confirmed: yes }) }), { width: "92%", minWidth: 40, maxHeight: "92%", anchor: "center", margin: 1 });
+		} else if (ev.method === "select") {
+			const choices: Choice[] = (ev.options ?? []).map((o: unknown) => ({ label: String(o), value: String(o) }));
+			show(new ChoiceView({ ...c, title, choices, choose: (value) => this.reply(ev.id, { value }), cancel: () => this.reply(ev.id, { cancelled: true }) }), centered);
+		} else if (ev.method === "input" || ev.method === "editor") {
+			show(new InputView({ ...c, title, placeholder: ev.placeholder, prefill: ev.prefill, submit: (text) => this.reply(ev.id, { value: text }), cancel: () => this.reply(ev.id, { cancelled: true }) }), centered);
+		} else {
+			this.reply(ev.id, ev.method === "confirm" ? { confirmed: false } : { cancelled: true });
+		}
+	}
+
+	/** /restart: pi again, with the same conversation and mode (after it stopped, or to take up a new add-on or key). */
+	async restart(): Promise<void> {
+		let session: string | undefined;
+		try {
+			session = (await this.d.agent.request({ type: "get_state" }))?.sessionFile;
+		} catch {
+			/* pi is not running: start a new conversation */
+		}
+		await this.d.agent.stop();
+		this.busy = false;
+		this.current = undefined;
+		this.tools.clear();
+		this.dialogs = [];
+		this.dialogHandle?.hide();
+		this.dialogHandle = undefined;
+		this.d.agent.start([`--${this.mode}`, ...(session ? ["--session", session] : [])]);
+		await this.load();
+	}
+
+	/** /model: the models that are connected; the choice is the model of this conversation. */
+	async openModels(): Promise<void> {
+		if (this.overlay) return;
+		let models: Array<{ provider: string; id: string; name?: string }> = [];
+		try {
+			models = (await this.d.agent.request({ type: "get_available_models" }))?.models ?? [];
+		} catch (err) {
+			this.notice("error", (err as Error).message);
+			return void this.tui.requestRender();
+		}
+		const choices: Choice[] = models.map((m) => ({ label: m.name ?? m.id, hint: m.provider, value: `${m.provider}/${m.id}` }));
+		this.open(
+			new ChoiceView({
+				...this.common(),
+				title: this.lang === "pt" ? "Modelo" : "Model",
+				choices,
+				choose: (value) => {
+					this.close();
+					const i = value.indexOf("/");
+					void this.d.agent.request({ type: "set_model", provider: value.slice(0, i), modelId: value.slice(i + 1) }).then((m) => {
+						this.model = m?.id ?? value.slice(i + 1);
+						this.tui.requestRender();
+					}).catch((err) => this.notice("error", (err as Error).message));
+				},
+				cancel: () => this.close(),
+			}),
+			true,
+		);
 	}
 
 	// ---------------------------------------------------------------- screens
@@ -480,7 +573,7 @@ export class TuiApp {
 
 	/** Keys that count whatever has the focus. Returns true when the key is used. */
 	private globalKey(data: string): boolean {
-		if (this.overlay) return false; // the open screen has its own keys
+		if (this.overlay || this.dialogHandle) return false; // the open screen has its own keys
 		const shortcuts: Record<string, () => void> = {
 			"alt+n": () => void this.openNotes(),
 			"alt+l": () => void this.openLibrary(),
@@ -531,7 +624,12 @@ export class TuiApp {
 		this.editor.addToHistory?.(line);
 		this.editor.setText("");
 		if (/^\/(quit|exit)\s*$/.test(line)) return void (await this.quit());
-		const own: Record<string, () => Promise<void> | void> = { "/notes": () => this.openNotes(), "/library": () => this.openLibrary(), "/actions": () => this.openActions(), "/sessions": () => this.openSessions(), "/new": () => this.newConversation() };
+		const unavailable = /^\/(login|logout|settings|tree|resume|fork|share|export|import|hotkeys|reload)\b/.exec(line);
+		if (unavailable) {
+			this.notice("info", this.lang === "pt" ? `/${unavailable[1]} não existe em subsub tui. Use subsub no terminal ou subsub web.` : `/${unavailable[1]} is not in subsub tui. Use subsub in the terminal, or subsub web.`);
+			return void this.tui.requestRender();
+		}
+		const own: Record<string, () => Promise<void> | void> = { "/restart": () => this.restart(), "/model": () => this.openModels(), "/notes": () => this.openNotes(), "/library": () => this.openLibrary(), "/actions": () => this.openActions(), "/sessions": () => this.openSessions(), "/new": () => this.newConversation() };
 		if (own[line]) return void (await own[line]());
 		try {
 			await this.d.agent.request({ type: "prompt", message: line, ...(this.busy ? { streamingBehavior: "followUp" } : {}) });

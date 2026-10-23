@@ -18,14 +18,14 @@ export const SCREEN_WORDS = {
 		hintNotes: "up and down: choose   type: filter   PgUp PgDn: scroll   ctrl+o: open   Esc: close", hintRead: "up and down: scroll   ctrl+o: open   Esc: back",
 		library: "Library", typeToSearch: "Type to search your library.", searching: "Searching...", noItems: "Nothing found.", failed: "The search failed",
 		hintLibrary: "up and down: choose   Enter: read   ctrl+n: note   Esc: close", hintLibrarian: "up and down: choose   Enter: copy the key   Esc: close",
-		hintChoice: "up and down: choose   Enter: select   type: filter   Esc: cancel", noChoice: "Nothing matches.",
+		hintChoice: "up and down: choose   Enter: select   type: filter   Esc: cancel", noChoice: "Nothing matches.", hintInput: "Enter: send   Esc: cancel",
 	},
 	pt: {
 		notes: "Notas", of: "de", filter: "filtro", none: "Ainda não há notas. O Sub-Sub escreve-as em Literature/, Research/ e Syntheses/.", noMatch: "Nenhuma nota corresponde.", empty: "(nota vazia)",
 		hintNotes: "cima e baixo: escolher   escrever: filtrar   PgUp PgDn: deslocar   ctrl+o: abrir   Esc: fechar", hintRead: "cima e baixo: deslocar   ctrl+o: abrir   Esc: voltar",
 		library: "Biblioteca", typeToSearch: "Escreva para pesquisar na biblioteca.", searching: "A pesquisar...", noItems: "Nada encontrado.", failed: "A pesquisa falhou",
 		hintLibrary: "cima e baixo: escolher   Enter: ler   ctrl+n: nota   Esc: fechar", hintLibrarian: "cima e baixo: escolher   Enter: copiar a chave   Esc: fechar",
-		hintChoice: "cima e baixo: escolher   Enter: selecionar   escrever: filtrar   Esc: cancelar", noChoice: "Nada corresponde.",
+		hintChoice: "cima e baixo: escolher   Enter: selecionar   escrever: filtrar   Esc: cancelar", noChoice: "Nada corresponde.", hintInput: "Enter: enviar   Esc: cancelar",
 	},
 };
 
@@ -470,6 +470,61 @@ export class ChoiceView {
 			this.filter += data;
 			this.selected = 0;
 		} else return;
+		this.o.redraw?.();
+	}
+}
+
+// ---------------------------------------------------------------- a question with a typed answer
+
+export interface InputOptions {
+	title: string;
+	placeholder?: string;
+	prefill?: string;
+	submit: (text: string) => void;
+	cancel: () => void;
+	lang: Lang;
+	paint: Paint;
+	glyphs?: Glyphs;
+	redraw?: () => void;
+}
+
+export function inputLines(o: { title: string; placeholder?: string; text: string; width: number; lang: Lang; paint: Paint; glyphs?: Glyphs }): string[] {
+	const g = o.glyphs ?? UNICODE;
+	const p = o.paint;
+	const w = Math.max(20, o.width);
+	const shown = o.text ? p.text(cut(o.text, w - 5)) + p.mark("_") : p.dim(cut(o.placeholder ?? "", w - 5)) + p.mark("_");
+	return [p.mark(cut(` ${o.title}`, w)), rule(w, "solid", p.muted, g), ` ${p.muted(">")} ${shown}`, rule(w, "solid", p.muted, g), p.muted(cut(` ${SCREEN_WORDS[o.lang].hintInput}`, w))];
+}
+
+export class InputView {
+	private readonly o: InputOptions;
+	private text: string;
+	private answered = false;
+	constructor(o: InputOptions) {
+		this.o = o;
+		this.text = o.prefill ?? "";
+	}
+
+	render(width: number): string[] {
+		return fill(inputLines({ title: this.o.title, placeholder: this.o.placeholder, text: this.text, width, lang: this.o.lang, paint: this.o.paint, glyphs: this.o.glyphs }), width);
+	}
+
+	invalidate(): void {}
+
+	handleInput(data: string): void {
+		if (this.answered) return;
+		if (matchesKey(data, "escape") || matchesKey(data, "ctrl+c")) {
+			this.answered = true;
+			return this.o.cancel();
+		}
+		if (matchesKey(data, "enter")) {
+			this.answered = true;
+			return this.o.submit(this.text);
+		}
+		if (matchesKey(data, "backspace")) this.text = this.text.slice(0, -1);
+		else if (matchesKey(data, "ctrl+u")) this.text = "";
+		else if (printable(data)) this.text += data;
+		else return;
 		this.o.redraw?.();
 	}
 }

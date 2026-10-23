@@ -688,7 +688,7 @@ test("the npm package: installed with npm install -g, it starts pi with Sub-Sub"
 // The terminal look in a real terminal (a pseudo-terminal: macOS and Linux). The approval overlay is the gate for library changes, so it is the main check.
 const PTY = { skip: process.platform === "win32" ? "no pseudo-terminal on Windows" : false, timeout: 240_000 };
 
-async function inTerminal(steps: unknown[], cols = 100, name = "last"): Promise<{ text: string; raw: string; exit: number | null; failed: string | null }> {
+async function inTerminal(steps: unknown[], cols = 100, name = "last", command: string[] = ["--here"]): Promise<{ text: string; raw: string; exit: number | null; failed: string | null }> {
 	const home = join(work, "home-pty");
 	const agentDir = join(home, ".subsub", "agent");
 	mkdirSync(agentDir, { recursive: true });
@@ -696,7 +696,7 @@ async function inTerminal(steps: unknown[], cols = 100, name = "last"): Promise<
 	const env = { ...baseEnv, HOME: home, USERPROFILE: home, SUBSUB_AGENT_DIR: agentDir, TERM: "xterm-256color", COLORTERM: "truecolor", LANG: "en_GB.UTF-8" } as Record<string, string>;
 	delete env.PI_CODING_AGENT_DIR;
 	const specFile = join(work, "pty-spec.json");
-	writeFileSync(specFile, JSON.stringify({ argv: [process.execPath, join(ROOT, "bin", "subsub.js"), "--here", "--provider", "fake", "--model", "fake-model"], cwd: vault, env, cols, rows: 30, steps }));
+	writeFileSync(specFile, JSON.stringify({ argv: [process.execPath, join(ROOT, "bin", "subsub.js"), ...command, "--provider", "fake", "--model", "fake-model"], cwd: vault, env, cols, rows: 30, steps }));
 	const out = await new Promise<string>((resolve, reject) => {
 		const p = spawn("python3", [join(HERE, "fixtures", "pty_drive.py"), specFile]);
 		let data = "";
@@ -771,4 +771,36 @@ test("terminal look: ASCII glyphs and a narrow terminal", PTY, async () => {
 		if (prev === undefined) delete baseEnv.SUBSUB_ASCII;
 		else baseEnv.SUBSUB_ASCII = prev;
 	}
+});
+
+test("subsub tui: a full-screen client of pi: the approval screen applies only on y, and Ctrl+C twice quits", PTY, async () => {
+	const ask = (answer: string, reply: string) => [
+		{ wait: "Researcher", timeout: 90 },
+		{ wait: "Zotero: 2 items", timeout: 60, anywhere: true },
+		{ sleep: 1 },
+		{ send: "Tag BBBB3333 with topic/spirometry\r" },
+		{ wait: "apply tag_items", timeout: 90 },
+		{ sleep: 0.9 },
+		{ send: "\r" }, // Enter does nothing
+		{ sleep: 0.3 },
+		{ send: answer },
+		{ wait: reply, timeout: 90 },
+	];
+	const tool = (key: string) => [{ tool: { name: "zotero_tag_items", args: { changes: [{ key, add: ["topic/spirometry"] }], dry_run: false } } }];
+	script = [...tool("BBBB3333"), { text: "Left it alone." }];
+	requests.length = 0;
+	const no = await inTerminal(ask("n", "Left it alone."), 120, "tui-no", ["tui", "--here"]);
+	assert.equal(no.failed, null, no.text.slice(-1500));
+	assert.match(no.text, /y apply\s+n leave it as it is/);
+	assert.match(no.text, /Alt\+N notes/, "the side panel shows from 110 columns");
+	assert.ok(!(await state()).BBBB3333.tags.some((t: any) => t.tag === "topic/spirometry"), "n changes nothing");
+	noRed(no.raw);
+
+	script = [...tool("BBBB3333"), { text: "Applied." }];
+	requests.length = 0;
+	const yes = await inTerminal(ask("y", "Applied."), 120, "tui-yes", ["tui", "--here"]);
+	assert.equal(yes.failed, null, yes.text.slice(-1500));
+	assert.ok((await state()).BBBB3333.tags.some((t: any) => t.tag === "topic/spirometry"), "y applies the change");
+	noRed(yes.raw);
+	assert.equal(yes.exit, 0, `exit ${yes.exit}`);
 });
