@@ -172,6 +172,8 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	const lookOn = (ctx: ExtensionContext) => standalone && cfg.look !== false && ctx.mode === "tui";
 	/** True under `subsub web`: pi runs in RPC mode and the web view shows the state that the terminal header shows. */
 	const webView = process.env.SUBSUB_WEB === "1";
+	/** The state of the library goes to the client as a status text: for the web view and for the full-screen terminal client (subsub tui). */
+	const sideChannel = webView || process.env.SUBSUB_TUI === "1";
 	let lastError: string | undefined;
 	/** The last provider or tool error of the session, for /feedback. */
 	let recentError: string | undefined;
@@ -182,7 +184,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	let webCtx: ExtensionContext | undefined;
 	function emitWeb(): void {
 		const ctx = webCtx;
-		if (!webView || !ctx || ctx.mode !== "rpc") return;
+		if (!sideChannel || !ctx || ctx.mode !== "rpc") return;
 		const down = bridge ? Object.keys(bridge.errors) : ["zotero", "scholar"];
 		const state = {
 			mode,
@@ -468,7 +470,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			setHeader(ctx);
 			setFooter(ctx);
 			void refreshLibrary();
-		} else if (webView) {
+		} else if (sideChannel) {
 			void refreshLibrary();
 		}
 		if (!ctx.model && !webView) ctx.ui.notify(L("Sub-Sub: no model is connected yet. Type /login and select a provider (or use the model button in subsub web).", "Sub-Sub: ainda não há um modelo ligado. Escreva /login e selecione um fornecedor (ou use o botão do modelo em subsub web)."), "warning");

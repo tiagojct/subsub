@@ -14,20 +14,15 @@
  *   stops by itself, so a shortcut can start it without a terminal.
  */
 
-import { spawn, type ChildProcess } from "node:child_process";
 import { randomBytes, timingSafeEqual } from "node:crypto";
 import { createReadStream, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, statSync, writeFileSync, appendFileSync } from "node:fs";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { homedir } from "node:os";
 import { basename, dirname, extname, join, normalize, relative, resolve, sep } from "node:path";
-import { StringDecoder } from "node:string_decoder";
 import { agentDirFor, chooseCwd, PACKAGE_DIR, packageVersion } from "./cli.ts";
-import { configPath, expand, loadConfig, RECOMMENDED_MODELS, readConfigFile, saveConfig, type SubsubConfig, uiLanguage, withStarbuck } from "./config.ts";
+import { configPath, loadConfig, RECOMMENDED_MODELS, readConfigFile, saveConfig, type SubsubConfig, uiLanguage, withStarbuck } from "./config.ts";
 import { TESTED_MODELS } from "./init.ts";
 import { KEY_PROVIDERS, saveApiKey } from "./keys.ts";
-import { NOTE_DIRS, obsidianRoot, SETTINGS_DIR } from "./layout.ts";
-import { field, frontMatter } from "./notes.ts";
-import { realish, within } from "./paths.ts";
 
 // ---------------------------------------------------------------- options
 
@@ -68,130 +63,10 @@ export { KEY_PROVIDERS, saveApiKey } from "./keys.ts";
 import { allowedFile, listNotes, openExternal, openFile, OPENABLE, wikilinkTarget } from "./files.ts";
 export { allowedFile, listNotes, openExternal, OPENABLE, wikilinkTarget };
 
-// ---------------------------------------------------------------- pi in RPC mode
+// ---------------------------------------------------------------- pi in RPC mode (src/rpc.ts)
 
-type Listener = (ev: any) => void;
-
-/** pi as a child process in RPC mode. Strict JSONL: records end at LF only. */
-export class Agent {
-	proc?: ChildProcess;
-	private decoder = new StringDecoder("utf8");
-	private buf = "";
-	private n = 0;
-	private pending = new Map<string, { resolve: (v: any) => void; reject: (e: Error) => void; timer: NodeJS.Timeout }>();
-	private listeners = new Set<Listener>();
-	stderr = "";
-	onExit?: (code: number | null) => void;
-
-	private readonly command: string;
-	private readonly args: string[];
-	private readonly cwd: string;
-	private readonly env: NodeJS.ProcessEnv;
-
-	constructor(command: string, args: string[], cwd: string, env: NodeJS.ProcessEnv) {
-		this.command = command;
-		this.args = args;
-		this.cwd = cwd;
-		this.env = env;
-	}
-
-	start(extra: string[] = []): void {
-		this.buf = "";
-		this.decoder = new StringDecoder("utf8");
-		const proc = spawn(this.command, [...this.args, ...extra], { cwd: this.cwd, env: this.env, stdio: ["pipe", "pipe", "pipe"], windowsHide: true });
-		this.proc = proc;
-		proc.stdout!.on("data", (chunk: Buffer) => this.feed(this.decoder.write(chunk)));
-		proc.stderr!.on("data", (d: Buffer) => {
-			this.stderr = (this.stderr + d.toString()).slice(-20_000);
-		});
-		proc.once("exit", (code) => {
-			if (this.proc !== proc) return;
-			this.proc = undefined;
-			for (const p of this.pending.values()) {
-				clearTimeout(p.timer);
-				p.reject(new Error(`pi stopped (code ${code}). ${this.stderr.slice(-500)}`));
-			}
-			this.pending.clear();
-			this.onExit?.(code);
-		});
-	}
-
-	private feed(text: string): void {
-		this.buf += text;
-		let i: number;
-		while ((i = this.buf.indexOf("\n")) >= 0) {
-			const line = this.buf.slice(0, i).replace(/\r$/, "");
-			this.buf = this.buf.slice(i + 1);
-			if (!line.trim()) continue;
-			let rec: any;
-			try {
-				rec = JSON.parse(line);
-			} catch {
-				continue;
-			}
-			if (rec.type === "response" && typeof rec.id === "string" && this.pending.has(rec.id)) {
-				const p = this.pending.get(rec.id)!;
-				this.pending.delete(rec.id);
-				clearTimeout(p.timer);
-				if (rec.success === false) p.reject(new Error(rec.error ?? `${rec.command} failed`));
-				else p.resolve(rec.data);
-				continue;
-			}
-			for (const l of this.listeners) l(rec);
-		}
-	}
-
-	on(l: Listener): () => void {
-		this.listeners.add(l);
-		return () => this.listeners.delete(l);
-	}
-
-	write(rec: unknown): void {
-		const stdin = this.proc?.stdin;
-		if (!stdin || !stdin.writable) throw new Error("pi is not running");
-		stdin.write(`${JSON.stringify(rec)}\n`);
-	}
-
-	request<T = any>(cmd: Record<string, unknown>, timeoutMs = 30_000): Promise<T> {
-		const id = `w${++this.n}`;
-		return new Promise<T>((resolvePromise, reject) => {
-			const timer = setTimeout(() => {
-				this.pending.delete(id);
-				reject(new Error(`pi did not answer ${String(cmd.type)} in time`));
-			}, timeoutMs);
-			this.pending.set(id, { resolve: resolvePromise, reject, timer });
-			try {
-				this.write({ ...cmd, id });
-			} catch (err) {
-				clearTimeout(timer);
-				this.pending.delete(id);
-				reject(err as Error);
-			}
-		});
-	}
-
-	async stop(): Promise<void> {
-		const proc = this.proc;
-		if (!proc) return;
-		this.proc = undefined;
-		for (const p of this.pending.values()) {
-			clearTimeout(p.timer);
-			p.reject(new Error("pi was stopped"));
-		}
-		this.pending.clear();
-		await new Promise<void>((done) => {
-			const t = setTimeout(() => {
-				proc.kill("SIGKILL");
-				done();
-			}, 3000);
-			proc.once("exit", () => {
-				clearTimeout(t);
-				done();
-			});
-			proc.kill();
-		});
-	}
-}
+import { Agent, findLibrary, isDialog, Side, withHints } from "./rpc.ts";
+export { Agent };
 
 // ---------------------------------------------------------------- helpers
 
@@ -222,14 +97,6 @@ const CSP = [
 	"form-action 'none'",
 	"frame-ancestors 'none'",
 ].join("; ");
-
-function readText(path: string): string {
-	try {
-		return readFileSync(path, "utf8");
-	} catch {
-		return "";
-	}
-}
 
 function same(a: string, b: string): boolean {
 	const x = Buffer.from(a);
@@ -319,7 +186,7 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 	const clients = new Set<ServerResponse>();
 	const dialogs = new Map<string, any>();
 	let subsubState: unknown = null;
-	let lastFind: { q?: string } | null = null;
+	const side = new Side();
 	let busy = false;
 	let lastSeen = Date.now();
 	let restarting = false;
@@ -344,22 +211,12 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 
 	agent.on((ev) => {
 		if (ev.type === "extension_ui_request") {
-			if (["select", "confirm", "input", "editor"].includes(ev.method)) {
+			if (isDialog(ev)) {
 				dialogs.set(ev.id, ev);
 				broadcast(ev);
-			} else if (ev.method === "setStatus" && ev.statusKey === "subsub.web") {
-				try {
-					subsubState = ev.statusText ? JSON.parse(ev.statusText) : null;
-				} catch {
-					subsubState = null;
-				}
+			} else if (side.take(ev) === "state") {
+				subsubState = side.state;
 				broadcast({ type: "subsub_state", state: subsubState });
-			} else if (ev.method === "setStatus" && ev.statusKey === "subsub.find") {
-				try {
-					lastFind = ev.statusText ? JSON.parse(ev.statusText) : null;
-				} catch {
-					lastFind = null;
-				}
 			} else if (ev.method === "notify") {
 				broadcast(ev);
 			}
@@ -401,13 +258,7 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 			out.session = await agent.request({ type: "get_state" });
 			lastSession = (out.session as { sessionFile?: string }).sessionFile ?? lastSession;
 			out.messages = ((await agent.request({ type: "get_messages" })) as { messages: unknown[] }).messages;
-			const commands = ((await agent.request({ type: "get_commands" })) as { commands: Array<Record<string, any>> }).commands;
-			// RPC has no argument hints: read them from the prompt files.
-			out.commands = commands.map((c) => {
-				const front = c.source === "prompt" && c.sourceInfo?.path ? frontMatter(readText(c.sourceInfo.path)) : undefined;
-				const hint = front && field(front, "argument-hint");
-				return hint ? { ...c, hint } : c;
-			});
+			out.commands = withHints(((await agent.request({ type: "get_commands" })) as { commands: Array<Record<string, any>> }).commands);
 		} catch (err) {
 			out.error = (err as Error).message;
 		}
@@ -658,8 +509,7 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 				case "GET /api/library": {
 					const q = (url.searchParams.get("q") ?? "").replace(/\s+/g, " ").trim().slice(0, 200);
 					if (!q) return send(res, 200, { q, items: [] });
-					await agent.request({ type: "prompt", message: `/subsub-find ${q}` });
-					return send(res, 200, lastFind?.q === q ? lastFind : { q, items: [] });
+					return send(res, 200, await findLibrary(agent, side, q));
 				}
 				case "POST /api/session/name": {
 					const body = await readJson(req);
