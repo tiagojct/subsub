@@ -132,7 +132,7 @@ export function headerLines(opts: {
 		if ([...one].length <= w) out.push(p.dim(one));
 		else out.push(p.dim(cut(`"${opts.quote[0]}"`, w)), p.dim(cut(`  (${opts.quote[1]})`, w)));
 	}
-	out.push(p.dim(cut("/researcher  /librarian  /read  /history  /undo  |  / for all commands", w)), "");
+	out.push(p.dim(cut("/researcher  /librarian  /read  /notes  /library  /actions  |  / for all commands", w)), "");
 	return out;
 }
 

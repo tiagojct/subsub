@@ -1,0 +1,579 @@
+== en 40 notes ==
+ Notes (3)                              
+────────────────────────────────────────
+› Literature/smith2021.md               
+  Research/2026-10-23 asthma review.md  
+  Syntheses/spirometry in children an...
+────────────────────────────────────────
+ up and down: choose   type: filter     
+PgUp PgDn: scroll   ctrl+o: open   Esc: 
+close                                   
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+
+== en 40 second note, opened ==
+ Notes (3)                              
+────────────────────────────────────────
+┄┄ evidence: abstract                   
+                                        
+ A short note.                          
+────────────────────────────────────────
+ up and down: scroll   ctrl+o: open     
+Esc: back                               
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+
+== en 40 no notes ==
+ Notes (0)                              
+────────────────────────────────────────
+  No notes yet. Sub-Sub writes them i...
+────────────────────────────────────────
+ up and down: choose   type: filter     
+PgUp PgDn: scroll   ctrl+o: open   Esc: 
+close                                   
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+
+== en 40 library ==
+ Library
+ > asthma_
+────────────────────────────────────────
+  Home spirometry in children with as...
+  Smith · 2021 · smith2021
+› Peak flow
+  Jones · 1998 · jones1998
+  K3
+  
+────────────────────────────────────────
+ up and down: choose   Enter: read
+ctrl+n: note   Esc: close
+
+== en 40 library, closed ==
+ Library
+ > x_
+────────────────────────────────────────
+  ○ The search failed: Zotero did not...
+────────────────────────────────────────
+ up and down: choose   Enter: copy the
+key   Esc: close
+
+== en 80 notes ==
+ Notes (3)                                                                      
+────────────────────────────────────────────────────────────────────────────────
+› Literature/smith2021.md                                                       
+  Research/2026-10-23 asthma review.md                                          
+  Syntheses/spirometry in children and adolescents, a long title.md             
+────────────────────────────────────────────────────────────────────────────────
+ up and down: choose   type: filter   PgUp PgDn: scroll   ctrl+o: open   Esc:   
+close                                                                           
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+
+== en 80 second note, opened ==
+ Notes (3)                                                                      
+────────────────────────────────────────────────────────────────────────────────
+┄┄ evidence: abstract                                                           
+                                                                                
+ A short note.                                                                  
+────────────────────────────────────────────────────────────────────────────────
+ up and down: scroll   ctrl+o: open   Esc: back                                 
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+
+== en 80 no notes ==
+ Notes (0)                                                                      
+────────────────────────────────────────────────────────────────────────────────
+  No notes yet. Sub-Sub writes them in Literature/, Research/ and Syntheses/.   
+────────────────────────────────────────────────────────────────────────────────
+ up and down: choose   type: filter   PgUp PgDn: scroll   ctrl+o: open   Esc:   
+close                                                                           
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+
+== en 80 library ==
+ Library
+ > asthma_
+────────────────────────────────────────────────────────────────────────────────
+  Home spirometry in children with asthma: a randomised trial
+  Smith · 2021 · smith2021
+› Peak flow
+  Jones · 1998 · jones1998
+  K3
+  
+────────────────────────────────────────────────────────────────────────────────
+ up and down: choose   Enter: read   ctrl+n: note   Esc: close
+
+== en 80 library, closed ==
+ Library
+ > x_
+────────────────────────────────────────────────────────────────────────────────
+  ○ The search failed: Zotero did not answer
+────────────────────────────────────────────────────────────────────────────────
+ up and down: choose   Enter: copy the key   Esc: close
+
+== en 120 notes ==
+ Notes (3)                                                                                                              
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+› Literature/smith2021.md            │ ── evidence: full text                                                           
+  Research/2026-10-23 asthma revi... │                                                                                  
+  Syntheses/spirometry in childre... │  ## Why I am reading this                                                        
+                                     │                                                                                  
+                                     │  Home spirometry in children is feasible when parents are trained, and the       
+                                     │  quality of the curves improves. Home spirometry in children is feasible when    
+                                     │  parents are trained, and the quality of the curves improves. Home spirometry in 
+                                     │  children is feasible when parents are trained, and the quality of the curves    
+                                     │  improves. Home spirometry in children is feasible when parents are trained, and 
+                                     │  the quality of the curves improves. Home spirometry in children is feasible     
+                                     │  when parents are trained, and the quality of the curves improves. Home          
+                                     │  spirometry in children is feasible when parents are trained, and the quality of 
+                                     │  the curves improves. Home spirometry in children is feasible when parents are   
+                                     │  trained, and the quality of the curves improves. Home spirometry in children is 
+                                     │  feasible when parents are trained, and the quality of the curves improves. Home 
+                                     │  spirometry in children is feasible when parents are trained, and the quality of 
+                                     │  the curves improves. Home spirometry in children is feasible when parents are   
+                                     │  trained, and the quality of the curves improves. Home spirometry in children is 
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ up and down: choose   type: filter   PgUp PgDn: scroll   ctrl+o: open   Esc: close                                     
+                                                                                                                        
+
+== en 120 second note ==
+ Notes (3)                                                                                                              
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  Literature/smith2021.md            │ ┄┄ evidence: abstract                                                            
+› Research/2026-10-23 asthma revi... │                                                                                  
+  Syntheses/spirometry in childre... │  A short note.                                                                   
+                                     │                                                                                  
+                                     │                                                                                  
+                                     │                                                                                  
+                                     │                                                                                  
+                                     │                                                                                  
+                                     │                                                                                  
+                                     │                                                                                  
+                                     │                                                                                  
+                                     │                                                                                  
+                                     │                                                                                  
+                                     │                                                                                  
+                                     │                                                                                  
+                                     │                                                                                  
+                                     │                                                                                  
+                                     │                                                                                  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ up and down: choose   type: filter   PgUp PgDn: scroll   ctrl+o: open   Esc: close                                     
+                                                                                                                        
+
+== en 120 no notes ==
+ Notes (0)                                                                                                              
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  No notes yet. Sub-Sub writes them in Literature/, Research/ and Syntheses/.                                           
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ up and down: choose   type: filter   PgUp PgDn: scroll   ctrl+o: open   Esc: close                                     
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+
+== en 120 library ==
+ Library
+ > asthma_
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  Home spirometry in children with asthma: a randomised trial
+  Smith · 2021 · smith2021
+› Peak flow
+  Jones · 1998 · jones1998
+  K3
+  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ up and down: choose   Enter: read   ctrl+n: note   Esc: close
+
+== en 120 library, closed ==
+ Library
+ > x_
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ○ The search failed: Zotero did not answer
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ up and down: choose   Enter: copy the key   Esc: close
+
+== pt 40 notes ==
+ Notas (3)                              
+────────────────────────────────────────
+› Literature/smith2021.md               
+  Research/2026-10-23 asthma review.md  
+  Syntheses/spirometry in children an...
+────────────────────────────────────────
+ cima e baixo: escolher   escrever:     
+filtrar   PgUp PgDn: deslocar   ctrl+o: 
+abrir   Esc: fechar                     
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+
+== pt 40 second note, opened ==
+ Notas (3)                              
+────────────────────────────────────────
+┄┄ evidência: abstract                  
+                                        
+ A short note.                          
+────────────────────────────────────────
+ cima e baixo: deslocar   ctrl+o: abrir 
+Esc: voltar                             
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+
+== pt 40 no notes ==
+ Notas (0)                              
+────────────────────────────────────────
+  Ainda não há notas. O Sub-Sub escre...
+────────────────────────────────────────
+ cima e baixo: escolher   escrever:     
+filtrar   PgUp PgDn: deslocar   ctrl+o: 
+abrir   Esc: fechar                     
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+
+== pt 40 library ==
+ Biblioteca
+ > asthma_
+────────────────────────────────────────
+  Home spirometry in children with as...
+  Smith · 2021 · smith2021
+› Peak flow
+  Jones · 1998 · jones1998
+  K3
+  
+────────────────────────────────────────
+ cima e baixo: escolher   Enter: ler
+ctrl+n: nota   Esc: fechar
+
+== pt 40 library, closed ==
+ Biblioteca
+ > x_
+────────────────────────────────────────
+  ○ A pesquisa falhou: Zotero did not...
+────────────────────────────────────────
+ cima e baixo: escolher   Enter: copiar
+a chave   Esc: fechar
+
+== pt 80 notes ==
+ Notas (3)                                                                      
+────────────────────────────────────────────────────────────────────────────────
+› Literature/smith2021.md                                                       
+  Research/2026-10-23 asthma review.md                                          
+  Syntheses/spirometry in children and adolescents, a long title.md             
+────────────────────────────────────────────────────────────────────────────────
+ cima e baixo: escolher   escrever: filtrar   PgUp PgDn: deslocar   ctrl+o:     
+abrir   Esc: fechar                                                             
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+
+== pt 80 second note, opened ==
+ Notas (3)                                                                      
+────────────────────────────────────────────────────────────────────────────────
+┄┄ evidência: abstract                                                          
+                                                                                
+ A short note.                                                                  
+────────────────────────────────────────────────────────────────────────────────
+ cima e baixo: deslocar   ctrl+o: abrir   Esc: voltar                           
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+
+== pt 80 no notes ==
+ Notas (0)                                                                      
+────────────────────────────────────────────────────────────────────────────────
+  Ainda não há notas. O Sub-Sub escreve-as em Literature/, Research/ e Synthe...
+────────────────────────────────────────────────────────────────────────────────
+ cima e baixo: escolher   escrever: filtrar   PgUp PgDn: deslocar   ctrl+o:     
+abrir   Esc: fechar                                                             
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+
+== pt 80 library ==
+ Biblioteca
+ > asthma_
+────────────────────────────────────────────────────────────────────────────────
+  Home spirometry in children with asthma: a randomised trial
+  Smith · 2021 · smith2021
+› Peak flow
+  Jones · 1998 · jones1998
+  K3
+  
+────────────────────────────────────────────────────────────────────────────────
+ cima e baixo: escolher   Enter: ler   ctrl+n: nota   Esc: fechar
+
+== pt 80 library, closed ==
+ Biblioteca
+ > x_
+────────────────────────────────────────────────────────────────────────────────
+  ○ A pesquisa falhou: Zotero did not answer
+────────────────────────────────────────────────────────────────────────────────
+ cima e baixo: escolher   Enter: copiar a chave   Esc: fechar
+
+== pt 120 notes ==
+ Notas (3)                                                                                                              
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+› Literature/smith2021.md            │ ── evidência: full text                                                          
+  Research/2026-10-23 asthma revi... │                                                                                  
+  Syntheses/spirometry in childre... │  ## Why I am reading this                                                        
+                                     │                                                                                  
+                                     │  Home spirometry in children is feasible when parents are trained, and the       
+                                     │  quality of the curves improves. Home spirometry in children is feasible when    
+                                     │  parents are trained, and the quality of the curves improves. Home spirometry in 
+                                     │  children is feasible when parents are trained, and the quality of the curves    
+                                     │  improves. Home spirometry in children is feasible when parents are trained, and 
+                                     │  the quality of the curves improves. Home spirometry in children is feasible     
+                                     │  when parents are trained, and the quality of the curves improves. Home          
+                                     │  spirometry in children is feasible when parents are trained, and the quality of 
+                                     │  the curves improves. Home spirometry in children is feasible when parents are   
+                                     │  trained, and the quality of the curves improves. Home spirometry in children is 
+                                     │  feasible when parents are trained, and the quality of the curves improves. Home 
+                                     │  spirometry in children is feasible when parents are trained, and the quality of 
+                                     │  the curves improves. Home spirometry in children is feasible when parents are   
+                                     │  trained, and the quality of the curves improves. Home spirometry in children is 
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ cima e baixo: escolher   escrever: filtrar   PgUp PgDn: deslocar   ctrl+o: abrir   Esc: fechar                         
+                                                                                                                        
+
+== pt 120 second note ==
+ Notas (3)                                                                                                              
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  Literature/smith2021.md            │ ┄┄ evidência: abstract                                                           
+› Research/2026-10-23 asthma revi... │                                                                                  
+  Syntheses/spirometry in childre... │  A short note.                                                                   
+                                     │                                                                                  
+                                     │                                                                                  
+                                     │                                                                                  
+                                     │                                                                                  
+                                     │                                                                                  
+                                     │                                                                                  
+                                     │                                                                                  
+                                     │                                                                                  
+                                     │                                                                                  
+                                     │                                                                                  
+                                     │                                                                                  
+                                     │                                                                                  
+                                     │                                                                                  
+                                     │                                                                                  
+                                     │                                                                                  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ cima e baixo: escolher   escrever: filtrar   PgUp PgDn: deslocar   ctrl+o: abrir   Esc: fechar                         
+                                                                                                                        
+
+== pt 120 no notes ==
+ Notas (0)                                                                                                              
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  Ainda não há notas. O Sub-Sub escreve-as em Literature/, Research/ e Syntheses/.                                      
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ cima e baixo: escolher   escrever: filtrar   PgUp PgDn: deslocar   ctrl+o: abrir   Esc: fechar                         
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+                                                                                                                        
+
+== pt 120 library ==
+ Biblioteca
+ > asthma_
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  Home spirometry in children with asthma: a randomised trial
+  Smith · 2021 · smith2021
+› Peak flow
+  Jones · 1998 · jones1998
+  K3
+  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ cima e baixo: escolher   Enter: ler   ctrl+n: nota   Esc: fechar
+
+== pt 120 library, closed ==
+ Biblioteca
+ > x_
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ○ A pesquisa falhou: Zotero did not answer
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ cima e baixo: escolher   Enter: copiar a chave   Esc: fechar

@@ -795,6 +795,100 @@ test("approval overlay: keys answer it, nothing else does, and the preview shows
 	assert.deepEqual([plainConfirm.customCalls, plainConfirm.confirms], [0, 1], "no look: pi's confirm");
 });
 
+test("screens: notes and library at 40, 80 and 120 columns, and their keys", async () => {
+	const { NotesView, LibraryView, notesLines, libraryLines } = await import("../src/screens.ts");
+	const { plain } = await import("../src/look.ts");
+	const { wrapTextWithAnsi } = await import("@earendil-works/pi-tui");
+	const md = (text: string, width: number) => wrapTextWithAnsi(text, width - 2).map((l) => ` ${l}`);
+	const notes = [
+		{ path: "/v/Literature/smith2021.md", rel: "Literature/smith2021.md" },
+		{ path: "/v/Research/2026-10-23 asthma review.md", rel: "Research/2026-10-23 asthma review.md" },
+		{ path: "/v/Syntheses/spirometry in children and adolescents, a long title.md", rel: "Syntheses/spirometry in children and adolescents, a long title.md" },
+	];
+	const files: Record<string, string> = {
+		"/v/Literature/smith2021.md": "---\ncitekey: smith2021\nevidence: full text\n---\n## Why I am reading this\n\n" + "Home spirometry in children is feasible when parents are trained, and the quality of the curves improves. ".repeat(12),
+		"/v/Research/2026-10-23 asthma review.md": "---\nevidence: abstract\n---\nA short note.",
+		"/v/Syntheses/spirometry in children and adolescents, a long title.md": "No front matter here.",
+	};
+	const blocks: Record<string, string[]> = {};
+	for (const lang of ["en", "pt"] as const) {
+		for (const width of [40, 80, 120]) {
+			const mk = () => new NotesView({ notes, read: (p) => files[p], markdown: md, open: () => {}, done: () => {}, lang, paint: plain, rows: () => 24 });
+			const v = mk();
+			blocks[`${lang} ${width} notes`] = v.render(width);
+			v.handleInput("\x1b[B");
+			if (width < 100) v.handleInput("\r");
+			blocks[`${lang} ${width} second note${width < 100 ? ", opened" : ""}`] = v.render(width);
+			const none = new NotesView({ notes: [], read: () => "", markdown: md, open: () => {}, done: () => {}, lang, paint: plain, rows: () => 24 });
+			blocks[`${lang} ${width} no notes`] = none.render(width);
+			blocks[`${lang} ${width} library`] = libraryLines({ width, rows: 20, lang, paint: plain, researcher: true, query: "asthma", state: "done", selected: 1, items: [
+				{ key: "K1", title: "Home spirometry in children with asthma: a randomised trial", authors: "Smith", year: 2021, citekey: "smith2021" }, { key: "K2", title: "Peak flow", authors: "Jones", year: "1998", citekey: "jones1998" }, { key: "K3" },
+			] });
+			blocks[`${lang} ${width} library, closed`] = libraryLines({ width, rows: 20, lang, paint: plain, researcher: false, query: "x", state: "failed", error: "Zotero did not answer\nsecond line", selected: 0, items: [] });
+			for (const [k, lines] of Object.entries(blocks)) if (k.startsWith(`${lang} ${width} `)) assert.ok(lines.every((l) => [...l].length <= width), `${k}: a line is wider than ${width}`);
+		}
+	}
+	snapshot("screens", blocks);
+
+	// notes: keys
+	const opened: string[] = [];
+	let closed = 0;
+	const v = new NotesView({ notes, read: (p) => files[p], markdown: md, open: (p) => opened.push(p), done: () => closed++, lang: "en", paint: plain, rows: () => 24 });
+	v.render(120);
+	v.handleInput("s");
+	v.handleInput("p");
+	assert.match(v.render(120).join("\n"), /\(1 of 3\)\s+filter: sp/, "typing filters the list");
+	v.handleInput("\x1b");
+	assert.match(v.render(120).join("\n"), /\(3\)/, "Esc clears the filter first");
+	assert.equal(closed, 0);
+	v.handleInput("\x0f");
+	assert.deepEqual(opened, ["/v/Literature/smith2021.md"], "ctrl+o opens the chosen note");
+	v.handleInput("\x1b");
+	assert.equal(closed, 1, "Esc closes when there is no filter");
+	// narrow: Enter reads, Esc goes back, then closes
+	const n = new NotesView({ notes, read: (p) => files[p], markdown: md, open: () => {}, done: () => closed++, lang: "en", paint: plain, rows: () => 24 });
+	n.render(60);
+	n.handleInput("\r");
+	assert.match(n.render(60).join("\n"), /evidence: full text/);
+	n.handleInput("\x1b");
+	assert.match(n.render(60).join("\n"), /smith2021\.md/);
+	assert.equal(closed, 1);
+
+	// library: search as you type, only the newest answer counts, Enter and ctrl+n act on the chosen item
+	const asked: string[] = [];
+	const picks: string[] = [];
+	let release: (items: unknown[]) => void = () => {};
+	const lib = new LibraryView({
+		search: (q) => { asked.push(q); return q === "as" ? new Promise((res) => { release = res as any; }) : Promise.resolve([{ key: "K1", citekey: "smith2021", title: "T" }, { key: "K2", title: "U" }]); },
+		choose: (it) => picks.push(`read ${it.citekey || it.key}`), note: (it) => picks.push(`note ${it.citekey || it.key}`), done: () => picks.push("close"),
+		lang: "en", paint: plain, researcher: true, delay: 0,
+	});
+	lib.handleInput("a");
+	lib.handleInput("s");
+	await new Promise((r) => setTimeout(r, 20));
+	lib.handleInput("t");
+	await new Promise((r) => setTimeout(r, 20));
+	release([{ key: "OLD" }]);
+	await new Promise((r) => setTimeout(r, 20));
+	assert.deepEqual(asked, ["as", "ast"], "one search for each pause");
+	assert.match(lib.render(80).join("\n"), /smith2021/, "the answer of the older search is dropped");
+	assert.ok(!lib.render(80).join("\n").includes("OLD"));
+	lib.handleInput("\x1b[B");
+	lib.handleInput("\x1b[A");
+	lib.handleInput("\r");
+	lib.handleInput("\x0e");
+	lib.handleInput("\x1b");
+	assert.deepEqual(picks, ["read smith2021", "note smith2021", "close"]);
+	// the Librarian has no note action
+	const picks2: string[] = [];
+	const lib2 = new LibraryView({ search: async () => [{ key: "K1" }], choose: (it) => picks2.push(it.key), note: () => picks2.push("note"), done: () => {}, lang: "en", paint: plain, researcher: false, delay: 0 });
+	lib2.handleInput("x");
+	await new Promise((r) => setTimeout(r, 20));
+	lib2.handleInput("\x0e");
+	lib2.handleInput("\r");
+	assert.deepEqual(picks2, ["K1"]);
+});
+
 test("themes: all eight load and name every required colour", async () => {
 	const { readdirSync, readFileSync } = await import("node:fs");
 	const dir = join(import.meta.dirname, "..", "themes");

@@ -15,9 +15,9 @@
  */
 
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Bridge, type ServerSpec } from "./bridge.ts";
 import {
@@ -46,6 +46,8 @@ import { perMinuteWait, providerTrouble, TROUBLE_TEXT, TROUBLE_TEXT_PT } from ".
 import { headerLines, LIBRARIAN_THEME, type LibraryState, paintPreview, QUOTES, type Scheme, schemeFromAnsi, themeName } from "./look.ts";
 import { footerLines, toolRenderers, usageTotals } from "./chrome.ts";
 import { ApprovalView } from "./dialogs.ts";
+import { allowedFile, listNotes, OPENABLE, openFile } from "./files.ts";
+import { LibraryView, NotesView, type LibraryItem } from "./screens.ts";
 import { glyphs, paintFromTheme, workingFrames } from "./skin.ts";
 import { loadWords, toolWord, type Words } from "./words.ts";
 import { systemAddition } from "./prompt.ts";
@@ -227,6 +229,89 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			return answer === true;
 		}
 		return (await ctx.ui.confirm(title, body)) === true;
+	}
+
+	/** The notes and library screens cover the terminal: the conversation is behind them and comes back when they close. */
+	const OVERLAY = { overlay: true, overlayOptions: { width: "100%", maxHeight: "100%", anchor: "top-left", margin: 0 } } as const;
+
+	/** True when the terminal look can show a screen of its own; otherwise says where the same thing is. */
+	function screenOk(ctx: ExtensionContext): boolean {
+		if (lookOn(ctx) && typeof ctx.ui.custom === "function") return true;
+		ctx.ui.notify(L("Sub-Sub: this screen is part of the terminal look. In subsub web, use the Notes button and the library search.", "Sub-Sub: este ecrã faz parte do aspeto do terminal. Em subsub web, use o botão Notas e a pesquisa na biblioteca."), "info");
+		return false;
+	}
+
+	/** /notes: the notes in the Sub-Sub folder, newest first; the note under the cursor shows beside the list. */
+	async function openNotes(ctx: ExtensionContext): Promise<void> {
+		if (!screenOk(ctx)) return;
+		const root = cfg.vault ?? ctx.cwd;
+		const notes = listNotes(root);
+		const { Markdown } = await import("@earendil-works/pi-tui");
+		const { getMarkdownTheme } = await import("@earendil-works/pi-coding-agent");
+		await ctx.ui.custom<void>(
+			(tui, theme, _keys, done) =>
+				new NotesView({
+					notes,
+					read: (path) => {
+						const file = allowedFile(path, root, cfg.vault);
+						return file && statSync(file).size < 2_000_000 ? readFileSync(file, "utf8") : "";
+					},
+					markdown: (text, width) => new Markdown(text, 1, 0, getMarkdownTheme()).render(width),
+					open: (path) => {
+						const file = allowedFile(path, root, cfg.vault);
+						if (file && OPENABLE.has(extname(file).toLowerCase())) openFile(file, cfg.vault);
+					},
+					done: () => done(),
+					lang,
+					paint: paintFromTheme(theme),
+					glyphs: glyphs(),
+					rows: () => tui.terminal?.rows ?? 24,
+					redraw: () => tui.requestRender(),
+				}),
+			OVERLAY,
+		);
+	}
+
+	/** /library: search as you type; Enter puts /read <item> in the box (the Librarian gets the key), ctrl+n puts /lit-note <item>. */
+	async function openLibrary(ctx: ExtensionContext): Promise<void> {
+		if (!screenOk(ctx)) return;
+		const ref = (it: LibraryItem) => it.citekey || it.key;
+		await ctx.ui.custom<void>(
+			(tui, theme, _keys, done) =>
+				new LibraryView({
+					search: async (query) => {
+						const r = await current().call("zotero_find_items", { query, limit: 25 });
+						if (r.isError) throw new Error(r.text);
+						return ((r.data as { items?: LibraryItem[] })?.items ?? []).filter((it) => it && it.key);
+					},
+					choose: (it) => {
+						ctx.ui.setEditorText(mode === "researcher" ? `/read ${ref(it)}` : ref(it));
+						done();
+					},
+					note: (it) => {
+						ctx.ui.setEditorText(`/lit-note ${ref(it)}`);
+						done();
+					},
+					done: () => done(),
+					lang,
+					paint: paintFromTheme(theme),
+					glyphs: glyphs(),
+					researcher: mode === "researcher",
+					rows: () => tui.terminal?.rows ?? 24,
+					redraw: () => tui.requestRender(),
+				}),
+			OVERLAY,
+		);
+	}
+
+	/** /actions: the buttons of the web view as a list; the choice goes into the box, so the user adds what is missing and presses Enter. */
+	async function openActions(ctx: ExtensionContext): Promise<void> {
+		const w = words ?? (await loadWords());
+		const list = [...(mode === "researcher" ? w.ACTIONS.research : []), ...w.ACTIONS.library].filter((a) => a.needs !== "starbuck" || starbuckEnabled(cfg));
+		const labels = list.map((a) => `${a[lang]}   /${a.cmd}`);
+		const pick = await ctx.ui.select(L("Actions", "Ações"), labels);
+		const a = list[labels.indexOf(pick ?? "")];
+		if (a) ctx.ui.setEditorText(a.cmd.endsWith(" ") ? `/${a.cmd}` : `/${a.cmd} `);
 	}
 
 	function paintFor(ctx: ExtensionContext) {
@@ -701,21 +786,36 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		};
 	}
 
+	const switchTo = async (ctx: ExtensionContext, next: Mode): Promise<void> => {
+		await applyMode(ctx, next, true);
+		ctx.ui.notify(
+			next === "librarian"
+				? L("Sub-Sub: Librarian mode. For searches and notes, switch to /researcher.", "Sub-Sub: modo Bibliotecário. Para pesquisas e notas, mude para /researcher.")
+				: L("Sub-Sub: Researcher mode. It searches, writes notes and also changes the library, with a preview.", "Sub-Sub: modo Investigador. Pesquisa, escreve notas e também altera a biblioteca, com pré-visualização."),
+			"info",
+		);
+	};
+
 	pi.registerCommand("librarian", {
 		description: "Sub-Sub: switch to the Librarian (manages the library: tags, imports, metadata, PDFs)",
-		handler: async (_args, ctx) => {
-			await applyMode(ctx, "librarian", true);
-			ctx.ui.notify(L("Sub-Sub: Librarian mode. For searches and notes, switch to /researcher.", "Sub-Sub: modo Bibliotecário. Para pesquisas e notas, mude para /researcher."), "info");
-		},
+		handler: async (_args, ctx) => switchTo(ctx, "librarian"),
 	});
 
 	pi.registerCommand("researcher", {
 		description: "Sub-Sub: switch to the Researcher (searches, notes, reviews, and everything the Librarian does)",
-		handler: async (_args, ctx) => {
-			await applyMode(ctx, "researcher", true);
-			ctx.ui.notify(L("Sub-Sub: Researcher mode. It searches, writes notes and also changes the library, with a preview.", "Sub-Sub: modo Investigador. Pesquisa, escreve notas e também altera a biblioteca, com pré-visualização."), "info");
-		},
+		handler: async (_args, ctx) => switchTo(ctx, "researcher"),
 	});
+
+	// Screens of the terminal look (the web view has its own panels, so these are only for the `subsub` command).
+	if (standalone) {
+		pi.registerCommand("notes", { description: "Sub-Sub: the notes in your Sub-Sub folder", handler: async (_args, ctx) => openNotes(ctx) });
+		pi.registerCommand("library", { description: "Sub-Sub: search your Zotero library as you type", handler: async (_args, ctx) => openLibrary(ctx) });
+		pi.registerCommand("actions", { description: "Sub-Sub: the actions of the web view, as a list", handler: async (_args, ctx) => openActions(ctx) });
+		pi.registerShortcut?.("alt+n", { description: "Sub-Sub: notes", handler: (ctx) => openNotes(ctx) });
+		pi.registerShortcut?.("alt+l", { description: "Sub-Sub: library search", handler: (ctx) => openLibrary(ctx) });
+		pi.registerShortcut?.("alt+a", { description: "Sub-Sub: actions", handler: (ctx) => openActions(ctx) });
+		pi.registerShortcut?.("alt+m", { description: "Sub-Sub: switch between the Researcher and the Librarian", handler: (ctx) => switchTo(ctx, mode === "researcher" ? "librarian" : "researcher") });
+	}
 
 	pi.registerCommand("subsub", {
 		description: "Sub-Sub: Zotero connection and library overview",
@@ -801,6 +901,11 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	// A registered command runs before the input hook, so /read checks the mode itself.
 	pi.registerCommand("read", {
 		description: "Sub-Sub: read a paper with guidance; Sub-Sub finds the passages and asks, you write the answers. /read [background|fact|extract|critique] <citekey, DOI, PMID or title words>",
+		getArgumentCompletions: (prefix: string) => {
+			if (/\s/.test(prefix.trim())) return null;
+			const found = Object.keys(PURPOSES).filter((k) => k.startsWith(prefix.trim().toLowerCase()));
+			return found.length ? found.map((k) => ({ value: k, label: `${k}: ${L(PURPOSES[k as Purpose][0], PURPOSES[k as Purpose][1])}` })) : null;
+		},
 		handler: async (args, ctx) => {
 			if (mode === "librarian") return ctx.ui.notify(researcherOnly("read"), "warning");
 			let { purpose, ref } = readArgs(String(args ?? ""));

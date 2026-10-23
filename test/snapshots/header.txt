@@ -8,7 +8,7 @@ Researcher  mimo-v2.6-pro
 Zotero: 990 items, 975 to check
 "Very like a whale."
   (Hamlet, in the Extracts)
-/researcher  /librarian  /read  /hist...
+/researcher  /librarian  /read  /note...
 
 
 == en 40 closed ==
@@ -19,7 +19,7 @@ Zotero: 990 items, 975 to check
 
 Librarian  mimo-v2.6-flash
 ○ Zotero is not running. Start it, th...
-/researcher  /librarian  /read  /hist...
+/researcher  /librarian  /read  /note...
 
 
 == en 80 ==
@@ -30,7 +30,7 @@ Librarian  mimo-v2.6-flash
 
 Researcher  mimo-v2.6-pro  |  Zotero: 990 items, 975 to check
 "Very like a whale." (Hamlet, in the Extracts)
-/researcher  /librarian  /read  /history  /undo  |  / for all commands
+/researcher  /librarian  /read  /notes  /library  /actions  |  / for all comm...
 
 
 == en 80 closed ==
@@ -41,7 +41,7 @@ Researcher  mimo-v2.6-pro  |  Zotero: 990 items, 975 to check
 
 Librarian  mimo-v2.6-flash
 ○ Zotero is not running. Start it, then type /subsub.
-/researcher  /librarian  /read  /history  /undo  |  / for all commands
+/researcher  /librarian  /read  /notes  /library  /actions  |  / for all comm...
 
 
 == en 120 ==
@@ -52,7 +52,7 @@ Librarian  mimo-v2.6-flash
 
 Researcher  mimo-v2.6-pro  |  Zotero: 990 items, 975 to check
 "Very like a whale." (Hamlet, in the Extracts)
-/researcher  /librarian  /read  /history  /undo  |  / for all commands
+/researcher  /librarian  /read  /notes  /library  /actions  |  / for all commands
 
 
 == en 120 closed ==
@@ -62,7 +62,7 @@ Researcher  mimo-v2.6-pro  |  Zotero: 990 items, 975 to check
 ╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  0.21.0
 
 Librarian  mimo-v2.6-flash  |  ○ Zotero is not running. Start it, then type /subsub.
-/researcher  /librarian  /read  /history  /undo  |  / for all commands
+/researcher  /librarian  /read  /notes  /library  /actions  |  / for all commands
 
 
 == pt 40 ==
@@ -75,7 +75,7 @@ Researcher  mimo-v2.6-pro
 Zotero: 990 itens, 975 por verificar
 "Very like a whale."
   (Hamlet, in the Extracts)
-/researcher  /librarian  /read  /hist...
+/researcher  /librarian  /read  /note...
 
 
 == pt 40 closed ==
@@ -86,7 +86,7 @@ Zotero: 990 itens, 975 por verificar
 
 Librarian  mimo-v2.6-flash
 ○ O Zotero não está aberto. Abra-o e ...
-/researcher  /librarian  /read  /hist...
+/researcher  /librarian  /read  /note...
 
 
 == pt 80 ==
@@ -97,7 +97,7 @@ Librarian  mimo-v2.6-flash
 
 Researcher  mimo-v2.6-pro  |  Zotero: 990 itens, 975 por verificar
 "Very like a whale." (Hamlet, in the Extracts)
-/researcher  /librarian  /read  /history  /undo  |  / for all commands
+/researcher  /librarian  /read  /notes  /library  /actions  |  / for all comm...
 
 
 == pt 80 closed ==
@@ -108,7 +108,7 @@ Researcher  mimo-v2.6-pro  |  Zotero: 990 itens, 975 por verificar
 
 Librarian  mimo-v2.6-flash
 ○ O Zotero não está aberto. Abra-o e escreva /subsub.
-/researcher  /librarian  /read  /history  /undo  |  / for all commands
+/researcher  /librarian  /read  /notes  /library  /actions  |  / for all comm...
 
 
 == pt 120 ==
@@ -119,7 +119,7 @@ Librarian  mimo-v2.6-flash
 
 Researcher  mimo-v2.6-pro  |  Zotero: 990 itens, 975 por verificar
 "Very like a whale." (Hamlet, in the Extracts)
-/researcher  /librarian  /read  /history  /undo  |  / for all commands
+/researcher  /librarian  /read  /notes  /library  /actions  |  / for all commands
 
 
 == pt 120 closed ==
@@ -129,5 +129,5 @@ Researcher  mimo-v2.6-pro  |  Zotero: 990 itens, 975 por verificar
 ╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  0.21.0
 
 Librarian  mimo-v2.6-flash  |  ○ O Zotero não está aberto. Abra-o e escreva /subsub.
-/researcher  /librarian  /read  /history  /undo  |  / for all commands
+/researcher  /librarian  /read  /notes  /library  /actions  |  / for all commands
 
