@@ -585,7 +585,7 @@ test("themes: generated from DESIGN.md, readable, and without red or green for e
 	for (const [id, t] of Object.entries<any>(built)) {
 		assert.deepEqual(JSON.parse(readFileSync(join(root, "themes", `${id}.json`), "utf8")), JSON.parse(JSON.stringify(t)), `${id}: run node scripts/make-themes.mjs`);
 		const c = (role: string): string => hexOf(t.vars[t.colors[role]] ?? t.colors[role]);
-		const sheet: string = built[id.replace(/-256$/, "")].vars.sheet;
+		const sheet: string = (built as any)[id.replace(/-256$/, "")].vars.sheet;
 		// Text on the terminal's own background: the sheet of the scheme.
 		const onSheet = ["text", "muted", "dim", "mdHeading", "mdLink", "mdLinkUrl", "mdQuote", "mdCode", "toolTitle", "toolOutput", "toolDiffAdded", "toolDiffRemoved", "toolDiffContext", "success", "warning", "error", "accent",
 			"syntaxComment", "syntaxKeyword", "syntaxFunction", "syntaxString", "syntaxNumber", "syntaxType", "syntaxOperator", "syntaxPunctuation", "thinkingText", "thinkingHigh", "thinkingXhigh", "customMessageLabel"];
@@ -964,6 +964,22 @@ test("web: the notes pane reads notes in the Sub-Sub folder only; wikilinks find
 	const rels = listNotes(vault).map((n) => n.rel.replaceAll("\\", "/"));
 	assert.ok(rels.includes("Literature/smith2021.md") && rels.includes("Research/sub/a.md"));
 	assert.ok(!rels.some((r) => r.includes(".plans")), "dot folders are left out");
+});
+
+test("words: the terminal reads the web view's actions, suggestions and tool names; the file helpers are shared", async () => {
+	const { loadWords, toolWord } = await import("../src/words.ts");
+	const files = await import("../src/files.ts");
+	const web = await import("../src/web.ts");
+	assert.equal(web.allowedFile, files.allowedFile);
+	assert.equal(web.listNotes, files.listNotes);
+	const w = await loadWords();
+	assert.ok(w.ACTIONS.research.some((a) => a.cmd === "read") && w.ACTIONS.library.some((a) => a.cmd === "undo"));
+	for (const a of [...w.ACTIONS.research, ...w.ACTIONS.library]) assert.ok(a.en && a.pt, a.cmd);
+	assert.equal(w.SUGGESTIONS.researcher.length, 3);
+	assert.equal(toolWord(w, "en", "zotero_find_items"), "search the library");
+	assert.equal(toolWord(w, "pt", "zotero_find_items"), w.TOOLS.pt.find_items);
+	assert.equal(toolWord(w, "en", "mystery_tool"), "mystery_tool");
+	assert.deepEqual(Object.keys(w.TOOLS.en).sort(), Object.keys(w.TOOLS.pt).sort());
 });
 
 test("web: Open judges the real file, not a link inside the notes folder", async () => {
