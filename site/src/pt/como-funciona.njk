@@ -60,12 +60,12 @@ description: O que corre onde, os dois modos, o navegador e o terminal, e aquilo
 <section class="section">
 	<div class="wrap split terminal-split">
 		<div>
-			<h2>O mesmo Sub-Sub nos dois.</h2>
-			<p>Abra o Sub-Sub a partir do atalho e ele abre no navegador. Escreva <code>subsub</code> e ele abre no terminal. Os modos e as aprovações são os mesmos.</p>
-			<p>A vista no navegador acrescenta uma pesquisa na biblioteca, um painel de notas que mostra as suas notas ao lado da conversa e botões para os comandos mais usados.</p>
+			<h2>O mesmo Sub-Sub em três lugares.</h2>
+			<p>Abra o Sub-Sub a partir do atalho e ele abre no navegador. Escreva <code>subsub</code> e ele abre no terminal, por baixo da linha de comandos. Escreva <code>subsub tui</code> e ocupa o terminal todo. Os modos e as aprovações são os mesmos.</p>
+			<p>A vista no navegador acrescenta uma pesquisa na biblioteca, um painel de notas que mostra as suas notas ao lado da conversa e botões para os comandos mais usados. Nas duas vistas do terminal, F2, F3 e F4 abrem as suas notas, uma pesquisa na biblioteca e as ações, e F5 muda de modo.</p>
 			<p>A vista no navegador é um pequeno servidor no seu próprio computador. Só escuta em 127.0.0.1 e desliga-se 10 minutos depois de fechar a página.</p>
 		</div>
-<div class="terminal" role="img" aria-label="O Sub-Sub no terminal: mostra a pré-visualização de uma alteração de etiquetas e pergunta Yes ou No.">
+<div class="terminal" role="img" aria-label="O Sub-Sub no terminal: mostra a pré-visualização de uma alteração de etiquetas entre linhas tracejadas; s aplica, n deixa a biblioteca como está.">
 <pre><span class="t-dim">$</span> subsub --librarian
 <span class="t-acc">Sub-Sub {{ release.version }}</span>  <span class="t-dim">Librarian · Zotero: 1,024 items</span>
 
@@ -76,7 +76,7 @@ Smith 2021: Home spirometry in children with asthma
   <span class="t-add">+ topic/respiratory, topic/pediatrics, type/cohort</span>
 Costa 2019: A decision aid for inhaler choice
   <span class="t-add">+ topic/clinical-decision-support</span>; <span class="t-rem">- type/rct</span></pre>
-<span class="t-box-keys"><span class="t-on">Yes</span> <span class="t-dim">No</span></span></div>
+<span class="t-box-keys"><span class="t-on">s</span> <span class="t-dim">aplicar</span>   <span class="t-on">n</span> <span class="t-dim">deixar como está</span>   <span class="t-dim">Esc deixar</span></span></div>
 </div>
 	</div>
 </section>

@@ -59,12 +59,12 @@ description: What runs where, the two modes, the browser and the terminal, and w
 <section class="section">
 	<div class="wrap split terminal-split">
 		<div>
-			<h2>The same Sub-Sub in both.</h2>
-			<p>Open Sub-Sub from its shortcut and it opens in your browser. Type <code>subsub</code> and it opens in the terminal. The modes and the approvals are the same.</p>
-			<p>The browser view adds a library search, a notes pane that shows your notes next to the conversation, and buttons for the common commands.</p>
+			<h2>The same Sub-Sub in three places.</h2>
+			<p>Open Sub-Sub from its shortcut and it opens in your browser. Type <code>subsub</code> and it opens in the terminal, under your shell prompt. Type <code>subsub tui</code> and it takes the whole terminal. The modes and the approvals are the same.</p>
+			<p>The browser view adds a library search, a notes pane that shows your notes next to the conversation, and buttons for the common commands. In both terminal views, F2, F3 and F4 open your notes, a library search and the actions, and F5 switches the mode.</p>
 			<p>The browser view is a small server on your own computer. It listens only on 127.0.0.1 and stops 10 minutes after you close the page.</p>
 		</div>
-<div class="terminal" role="img" aria-label="Sub-Sub in the terminal: it shows a preview of a tag change and asks Yes or No.">
+<div class="terminal" role="img" aria-label="Sub-Sub in the terminal: it shows a preview of a tag change between dashed rules; y applies it, n leaves the library as it is.">
 <pre><span class="t-dim">$</span> subsub --librarian
 <span class="t-acc">Sub-Sub {{ release.version }}</span>  <span class="t-dim">Librarian · Zotero: 1,024 items</span>
 
@@ -75,7 +75,7 @@ Smith 2021: Home spirometry in children with asthma
   <span class="t-add">+ topic/respiratory, topic/pediatrics, type/cohort</span>
 Costa 2019: A decision aid for inhaler choice
   <span class="t-add">+ topic/clinical-decision-support</span>; <span class="t-rem">- type/rct</span></pre>
-<span class="t-box-keys"><span class="t-on">Yes</span> <span class="t-dim">No</span></span></div>
+<span class="t-box-keys"><span class="t-on">y</span> <span class="t-dim">apply</span>   <span class="t-on">n</span> <span class="t-dim">leave it as it is</span>   <span class="t-dim">Esc leave it</span></span></div>
 </div>
 	</div>
 </section>

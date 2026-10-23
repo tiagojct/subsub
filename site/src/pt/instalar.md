@@ -58,7 +58,7 @@ Se a sua instituição gere o seu computador e bloqueia o comando, entregue ao s
 
 Depois leia o [Guia](/pt/guia/).
 
-Se preferir o terminal, escreva `subsub` e depois `/login`. Tudo o que faz no navegador também funciona no terminal.
+Se preferir o terminal, escreva `subsub` e depois `/login`. Para o terminal todo, escreva `subsub tui` (ligue antes o fornecedor do modelo, com `subsub` ou no navegador). Tudo o que faz no navegador também funciona no terminal.
 
 ## Verificar a configuração
 

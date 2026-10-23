@@ -9,7 +9,7 @@ lead: O Sub-Sub tem dois modos. O Investigador tem todos os comandos e ferrament
 
 O modo define que ferramentas o Sub-Sub pode usar. O Investigador é o modo por omissão: lê a sua biblioteca, pesquisa a literatura, escreve notas e também altera a biblioteca. Use o Bibliotecário para sessões de etiquetagem com um modelo rápido e barato. Cada modo pode ter o seu próprio modelo.
 
-Para mudar de modo, selecione Investigador ou Bibliotecário no topo da vista no navegador. No terminal, escreva `/researcher` ou `/librarian`.
+Para mudar de modo, selecione Investigador ou Bibliotecário no topo da vista no navegador. No terminal, escreva `/researcher` ou `/librarian`, ou prima F5.
 
 ## Só no Investigador
 

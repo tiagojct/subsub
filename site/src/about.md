@@ -23,7 +23,7 @@ Sub-Sub is made by Tiago Jacinto, assistant professor at the Faculty of Medicine
 - [Starbuck](https://github.com/tiagojct/starbuck), the optional add-on for reference checks.
 - The `/lit`, `/compare` and `/review` commands and the integrity rules of Sub-Sub adapt text from [Feynman](https://github.com/Companion-Inc/feynman) (MIT licence). The sections of `/digest` come from [alberto-research](https://github.com/gabriel-affonso/alberto-research) (MIT licence).
 - [Literata](https://github.com/googlefonts/literata) and [Atkinson Hyperlegible Next and Mono](https://www.brailleinstitute.org/freefont/) type (SIL Open Font License), for this site and the browser view.
-- The Glauca and Try-Works design systems, for the terminal themes.
+- The terminal themes (`subsub-glauca` and `subsub-try-works`) use the colours of this site.
 
 ## If Sub-Sub stops
 

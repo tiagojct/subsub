@@ -542,7 +542,7 @@ button { font: inherit; }
 	border: 1px solid var(--rule-strong);
 }
 .terminal pre { margin: 0; font: inherit; white-space: pre; }
-.t-box { position: relative; width: max-content; min-width: 100%; margin-top: 1.4rem; border: 1px solid #4a5560; padding: 1rem 1rem 1.4rem; }
+.t-box { position: relative; width: max-content; min-width: 100%; margin-top: 1.4rem; border: 1px dashed #4a5560; border-left: 0; border-right: 0; padding: 1rem 0 1.4rem; }
 .t-box-title, .t-box-keys { position: absolute; background: var(--term-bg); padding: 0 0.5rem; }
 .t-box-title { top: -0.8em; left: 0.75rem; color: var(--term-dim); }
 .t-box-keys { bottom: -0.8em; right: 0.75rem; }
@@ -550,7 +550,7 @@ button { font: inherit; }
 .t-dim { color: var(--term-dim); }
 .t-acc { color: var(--term-acc); }
 .t-add { color: var(--term-add); }
-.t-rem { color: var(--term-rem); }
+.t-rem { color: var(--term-dim); text-decoration: line-through; }
 
 .needs { margin: 0; display: grid; border-top: 1px solid var(--text); }
 .needs > div { display: grid; grid-template-columns: 14rem minmax(0, 1fr); gap: 1.5rem; padding: 1rem 0; border-bottom: 1px solid var(--rule-strong); }

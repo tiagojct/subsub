@@ -8,7 +8,7 @@ lead: Sub-Sub has two modes. The Researcher has every command and tool. The Libr
 
 The mode sets which tools Sub-Sub may use. The Researcher is the default: it reads your library, searches the literature, writes notes and also changes the library. Use the Librarian for tagging sessions with a fast, cheap model. Each mode can have its own model.
 
-To change the mode, select Researcher or Librarian at the top of the browser view. In the terminal, type `/researcher` or `/librarian`.
+To change the mode, select Researcher or Librarian at the top of the browser view. In the terminal, type `/researcher` or `/librarian`, or press F5.
 
 ## Researcher only
 

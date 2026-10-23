@@ -57,7 +57,7 @@ If your institution manages your computer and blocks the command, give its IT se
 
 Then read the [Guide](/guide/).
 
-If you prefer the terminal: type `subsub`, then `/login`. Everything in the browser also works in the terminal.
+If you prefer the terminal: type `subsub`, then `/login`. For the whole terminal, type `subsub tui` (connect the model provider first, with `subsub` or in the browser). Everything in the browser also works in the terminal.
 
 ## Check the set-up
 
