@@ -31,6 +31,8 @@ export const QUOTES: Array<[string, string]> = [
 
 /** The terminal theme, without -dark/-light. subsub-try-works is the other one shipped. */
 export const DEFAULT_THEME = "subsub-glauca";
+/** The theme of the Librarian: the same plate with madder as its accent. */
+export const LIBRARIAN_THEME = "subsub-try-works";
 
 export type Scheme = "dark" | "light";
 

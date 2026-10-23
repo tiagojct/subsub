@@ -9,8 +9,8 @@ import { type Glyphs, UNICODE } from "./skin.ts";
 type Lang = "en" | "pt";
 
 export const CHROME_WORDS = {
-	en: { researcher: "Researcher", librarian: "Librarian", of: "of", tokens: "tokens", unknownUsage: "?", failed: "could not", evidence: "evidence" },
-	pt: { researcher: "Researcher", librarian: "Librarian", of: "de", tokens: "tokens", unknownUsage: "?", failed: "não foi possível", evidence: "evidência" },
+	en: { researcher: "Researcher", librarian: "Librarian", of: "of", tokens: "tokens", unknownUsage: "?", failed: "could not", evidence: "evidence", down: "not running", more: "more lines" },
+	pt: { researcher: "Researcher", librarian: "Librarian", of: "de", tokens: "tokens", unknownUsage: "?", failed: "não foi possível", evidence: "evidência", down: "parados", more: "linhas a mais" },
 };
 
 const len = (s: string) => [...s].length;
@@ -50,6 +50,8 @@ export interface FooterState {
 	window?: number;
 	tokens?: number | null;
 	cost?: number | null;
+	/** Servers that did not start ("zotero", "scholar"). */
+	down?: string[];
 }
 
 /**
@@ -68,7 +70,7 @@ export function footerLines(st: FooterState, width: number, p: Paint = plain, g:
 		const tail = ` | ${count} | ${m.bar} ${m.label}`;
 		return [p.mark(mode) + p.muted(cut(tail, Math.max(0, w - len(mode))))];
 	}
-	const first = libraryLine(st.library, st.lang, g).text;
+	const first = libraryLine(st.library, st.lang, g).text + (st.down?.length ? ` | ${words.down}: ${st.down.join(", ")}` : "");
 	const lines = [p.mark(mode) + p.muted(cut(` | ${first}`, Math.max(0, w - len(mode))))];
 	const window = st.window ? ` ${words.of} ${compactNumber(st.window)}` : "";
 	let second = `${cut(st.model, Math.max(8, Math.floor(w / 3)))}   ${m.bar} ${m.label}${m.label === "?" ? "" : window}`;
@@ -100,7 +102,7 @@ export function toolLine(opts: { state: ToolState; word: string; detail?: string
 }
 
 /** A short detail for a tool call: the first useful argument (a query, a title, a key, a path), cut to the length. */
-export function describeArgs(args: unknown, max = 40): string {
+export function toolDetail(args: unknown, max = 40): string {
 	if (!args || typeof args !== "object") return "";
 	const a = args as Record<string, unknown>;
 	for (const k of ["query", "q", "title", "citekey", "key", "keys", "doi", "identifier", "path", "name", "text"]) {
@@ -124,4 +126,72 @@ export function evidenceLine(evidence: string, lang: Lang, width: number, p: Pai
 	const label = `${CHROME_WORDS[lang].evidence}: ${evidence}`;
 	const lead = kind === "full" ? p.ok(g.solid.repeat(2)) : kind === "abstract" ? p.pend(g.dashed.repeat(2)) : p.muted(g.dotted.repeat(2));
 	return `${lead}${p.text(cut(` ${label}`, Math.max(0, width - 2)))}`;
+}
+
+/** Tokens and cost of the conversation, from the assistant messages of the session. null when a message has no usage (the provider did not report it). */
+export function usageTotals(entries: unknown[]): { tokens: number | null; cost: number | null } {
+	let tokens = 0;
+	let cost = 0;
+	for (const e of entries as Array<{ type?: string; message?: { role?: string; usage?: { totalTokens?: number; input?: number; output?: number; cacheRead?: number; cacheWrite?: number; cost?: { total?: number } } } }>) {
+		if (e.type !== "message" || e.message?.role !== "assistant") continue;
+		const u = e.message.usage;
+		if (!u) return { tokens: null, cost: null };
+		tokens += u.totalTokens ?? (u.input ?? 0) + (u.output ?? 0) + (u.cacheRead ?? 0) + (u.cacheWrite ?? 0);
+		cost += u.cost?.total ?? 0;
+	}
+	return { tokens, cost };
+}
+
+/** The shape of the pi theme and tool render context that the tool renderers use. */
+interface RenderContext {
+	args?: unknown;
+	isPartial?: boolean;
+	isError?: boolean;
+	expanded?: boolean;
+	state?: Record<string, unknown>;
+}
+
+const EXPANDED_LINES = 60;
+
+/**
+ * Tool renderers for the tools of Sub-Sub's servers: one line in plain words (see toolLine) and no box. The call line follows the state of the
+ * call; the result shows nothing unless it failed (the first line of the error goes on the call line) or the row is expanded (the output, indented).
+ */
+export function toolRenderers(opts: { word: (toolName: string) => string; lang: Lang; glyphs: () => Glyphs; paint: (theme: any) => Paint }) {
+	const text = (result: { content?: Array<{ type?: string; text?: string }> }): string => (result.content ?? []).filter((c) => c.type === "text").map((c) => c.text ?? "").join("\n");
+	return (toolName: string) => ({
+		renderShell: "self" as const,
+		renderCall: (args: unknown, theme: unknown, context: RenderContext) => ({
+			render: (width: number): string[] => [
+				toolLine(
+					{
+						state: context.isError ? "failed" : context.isPartial === false ? "done" : "pending",
+						word: opts.word(toolName),
+						detail: toolDetail(context.args ?? args),
+						error: typeof context.state?.error === "string" ? context.state.error : undefined,
+						lang: opts.lang,
+						width,
+					},
+					opts.paint(theme),
+					opts.glyphs(),
+				),
+			],
+			invalidate() {},
+		}),
+		renderResult: (result: { content?: Array<{ type?: string; text?: string }> }, options: { expanded?: boolean }, theme: unknown, context: RenderContext) => {
+			const out = text(result);
+			if (context.state) context.state.error = context.isError ? out.trim().split("\n")[0] : undefined;
+			return {
+				render: (width: number): string[] => {
+					if (!options.expanded || !out.trim()) return [];
+					const p = opts.paint(theme);
+					const lines = out.split("\n");
+					const shown = lines.slice(0, EXPANDED_LINES).map((l) => p.muted(cut(`  ${l}`, width)));
+					if (lines.length > EXPANDED_LINES) shown.push(p.dim(`  ... ${lines.length - EXPANDED_LINES} ${CHROME_WORDS[opts.lang].more}`));
+					return shown;
+				},
+				invalidate() {},
+			};
+		},
+	});
 }

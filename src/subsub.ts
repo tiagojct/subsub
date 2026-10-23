@@ -43,8 +43,10 @@ import { applyEdits, checkLiteratureNote, field, frontMatter, itemKeyOf, missing
 import { buildPolicy, isSecret, judgePath, normalizeToolPath, realish, within } from "./paths.ts";
 import { describeArgs, formatPreview, isEmptyPreview } from "./preview.ts";
 import { perMinuteWait, providerTrouble, TROUBLE_TEXT, TROUBLE_TEXT_PT } from "./keys.ts";
-import { headerLines, type LibraryState, paintPreview, QUOTES, type Scheme, schemeFromAnsi, themeName } from "./look.ts";
-import { glyphs, paintFromTheme } from "./skin.ts";
+import { headerLines, LIBRARIAN_THEME, type LibraryState, paintPreview, QUOTES, type Scheme, schemeFromAnsi, themeName } from "./look.ts";
+import { footerLines, toolRenderers, usageTotals } from "./chrome.ts";
+import { glyphs, paintFromTheme, workingFrames } from "./skin.ts";
+import { loadWords, toolWord, type Words } from "./words.ts";
 import { systemAddition } from "./prompt.ts";
 import { logUsage } from "./usage.ts";
 import { gateKind, SERVER_PREFIXES, toolsFor, unavailableReason, outboundProblem } from "./roles.ts";
@@ -154,6 +156,14 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	let scheme: Scheme | undefined;
 	let modelId = "no model";
 	let headerTui: { requestRender(force?: boolean): void } | undefined;
+	let footerTui: { requestRender(force?: boolean): void } | undefined;
+	/** True once the session started with the look on; the tool renderers are asked before a context exists. */
+	let lookActive = false;
+	let words: Words | undefined;
+	const redraw = () => {
+		headerTui?.requestRender();
+		footerTui?.requestRender();
+	};
 	const library: LibraryState = { zotero: "checking" };
 	const quote = cfg.quotes === false ? undefined : QUOTES[Math.floor(Math.random() * QUOTES.length)];
 	const lookOn = (ctx: ExtensionContext) => standalone && cfg.look !== false && ctx.mode === "tui";
@@ -191,10 +201,15 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	function applyTheme(ctx: ExtensionContext): void {
 		if (!lookOn(ctx) || cfg.themes === false) return;
 		scheme ??= schemeFromAnsi(ctx.ui.theme.getFgAnsi("text"), ctx.ui.theme.name);
-		const name = themeName(scheme, cfg.themes || undefined, ctx.ui.theme.getColorMode?.());
+		// The Librarian has its own plate (madder); a theme named in the settings applies to both modes unless themes.librarian says otherwise.
+		const base = mode === "librarian" ? (cfg.themesLibrarian ?? cfg.themes ?? LIBRARIAN_THEME) : cfg.themes || undefined;
+		const name = themeName(scheme, base, ctx.ui.theme.getColorMode?.());
 		const theme = name ? ctx.ui.getTheme(name) : undefined;
 		// A Theme object (not a name) changes the theme for this run only; the saved setting stays.
 		if (theme) ctx.ui.setTheme(theme);
+		// The working indicator takes the accent of the mode.
+		const mark = paintFromTheme(ctx.ui.theme).mark;
+		ctx.ui.setWorkingIndicator?.({ frames: workingFrames(glyphs(), Boolean(process.env.SUBSUB_REDUCE_MOTION && process.env.SUBSUB_REDUCE_MOTION !== "0")).map(mark), intervalMs: 160 });
 	}
 
 	function paintFor(ctx: ExtensionContext) {
@@ -221,7 +236,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		} catch {
 			library.zotero = "down";
 		}
-		headerTui?.requestRender();
+		redraw();
 		emitWeb();
 	}
 
@@ -250,12 +265,39 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		});
 	}
 
+	function setFooter(ctx: ExtensionContext): void {
+		if (!lookOn(ctx)) return;
+		ctx.ui.setFooter((tui) => {
+			footerTui = tui;
+			return {
+				render: (width: number) => {
+					try {
+						const usage = ctx.getContextUsage();
+						const totals = usageTotals(ctx.sessionManager.getEntries());
+						return footerLines(
+							{ mode, lang, library, model: modelId, percent: usage?.percent ?? null, window: usage?.contextWindow, tokens: totals.tokens, cost: totals.cost, down: bridge ? Object.keys(bridge.errors) : [] },
+							width,
+							paintFromTheme(ctx.ui.theme),
+							glyphs(),
+						);
+					} catch {
+						return []; // the context is gone after shutdown
+					}
+				},
+				invalidate() {},
+				dispose() {
+					footerTui = undefined;
+				},
+			};
+		});
+	}
+
 	function status(ctx: ExtensionContext): void {
 		modelId = ctx.model ? `${ctx.model.id}` : "no model";
 		const down = bridge ? Object.keys(bridge.errors) : ["zotero", "scholar"];
 		ctx.ui.setStatus("subsub", `Sub-Sub: ${mode} | ${modelId}${down.length ? ` | not running: ${down.join(", ")}` : ""}`);
 		if (standalone) ctx.ui.setTitle(`Sub-Sub: ${mode}`);
-		headerTui?.requestRender();
+		redraw();
 		webCtx = ctx;
 		emitWeb();
 	}
@@ -291,6 +333,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			}
 		}
 		if (remember) pi.appendEntry(MODE_ENTRY, { mode });
+		applyTheme(ctx);
 		status(ctx);
 	}
 
@@ -315,11 +358,13 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		const modelChosen = hasModel && hasMessages;
 		// Judge light or dark before Sub-Sub changes the theme.
 		if (lookOn(ctx)) scheme ??= schemeFromAnsi(ctx.ui.theme.getFgAnsi("text"), ctx.ui.theme.name);
-		applyTheme(ctx);
+		lookActive = lookOn(ctx);
+		if (lookActive) words = await loadWords().catch(() => undefined);
 		await applyMode(ctx, restored ?? (pi.getFlag("librarian") ? "librarian" : pi.getFlag("researcher") ? "researcher" : cfg.defaultMode), false, !modelChosen);
 		logUsage(cfg.usageLog, { ev: "session", mode, model: ctx.model ? `${ctx.model.provider}/${ctx.model.id}` : undefined });
 		if (lookOn(ctx)) {
 			setHeader(ctx);
+			setFooter(ctx);
 			void refreshLibrary();
 		} else if (webView) {
 			void refreshLibrary();
@@ -353,6 +398,16 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	});
 
 	pi.on("model_select", async (_event, ctx) => status(ctx));
+	// Plain-word tool lines for Sub-Sub's own tools (the look only); pi's tools keep pi's rows.
+	const rows = toolRenderers({ word: (name) => (words ? toolWord(words, lang, name) : name), lang, glyphs, paint: paintFromTheme });
+	pi.registerToolRenderer?.((toolName, next) => (lookActive && SERVER_PREFIXES.some((p) => toolName.startsWith(p)) ? (rows(toolName) as never) : next()));
+	pi.on("tool_execution_start", async (event, ctx) => {
+		if (lookActive && words && !event.parentToolCallId) ctx.ui.setWorkingMessage?.(`${toolWord(words, lang, event.toolName)}...`);
+	});
+	pi.on("tool_execution_end", async (_event, ctx) => {
+		if (lookActive) ctx.ui.setWorkingMessage?.();
+	});
+	pi.on("turn_end", async () => redraw());
 	// A provider error in plain words (quota, busy, blocked, key); the web view words its own.
 	pi.on("message_end", async (event, ctx) => {
 		const m = event.message as { role?: string; stopReason?: string; errorMessage?: string };
@@ -670,7 +725,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 					);
 				}
 			}
-			headerTui?.requestRender();
+			redraw();
 			emitWeb();
 			ctx.ui.notify(lines.join("\n"), "info");
 		},

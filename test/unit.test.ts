@@ -564,7 +564,7 @@ function snapshot(name: string, blocks: Record<string, string[]>): void {
 }
 
 test("chrome: header, footer, tool and evidence lines at 40, 80 and 120 columns, English and Portuguese", async () => {
-	const { footerLines, toolLine, evidenceLine, describeArgs } = await import("../src/chrome.ts");
+	const { footerLines, toolLine, evidenceLine, toolDetail } = await import("../src/chrome.ts");
 	const { headerLines, QUOTES } = await import("../src/look.ts");
 	const { ASCII, UNICODE } = await import("../src/skin.ts");
 	const header: Record<string, string[]> = {}, footer: Record<string, string[]> = {}, tool: Record<string, string[]> = {}, evidence: Record<string, string[]> = {};
@@ -586,7 +586,7 @@ test("chrome: header, footer, tool and evidence lines at 40, 80 and 120 columns,
 				"-",
 				...footerLines({ mode: "researcher", lang, library: states.checking, model: "m", percent: 100, tokens: null, cost: null }, width),
 			];
-			tool[key] = ["pending", "done", "failed"].map((state) => toolLine({ state: state as any, word: lang === "en" ? "search the library" : "pesquisar na biblioteca", detail: describeArgs({ query: "asthma in children and adolescents with a long query" }), error: "Zotero did not answer\nsecond line", lang, width }));
+			tool[key] = ["pending", "done", "failed"].map((state) => toolLine({ state: state as any, word: lang === "en" ? "search the library" : "pesquisar na biblioteca", detail: toolDetail({ query: "asthma in children and adolescents with a long query" }), error: "Zotero did not answer\nsecond line", lang, width }));
 			evidence[key] = ["full text", "abstract", "metadata only", "something else"].map((e) => evidenceLine(e, lang, width));
 			all.push(...header[key], ...header[`${key} closed`], ...footer[key], ...tool[key], ...evidence[key]);
 			for (const g of [UNICODE, ASCII]) {
@@ -645,6 +645,73 @@ test("chrome: paint roles carry the meaning, and the words match the web view", 
 		assert.equal(`{n} ${LIBRARY_WORDS[lang].toCheck}`, web.STRINGS[lang].toReview, lang);
 	}
 	assert.ok(await loadWords());
+});
+
+test("look: the footer, the theme of the mode, plain tool rows and the working indicator", async () => {
+	const { usageTotals } = await import("../src/chrome.ts");
+	assert.deepEqual(usageTotals([{ type: "message", message: { role: "assistant", usage: { totalTokens: 1000, cost: { total: 0.01 } } } }, { type: "message", message: { role: "user" } }, { type: "message", message: { role: "assistant", usage: { input: 200, output: 300, cacheRead: 0, cacheWrite: 0, cost: { total: 0.02 } } } }]), { tokens: 1500, cost: 0.03 });
+	assert.deepEqual(usageTotals([{ type: "message", message: { role: "assistant" } }]), { tokens: null, cost: null });
+	assert.deepEqual(usageTotals([]), { tokens: 0, cost: 0 });
+
+	const run = async (cli: boolean) => {
+		if (cli) process.env.SUBSUB_CLI = "1";
+		else delete process.env.SUBSUB_CLI;
+		const fp = fakePi() as any;
+		let resolver: any;
+		fp.pi.registerToolRenderer = (r: unknown) => { resolver = r; };
+		await createSubsub(fp.pi, { config: CFG, bridge: new FakeBridge() as unknown as Bridge });
+		const set = { themes: [] as string[], footers: [] as any[], messages: [] as unknown[], indicator: undefined as any };
+		const base = fakeCtx().ctx;
+		const th = { name: "dark", getFgAnsi: () => "\x1b[38;2;232;238;242m", getColorMode: () => "truecolor", fg: (_r: string, t: string) => t, strikethrough: (t: string) => t };
+		const ctx: any = {
+			...base,
+			mode: "tui",
+			getContextUsage: () => ({ tokens: 7600, contextWindow: 200000, percent: 3.8 }),
+			ui: { ...base.ui, theme: th, getTheme: (n: string) => ({ name: n }), setTheme: (t: any) => set.themes.push(t.name), setHeader() {}, setTitle() {}, setFooter: (f: unknown) => set.footers.push(f), setWorkingIndicator: (o: unknown) => (set.indicator = o), setWorkingMessage: (m: unknown) => set.messages.push(m) },
+		};
+		for (const h of fp.handlers.session_start) await h({ reason: "startup" }, ctx);
+		return { fp, ctx, th, set, resolver };
+	};
+	try {
+		const on = await run(true);
+		assert.deepEqual(on.set.themes, ["subsub-glauca-dark"]);
+		assert.equal(on.set.footers.length, 1);
+		const footer = on.set.footers[0]({ requestRender() {} }, on.th, {});
+		const lines: string[] = footer.render(100);
+		assert.match(lines[0], /^Researcher \| /);
+		assert.match(lines[1], /4% of 200k/);
+		// the mode brings its own plate
+		await on.fp.commands.librarian.handler("", on.ctx);
+		assert.equal(on.set.themes.at(-1), "subsub-try-works-dark");
+		assert.match(footer.render(100)[0], /^Librarian \| /);
+		await on.fp.commands.researcher.handler("", on.ctx);
+		assert.equal(on.set.themes.at(-1), "subsub-glauca-dark");
+		// the working indicator: dotted, dashed, solid, dashed
+		assert.equal(on.set.indicator.frames.length, 4);
+		// plain tool rows for Sub-Sub's tools only
+		assert.equal(on.resolver("read", () => "pi's own"), "pi's own");
+		const rows = on.resolver("zotero_find_items", () => undefined);
+		assert.equal(rows.renderShell, "self");
+		const state: Record<string, unknown> = {};
+		const call = (ctx: object) => rows.renderCall({ query: "asthma" }, on.th, { args: { query: "asthma" }, state, ...ctx }).render(80)[0];
+		assert.equal(call({ isPartial: true }), "┄ search the library: asthma");
+		assert.equal(call({ isPartial: false }), "─ search the library: asthma");
+		assert.deepEqual(rows.renderResult({ content: [{ type: "text", text: "ok" }] }, { expanded: false }, on.th, { state }).render(80), []);
+		assert.deepEqual(rows.renderResult({ content: [{ type: "text", text: "line 1\nline 2" }] }, { expanded: true }, on.th, { state }).render(80), ["  line 1", "  line 2"]);
+		rows.renderResult({ content: [{ type: "text", text: "Zotero did not answer\nsecond line" }] }, { expanded: false }, on.th, { state, isError: true });
+		assert.equal(call({ isPartial: false, isError: true }), "○ could not search the library: Zotero did not answer");
+		// the working message names the tool
+		await on.fp.handlers.tool_execution_start[0]({ toolName: "zotero_find_items" }, on.ctx);
+		await on.fp.handlers.tool_execution_end[0]({}, on.ctx);
+		assert.deepEqual(on.set.messages, ["search the library...", undefined]);
+		// without the look (not the `subsub` command) nothing is drawn
+		const off = await run(false);
+		assert.deepEqual(off.set.themes, []);
+		assert.equal(off.set.footers.length, 0);
+		assert.equal(off.resolver("zotero_find_items", () => "pi's own"), "pi's own");
+	} finally {
+		delete process.env.SUBSUB_CLI;
+	}
 });
 
 test("themes: all eight load and name every required colour", async () => {

@@ -54,3 +54,9 @@ export function paintFromTheme(th: ThemeLike): Paint {
 		strike: (x) => (th.strikethrough ? th.strikethrough(th.fg("muted", x)) : th.fg("muted", x)),
 	};
 }
+
+/** Frames of the working indicator: dotted, dashed, solid, dashed. One static frame when motion is reduced (SUBSUB_REDUCE_MOTION=1). */
+export function workingFrames(g: Glyphs, reduceMotion = false): string[] {
+	const dashed = g.dashed.repeat(4);
+	return reduceMotion ? [dashed] : [g.dotted.repeat(4), dashed, g.solid.repeat(4), dashed];
+}

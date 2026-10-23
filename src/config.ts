@@ -99,6 +99,8 @@ export interface SubsubConfig {
 	quotes?: boolean;
 	/** Theme, without -dark/-light; false keeps your pi theme. */
 	themes?: string | false;
+	/** Theme (without -dark/-light) for the Librarian; the default is subsub-try-works. */
+	themesLibrarian?: string;
 	/** Optional servers to start, e.g. ["starbuck"]. */
 	addons?: string[];
 	/** Local Starbuck folder (used when it has a pyproject.toml). */
@@ -183,6 +185,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): SubsubConfig {
 	const models: Partial<Record<Mode, string>> = given ?? (one !== undefined ? { librarian: one || undefined, researcher: one || undefined } : fallback);
 	for (const k of Object.keys(models) as Mode[]) if (!models[k]) delete models[k];
 	const themes = user.themes === false ? false : typeof user.themes === "string" ? user.themes : user.themes?.researcher;
+	const themesLibrarian = user.themes && typeof user.themes === "object" ? user.themes.librarian : undefined;
 	return {
 		configFile: file,
 		userName: typeof user.userName === "string" && user.userName.trim() ? user.userName.trim() : undefined,
@@ -209,6 +212,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): SubsubConfig {
 		look: user.look,
 		quotes: user.quotes,
 		themes,
+		themesLibrarian,
 		addons: Array.isArray(user.addons) ? user.addons.filter((a): a is string => typeof a === "string") : [],
 		starbuckDir: expand(user.starbuckDir ?? "~/Projects/starbuck", home),
 		usageLog: user.usageLog === true,
