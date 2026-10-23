@@ -714,6 +714,87 @@ test("look: the footer, the theme of the mode, plain tool rows and the working i
 	}
 });
 
+test("approval overlay: keys answer it, nothing else does, and the preview shows at 40, 80 and 120 columns", async () => {
+	const { ApprovalView, approvalLines } = await import("../src/dialogs.ts");
+	const { plain } = await import("../src/look.ts");
+	const body = ["2 item(s) would change.", "Smith 2020: Title: + topic/asthma, type/cohort; - topic/copd", ...Array.from({ length: 16 }, (_, k) => `Jones 20${10 + k}: A longer title about lung function in children number ${k}: + topic/spirometry`)].join("\n");
+	const blocks: Record<string, string[]> = {};
+	for (const lang of ["en", "pt"] as const) {
+		for (const width of [40, 80, 120]) {
+			const top = approvalLines({ title: "Sub-Sub: apply tag_items?", body, lang, width, paint: plain, bodyRows: 8 });
+			blocks[`${lang} ${width}`] = top.lines;
+			const end = approvalLines({ title: "Sub-Sub: apply tag_items?", body, lang, width, paint: plain, bodyRows: 8, scroll: 99 });
+			blocks[`${lang} ${width} scrolled to the end`] = end.lines;
+			assert.ok(top.maxScroll > 0 && end.lines.every((l) => [...l].length <= width), `${lang} ${width}`);
+			assert.ok(top.lines.every((l) => [...l].length <= width));
+		}
+	}
+	snapshot("approval", blocks);
+
+	const answers = (lang: "en" | "pt", keys: string[], ignoreMs = 500) => {
+		let t = 1000;
+		const got: boolean[] = [];
+		let redraws = 0;
+		const v = new ApprovalView({ title: "t", body, lang, paint: plain, done: (y) => got.push(y), now: () => t, ignoreMs, redraw: () => redraws++ });
+		for (const k of keys) {
+			t += 600;
+			v.handleInput(k);
+		}
+		return { got, redraws, v };
+	};
+	assert.deepEqual(answers("en", ["y"]).got, [true]);
+	assert.deepEqual(answers("en", ["Y"]).got, [true]);
+	assert.deepEqual(answers("en", ["s"]).got, [], "s is not yes in English");
+	assert.deepEqual(answers("pt", ["s"]).got, [true]);
+	assert.deepEqual(answers("en", ["n"]).got, [false]);
+	assert.deepEqual(answers("en", ["\x1b"]).got, [false], "Esc says no");
+	assert.deepEqual(answers("en", ["\x03"]).got, [false], "Ctrl+C says no");
+	assert.deepEqual(answers("en", ["\r", " ", "x"]).got, [], "Enter and other keys do nothing");
+	assert.deepEqual(answers("en", ["y", "n", "y"]).got, [true], "one answer only");
+	const down = answers("en", ["\x1b[B", "\x1b[B", "\x1b[A"]);
+	assert.deepEqual(down.got, []);
+	assert.equal(down.redraws, 3, "scrolling asks for a redraw");
+	// A key typed just before the dialog opened cannot answer it.
+	const early = new ApprovalView({ title: "t", body, lang: "en", paint: plain, done: () => assert.fail("answered"), now: () => 1000, ignoreMs: 500 });
+	early.handleInput("y");
+
+	// In the terminal look the dialog is the overlay; only a yes applies, and without the look pi's confirm is asked.
+	const asks = async (look: boolean, result: unknown) => {
+		if (look) process.env.SUBSUB_CLI = "1";
+		else delete process.env.SUBSUB_CLI;
+		try {
+			const fp = fakePi();
+			const bridge = new FakeBridge();
+			await createSubsub(fp.pi as any, { config: CFG, bridge: bridge as unknown as Bridge });
+			const base = fakeCtx({ confirm: false });
+			let customCalls = 0;
+			const th = { name: "dark", getFgAnsi: () => "\x1b[38;2;232;238;242m", getColorMode: () => "truecolor", fg: (_r: string, t: string) => t, strikethrough: (t: string) => t };
+			const ctx: any = { ...base.ctx, mode: "tui", getContextUsage: () => undefined, ui: { ...base.ctx.ui, theme: th, getTheme: (n: string) => ({ name: n }), setTheme() {}, setHeader() {}, setFooter() {}, setTitle() {}, setWorkingIndicator() {}, custom: async (factory: Function, options: any) => {
+				customCalls++;
+				assert.equal(options.overlay, true);
+				const view = factory({ terminal: { rows: 30 }, requestRender() {} }, th, {}, () => {});
+				assert.match(view.render(80).join("\n"), /apply tag_items/);
+				return result;
+			} } };
+			for (const h of fp.handlers.session_start) await h({ reason: "startup" }, ctx);
+			await fp.commands.librarian.handler("", ctx);
+			const r = await fp.handlers.tool_call[0]({ toolName: "zotero_tag_items", input: { changes: [{ key: "K1", add: ["topic/feno"] }], dry_run: false } }, ctx);
+			return { r, customCalls, confirms: base.asked.length };
+		} finally {
+			delete process.env.SUBSUB_CLI;
+		}
+	};
+	const yes = await asks(true, true);
+	assert.equal(yes.r, undefined);
+	assert.deepEqual([yes.customCalls, yes.confirms], [1, 0]);
+	for (const no of [false, undefined, "yes"]) {
+		const r = await asks(true, no);
+		assert.equal(r.r?.block, true, `a ${String(no)} answer blocks`);
+	}
+	const plainConfirm = await asks(false, true);
+	assert.deepEqual([plainConfirm.customCalls, plainConfirm.confirms], [0, 1], "no look: pi's confirm");
+});
+
 test("themes: all eight load and name every required colour", async () => {
 	const { readdirSync, readFileSync } = await import("node:fs");
 	const dir = join(import.meta.dirname, "..", "themes");

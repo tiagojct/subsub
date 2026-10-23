@@ -45,6 +45,7 @@ import { describeArgs, formatPreview, isEmptyPreview } from "./preview.ts";
 import { perMinuteWait, providerTrouble, TROUBLE_TEXT, TROUBLE_TEXT_PT } from "./keys.ts";
 import { headerLines, LIBRARIAN_THEME, type LibraryState, paintPreview, QUOTES, type Scheme, schemeFromAnsi, themeName } from "./look.ts";
 import { footerLines, toolRenderers, usageTotals } from "./chrome.ts";
+import { ApprovalView } from "./dialogs.ts";
 import { glyphs, paintFromTheme, workingFrames } from "./skin.ts";
 import { loadWords, toolWord, type Words } from "./words.ts";
 import { systemAddition } from "./prompt.ts";
@@ -210,6 +211,22 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		// The working indicator takes the accent of the mode.
 		const mark = paintFromTheme(ctx.ui.theme).mark;
 		ctx.ui.setWorkingIndicator?.({ frames: workingFrames(glyphs(), Boolean(process.env.SUBSUB_REDUCE_MOTION && process.env.SUBSUB_REDUCE_MOTION !== "0")).map(mark), intervalMs: 160 });
+	}
+
+	/**
+	 * Ask the user to approve a change. With the look on, the preview opens as an overlay with its own keys (see dialogs.ts); otherwise, and over RPC,
+	 * it is pi's confirm dialog. Only a yes counts: anything else, including an overlay that cannot open, is a no.
+	 */
+	async function approve(ctx: ExtensionContext, title: string, body: string): Promise<boolean> {
+		if (lookOn(ctx) && typeof ctx.ui.custom === "function") {
+			const answer = await ctx.ui.custom<boolean>(
+				(tui, theme, _keys, done) =>
+					new ApprovalView({ title, body, lang, paint: paintFromTheme(theme), glyphs: glyphs(), done, rows: () => tui.terminal?.rows ?? 24, redraw: () => tui.requestRender() }),
+				{ overlay: true, overlayOptions: { width: "92%", minWidth: 40, maxHeight: "92%", anchor: "center", margin: 1 } },
+			);
+			return answer === true;
+		}
+		return (await ctx.ui.confirm(title, body)) === true;
 	}
 
 	function paintFor(ctx: ExtensionContext) {
@@ -516,7 +533,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			const verdict = judgePath(target, buildPolicy({ vault: cfg.vault, cwd: ctx.cwd, serverDir: cfg.serverDir, packageDir: PACKAGE_DIR }));
 			if (verdict.ok) return undefined;
 			if (!ctx.hasUI) return { block: true, reason: `Writing ${target} needs ${user}'s approval: ${verdict.why}.` };
-			const ok = await ctx.ui.confirm(`Sub-Sub: ${name} ${target}?`, L(`Asking because ${verdict.why}.`, `Pergunto porque: ${verdict.why}.`));
+			const ok = await approve(ctx, `Sub-Sub: ${name} ${target}?`, L(`Asking because ${verdict.why}.`, `Pergunto porque: ${verdict.why}.`));
 			return ok ? undefined : { block: true, reason: `${user} did not allow writing to that file.` };
 		}
 		if (!ctx.hasUI) {
@@ -528,7 +545,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 				const verdict = judgePath(normalizeToolPath(input.output_path, ctx.cwd), buildPolicy({ vault: cfg.vault, cwd: ctx.cwd, serverDir: cfg.serverDir, packageDir: PACKAGE_DIR }));
 				if (!verdict.ok && /protected|hidden/.test(verdict.why)) return { block: true, reason: `Sub-Sub does not write there: ${verdict.why}.` };
 			}
-			const ok = await ctx.ui.confirm(L(`Sub-Sub: run ${name}?`, `Sub-Sub: executar ${name}?`), describeArgs(input));
+			const ok = await approve(ctx, L(`Sub-Sub: run ${name}?`, `Sub-Sub: executar ${name}?`), describeArgs(input));
 			return ok ? undefined : { block: true, reason: `${user} did not approve. Ask what to change.` };
 		}
 		// kind === "preview": the server computes the change first, then the user decides.
@@ -552,7 +569,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		// The dialog may stay open for minutes. Before applying, compute the preview again: if the
 		// library changed meanwhile (an edit in Zotero, new items), show the new preview instead.
 		for (let round = 0; round < 3; round++) {
-			const ok = await ctx.ui.confirm(round ? `${title} ${L("(the library changed; this is the new preview)", "(a biblioteca mudou; esta é a nova pré-visualização)")}` : title, paintFor(ctx)(shown));
+			const ok = await approve(ctx, round ? `${title} ${L("(the library changed; this is the new preview)", "(a biblioteca mudou; esta é a nova pré-visualização)")}` : title, paintFor(ctx)(shown));
 			logUsage(cfg.usageLog, { ev: "change", tool: name, approved: ok });
 			if (!ok) return { block: true, reason: `${user} did not approve this change. Ask what to change; do not retry the same call.` };
 			let again;
@@ -648,7 +665,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			return { block: true, reason: `Model test: Starbuck reports only inside the vault or ${benchOut}.` };
 		}
 		if (!ctx.hasUI) return { block: true, reason: `Writing a Starbuck report to ${dir} needs ${user}'s approval: ${verdict.why}.` };
-		const ok = await ctx.ui.confirm(L(`Sub-Sub: write the Starbuck report to ${dir}?`, `Sub-Sub: escrever o relatório do Starbuck em ${dir}?`), L(`Asking because ${verdict.why}.`, `Pergunto porque: ${verdict.why}.`));
+		const ok = await approve(ctx, L(`Sub-Sub: write the Starbuck report to ${dir}?`, `Sub-Sub: escrever o relatório do Starbuck em ${dir}?`), L(`Asking because ${verdict.why}.`, `Pergunto porque: ${verdict.why}.`));
 		return ok ? undefined : { block: true, reason: `${user} did not allow writing the report there. Ask where to put it (report_dir).` };
 	}
 
@@ -905,7 +922,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 				ctx.ui.notify(preview.text, "warning");
 				return;
 			}
-			const ok = await ctx.ui.confirm(L("Sub-Sub: undo?", "Sub-Sub: anular?"), paintFor(ctx)(formatPreview("zotero_undo", preview.data, lang)));
+			const ok = await approve(ctx, L("Sub-Sub: undo?", "Sub-Sub: anular?"), paintFor(ctx)(formatPreview("zotero_undo", preview.data, lang)));
 			if (!ok) return;
 			const res = await current().call("zotero_undo", { ...input, dry_run: false });
 			const d = (res.data ?? {}) as Record<string, unknown>;
