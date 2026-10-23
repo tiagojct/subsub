@@ -2,7 +2,7 @@
 
 Sub-Sub follows the version numbers of npm: a change in the second number (0.13) adds features or changes how you use it; a change in the third (0.13.1) only fixes.
 
-## Unreleased
+## 0.22.0 (2026-10-24)
 
 - `subsub tui`: Sub-Sub on the whole terminal. It is a full-screen client of pi's RPC mode, like the browser view, with the look of `subsub`: a conversation that scrolls (mouse wheel, PgUp and PgDn), a side panel from 110 columns (mode, library, keys, earlier conversations), an editor that completes commands, and the footer. Alt+N, Alt+L, Alt+A and Alt+M open the notes, the library search and the actions, and switch the mode, as in `subsub`. `/sessions` and `/new` change the conversation, `/model` chooses the model, `/restart` starts pi again in the same conversation, `/quit` leaves. Ctrl+O shows the output of tool rows, Esc stops a running answer, and Ctrl+C twice quits. `--light` or `--dark` set the colours when the terminal does not say (the default is dark), and `--librarian` starts in the Librarian.
 - In `subsub tui`, every question that Sub-Sub asks is answered on screen: the approval screen for a library change (`y` applies it, `n` or Esc leaves it, Enter does nothing, keys in the first half second are ignored), lists and typed answers. Nothing is applied without a yes. pi's own screens (`/login`, `/settings`, `/tree`, `/resume`, `/fork`, `/share`, `/export`) are not in it: use `subsub` or `subsub web` for them.

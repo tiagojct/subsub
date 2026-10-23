@@ -1,6 +1,6 @@
 ---
 title: "Test everything in [Sub-Sub]{.nobr}"
-subtitle: "A tutorial to follow along, one command at a time. Sub-Sub 0.21."
+subtitle: "A tutorial to follow along, one command at a time. Sub-Sub 0.22."
 ---
 
 ```{=html}
@@ -41,7 +41,7 @@ The test items of this page are five papers with stable identifiers:
 Use a terminal for this section.
 
 - [ ] Type `subsub --version`.\
-  Result: the versions of Sub-Sub and pi, for example `subsub 0.21.0 (pi 1.0.4)`.
+  Result: the versions of Sub-Sub and pi, for example `subsub 0.22.0 (pi 1.0.4)`.
 - [ ] Type `subsub --help`.\
   Result: the list of `subsub` commands and options.
 - [ ] Type `subsub doctor`.\
