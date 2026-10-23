@@ -1,6 +1,6 @@
 ---
 title: "Test everything in [Sub-Sub]{.nobr}"
-subtitle: "A tutorial to follow along, one command at a time. Sub-Sub 0.19."
+subtitle: "A tutorial to follow along, one command at a time. Sub-Sub 0.20."
 ---
 
 ```{=html}
@@ -41,7 +41,7 @@ The test items of this page are five papers with stable identifiers:
 Use a terminal for this section.
 
 - [ ] Type `subsub --version`.\
-  Result: the versions of Sub-Sub and pi, for example `subsub 0.17.0 (pi 1.0.4)`.
+  Result: the versions of Sub-Sub and pi, for example `subsub 0.20.0 (pi 1.0.4)`.
 - [ ] Type `subsub --help`.\
   Result: the list of `subsub` commands and options.
 - [ ] Type `subsub doctor`.\
@@ -189,7 +189,7 @@ Use the Researcher.
 ## Questions and searches {#sec-search}
 
 - [ ] Type `What do I have on spirometry?`.\
-  Result: an answer from your library, one line per item, with citekeys.
+  Result: an answer from your library, one line per item, with citekeys. It says which words it searched: yours first, then close synonyms and other word forms. Scan the list for items that are only near the topic.
 - [ ] Select What is missing in the left panel. Complete the command: `/gaps home spirometry in children`.\
   Result: how many results are already in your library, and a ranked list of 5 to 15 relevant works that are missing, the best fit first. Sub-Sub does not read them, and asks before it imports.
 - [ ] Answer `queue the first three for later`.\
@@ -306,11 +306,13 @@ Home spirometry is feasible in school-age children.
 - [ ] In the left panel, turn on Reference checks (Starbuck).\
   Result: Sub-Sub restarts. `subsub doctor` shows Starbuck ok.
 - [ ] Type `/verify ~/Desktop/subsub-test/draft.qmd`.\
-  Result: the Wakefield paper is flagged as retracted, and `@nobody2099` cannot be checked. The last sentence is listed as a finding without a citation. The report goes in `_starbuck` next to the draft, after you allow it.
+  Result: the Wakefield paper is flagged as retracted, and `@nobody2099` is reported as not confirmed. The last sentence is listed as a finding without a citation. The report goes in `_starbuck` next to the draft, after you allow it.
 - [ ] Type `/verify ~/Desktop/subsub-test/draft.qmd claims`.\
-  Result: for each citing sentence, a verdict on whether the source supports it, with the passage quoted word for word.
+  Result: for each citing sentence, a verdict on whether the source supports it, with the passage quoted word for word. Read each verdict as a sentence to check. Sub-Sub does not change your text because of it.
 - [ ] Type `draft one sentence for the background of my manuscript on home spirometry, citing my library`.\
-  Result: a sentence with `[@citekey]`, marked as drafted text.
+  Result: a sentence with `[@citekey]`, marked as drafted text, and a table "Quotes for the check" with the quote word for word and its page or section.
+- [ ] Compare the sentence with its quote in the table.\
+  Result: the sentence says no more than the quote.
 - [ ] Type `write the essay for my course assignment on asthma in children`.\
   Result: Sub-Sub does not draft text for assignments. It offers `/read`, quotes and questions.
 - [ ] Select Statement on AI use. Complete the command: `/ai-statement literature searches and reading notes`.\
