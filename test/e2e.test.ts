@@ -684,3 +684,91 @@ test("the npm package: installed with npm install -g, it starts pi with Sub-Sub"
 		pi.kill();
 	}
 });
+
+// The terminal look in a real terminal (a pseudo-terminal: macOS and Linux). The approval overlay is the gate for library changes, so it is the main check.
+const PTY = { skip: process.platform === "win32" ? "no pseudo-terminal on Windows" : false, timeout: 240_000 };
+
+async function inTerminal(steps: unknown[], cols = 100, name = "last"): Promise<{ text: string; raw: string; exit: number | null; failed: string | null }> {
+	const home = join(work, "home-pty");
+	const agentDir = join(home, ".subsub", "agent");
+	mkdirSync(agentDir, { recursive: true });
+	writeFileSync(join(agentDir, "models.json"), readFileSync(join(work, "agent", "models.json")));
+	const env = { ...baseEnv, HOME: home, USERPROFILE: home, SUBSUB_AGENT_DIR: agentDir, TERM: "xterm-256color", COLORTERM: "truecolor", LANG: "en_GB.UTF-8" } as Record<string, string>;
+	delete env.PI_CODING_AGENT_DIR;
+	const specFile = join(work, "pty-spec.json");
+	writeFileSync(specFile, JSON.stringify({ argv: [process.execPath, join(ROOT, "bin", "subsub.js"), "--here", "--provider", "fake", "--model", "fake-model"], cwd: vault, env, cols, rows: 30, steps }));
+	const out = await new Promise<string>((resolve, reject) => {
+		const p = spawn("python3", [join(HERE, "fixtures", "pty_drive.py"), specFile]);
+		let data = "";
+		p.stdout.on("data", (d) => (data += d.toString()));
+		p.on("error", reject);
+		p.on("close", () => resolve(data));
+	});
+	writeFileSync(join(work, `pty-${name}.json`), out); // for a look at what the terminal showed
+	return JSON.parse(out);
+}
+
+const noRed = (raw: string) => assert.doesNotMatch(raw, /\x1b\[(?:3[01]|9[01])m|\x1b\[38;5;(?:1|9)m|38;2;207;92;92/, "no red anywhere in the stream");
+
+test("terminal look: banner, footer, mode switch, and exit", PTY, async () => {
+	const r = await inTerminal([
+		{ wait: "Researcher", timeout: 90 },
+		{ wait: "Zotero: 2 items", timeout: 60, anywhere: true },
+		{ sleep: 1 },
+		{ send: "/librarian\r" },
+		{ wait: "Librarian mode", timeout: 30 },
+		{ send: "/researcher\r" },
+		{ wait: "Researcher mode", timeout: 30 },
+	], 100, "mode");
+	assert.equal(r.failed, null, r.text.slice(-1500));
+	assert.match(r.text, /Sub-Sub|╔═╗/);
+	assert.match(r.text, /Librarian \| /, "the footer follows the mode");
+	assert.match(r.text, /tokens/, "the footer shows the usage");
+	noRed(r.raw);
+	assert.equal(r.exit, 0, "Ctrl+C twice ends Sub-Sub");
+});
+
+test("terminal look: the approval overlay: n leaves the library as it is, y applies the change", PTY, async () => {
+	const ask = (answer: string, reply: string) => [
+		{ wait: "Researcher", timeout: 90 },
+		{ wait: "Zotero: 2 items", timeout: 60, anywhere: true },
+		{ sleep: 1 },
+		{ send: "Tag AAAA2222 with status/to-read\r" },
+		{ wait: "apply tag_items", timeout: 90 },
+		{ sleep: 0.9 },
+		{ send: "\r" }, // Enter does nothing
+		{ sleep: 0.3 },
+		{ send: answer },
+		{ wait: reply, timeout: 90 },
+	];
+	script = [{ tool: { name: "zotero_tag_items", args: { changes: [{ key: "AAAA2222", add: ["status/to-read"] }], dry_run: false } } }, { text: "Left it alone." }];
+	requests.length = 0;
+	const no = await inTerminal(ask("n", "Left it alone."), 100, "no");
+	assert.equal(no.failed, null, no.text.slice(-1500));
+	assert.match(no.text, /y apply\s+n leave it as it is/);
+	assert.ok(!(await state()).AAAA2222.tags.some((t: any) => t.tag === "status/to-read"), "n changes nothing");
+	assert.match(JSON.stringify(requests[1].messages.find((m: any) => m.role === "tool")), /did not approve/);
+	noRed(no.raw);
+
+	script = [{ tool: { name: "zotero_tag_items", args: { changes: [{ key: "AAAA2222", add: ["status/to-read"] }], dry_run: false } } }, { text: "Applied." }];
+	requests.length = 0;
+	const yes = await inTerminal(ask("y", "Applied."), 100, "yes");
+	assert.equal(yes.failed, null, yes.text.slice(-1500));
+	assert.ok((await state()).AAAA2222.tags.some((t: any) => t.tag === "status/to-read"), "y applies the change");
+	noRed(yes.raw);
+	assert.equal(yes.exit, 0, `exit ${yes.exit}`);
+});
+
+test("terminal look: ASCII glyphs and a narrow terminal", PTY, async () => {
+	const prev = process.env.SUBSUB_ASCII;
+	baseEnv.SUBSUB_ASCII = "1";
+	try {
+		const r = await inTerminal([{ wait: "Researcher", timeout: 90 }, { wait: "Zotero: 2 items", timeout: 30, anywhere: true }], 44, "ascii");
+		assert.equal(r.failed, null, r.text.slice(-1500));
+		// pi draws its own editor borders with box-drawing glyphs; the banner, footer and rules of Sub-Sub are ASCII.
+		assert.doesNotMatch(r.text, /[▰▱┄┈╔╗╚╝╦╩╠║]/, "no box-drawing glyphs of Sub-Sub");
+	} finally {
+		if (prev === undefined) delete baseEnv.SUBSUB_ASCII;
+		else baseEnv.SUBSUB_ASCII = prev;
+	}
+});
