@@ -14,6 +14,7 @@
  * - `subsub init` sets Sub-Sub up; `subsub doctor` checks the setup.
  * - `subsub web` (or `subsub serve`) opens Sub-Sub in the browser;
  *   `subsub shortcut` adds a Sub-Sub shortcut that does the same.
+ * - `subsub tui` is Sub-Sub on the whole terminal: a full-screen client of pi's RPC mode, like the web view.
  */
 
 import { spawnSync } from "node:child_process";
@@ -140,6 +141,7 @@ Usage:
   subsub                 Start Sub-Sub in the terminal
   subsub --librarian     Start in the Librarian, which only manages the library
   subsub web             Open Sub-Sub in the browser
+  subsub tui             Sub-Sub on the whole terminal: transcript, side panel, footer (--light or --dark for the colours)
   subsub init            Set up or change the settings (folder, tag list, models)
   subsub doctor          Check the set-up; each line marked FIX says what to do
   subsub usage           The pilot's usage log (if turned on): a summary and where the file is
@@ -180,6 +182,11 @@ export async function run(argv: string[] = process.argv.slice(2)): Promise<void>
 	if (args[0] === "web" || args[0] === "serve") {
 		const { webMain } = await import("./web.ts");
 		process.exitCode = await webMain([...args.slice(1), ...(here ? ["--here"] : [])], env);
+		return;
+	}
+	if (args[0] === "tui") {
+		const { runTui } = await import("./tui.ts");
+		process.exitCode = await runTui([...args.slice(1), ...(here ? ["--here"] : [])], env);
 		return;
 	}
 	if (args[0] === "shortcut") {

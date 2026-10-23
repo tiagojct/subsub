@@ -890,6 +890,85 @@ test("screens: notes and library at 40, 80 and 120 columns, and their keys", asy
 	assert.deepEqual(picks2, ["K1"]);
 });
 
+/** A terminal for tests: it keeps what was written, has a size, and never touches the real one. */
+function fakeTerminal(columns: number, rows: number) {
+	const t = {
+		columns, rows, kittyProtocolActive: false, written: "" as string, input: (_d: string) => {}, resize: () => {},
+		start(onInput: (d: string) => void, onResize: () => void) { t.input = onInput; t.resize = onResize; },
+		stop() {}, async drainInput() {}, write(d: string) { t.written += d; }, moveBy() {}, hideCursor() {}, showCursor() {}, clearLine() {}, clearFromCursor() {}, clearScreen() {}, setTitle() {}, setProgress() {},
+	};
+	return t;
+}
+
+/** The pi child process for tests: it answers requests from a table and lets the test send events. */
+function fakeAgent(answers: Record<string, unknown> = {}) {
+	const listeners: Array<(ev: any) => void> = [];
+	const written: any[] = [];
+	const requests: any[] = [];
+	const a = {
+		stderr: "", onExit: undefined as ((c: number | null) => void) | undefined, started: 0, stopped: 0,
+		start() { a.started++; }, async stop() { a.stopped++; },
+		async request(cmd: any) { requests.push(cmd); return (answers as any)[cmd.type] ?? {}; },
+		write(rec: unknown) { written.push(rec); },
+		on(l: (ev: any) => void) { listeners.push(l); return () => listeners.splice(listeners.indexOf(l), 1); },
+		emit(ev: any) { for (const l of listeners) l(ev); },
+		written, requests,
+	};
+	return a;
+}
+
+const strip = (s: string) => s.replace(/\x1b\[[0-9;?]*[ -/]*[@-~]|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)/g, "");
+const tick = (ms = 40) => new Promise((r) => setTimeout(r, ms));
+
+test("tui: the full-screen client draws the conversation, the side panel and the footer, and declines every dialog", async () => {
+	const { TuiApp } = await import("../src/tui.ts");
+	const { loadPalette } = await import("../src/tui-view.ts");
+	const { UNICODE } = await import("../src/skin.ts");
+	const { loadWords } = await import("../src/words.ts");
+	const words = await loadWords();
+	const themes = join(import.meta.dirname, "..", "themes");
+	const screens: Record<string, string[]> = {};
+	for (const [columns, rows] of [[80, 24], [120, 28]]) {
+		const term = fakeTerminal(columns, rows);
+		const agent = fakeAgent({
+			get_state: { model: { id: "mimo-v2.6-pro" } },
+			get_messages: { messages: [] },
+			get_commands: { commands: [{ name: "read", source: "extension", description: "read a paper" }, { name: "subsub-find", source: "extension" }] },
+			get_session_stats: { tokens: { total: 12345 }, cost: 0.0421, contextUsage: { tokens: 7600, contextWindow: 200000, percent: 3.8 } },
+		});
+		const app = new TuiApp({
+			terminal: term as any, agent: agent as any, version: "0.22.0", lang: "en", cwd: "/vault", palette: (base) => loadPalette(themes, base, "dark", "truecolor"), glyphs: UNICODE, words,
+			quote: ["Call me Ishmael.", "Moby-Dick, ch. 1"], reduceMotion: true,
+			sessions: async () => [{ title: "asthma in children" }, { title: "spirometry review" }],
+		});
+		await app.start();
+		agent.emit({ type: "extension_ui_request", method: "setStatus", statusKey: "subsub.web", statusText: JSON.stringify({ mode: "researcher", library: { zotero: "reachable", items: 990, toReview: 975 }, down: [], model: { id: "mimo-v2.6-pro" } }) });
+		await tick();
+		screens[`${columns}x${rows} start`] = strip(app.tui.getScreenLines().join("\n")).split("\n").map((l) => l.trimEnd());
+		agent.emit({ type: "agent_start" });
+		agent.emit({ type: "message_start", message: { role: "user" } });
+		agent.emit({ type: "message_end", message: { role: "user", content: "What do I have on asthma?" } });
+		agent.emit({ type: "tool_execution_start", toolCallId: "t1", toolName: "zotero_find_items", args: { query: "asthma" } });
+		agent.emit({ type: "tool_execution_end", toolCallId: "t1", toolName: "zotero_find_items", isError: false, result: { content: [{ type: "text", text: "2 items" }] } });
+		agent.emit({ type: "tool_execution_start", toolCallId: "t2", toolName: "zotero_tag_items", args: {} });
+		agent.emit({ type: "tool_execution_end", toolCallId: "t2", toolName: "zotero_tag_items", isError: true, result: { content: [{ type: "text", text: "the user did not approve this change\nsecond line" }] } });
+		agent.emit({ type: "message_start", message: { role: "assistant" } });
+		agent.emit({ type: "message_update", assistantMessageEvent: { type: "text_delta", delta: "You have **two** items on asthma:\n\n- smith2021\n- jones1998" } });
+		agent.emit({ type: "message_end", message: { role: "assistant", content: [{ type: "text", text: "You have **two** items on asthma:\n\n- smith2021\n- jones1998" }] } });
+		agent.emit({ type: "extension_ui_request", method: "notify", message: "Sub-Sub: Librarian mode.", notifyType: "info" });
+		agent.emit({ type: "agent_settled" });
+		await tick(80);
+		screens[`${columns}x${rows} after a question`] = strip(app.tui.getScreenLines().join("\n")).split("\n").map((l) => l.trimEnd());
+		// every dialog is declined until the approval screen exists
+		agent.emit({ type: "extension_ui_request", id: "d1", method: "confirm", title: "apply?", message: "1 item would change" });
+		agent.emit({ type: "extension_ui_request", id: "d2", method: "select", title: "which?", options: ["a", "b"] });
+		assert.deepEqual(agent.written, [{ type: "extension_ui_response", id: "d1", confirmed: false }, { type: "extension_ui_response", id: "d2", cancelled: true }]);
+		await app.stop();
+		assert.equal(agent.stopped, 1);
+	}
+	snapshot("tui", screens);
+});
+
 test("themes: all eight load and name every required colour", async () => {
 	const { readdirSync, readFileSync } = await import("node:fs");
 	const dir = join(import.meta.dirname, "..", "themes");

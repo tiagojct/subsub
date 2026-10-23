@@ -1,0 +1,111 @@
+== 80x24 start ==
+
+ ╔═╗╦ ╦╔╗    ╔═╗╦ ╦╔╗
+ ╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗
+ ╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  0.22.0
+
+ Researcher  mimo-v2.6-pro  |  Zotero: 990 items, 975 to check
+ "Call me Ishmael." (Moby-Dick, ch. 1)
+ /researcher  /librarian  /read  /notes  /library  /actions  |  / for all co...
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────
+ Researcher | Zotero: 990 items, 975 to check
+ mimo-v2.6-pro   ▱▱▱▱▱ 4% of 200k
+
+== 80x24 after a question ==
+ ╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  0.22.0
+
+ Researcher  mimo-v2.6-pro  |  Zotero: 990 items, 975 to check
+ "Call me Ishmael." (Moby-Dick, ch. 1)
+ /researcher  /librarian  /read  /notes  /library  /actions  |  / for all co...
+
+
+ › What do I have on asthma?
+
+ ─ search the library: asthma
+ ○ could not tag items: the user did not approve this change
+
+ You have two items on asthma:
+
+ - smith2021
+ - jones1998
+
+ Sub-Sub: Librarian mode.
+
+────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────
+ Researcher | Zotero: 990 items, 975 to check
+ mimo-v2.6-pro   ▱▱▱▱▱ 4% of 200k
+
+== 120x28 start ==
+ Sub-Sub 0.22.0             │
+ Researcher                 │  ╔═╗╦ ╦╔╗    ╔═╗╦ ╦╔╗
+ 990 items                  │  ╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗
+ mimo-v2.6-pro              │  ╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  0.22.0
+────────────────────────────│
+ Alt+N notes                │  Researcher  mimo-v2.6-pro  |  Zotero: 990 items, 975 to check
+ Alt+L library              │  "Call me Ishmael." (Moby-Dick, ch. 1)
+ Alt+A actions              │  /researcher  /librarian  /read  /notes  /library  /actions  |  / for all commands
+ Alt+M mode                 │
+────────────────────────────│
+ Conversations              │
+› asthma in children        │
+  spirometry review         │
+                            │
+                            │
+                            │
+                            │
+                            │
+                            │
+                            │
+                            │
+                            │
+                            │
+                            │ ──────────────────────────────────────────────────────────────────────────────────────────
+                            │
+                            │ ──────────────────────────────────────────────────────────────────────────────────────────
+                            │  Researcher | Zotero: 990 items, 975 to check
+                            │  mimo-v2.6-pro   ▱▱▱▱▱ 4% of 200k
+
+== 120x28 after a question ==
+ Sub-Sub 0.22.0             │
+ Researcher                 │  ╔═╗╦ ╦╔╗    ╔═╗╦ ╦╔╗
+ 990 items                  │  ╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗
+ mimo-v2.6-pro              │  ╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  0.22.0
+────────────────────────────│
+ Alt+N notes                │  Researcher  mimo-v2.6-pro  |  Zotero: 990 items, 975 to check
+ Alt+L library              │  "Call me Ishmael." (Moby-Dick, ch. 1)
+ Alt+A actions              │  /researcher  /librarian  /read  /notes  /library  /actions  |  / for all commands
+ Alt+M mode                 │
+────────────────────────────│
+ Conversations              │  › What do I have on asthma?
+› asthma in children        │
+  spirometry review         │  ─ search the library: asthma
+                            │  ○ could not tag items: the user did not approve this change
+                            │
+                            │  You have two items on asthma:
+                            │
+                            │  - smith2021
+                            │  - jones1998
+                            │
+                            │  Sub-Sub: Librarian mode.
+                            │
+                            │
+                            │ ──────────────────────────────────────────────────────────────────────────────────────────
+                            │
+                            │ ──────────────────────────────────────────────────────────────────────────────────────────
+                            │  Researcher | Zotero: 990 items, 975 to check
+                            │  mimo-v2.6-pro   ▱▱▱▱▱ 4% of 200k
