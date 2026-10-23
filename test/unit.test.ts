@@ -1000,7 +1000,7 @@ test("tui: Alt+N, Alt+L, Alt+A, Alt+M and the commands open the screens and fill
 	// notes
 	await keys("\x1bn");
 	assert.match(screen(), /Notes \(1\)/);
-	assert.match(screen(), /Literature\/smith2021\.md/);
+	assert.match(screen(), /Literature[\\/]smith2021\.md/); // Windows lists notes with a backslash
 	assert.match(screen(), /evidence: full text/);
 	await keys("\x1b");
 	assert.doesNotMatch(screen(), /Notes \(1\)/, "Esc closes the screen");
