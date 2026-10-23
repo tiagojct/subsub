@@ -3,6 +3,7 @@
  * extension hands them the state and the paint. Every line fits the width, so a snapshot at 40, 80 and 120 columns is a test.
  */
 
+import { visibleWidth } from "@earendil-works/pi-tui";
 import { libraryLine, LIBRARY_WORDS, type LibraryState, type Paint, plain } from "./look.ts";
 import { type Glyphs, UNICODE } from "./skin.ts";
 
@@ -18,6 +19,16 @@ const len = (s: string) => [...s].length;
 /** Cut to the width, with "..." when something is left out. Run it before the text is painted. */
 export function cut(s: string, width: number): string {
 	return len(s) > width ? `${[...s].slice(0, Math.max(0, width - 3)).join("")}...` : s;
+}
+
+/**
+ * Pad lines with spaces to the width, and with empty lines to the height. A screen drawn over the conversation (an overlay) must cover every cell
+ * it has, or the text under it shows through at the end of short lines and below the last one.
+ */
+export function fill(lines: string[], width: number, height = 0): string[] {
+	const out = lines.map((l) => l + " ".repeat(Math.max(0, width - visibleWidth(l))));
+	while (out.length < height) out.push(" ".repeat(width));
+	return height ? out.slice(0, height) : out;
 }
 
 /** A line of one glyph. */

@@ -7,7 +7,7 @@ import { spawn, type ChildProcess } from "node:child_process";
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { expand } from "./config.ts";
-import { NOTE_DIRS, SETTINGS_DIR } from "./layout.ts";
+import { NOTE_DIRS, obsidianRoot, SETTINGS_DIR } from "./layout.ts";
 import { realish, within } from "./paths.ts";
 
 /** Files that the Open button may hand to the system (never programs or scripts). */
@@ -57,4 +57,10 @@ export function openExternal(target: string): void {
 	else child = spawn("xdg-open", [target], opts);
 	child.on("error", () => {});
 	child.unref();
+}
+
+/** Open a note or document: in Obsidian when it is in an Obsidian vault, otherwise with the system's default program. */
+export function openFile(target: string, vault?: string): void {
+	if (vault && within(target, vault) && obsidianRoot(vault)) openExternal(`obsidian://open?path=${encodeURIComponent(target)}`);
+	else openExternal(target);
 }

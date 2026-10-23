@@ -18,10 +18,13 @@ export interface Glyphs {
 	/** A filled and an empty cell of the context meter. */
 	cell: string;
 	cellEmpty: string;
+	/** The line between two columns, and the mark in front of the chosen row of a list. */
+	vertical: string;
+	pointer: string;
 }
 
-export const UNICODE: Glyphs = { solid: "─", dashed: "┄", dotted: "┈", hollow: "○", cell: "▰", cellEmpty: "▱" };
-export const ASCII: Glyphs = { solid: "=", dashed: "-", dotted: ".", hollow: "o", cell: "#", cellEmpty: "-" };
+export const UNICODE: Glyphs = { solid: "─", dashed: "┄", dotted: "┈", hollow: "○", cell: "▰", cellEmpty: "▱", vertical: "│", pointer: "›" };
+export const ASCII: Glyphs = { solid: "=", dashed: "-", dotted: ".", hollow: "o", cell: "#", cellEmpty: "-", vertical: "|", pointer: ">" };
 
 /** ASCII when SUBSUB_ASCII is set, or when the locale is C, POSIX or names a character set that is not UTF-8 (pt_PT.ISO-8859-1). No locale, or one without a character set, means UTF-8. */
 export function useAscii(env: NodeJS.ProcessEnv = process.env): boolean {

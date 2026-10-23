@@ -65,7 +65,7 @@ export { KEY_PROVIDERS, saveApiKey } from "./keys.ts";
 
 // ---------------------------------------------------------------- files (shared with the terminal screens)
 
-import { allowedFile, listNotes, openExternal, OPENABLE, wikilinkTarget } from "./files.ts";
+import { allowedFile, listNotes, openExternal, openFile, OPENABLE, wikilinkTarget } from "./files.ts";
 export { allowedFile, listNotes, openExternal, OPENABLE, wikilinkTarget };
 
 // ---------------------------------------------------------------- pi in RPC mode
@@ -695,8 +695,7 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 					if (!target) return send(res, 404, { error: "not found in the Sub-Sub folder" });
 					// Documents only: a file that the model wrote must never be run.
 					if (!OPENABLE.has(extname(target).toLowerCase())) return send(res, 403, { error: "Sub-Sub opens only notes and documents (.md, .txt, .pdf, .bib, .csv, .qmd)." });
-					if (vault && within(target, vault) && obsidianRoot(vault)) openExternal(`obsidian://open?path=${encodeURIComponent(target)}`);
-					else openExternal(target);
+					openFile(target, vault);
 					return send(res, 200, { ok: true });
 				}
 				case "POST /api/quit":

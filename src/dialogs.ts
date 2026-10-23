@@ -5,7 +5,7 @@
  */
 
 import { matchesKey, wrapTextWithAnsi } from "@earendil-works/pi-tui";
-import { cut, rule } from "./chrome.ts";
+import { cut, fill, rule } from "./chrome.ts";
 import type { Paint } from "./look.ts";
 import { type Glyphs, UNICODE } from "./skin.ts";
 
@@ -81,7 +81,7 @@ export class ApprovalView {
 	render(width: number): string[] {
 		const view = approvalLines({ ...this.o, width, scroll: this.scroll, bodyRows: this.bodyRows() });
 		this.scroll = Math.min(this.scroll, view.maxScroll);
-		return view.lines;
+		return fill(view.lines, width);
 	}
 
 	invalidate(): void {}
