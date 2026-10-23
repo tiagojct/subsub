@@ -44,6 +44,7 @@ import { buildPolicy, isSecret, judgePath, normalizeToolPath, realish, within } 
 import { describeArgs, formatPreview, isEmptyPreview } from "./preview.ts";
 import { perMinuteWait, providerTrouble, TROUBLE_TEXT, TROUBLE_TEXT_PT } from "./keys.ts";
 import { headerLines, type LibraryState, paintPreview, QUOTES, type Scheme, schemeFromAnsi, themeName } from "./look.ts";
+import { glyphs, paintFromTheme } from "./skin.ts";
 import { systemAddition } from "./prompt.ts";
 import { logUsage } from "./usage.ts";
 import { gateKind, SERVER_PREFIXES, toolsFor, unavailableReason, outboundProblem } from "./roles.ts";
@@ -199,12 +200,10 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	function paintFor(ctx: ExtensionContext) {
 		return (text: string) =>
 			ctx.mode === "tui"
-				? paintPreview(
-						text,
-						(x) => ctx.ui.theme.fg("success", x),
-						(x) => ctx.ui.theme.fg("error", x),
-						(x) => ctx.ui.theme.fg("text", x),
-					)
+				? (() => {
+						const p = paintFromTheme(ctx.ui.theme);
+						return paintPreview(text, p.ok, p.strike, p.text);
+					})()
 				: text;
 	}
 
@@ -241,13 +240,9 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 						library,
 						quote,
 						width,
-						paint: {
-							mark: (x) => th.fg("accent", x),
-							text: (x) => th.fg("text", x),
-							muted: (x) => th.fg("muted", x),
-							dim: (x) => th.fg("dim", x),
-							warn: (x) => th.fg("warning", x),
-						},
+						paint: paintFromTheme(th),
+						lang,
+						glyphs: glyphs(),
 					});
 				},
 				invalidate() {},

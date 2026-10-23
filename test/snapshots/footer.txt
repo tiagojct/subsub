@@ -1,0 +1,53 @@
+== en 40 ==
+Researcher | 990 items | ▰▰▱▱▱ 38%
+-
+Librarian | ○ Zotero | ▱▱▱▱▱ ?
+-
+Researcher | Zotero... | ▰▰▰▰▰ 100%
+
+== en 80 ==
+Researcher | Zotero: 990 items, 975 to check
+mimo-v2.6-pro   ▰▰▱▱▱ 38% of 200k
+-
+Librarian | ○ Zotero is not running. Start it, then type /subsub.
+mimo-v2.6-flash   ▱▱▱▱▱ ?
+-
+Researcher | Zotero: checking...
+m   ▰▰▰▰▰ 100%
+
+== en 120 ==
+Researcher | Zotero: 990 items, 975 to check
+mimo-v2.6-pro   ▰▰▰▰▱▱▱▱▱▱ 38% of 200k   12.3k tokens   $0.042
+-
+Librarian | ○ Zotero is not running. Start it, then type /subsub.
+mimo-v2.6-flash   ▱▱▱▱▱▱▱▱▱▱ ?   ? tokens
+-
+Researcher | Zotero: checking...
+m   ▰▰▰▰▰▰▰▰▰▰ 100%   ? tokens
+
+== pt 40 ==
+Researcher | 990 itens | ▰▰▱▱▱ 38%
+-
+Librarian | ○ Zotero | ▱▱▱▱▱ ?
+-
+Researcher | Zotero... | ▰▰▰▰▰ 100%
+
+== pt 80 ==
+Researcher | Zotero: 990 itens, 975 por verificar
+mimo-v2.6-pro   ▰▰▱▱▱ 38% de 200k
+-
+Librarian | ○ O Zotero não está aberto. Abra-o e escreva /subsub.
+mimo-v2.6-flash   ▱▱▱▱▱ ?
+-
+Researcher | Zotero: a verificar...
+m   ▰▰▰▰▰ 100%
+
+== pt 120 ==
+Researcher | Zotero: 990 itens, 975 por verificar
+mimo-v2.6-pro   ▰▰▰▰▱▱▱▱▱▱ 38% de 200k   12.3k tokens   $0.042
+-
+Librarian | ○ O Zotero não está aberto. Abra-o e escreva /subsub.
+mimo-v2.6-flash   ▱▱▱▱▱▱▱▱▱▱ ?   ? tokens
+-
+Researcher | Zotero: a verificar...
+m   ▰▰▰▰▰▰▰▰▰▰ 100%   ? tokens

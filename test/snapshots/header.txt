@@ -1,0 +1,133 @@
+== en 40 ==
+
+╔═╗╦ ╦╔╗    ╔═╗╦ ╦╔╗
+╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗
+╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  0.21.0
+
+Researcher  mimo-v2.6-pro
+Zotero: 990 items, 975 to check
+"Very like a whale."
+  (Hamlet, in the Extracts)
+/researcher  /librarian  /read  /hist...
+
+
+== en 40 closed ==
+
+╔═╗╦ ╦╔╗    ╔═╗╦ ╦╔╗
+╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗
+╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  0.21.0
+
+Librarian  mimo-v2.6-flash
+○ Zotero is not running. Start it, th...
+/researcher  /librarian  /read  /hist...
+
+
+== en 80 ==
+
+╔═╗╦ ╦╔╗    ╔═╗╦ ╦╔╗
+╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗
+╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  0.21.0
+
+Researcher  mimo-v2.6-pro  |  Zotero: 990 items, 975 to check
+"Very like a whale." (Hamlet, in the Extracts)
+/researcher  /librarian  /read  /history  /undo  |  / for all commands
+
+
+== en 80 closed ==
+
+╔═╗╦ ╦╔╗    ╔═╗╦ ╦╔╗
+╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗
+╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  0.21.0
+
+Librarian  mimo-v2.6-flash
+○ Zotero is not running. Start it, then type /subsub.
+/researcher  /librarian  /read  /history  /undo  |  / for all commands
+
+
+== en 120 ==
+
+╔═╗╦ ╦╔╗    ╔═╗╦ ╦╔╗
+╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗
+╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  0.21.0
+
+Researcher  mimo-v2.6-pro  |  Zotero: 990 items, 975 to check
+"Very like a whale." (Hamlet, in the Extracts)
+/researcher  /librarian  /read  /history  /undo  |  / for all commands
+
+
+== en 120 closed ==
+
+╔═╗╦ ╦╔╗    ╔═╗╦ ╦╔╗
+╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗
+╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  0.21.0
+
+Librarian  mimo-v2.6-flash  |  ○ Zotero is not running. Start it, then type /subsub.
+/researcher  /librarian  /read  /history  /undo  |  / for all commands
+
+
+== pt 40 ==
+
+╔═╗╦ ╦╔╗    ╔═╗╦ ╦╔╗
+╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗
+╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  0.21.0
+
+Researcher  mimo-v2.6-pro
+Zotero: 990 itens, 975 por verificar
+"Very like a whale."
+  (Hamlet, in the Extracts)
+/researcher  /librarian  /read  /hist...
+
+
+== pt 40 closed ==
+
+╔═╗╦ ╦╔╗    ╔═╗╦ ╦╔╗
+╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗
+╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  0.21.0
+
+Librarian  mimo-v2.6-flash
+○ O Zotero não está aberto. Abra-o e ...
+/researcher  /librarian  /read  /hist...
+
+
+== pt 80 ==
+
+╔═╗╦ ╦╔╗    ╔═╗╦ ╦╔╗
+╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗
+╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  0.21.0
+
+Researcher  mimo-v2.6-pro  |  Zotero: 990 itens, 975 por verificar
+"Very like a whale." (Hamlet, in the Extracts)
+/researcher  /librarian  /read  /history  /undo  |  / for all commands
+
+
+== pt 80 closed ==
+
+╔═╗╦ ╦╔╗    ╔═╗╦ ╦╔╗
+╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗
+╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  0.21.0
+
+Librarian  mimo-v2.6-flash
+○ O Zotero não está aberto. Abra-o e escreva /subsub.
+/researcher  /librarian  /read  /history  /undo  |  / for all commands
+
+
+== pt 120 ==
+
+╔═╗╦ ╦╔╗    ╔═╗╦ ╦╔╗
+╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗
+╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  0.21.0
+
+Researcher  mimo-v2.6-pro  |  Zotero: 990 itens, 975 por verificar
+"Very like a whale." (Hamlet, in the Extracts)
+/researcher  /librarian  /read  /history  /undo  |  / for all commands
+
+
+== pt 120 closed ==
+
+╔═╗╦ ╦╔╗    ╔═╗╦ ╦╔╗
+╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗
+╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  0.21.0
+
+Librarian  mimo-v2.6-flash  |  ○ O Zotero não está aberto. Abra-o e escreva /subsub.
+/researcher  /librarian  /read  /history  /undo  |  / for all commands
+

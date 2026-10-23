@@ -1,0 +1,35 @@
+== en 40 ==
+── evidence: full text
+┄┄ evidence: abstract
+┈┈ evidence: metadata only
+┈┈ evidence: something else
+
+== en 80 ==
+── evidence: full text
+┄┄ evidence: abstract
+┈┈ evidence: metadata only
+┈┈ evidence: something else
+
+== en 120 ==
+── evidence: full text
+┄┄ evidence: abstract
+┈┈ evidence: metadata only
+┈┈ evidence: something else
+
+== pt 40 ==
+── evidência: full text
+┄┄ evidência: abstract
+┈┈ evidência: metadata only
+┈┈ evidência: something else
+
+== pt 80 ==
+── evidência: full text
+┄┄ evidência: abstract
+┈┈ evidência: metadata only
+┈┈ evidência: something else
+
+== pt 120 ==
+── evidência: full text
+┄┄ evidência: abstract
+┈┈ evidência: metadata only
+┈┈ evidência: something else

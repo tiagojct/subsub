@@ -5,11 +5,16 @@
  */
 
 
+import { type Glyphs, UNICODE } from "./skin.ts";
+
 export const BANNER = [
 	"╔═╗╦ ╦╔╗    ╔═╗╦ ╦╔╗",
 	"╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗",
 	"╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝",
 ];
+
+/** The banner for terminals without box-drawing glyphs (SUBSUB_ASCII=1 or a non-UTF-8 locale). */
+export const BANNER_ASCII = ["+-----------+", "|  Sub-Sub  |", "+-----------+"];
 
 /** Short public-domain lines from Moby-Dick and its Extracts. */
 export const QUOTES: Array<[string, string]> = [
@@ -60,26 +65,39 @@ export interface LibraryState {
 	error?: string;
 }
 
+/** Paint roles. mark is the accent of the mode; ok (sap green) is applied or added, pend (gamboge) is pending or a preview; strike draws a removal. */
 export interface Paint {
 	mark(s: string): string;
 	text(s: string): string;
 	muted(s: string): string;
 	dim(s: string): string;
-	warn(s: string): string;
+	ok(s: string): string;
+	pend(s: string): string;
+	strike(s: string): string;
 }
 
-const plain: Paint = { mark: (s) => s, text: (s) => s, muted: (s) => s, dim: (s) => s, warn: (s) => s };
+export const plain: Paint = { mark: (s) => s, text: (s) => s, muted: (s) => s, dim: (s) => s, ok: (s) => s, pend: (s) => s, strike: (s) => s };
+
+type Lang = "en" | "pt";
+
+/** The words of the library line, as in the web view (web/i18n.js: zoteroChecking, zoteroDown, items, toReview). */
+export const LIBRARY_WORDS = {
+	en: { checking: "Zotero: checking...", down: "Zotero is not running. Start it, then type /subsub.", items: "items", toCheck: "to check", prefix: "Zotero" },
+	pt: { checking: "Zotero: a verificar...", down: "O Zotero não está aberto. Abra-o e escreva /subsub.", items: "itens", toCheck: "por verificar", prefix: "Zotero" },
+};
 
 function cut(s: string, width: number): string {
 	return [...s].length > width ? `${[...s].slice(0, Math.max(0, width - 3)).join("")}...` : s;
 }
 
-export function libraryLine(st: LibraryState): { text: string; warn: boolean } {
-	if (st.zotero === "checking") return { text: "Zotero: checking...", warn: false };
-	if (st.zotero === "down") return { text: "Zotero is not running. Start it, then type /subsub.", warn: true };
-	const parts = [`${st.items ?? "?"} items`];
-	if (st.toReview) parts.push(`${st.toReview} to review`);
-	return { text: `Zotero: ${parts.join(", ")}`, warn: false };
+/** The library line. A closed Zotero is not drawn in a warning colour: a hollow mark and the words say it. */
+export function libraryLine(st: LibraryState, lang: Lang = "en", g: Glyphs = UNICODE): { text: string } {
+	const w = LIBRARY_WORDS[lang];
+	if (st.zotero === "checking") return { text: w.checking };
+	if (st.zotero === "down") return { text: `${g.hollow} ${w.down}` };
+	const parts = [`${st.items ?? "?"} ${w.items}`];
+	if (st.toReview) parts.push(`${st.toReview} ${w.toCheck}`);
+	return { text: `${w.prefix}: ${parts.join(", ")}` };
 }
 
 /** Header lines. Each line is cut to the width before it is coloured. */
@@ -91,17 +109,22 @@ export function headerLines(opts: {
 	quote?: [string, string];
 	width: number;
 	paint?: Paint;
+	lang?: Lang;
+	glyphs?: Glyphs;
 }): string[] {
 	const p = opts.paint ?? plain;
+	const banner = opts.glyphs && opts.glyphs !== UNICODE ? BANNER_ASCII : BANNER;
 	const w = Math.max(10, opts.width);
 	const modeLabel = opts.mode === "librarian" ? "Librarian" : "Researcher";
-	const lib = libraryLine(opts.library);
-	if (w < BANNER[0].length + 2) {
-		return [p.mark(cut(`Sub-Sub ${opts.version}`, w)), p.text(cut(`${modeLabel} | ${opts.model}`, w)), (lib.warn ? p.warn : p.muted)(cut(lib.text, w))];
+	const lib = libraryLine(opts.library, opts.lang, opts.glyphs);
+	if (w < banner[0].length + 2) {
+		return [p.mark(cut(`Sub-Sub ${opts.version}`, w)), p.text(cut(`${modeLabel} | ${opts.model}`, w)), p.muted(cut(lib.text, w))];
 	}
-	const out = ["", ...BANNER.map((l, i) => p.mark(l) + (i === 2 ? p.dim(cut(`  ${opts.version}`, w - l.length)) : "")), ""];
+	const out = ["", ...banner.map((l, i) => p.mark(l) + (i === 2 ? p.dim(cut(`  ${opts.version}`, w - l.length)) : "")), ""];
 	const status = `${modeLabel}  ${opts.model}`;
-	out.push(p.text(cut(status, w)) + (lib.warn ? p.warn : p.muted)(cut(`  |  ${lib.text}`, Math.max(0, w - status.length))));
+	// The library line follows the mode and model on the same line when it fits, otherwise on a line of its own.
+	if ([...status].length + 5 + [...lib.text].length <= w) out.push(p.text(status) + p.muted(`  |  ${lib.text}`));
+	else out.push(p.text(cut(status, w)), p.muted(cut(lib.text, w)));
 	if (opts.quote) {
 		const one = `"${opts.quote[0]}" (${opts.quote[1]})`;
 		if ([...one].length <= w) out.push(p.dim(one));

@@ -527,7 +527,7 @@ test("look: banner, narrow terminal, scheme, theme names, coloured preview", asy
 	const wide = headerLines({ version: "0.3.0", mode: "researcher", model: "mimo-v2.6-pro", library: { zotero: "reachable", items: 990, toReview: 975 }, quote: QUOTES[4], width: 100 });
 	assert.equal(wide[1], BANNER[0]);
 	assert.match(wide[3], /0\.3\.0$/);
-	assert.ok(wide.some((l) => l === "Researcher  mimo-v2.6-pro  |  Zotero: 990 items, 975 to review"));
+	assert.ok(wide.some((l) => l === "Researcher  mimo-v2.6-pro  |  Zotero: 990 items, 975 to check"));
 	assert.ok(wide.some((l) => l === '"Very like a whale." (Hamlet, in the Extracts)'));
 	const narrow = headerLines({ version: "0.3.0", mode: "librarian", model: "glm-5.3-flash", library: { zotero: "down" }, width: 18 });
 	assert.equal(narrow.length, 3);
@@ -548,6 +548,103 @@ test("look: banner, narrow terminal, scheme, theme names, coloured preview", asy
 	assert.equal(painted, "Smith 2020: <+ topic/asthma, type/cohort>; [- topic/copd]");
 	const based = paintPreview("2 item(s) would change.\nSmith 2020: Title: + a; - b\n- c", (x) => `<${x}>`, (x) => `[${x}]`, (x) => `{${x}}`);
 	assert.equal(based, "{2 item(s) would change.}\n{Smith 2020: Title: }<+ a>{; }[- b]\n[- c]");
+});
+
+/** Compare lines with test/snapshots/<name>.txt; UPDATE_SNAPSHOTS=1 writes the file. */
+function snapshot(name: string, blocks: Record<string, string[]>): void {
+	const file = join(import.meta.dirname, "snapshots", `${name}.txt`);
+	const text = Object.entries(blocks).map(([k, lines]) => `== ${k} ==\n${lines.join("\n")}`).join("\n\n") + "\n";
+	if (process.env.UPDATE_SNAPSHOTS) {
+		mkdirSync(join(import.meta.dirname, "snapshots"), { recursive: true });
+		writeFileSync(file, text);
+		return;
+	}
+	assert.ok(existsSync(file), `${file} is missing: run with UPDATE_SNAPSHOTS=1`);
+	assert.equal(text, readFileSync(file, "utf8"), `${name}: the screen changed; if that is intended, run with UPDATE_SNAPSHOTS=1`);
+}
+
+test("chrome: header, footer, tool and evidence lines at 40, 80 and 120 columns, English and Portuguese", async () => {
+	const { footerLines, toolLine, evidenceLine, describeArgs } = await import("../src/chrome.ts");
+	const { headerLines, QUOTES } = await import("../src/look.ts");
+	const { ASCII, UNICODE } = await import("../src/skin.ts");
+	const header: Record<string, string[]> = {}, footer: Record<string, string[]> = {}, tool: Record<string, string[]> = {}, evidence: Record<string, string[]> = {};
+	const states = {
+		"open": { zotero: "reachable", items: 990, toReview: 975 },
+		"closed": { zotero: "down" },
+		"checking": { zotero: "checking" },
+	} as const;
+	const all: string[] = [];
+	for (const lang of ["en", "pt"] as const) {
+		for (const width of [40, 80, 120]) {
+			const key = `${lang} ${width}`;
+			header[key] = headerLines({ version: "0.21.0", mode: "researcher", model: "mimo-v2.6-pro", library: states.open, quote: QUOTES[4], width, lang });
+			header[`${key} closed`] = headerLines({ version: "0.21.0", mode: "librarian", model: "mimo-v2.6-flash", library: states.closed, width, lang });
+			footer[key] = [
+				...footerLines({ mode: "researcher", lang, library: states.open, model: "mimo-v2.6-pro", percent: 38, window: 200000, tokens: 12345, cost: 0.0421 }, width),
+				"-",
+				...footerLines({ mode: "librarian", lang, library: states.closed, model: "mimo-v2.6-flash", percent: null }, width),
+				"-",
+				...footerLines({ mode: "researcher", lang, library: states.checking, model: "m", percent: 100, tokens: null, cost: null }, width),
+			];
+			tool[key] = ["pending", "done", "failed"].map((state) => toolLine({ state: state as any, word: lang === "en" ? "search the library" : "pesquisar na biblioteca", detail: describeArgs({ query: "asthma in children and adolescents with a long query" }), error: "Zotero did not answer\nsecond line", lang, width }));
+			evidence[key] = ["full text", "abstract", "metadata only", "something else"].map((e) => evidenceLine(e, lang, width));
+			all.push(...header[key], ...header[`${key} closed`], ...footer[key], ...tool[key], ...evidence[key]);
+			for (const g of [UNICODE, ASCII]) {
+				const lines = [...footerLines({ mode: "researcher", lang, library: states.closed, model: "m", percent: 50 }, width, undefined, g), toolLine({ state: "failed", word: "x", lang, width }, undefined, g), evidenceLine("abstract", lang, width, undefined, g)];
+				for (const l of lines) assert.ok([...l].length <= width, `${key}: "${l}" is wider than ${width}`);
+				if (g === ASCII) for (const l of [...lines, ...headerLines({ version: "1", mode: "researcher", model: "m", library: states.closed, width, lang, glyphs: ASCII })]) assert.ok(!/[\u2500-\u25ff]/.test(l), `ASCII: no box-drawing or geometric glyphs in "${l}"`);
+			}
+		}
+	}
+	for (const l of all) {
+		assert.ok([...l].length <= 120, l);
+		assert.ok(!/\p{Extended_Pictographic}/u.test(l), `no emoji: ${l}`);
+	}
+	snapshot("header", header);
+	snapshot("footer", footer);
+	snapshot("tool", tool);
+	snapshot("evidence", evidence);
+});
+
+test("chrome: paint roles carry the meaning, and the words match the web view", async () => {
+	const { footerLines, toolLine, evidenceLine, meter, CHROME_WORDS } = await import("../src/chrome.ts");
+	const { LIBRARY_WORDS } = await import("../src/look.ts");
+	const { paintFromTheme, useAscii } = await import("../src/skin.ts");
+	const { loadWords } = await import("../src/words.ts");
+	const tag = (n: string) => (x: string) => `<${n}>${x}</${n}>`;
+	const p = { mark: tag("mark"), text: tag("text"), muted: tag("muted"), dim: tag("dim"), ok: tag("ok"), pend: tag("pend"), strike: tag("strike") };
+	assert.match(toolLine({ state: "pending", word: "w", lang: "en", width: 40 }, p), /^<pend>┄<\/pend>/);
+	assert.match(toolLine({ state: "done", word: "w", lang: "en", width: 40 }, p), /^<ok>─<\/ok>/);
+	assert.match(toolLine({ state: "failed", word: "w", lang: "en", width: 40 }, p), /^<text>○ could not w<\/text>$/, "a failure is ink with a hollow mark and a word");
+	assert.match(evidenceLine("full text", "en", 60, p), /^<ok>──<\/ok>/);
+	assert.match(evidenceLine("abstract", "en", 60, p), /^<pend>┄┄<\/pend>/);
+	assert.match(evidenceLine("metadata", "en", 60, p), /^<muted>┈┈<\/muted>/);
+	assert.match(footerLines({ mode: "librarian", lang: "en", library: { zotero: "down" }, model: "m" }, 80, p)[0], /^<mark>Librarian<\/mark>/);
+	assert.ok(!footerLines({ mode: "librarian", lang: "en", library: { zotero: "down" }, model: "m" }, 80, p).join("").includes("<pend>"), "a closed Zotero has no warning colour");
+	assert.deepEqual(meter(38, 10), { bar: "▰▰▰▰▱▱▱▱▱▱", label: "38%" });
+	assert.deepEqual(meter(null, 5), { bar: "▱▱▱▱▱", label: "?" });
+	// The paint of a pi theme: removals are muted ink with a strike, never the error colour.
+	const th = { fg: (role: string, x: string) => `[${role}]${x}[/]`, strikethrough: (x: string) => `~${x}~` };
+	const tp = paintFromTheme(th);
+	assert.equal(tp.strike("- b"), "~[muted]- b[/]~");
+	assert.equal(tp.ok("+ a"), "[success]+ a[/]");
+	assert.ok(!JSON.stringify(Object.values(tp).map((f) => f("x"))).includes("error"));
+	assert.equal(paintFromTheme({ fg: th.fg }).strike("- b"), "[muted]- b[/]");
+	// ASCII fallback
+	assert.equal(useAscii({ SUBSUB_ASCII: "1" }), true);
+	assert.equal(useAscii({ LANG: "pt_PT.UTF-8" }), false);
+	assert.equal(useAscii({ LANG: "pt_PT.ISO-8859-1" }), true);
+	assert.equal(useAscii({ LC_ALL: "C" }), true);
+	assert.equal(useAscii({}), false);
+	// English and Portuguese have the same keys, and the shared words are the web view's.
+	assert.deepEqual(Object.keys(CHROME_WORDS.en), Object.keys(CHROME_WORDS.pt));
+	assert.deepEqual(Object.keys(LIBRARY_WORDS.en), Object.keys(LIBRARY_WORDS.pt));
+	const web = (await import("../web/i18n.js")) as any;
+	for (const lang of ["en", "pt"] as const) {
+		assert.equal(`{n} ${LIBRARY_WORDS[lang].items}`, web.STRINGS[lang].items, lang);
+		assert.equal(`{n} ${LIBRARY_WORDS[lang].toCheck}`, web.STRINGS[lang].toReview, lang);
+	}
+	assert.ok(await loadWords());
 });
 
 test("themes: all eight load and name every required colour", async () => {
