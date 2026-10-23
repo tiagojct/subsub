@@ -295,6 +295,7 @@ The terminal draws the same plate with the same washes and the same rules, from 
 - State is drawn by line as on the web: a solid rule is done or full text, a dashed rule is pending, a preview or an abstract, a dotted rule is metadata. The working indicator moves from dotted to dashed to solid, and stands still when `SUBSUB_REDUCE_MOTION` is set.
 - Errors have no colour: ink, a hollow mark and a word (`o could not search the library`). A closed Zotero is the same. A removal is muted ink, struck through, with its `-` in front for terminals that ignore the strike.
 - The approval screen is the only place where a letter changes the library: `y` applies, `n` or Esc leaves it, Enter does nothing, and keys in the first half second are ignored.
+- `subsub tui` is the same plate on the whole terminal: the conversation on the left and below the banner, a side panel of 30 columns from 110 columns, a thin rule between them, the editor and the footer at the bottom. It reads the same theme files, so it has no colour of its own; it asks the terminal for dark or light (`COLORFGBG`, or `--light` and `--dark`).
 - Terminals without truecolor get colours picked from the xterm palette (`-256` themes). Terminals that cannot draw box glyphs get ASCII (`SUBSUB_ASCII=1`). Neither loses a meaning: every colour also has a glyph or a word.
 
 ## Do's and Don'ts

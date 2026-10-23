@@ -80,6 +80,7 @@ Sub-Sub runs its Zotero server, [zotero-local-mcp](https://github.com/tiagojct/z
 subsub web           # in the browser
 subsub               # in the terminal
 subsub --librarian   # in the terminal, in the Librarian
+subsub tui           # on the whole terminal (full screen)
 subsub -c            # continue the last conversation
 subsub --help        # all commands
 ```
@@ -87,6 +88,8 @@ subsub --help        # all commands
 In the browser view, connect a model provider with the model button. In the terminal, type `/login`.
 
 The terminal has its own look, drawn like the website: a footer with the mode, the library, the model, the context in use and the cost; Sub-Sub's tools in plain words (`search the library: asthma`); and an approval screen for library changes (`y` applies, `n` or Esc leaves the library as it is, Enter does nothing). `/notes`, `/library` and `/actions` open screens for your notes, a library search and the actions of the browser view; Alt+N, Alt+L, Alt+A and Alt+M (mode) are shortcuts. Nothing is red: a failure is ink with a hollow mark and a word, and a removal is struck through. For terminals that cannot draw box glyphs, set `SUBSUB_ASCII=1`; `SUBSUB_REDUCE_MOTION=1` stops the working indicator from moving; `"look": false` in the settings brings back the plain screen.
+
+`subsub tui` puts Sub-Sub on the whole terminal, as the browser view puts it in the browser: a conversation that scrolls, a side panel from 110 columns, the editor and the footer, with the same colours and screens. Besides the commands above, `/sessions` and `/new` change the conversation, `/model` chooses the model, `/restart` starts pi again in the same conversation, and `/quit` leaves (Ctrl+C twice also quits). `--light` or `--dark` set the colours when your terminal does not say. It does not have pi's own screens (`/login`, `/settings`, `/tree`, `/resume`): use `subsub` or `subsub web` for them.
 
 The browser view also has a library search (each result can start `/read` or `/lit-note`), a notes pane that shows the notes of your Sub-Sub folder next to the conversation (note paths and `[[links]]` in replies open there), argument hints for the commands, and rename, delete (to `~/.subsub/trash`) and export for conversations.
 
@@ -98,6 +101,7 @@ Commands in Sub-Sub:
 | `/subsub` | Zotero connection, mode, model and library counts |
 | `/history`, `/undo [id]` | Recent library changes; undo the last one or one by its id |
 | `/notes`, `/library`, `/actions` | Terminal screens: the notes in your Sub-Sub folder (the chosen note beside the list from 100 columns); a library search as you type (Enter starts `/read`, Ctrl+N `/lit-note`); the actions of the browser view as a list |
+| `/sessions`, `/new`, `/model`, `/restart`, `/quit` | In `subsub tui`: earlier conversations; a new one; the model; pi again in the same conversation; leave |
 | `/feedback [what happened]` | A draft bug report in `Inbox/`, with versions, `subsub doctor` and the last error, and without your folders, emails or keys. You post it on GitHub; Sub-Sub sends nothing |
 | `/ai-statement [uses]` | A draft statement on the use of AI for a manuscript, with the Sub-Sub version, its DOI and your models |
 | `/tag-batch [size]` | Tag items that have no topic, with your tag list |

@@ -32,7 +32,7 @@ Para um mapa das partes (as aplicações, os servidores, os modos e as pastas), 
 
 Escreva `subsub`. O Sub-Sub começa no modo Investigador. Para começar no modo Bibliotecário, escreva `subsub --librarian`. Para mudar de modo, escreva `/librarian` ou `/researcher`. Quando inicia o Sub-Sub a partir da sua pasta pessoal, o Sub-Sub trabalha na sua pasta do Sub-Sub. A partir de outra pasta (por exemplo, a pasta de um manuscrito), trabalha nessa pasta. Para ficar na pasta pessoal, escreva `subsub --here`.
 
-O terminal tem um aspeto próprio. O rodapé mostra o modo, a biblioteca, o modelo, quanto do contexto está em uso e o custo. As ferramentas do Sub-Sub aparecem em palavras simples. Uma alteração à biblioteca abre um ecrã de aprovação: prima `s` para aplicar, ou `n` ou Esc para deixar a biblioteca como está. O Enter não faz nada. `/notes` lista as suas notas, `/library` pesquisa na biblioteca à medida que escreve e `/actions` lista as ações da vista no navegador. Alt+N, Alt+L e Alt+A abrem-nos, e Alt+M muda de modo. Se o seu terminal não desenha símbolos de linhas, defina `SUBSUB_ASCII=1`.
+O terminal tem um aspeto próprio. O rodapé mostra o modo, a biblioteca, o modelo, quanto do contexto está em uso e o custo. As ferramentas do Sub-Sub aparecem em palavras simples. Uma alteração à biblioteca abre um ecrã de aprovação: prima `s` para aplicar, ou `n` ou Esc para deixar a biblioteca como está. O Enter não faz nada. `/notes` lista as suas notas, `/library` pesquisa na biblioteca à medida que escreve e `/actions` lista as ações da vista no navegador. Alt+N, Alt+L e Alt+A abrem-nos, e Alt+M muda de modo. Se o seu terminal não desenha símbolos de linhas, defina `SUBSUB_ASCII=1`. Para usar o terminal todo, escreva `subsub tui`: a conversa desloca-se, um painel lateral aparece a partir das 110 colunas, e todas as perguntas do Sub-Sub são respondidas no ecrã. `/sessions`, `/new`, `/model` e `/restart` são comandos deste ecrã, e Ctrl+C duas vezes sai. Não tem os ecrãs do próprio pi, como `/login`; use `subsub` ou `subsub web` para esses.
 
 ## Etiquetar os primeiros itens
 
@@ -151,6 +151,7 @@ O Sub-Sub não altera o manuscrito. O Starbuck escreve um relatório HTML numa p
 | `/subsub` | Ligação ao Zotero e resumo da biblioteca |
 | `/history`, `/undo` | Alterações recentes; anular uma delas |
 | `/notes`, `/library`, `/actions` | Ecrãs do terminal: as suas notas, uma pesquisa na biblioteca, as ações da vista no navegador |
+| `/sessions`, `/new`, `/model`, `/restart`, `/quit` | Em `subsub tui`: conversas anteriores; uma nova; o modelo; o pi outra vez na mesma conversa; sair |
 | `/feedback [o que aconteceu]` | Um rascunho de relatório de problema em `Inbox/`, para publicar no GitHub |
 | `/ai-statement [usos]` | Um rascunho da declaração sobre o uso de IA para um manuscrito |
 | `/read [motivo] <citekey>` | Leitura guiada de um artigo: o Sub-Sub encontra as passagens e pergunta, escreve as respostas (Investigador) |

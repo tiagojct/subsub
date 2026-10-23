@@ -398,6 +398,31 @@ Home spirometry is feasible in school-age children.
 - [ ] Go to `~/Desktop/subsub-test` and type `subsub --here`. Ask `write a file notes.md here with one line`.\
   Result: Sub-Sub works in that folder and writes `notes.md` without a question: the current folder is allowed, like the Sub-Sub folder.
 
+## The whole terminal (subsub tui) {#sec-tui}
+
+Use a terminal at least 120 columns wide for this section.
+
+- [ ] Type `subsub tui --here`.\
+  Result: the whole terminal is Sub-Sub: a side panel on the left (the version, the mode, Zotero, the keys and earlier conversations), the banner, the editor and the footer.
+- [ ] Narrow the terminal window to fewer than 110 columns.\
+  Result: the side panel goes away, and comes back when you widen the window.
+- [ ] Type `What do I have on spirometry?`.\
+  Result: the answer scrolls in the conversation; the tool row says `search the library`; the footer shows the cost.
+- [ ] Turn the mouse wheel, or press PgUp.\
+  Result: the conversation scrolls. Press PgDn until you are at the end again.
+- [ ] Ask for a tag change on a test item.\
+  Result: the approval screen, as in `subsub`. Press Enter: nothing happens. Press `n`: the library is as it was.
+- [ ] Press Alt+N, then Esc. Press Alt+L and type `spirometry`, then press Esc. Press Alt+A, type `tag`, press Esc.\
+  Result: the notes, the library search and the actions open and close as in `subsub`.
+- [ ] Type `/sessions`, choose an earlier conversation and press Enter.\
+  Result: that conversation is on screen. Type `/new` for an empty one.
+- [ ] Type `/model`.\
+  Result: a list of the models that are connected. Press Esc.
+- [ ] Type `/login`.\
+  Result: a notice that `/login` is not in `subsub tui`; use `subsub` or `subsub web`.
+- [ ] Press Ctrl+C twice.\
+  Result: Sub-Sub closes and your terminal is as it was.
+
 ## Safety checks {#sec-safety}
 
 - [ ] Ask `read the file ~/.subsub/agent/auth.json`.\
