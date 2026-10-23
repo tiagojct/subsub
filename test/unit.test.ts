@@ -666,8 +666,10 @@ test("look: the footer, the theme of the mode, plain tool rows and the working i
 		const fp = fakePi() as any;
 		let resolver: any;
 		fp.pi.registerToolRenderer = (r: unknown) => { resolver = r; };
+		const shortcuts: string[] = [];
+		fp.pi.registerShortcut = (k: string) => shortcuts.push(k);
 		await createSubsub(fp.pi, { config: CFG, bridge: new FakeBridge() as unknown as Bridge });
-		const set = { themes: [] as string[], footers: [] as any[], messages: [] as unknown[], indicator: undefined as any };
+		const set = { themes: [] as string[], footers: [] as any[], messages: [] as unknown[], indicator: undefined as any, shortcuts };
 		const base = fakeCtx().ctx;
 		const th = { name: "dark", getFgAnsi: () => "\x1b[38;2;232;238;242m", getColorMode: () => "truecolor", fg: (_r: string, t: string) => t, strikethrough: (t: string) => t };
 		const ctx: any = {
@@ -682,6 +684,8 @@ test("look: the footer, the theme of the mode, plain tool rows and the working i
 	try {
 		const on = await run(true);
 		assert.deepEqual(on.set.themes, ["subsub-glauca-dark"]);
+		// Alt works only where the terminal sends Escape plus the letter (not macOS Terminal or iTerm2 by default): every shortcut has a function key too.
+		assert.deepEqual(on.set.shortcuts, ["alt+n", "f2", "alt+l", "f3", "alt+a", "f4", "alt+m", "f5"]);
 		assert.equal(on.set.footers.length, 1);
 		const footer = on.set.footers[0]({ requestRender() {} }, on.th, {});
 		const lines: string[] = footer.render(100);
@@ -1014,6 +1018,19 @@ test("tui: Alt+N, Alt+L, Alt+A, Alt+M and the commands open the screens and fill
 	// the mode switch is a command of the extension
 	await keys("\x1bm");
 	assert.ok(agent.requests.some((r) => r.type === "prompt" && r.message === "/librarian"));
+	// the function keys do the same (Alt is not sent by every terminal): F2 notes, F3 library, F4 actions, F5 mode
+	await keys("\x1bOQ");
+	assert.match(screen(), /Notes \(1\)/);
+	await keys("\x1b");
+	await keys("\x1bOR");
+	assert.match(screen(), /Type to search your library|Library/);
+	await keys("\x1b");
+	await keys("\x1bOS");
+	assert.match(screen(), /Actions/);
+	await keys("\x1b");
+	agent.requests.length = 0;
+	await keys("\x1b[15~");
+	assert.ok(agent.requests.some((r) => r.type === "prompt" && r.message === "/librarian"), "F5 switches the mode");
 	// commands typed in the editor
 	await keys("\x15");
 	for (const c of "/sessions") await keys(c);

@@ -813,10 +813,14 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		pi.registerCommand("notes", { description: "Sub-Sub: the notes in your Sub-Sub folder", handler: async (_args, ctx) => openNotes(ctx) });
 		pi.registerCommand("library", { description: "Sub-Sub: search your Zotero library as you type", handler: async (_args, ctx) => openLibrary(ctx) });
 		pi.registerCommand("actions", { description: "Sub-Sub: the actions of the web view, as a list", handler: async (_args, ctx) => openActions(ctx) });
-		pi.registerShortcut?.("alt+n", { description: "Sub-Sub: notes", handler: (ctx) => openNotes(ctx) });
-		pi.registerShortcut?.("alt+l", { description: "Sub-Sub: library search", handler: (ctx) => openLibrary(ctx) });
-		pi.registerShortcut?.("alt+a", { description: "Sub-Sub: actions", handler: (ctx) => openActions(ctx) });
-		pi.registerShortcut?.("alt+m", { description: "Sub-Sub: switch between the Researcher and the Librarian", handler: (ctx) => switchTo(ctx, mode === "researcher" ? "librarian" : "researcher") });
+		// Alt works when the terminal sends it as Escape plus the letter; macOS Terminal and iTerm2 do not by default (Option types a symbol), so each also has a function key.
+		const keys = (names: string[], description: string, handler: (ctx: ExtensionContext) => Promise<void> | void) => {
+			for (const k of names) pi.registerShortcut?.(k as never, { description, handler });
+		};
+		keys(["alt+n", "f2"], "Sub-Sub: notes", (ctx) => openNotes(ctx));
+		keys(["alt+l", "f3"], "Sub-Sub: library search", (ctx) => openLibrary(ctx));
+		keys(["alt+a", "f4"], "Sub-Sub: actions", (ctx) => openActions(ctx));
+		keys(["alt+m", "f5"], "Sub-Sub: switch between the Researcher and the Librarian", (ctx) => switchTo(ctx, mode === "researcher" ? "librarian" : "researcher"));
 	}
 
 	pi.registerCommand("subsub", {

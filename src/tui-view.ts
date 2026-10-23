@@ -254,7 +254,7 @@ export function sideLines(s: SideState, width: number, rows: number, p: Paint, g
 	const mode = s.mode === "librarian" ? "Librarian" : "Researcher";
 	const lib = s.library.zotero === "reachable" ? `${s.library.items ?? "?"} ${s.lang === "pt" ? "itens" : "items"}` : s.library.zotero === "down" ? `${g.hollow} Zotero` : "Zotero...";
 	const lines = [p.mark(cut(` Sub-Sub ${s.version}`, w)), p.text(cut(` ${mode}`, w)), p.muted(cut(` ${lib}`, w)), p.dim(cut(` ${s.model}`, w)), rule(w, "solid", p.muted, g)];
-	for (const [key, word] of [["Alt+N", words.notes], ["Alt+L", words.library], ["Alt+A", words.actions], ["Alt+M", words.mode]] as const) lines.push(p.muted(cut(` ${key.padEnd(6)}${word}`, w)));
+	for (const [key, word] of [["F2", words.notes], ["F3", words.library], ["F4", words.actions], ["F5", words.mode]] as const) lines.push(p.muted(cut(` ${key.padEnd(4)}${word}`, w)));
 	lines.push(rule(w, "solid", p.muted, g), p.text(cut(` ${words.conversations}`, w)));
 	if (!s.conversations.length) lines.push(p.dim(cut(`  ${words.none}`, w)));
 	for (const c of s.conversations) {

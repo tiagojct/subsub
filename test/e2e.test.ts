@@ -792,7 +792,7 @@ test("subsub tui: a full-screen client of pi: the approval screen applies only o
 	const no = await inTerminal(ask("n", "Left it alone."), 120, "tui-no", ["tui", "--here"]);
 	assert.equal(no.failed, null, no.text.slice(-1500));
 	assert.match(no.text, /y apply\s+n leave it as it is/);
-	assert.match(no.text, /Alt\+N notes/, "the side panel shows from 110 columns");
+	assert.match(no.text, /F2\s+notes/, "the side panel shows from 110 columns");
 	assert.ok(!(await state()).BBBB3333.tags.some((t: any) => t.tag === "topic/spirometry"), "n changes nothing");
 	noRed(no.raw);
 

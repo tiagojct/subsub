@@ -385,7 +385,7 @@ Home spirometry is feasible in school-age children.
   Result: results appear as you type, with the authors, the year and the citekey. Press Esc.
 - [ ] Type `/actions` and choose Read a paper.\
   Result: `/read ` is in the box.
-- [ ] Press Alt+M (on macOS, with "Use Option as Meta key" on), or type `/librarian`.\
+- [ ] Press F5 (on a Mac, Fn and F5), or type `/librarian`.\
   Result: the mode changes, the footer and the accent colour change with it.
 - [ ] Type `/librarian`, then `/researcher`.\
   Result: the mode changes, and the header shows it.
@@ -412,7 +412,7 @@ Use a terminal at least 120 columns wide for this section.
   Result: the conversation scrolls. Press PgDn until you are at the end again.
 - [ ] Ask for a tag change on a test item.\
   Result: the approval screen, as in `subsub`. Press Enter: nothing happens. Press `n`: the library is as it was.
-- [ ] Press Alt+N, then Esc. Press Alt+L and type `spirometry`, then press Esc. Press Alt+A, type `tag`, press Esc.\
+- [ ] Press F2, then Esc. Press F3 and type `spirometry`, then press Esc. Press F4, type `tag`, press Esc.\
   Result: the notes, the library search and the actions open and close as in `subsub`.
 - [ ] Type `/sessions`, choose an earlier conversation and press Enter.\
   Result: that conversation is on screen. Type `/new` for an empty one.

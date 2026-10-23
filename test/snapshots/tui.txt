@@ -56,10 +56,10 @@
  990 items                  │  ╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗
  mimo-v2.6-pro              │  ╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  0.22.0
 ────────────────────────────│
- Alt+N notes                │  Researcher  mimo-v2.6-pro  |  Zotero: 990 items, 975 to check
- Alt+L library              │  "Call me Ishmael." (Moby-Dick, ch. 1)
- Alt+A actions              │  /researcher  /librarian  /read  /notes  /library  /actions  |  / for all commands
- Alt+M mode                 │
+ F2  notes                  │  Researcher  mimo-v2.6-pro  |  Zotero: 990 items, 975 to check
+ F3  library                │  "Call me Ishmael." (Moby-Dick, ch. 1)
+ F4  actions                │  /researcher  /librarian  /read  /notes  /library  /actions  |  / for all commands
+ F5  mode                   │
 ────────────────────────────│
  Conversations              │
   asthma in children        │
@@ -86,10 +86,10 @@
  990 items                  │  ╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗
  mimo-v2.6-pro              │  ╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  0.22.0
 ────────────────────────────│
- Alt+N notes                │  Researcher  mimo-v2.6-pro  |  Zotero: 990 items, 975 to check
- Alt+L library              │  "Call me Ishmael." (Moby-Dick, ch. 1)
- Alt+A actions              │  /researcher  /librarian  /read  /notes  /library  /actions  |  / for all commands
- Alt+M mode                 │
+ F2  notes                  │  Researcher  mimo-v2.6-pro  |  Zotero: 990 items, 975 to check
+ F3  library                │  "Call me Ishmael." (Moby-Dick, ch. 1)
+ F4  actions                │  /researcher  /librarian  /read  /notes  /library  /actions  |  / for all commands
+ F5  mode                   │
 ────────────────────────────│
  Conversations              │  › What do I have on asthma?
   asthma in children        │

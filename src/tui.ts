@@ -578,7 +578,12 @@ export class TuiApp {
 			"alt+n": () => void this.openNotes(),
 			"alt+l": () => void this.openLibrary(),
 			"alt+a": () => void this.openActions(),
-			"alt+m": () => void this.d.agent.request({ type: "prompt", message: this.mode === "researcher" ? "/librarian" : "/researcher" }).catch(() => {}),
+			"alt+m": () => this.switchMode(),
+			// The same on the function keys, for terminals where Alt (Option on a Mac) does not send Escape plus the letter.
+			f2: () => void this.openNotes(),
+			f3: () => void this.openLibrary(),
+			f4: () => void this.openActions(),
+			f5: () => this.switchMode(),
 		};
 		for (const [key, run] of Object.entries(shortcuts)) {
 			if (matchesKey(data, key as never)) {
@@ -605,6 +610,10 @@ export class TuiApp {
 			return true;
 		}
 		return false;
+	}
+
+	private switchMode(): void {
+		void this.d.agent.request({ type: "prompt", message: this.mode === "researcher" ? "/librarian" : "/researcher" }).catch(() => {});
 	}
 
 	/** What is in the editor (for tests and for the screens that fill it). */
