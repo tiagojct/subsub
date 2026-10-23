@@ -2,6 +2,19 @@
 
 Sub-Sub follows the version numbers of npm: a change in the second number (0.13) adds features or changes how you use it; a change in the third (0.13.1) only fixes.
 
+## 0.21.0 (2026-10-23)
+
+A new look for the terminal. It is on by default in `subsub`; set `"look": false` in the settings to go back to the old screen.
+
+- Colours: the terminal themes use the colours of the website (Prussian blue for the Researcher, madder for the Librarian, sap green for what is applied or added, gamboge for a preview). Nothing is red. A failure is ink with a hollow mark and a word, a removal is struck through, and a closed Zotero is a hollow mark and the words "not running". The theme follows the mode, and `themes.librarian` in the settings picks another theme for the Librarian. There are variants for terminals with 256 colours, and a plain look for terminals that cannot draw box glyphs (set `SUBSUB_ASCII=1`, or use a locale that is not UTF-8). `SUBSUB_REDUCE_MOTION=1` stops the working indicator from moving.
+- Footer: the mode, the Zotero items and the items to check, the model, how much of the context is used, the tokens and the cost. It gets shorter on narrow terminals. It replaces pi's own footer, so the working folder and the git branch are not shown.
+- Tool lines: Sub-Sub's tools show in plain words, for example "search the library: asthma", dashed while they run and solid when done. A failure says "could not search the library" and gives the first line of the error. Press Ctrl+O to expand the rows and see the output. The tools of pi itself (read, edit, write) look as before.
+- Approvals: a library change opens a screen with the preview between dashed rules. Press y (s in Portuguese) to apply it, n or Esc to leave the library as it is. Enter does nothing, and keys pressed in the first half second are ignored, so a letter that you typed just before the screen opened cannot answer it. Removals in the preview are struck through, not red. With `look` off, pi's own Yes/No dialog is used.
+- Screens: `/notes` lists the notes in your Sub-Sub folder, newest first, with the chosen note beside the list from 100 columns, and its evidence line (full text, abstract or metadata). `/library` searches your Zotero library as you type; Enter puts `/read <item>` in the box (in the Librarian, the item's key) and Ctrl+N puts `/lit-note <item>`. `/actions` lists the actions of the browser view. The shortcuts are Alt+N, Alt+L and Alt+A, and Alt+M switches the mode. In macOS Terminal, Option acts as Alt only if you turn on "Use Option as Meta key"; the commands work everywhere.
+- `/read` offers the reasons (background, fact, extract, critique) when you press Tab.
+- The library line says "to check" ("por verificar"), as the browser view does; it said "to review".
+- Tests: snapshots of the screens at 40, 80 and 120 columns in English and Portuguese, contrast tests for the colours, and tests that run Sub-Sub in a terminal (macOS and Linux).
+
 ## 0.20.0 (2026-10-23)
 
 Changes from a technical evaluation of 0.19.0 and Starbuck 0.2.0 (LLMSSH 2026).

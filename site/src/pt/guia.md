@@ -32,6 +32,8 @@ Para um mapa das partes (as aplicações, os servidores, os modos e as pastas), 
 
 Escreva `subsub`. O Sub-Sub começa no modo Investigador. Para começar no modo Bibliotecário, escreva `subsub --librarian`. Para mudar de modo, escreva `/librarian` ou `/researcher`. Quando inicia o Sub-Sub a partir da sua pasta pessoal, o Sub-Sub trabalha na sua pasta do Sub-Sub. A partir de outra pasta (por exemplo, a pasta de um manuscrito), trabalha nessa pasta. Para ficar na pasta pessoal, escreva `subsub --here`.
 
+O terminal tem um aspeto próprio. O rodapé mostra o modo, a biblioteca, o modelo, quanto do contexto está em uso e o custo. As ferramentas do Sub-Sub aparecem em palavras simples. Uma alteração à biblioteca abre um ecrã de aprovação: prima `s` para aplicar, ou `n` ou Esc para deixar a biblioteca como está. O Enter não faz nada. `/notes` lista as suas notas, `/library` pesquisa na biblioteca à medida que escreve e `/actions` lista as ações da vista no navegador. Alt+N, Alt+L e Alt+A abrem-nos, e Alt+M muda de modo. Se o seu terminal não desenha símbolos de linhas, defina `SUBSUB_ASCII=1`.
+
 ## Etiquetar os primeiros itens
 
 O Sub-Sub só usa as etiquetas da sua lista de etiquetas. A lista inicial para qualquer área ainda não tem temas, porque os seus temas dependem da sua biblioteca. A lista para as ciências da saúde já tem alguns. Se a sua lista não tiver etiquetas `topic/`, comece aqui:
@@ -148,6 +150,7 @@ O Sub-Sub não altera o manuscrito. O Starbuck escreve um relatório HTML numa p
 | `/librarian`, `/researcher` | Muda de modo (cada modo pode ter o seu próprio modelo) |
 | `/subsub` | Ligação ao Zotero e resumo da biblioteca |
 | `/history`, `/undo` | Alterações recentes; anular uma delas |
+| `/notes`, `/library`, `/actions` | Ecrãs do terminal: as suas notas, uma pesquisa na biblioteca, as ações da vista no navegador |
 | `/feedback [o que aconteceu]` | Um rascunho de relatório de problema em `Inbox/`, para publicar no GitHub |
 | `/ai-statement [usos]` | Um rascunho da declaração sobre o uso de IA para um manuscrito |
 | `/read [motivo] <citekey>` | Leitura guiada de um artigo: o Sub-Sub encontra as passagens e pergunta, escreve as respostas (Investigador) |

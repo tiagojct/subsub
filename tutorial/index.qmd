@@ -1,6 +1,6 @@
 ---
 title: "Test everything in [Sub-Sub]{.nobr}"
-subtitle: "A tutorial to follow along, one command at a time. Sub-Sub 0.20."
+subtitle: "A tutorial to follow along, one command at a time. Sub-Sub 0.21."
 ---
 
 ```{=html}
@@ -41,7 +41,7 @@ The test items of this page are five papers with stable identifiers:
 Use a terminal for this section.
 
 - [ ] Type `subsub --version`.\
-  Result: the versions of Sub-Sub and pi, for example `subsub 0.20.0 (pi 1.0.4)`.
+  Result: the versions of Sub-Sub and pi, for example `subsub 0.21.0 (pi 1.0.4)`.
 - [ ] Type `subsub --help`.\
   Result: the list of `subsub` commands and options.
 - [ ] Type `subsub doctor`.\
@@ -368,11 +368,25 @@ Home spirometry is feasible in school-age children.
 ## The terminal {#sec-terminal}
 
 - [ ] Type `subsub`.\
-  Result: the banner, the version, the mode and model, and the library line. The status line at the bottom shows the mode and the model.
+  Result: the banner, the version, the mode and model, and the library line. The footer at the bottom shows the mode, the Zotero items, the model, how much of the context is used and the cost.
 - [ ] Type `/` and look at the list.\
-  Result: every command, including `/read`.
+  Result: every command, including `/read`, `/notes`, `/library` and `/actions`.
+- [ ] Type `/read b` and press Tab.\
+  Result: the box holds `/read background`. Clear the box.
 - [ ] Ask for a tag change on a test item.\
-  Result: the preview in the terminal, with added tags in green and removed tags in red. Answer No.
+  Result: the approval screen, with the preview between dashed rules. Added tags have a `+`; removed tags have a `-` and are struck through. Nothing is red. At the bottom: `y apply`, `n leave it as it is`, `Esc leave it`.
+- [ ] Press Enter, then `n`.\
+  Result: Enter does nothing. `n` leaves the library as it is, and the tool line says that you did not approve the change.
+- [ ] Ask for the same change again and press `y`.\
+  Result: the change is applied. The tool line is solid: `tag items`. Undo it with `/undo` and select Yes.
+- [ ] Type `/notes`.\
+  Result: a screen with your notes, newest first. From 100 columns the chosen note shows beside the list, with its evidence line. Press the down arrow, type a few letters to filter, then press Esc twice.
+- [ ] Type `/library`, then `spirometry`.\
+  Result: results appear as you type, with the authors, the year and the citekey. Press Esc.
+- [ ] Type `/actions` and choose Read a paper.\
+  Result: `/read ` is in the box.
+- [ ] Press Alt+M (on macOS, with "Use Option as Meta key" on), or type `/librarian`.\
+  Result: the mode changes, the footer and the accent colour change with it.
 - [ ] Type `/librarian`, then `/researcher`.\
   Result: the mode changes, and the header shows it.
 - [ ] Quit, then type `subsub -c`.\

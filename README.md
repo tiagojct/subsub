@@ -86,6 +86,8 @@ subsub --help        # all commands
 
 In the browser view, connect a model provider with the model button. In the terminal, type `/login`.
 
+The terminal has its own look, drawn like the website: a footer with the mode, the library, the model, the context in use and the cost; Sub-Sub's tools in plain words (`search the library: asthma`); and an approval screen for library changes (`y` applies, `n` or Esc leaves the library as it is, Enter does nothing). `/notes`, `/library` and `/actions` open screens for your notes, a library search and the actions of the browser view; Alt+N, Alt+L, Alt+A and Alt+M (mode) are shortcuts. Nothing is red: a failure is ink with a hollow mark and a word, and a removal is struck through. For terminals that cannot draw box glyphs, set `SUBSUB_ASCII=1`; `SUBSUB_REDUCE_MOTION=1` stops the working indicator from moving; `"look": false` in the settings brings back the plain screen.
+
 The browser view also has a library search (each result can start `/read` or `/lit-note`), a notes pane that shows the notes of your Sub-Sub folder next to the conversation (note paths and `[[links]]` in replies open there), argument hints for the commands, and rename, delete (to `~/.subsub/trash`) and export for conversations.
 
 Commands in Sub-Sub:
@@ -95,6 +97,7 @@ Commands in Sub-Sub:
 | `/researcher`, `/librarian` | Switch the mode |
 | `/subsub` | Zotero connection, mode, model and library counts |
 | `/history`, `/undo [id]` | Recent library changes; undo the last one or one by its id |
+| `/notes`, `/library`, `/actions` | Terminal screens: the notes in your Sub-Sub folder (the chosen note beside the list from 100 columns); a library search as you type (Enter starts `/read`, Ctrl+N `/lit-note`); the actions of the browser view as a list |
 | `/feedback [what happened]` | A draft bug report in `Inbox/`, with versions, `subsub doctor` and the last error, and without your folders, emails or keys. You post it on GitHub; Sub-Sub sends nothing |
 | `/ai-statement [uses]` | A draft statement on the use of AI for a manuscript, with the Sub-Sub version, its DOI and your models |
 | `/tag-batch [size]` | Tag items that have no topic, with your tag list |
@@ -137,7 +140,7 @@ subsub review apply 13-31
 | `usageLog` | `true` keeps the pilot's usage log on this computer (`subsub usage`) | off |
 | `serverDir` | A local copy of zotero-local-mcp, for development | the PyPI release |
 | `starbuckDir` | A local copy of Starbuck, for development | the pinned release |
-| `look`, `quotes`, `themes` | The terminal header, the Moby-Dick quotations, and the terminal colours (`subsub-glauca`, `subsub-try-works`, or `false` for your pi theme) | on, on, `subsub-glauca` |
+| `look`, `quotes`, `themes` | The terminal look (header, footer, approval screen, tool lines), the Moby-Dick quotations, and the terminal colours (`subsub-glauca`, `subsub-try-works`, or `false` for your pi theme). `themes` can be `{"researcher": "...", "librarian": "..."}`: the Librarian uses `subsub-try-works` unless you say otherwise | on, on, `subsub-glauca` |
 
 The settings of the Zotero server (Sub-Sub folder, tag list, alerts file, contact email) are in `~/.config/zotero-local-mcp/env`.
 

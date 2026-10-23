@@ -31,6 +31,8 @@ For a map of the parts (the apps, the servers, the modes and the folders), see [
 
 Type `subsub`. It starts in the Researcher. To start in the Librarian, type `subsub --librarian`. To change the mode, type `/librarian` or `/researcher`. When you start Sub-Sub from your home folder, it works in your Sub-Sub folder. From another folder (for example a manuscript folder), it works in that folder. To stay in the home folder, type `subsub --here`.
 
+The terminal has its own look. The footer shows the mode, the library, the model, how much of the context is used and the cost. Sub-Sub's tools show in plain words. A library change opens an approval screen: press `y` to apply it, or `n` or Esc to leave the library as it is. Enter does nothing. `/notes` lists your notes, `/library` searches your library as you type, and `/actions` lists the actions of the browser view. Alt+N, Alt+L and Alt+A open them, and Alt+M switches the mode. If your terminal cannot draw box glyphs, set `SUBSUB_ASCII=1`.
+
 ## Tag your first items
 
 Sub-Sub tags only with the tags in your tag list. The starter list for any field has no topics yet, because your topics depend on your library. The health-sciences list has some. If your list has no `topic/` tags, start here:
@@ -148,6 +150,7 @@ Sub-Sub does not change the manuscript. Starbuck writes an HTML report in a `_st
 | `/librarian`, `/researcher` | Change the mode (each mode can have its own model) |
 | `/subsub` | Zotero connection and library overview |
 | `/history`, `/undo` | Recent changes; revert one |
+| `/notes`, `/library`, `/actions` | Terminal screens: your notes, a library search, the actions of the browser view |
 | `/feedback [what happened]` | A draft bug report in `Inbox/` to post on GitHub yourself |
 | `/ai-statement [uses]` | A draft statement on the use of AI for a manuscript |
 | `/read [reason] <citekey>` | Guided reading of one paper: Sub-Sub finds the passages and asks, you write the answers (Researcher) |

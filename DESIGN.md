@@ -287,6 +287,16 @@ Corners are square, as cut from a plate: 2px on buttons, fields, code and comman
 ### The Plate (signature)
 - The Plate I specimen: the browser view drawn in HTML at large scale, Fig. 1 to Fig. 5 numbered in an italic margin with leader lines. Pointing at a number, or at its caption entry, draws its line (0.5s, cubic-bezier(0.22, 1, 0.36, 1)), inks its part in its wash, and rests the other parts at 30% opacity. Keyboard and touch do the same. Reduced motion shows the lines without drawing.
 
+## The terminal
+
+The terminal draws the same plate with the same washes and the same rules, from the colours above (`scripts/make-themes.mjs` writes the pi themes in `themes/` from this file; `npm test` checks that they match, that every text colour has 4.5:1 against the sheet and every line 3:1).
+
+- The accent is Prussian blue for the Researcher and madder for the Librarian; the theme follows the mode. Links stay blue. Sap green is applied or added, gamboge is a preview or pending.
+- State is drawn by line as on the web: a solid rule is done or full text, a dashed rule is pending, a preview or an abstract, a dotted rule is metadata. The working indicator moves from dotted to dashed to solid, and stands still when `SUBSUB_REDUCE_MOTION` is set.
+- Errors have no colour: ink, a hollow mark and a word (`o could not search the library`). A closed Zotero is the same. A removal is muted ink, struck through, with its `-` in front for terminals that ignore the strike.
+- The approval screen is the only place where a letter changes the library: `y` applies, `n` or Esc leaves it, Enter does nothing, and keys in the first half second are ignored.
+- Terminals without truecolor get colours picked from the xterm palette (`-256` themes). Terminals that cannot draw box glyphs get ASCII (`SUBSUB_ASCII=1`). Neither loses a meaning: every colour also has a glyph or a word.
+
 ## Do's and Don'ts
 
 ### Do:

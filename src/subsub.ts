@@ -904,7 +904,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		getArgumentCompletions: (prefix: string) => {
 			if (/\s/.test(prefix.trim())) return null;
 			const found = Object.keys(PURPOSES).filter((k) => k.startsWith(prefix.trim().toLowerCase()));
-			return found.length ? found.map((k) => ({ value: k, label: `${k}: ${L(PURPOSES[k as Purpose][0], PURPOSES[k as Purpose][1])}` })) : null;
+			return found.length ? found.map((k) => ({ value: k, label: L(PURPOSES[k as Purpose][0], PURPOSES[k as Purpose][1]) })) : null;
 		},
 		handler: async (args, ctx) => {
 			if (mode === "librarian") return ctx.ui.notify(researcherOnly("read"), "warning");
