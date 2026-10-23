@@ -560,7 +560,8 @@ function snapshot(name: string, blocks: Record<string, string[]>): void {
 		return;
 	}
 	assert.ok(existsSync(file), `${file} is missing: run with UPDATE_SNAPSHOTS=1`);
-	assert.equal(text, readFileSync(file, "utf8"), `${name}: the screen changed; if that is intended, run with UPDATE_SNAPSHOTS=1`);
+	// Git may check the files out with CRLF line endings (Windows).
+	assert.equal(text, readFileSync(file, "utf8").replace(/\r\n/g, "\n"), `${name}: the screen changed; if that is intended, run with UPDATE_SNAPSHOTS=1`);
 }
 
 test("chrome: header, footer, tool and evidence lines at 40, 80 and 120 columns, English and Portuguese", async () => {
