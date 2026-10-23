@@ -1,0 +1,35 @@
+{
+	"tokens": {
+		"light": {
+			"sheet": "sheet", "sunk": "sunk-field", "field": "plate-field", "ink": "copperplate-ink", "muted": "ink-muted", "faint": "ink-faint", "rule": "fine-rule", "mark": "plate-mark",
+			"prussian": "prussian-blue", "prussianWash": "prussian-wash", "madder": "madder", "madderWash": "madder-wash", "sap": "sap-green", "sapWash": "sap-wash", "gamboge": "gamboge", "gambogeWash": "gamboge-wash"
+		},
+		"dark": {
+			"sheet": "steel-ground", "sunk": "steel-sunk", "field": "steel-field", "ink": "steel-line", "muted": "steel-muted", "faint": "steel-faint", "rule": "steel-fine-rule", "mark": "steel-plate-mark",
+			"prussian": "steel-prussian", "prussianWash": "steel-prussian-wash", "madder": "steel-madder", "madderWash": "steel-madder-wash", "sap": "steel-sap", "sapWash": "steel-sap-wash", "gamboge": "steel-gamboge", "gambogeWash": "steel-gamboge-wash"
+		}
+	},
+	"themes": {
+		"glauca": { "accent": "prussian", "wash": "prussianWash" },
+		"try-works": { "accent": "madder", "wash": "madderWash" }
+	},
+	"roles": {
+		"text": "ink", "userMessageText": "ink", "customMessageText": "ink", "toolTitle": "ink", "mdHeading": "ink", "mdCode": "ink", "mdCodeBlock": "ink", "error": "ink",
+		"muted": "muted", "toolOutput": "muted", "mdQuote": "muted", "toolDiffContext": "muted", "thinkingText": "muted", "toolDiffRemoved": "muted",
+		"dim": "faint", "mdLinkUrl": "faint", "syntaxComment": "faint",
+		"border": "mark", "mdQuoteBorder": "mark", "mdListBullet": "mark",
+		"borderMuted": "rule", "mdHr": "rule", "mdCodeBlockBorder": "rule", "scrollbarTrack": "rule", "thinkingOff": "rule",
+		"scrollbarThumb": "faint",
+		"accent": "$accent", "borderAccent": "$accent", "bashMode": "$accent", "customMessageLabel": "$accent", "thinkingXhigh": "$accent", "thinkingMax": "$accent",
+		"mdLink": "prussian", "thinkingHigh": "prussian",
+		"success": "sap", "toolDiffAdded": "sap",
+		"warning": "gamboge",
+		"selectedBg": "$wash",
+		"searchMatchBg": "gambogeWash", "searchMatchText": "ink",
+		"userMessageBg": "field", "toolSuccessBg": "field",
+		"customMessageBg": "sunk", "toolErrorBg": "sunk",
+		"toolPendingBg": "gambogeWash",
+		"syntaxKeyword": "prussian", "syntaxNumber": "prussian", "syntaxFunction": "ink", "syntaxVariable": "ink", "syntaxType": "ink", "syntaxString": "muted", "syntaxOperator": "muted", "syntaxPunctuation": "faint",
+		"thinkingMinimal": "faint", "thinkingLow": "mark", "thinkingMedium": "muted"
+	}
+}
