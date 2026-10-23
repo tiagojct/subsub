@@ -40,6 +40,9 @@ export default function (eleventyConfig) {
 	});
 	eleventyConfig.setLibrary("md", md);
 
+	// The Changes page shows CHANGELOG.md of the package, without its title line.
+	eleventyConfig.addGlobalData("changelogHtml", () => md.render(fs.readFileSync(path.join(PKG, "CHANGELOG.md"), "utf8").replace(/^# .*\n/, "")));
+
 	// A number with a fixed count of decimals (4.875 -> "4.9"); empty for a missing value.
 	eleventyConfig.addFilter("num", (x, d = 2) => (x === null || x === undefined || Number.isNaN(x) ? "" : Number(x).toFixed(d)));
 	eleventyConfig.addFilter("isoDate", (d) => new Date(d).toISOString().slice(0, 10));

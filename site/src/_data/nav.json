@@ -9,5 +9,6 @@
   { "url": "/privacy/", "label": "Privacy", "ptUrl": "/pt/privacidade/", "ptLabel": "Privacidade" },
   { "url": "/fmup/", "label": "FMUP", "ptUrl": "/pt/fmup/", "ptLabel": "FMUP" },
   { "url": "/help/", "label": "Help", "ptUrl": "/pt/ajuda/", "ptLabel": "Ajuda" },
+  { "url": "/changelog/", "label": "Changes", "ptUrl": "/pt/alteracoes/", "ptLabel": "Alterações" },
   { "url": "/about/", "label": "About", "ptUrl": "/pt/sobre/", "ptLabel": "Sobre" }
 ]
