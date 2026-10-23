@@ -6,6 +6,7 @@
   { "url": "/how-it-works/", "label": "How it works", "ptUrl": "/pt/como-funciona/", "ptLabel": "Como funciona" },
   { "url": "/profiles/", "label": "Commands", "ptUrl": "/pt/perfis/", "ptLabel": "Comandos" },
   { "url": "/models/", "label": "Models", "ptUrl": "/pt/modelos/", "ptLabel": "Modelos" },
+  { "url": "/tests/", "label": "Tests", "ptUrl": "/pt/testes/", "ptLabel": "Testes" },
   { "url": "/privacy/", "label": "Privacy", "ptUrl": "/pt/privacidade/", "ptLabel": "Privacidade" },
   { "url": "/fmup/", "label": "FMUP", "ptUrl": "/pt/fmup/", "ptLabel": "FMUP" },
   { "url": "/help/", "label": "Help", "ptUrl": "/pt/ajuda/", "ptLabel": "Ajuda" },
