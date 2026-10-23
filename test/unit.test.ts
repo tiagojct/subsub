@@ -906,9 +906,9 @@ function fakeAgent(answers: Record<string, unknown> = {}) {
 	const written: any[] = [];
 	const requests: any[] = [];
 	const a = {
-		stderr: "", onExit: undefined as ((c: number | null) => void) | undefined, started: 0, stopped: 0,
+		stderr: "", onExit: undefined as ((c: number | null) => void) | undefined, started: 0, stopped: 0, onRequest: undefined as ((cmd: any) => void) | undefined,
 		start() { a.started++; }, async stop() { a.stopped++; },
-		async request(cmd: any) { requests.push(cmd); return (answers as any)[cmd.type] ?? {}; },
+		async request(cmd: any) { requests.push(cmd); a.onRequest?.(cmd); return (answers as any)[cmd.type] ?? {}; },
 		write(rec: unknown) { written.push(rec); },
 		on(l: (ev: any) => void) { listeners.push(l); return () => listeners.splice(listeners.indexOf(l), 1); },
 		emit(ev: any) { for (const l of listeners) l(ev); },
@@ -967,6 +967,63 @@ test("tui: the full-screen client draws the conversation, the side panel and the
 		assert.equal(agent.stopped, 1);
 	}
 	snapshot("tui", screens);
+});
+
+test("tui: Alt+N, Alt+L, Alt+A, Alt+M and the commands open the screens and fill the editor", async () => {
+	const { TuiApp } = await import("../src/tui.ts");
+	const { loadPalette } = await import("../src/tui-view.ts");
+	const { UNICODE } = await import("../src/skin.ts");
+	const { loadWords } = await import("../src/words.ts");
+	const words = await loadWords();
+	const vault = mkdtempSync(join(tmpdir(), "subsub-tui-"));
+	mkdirSync(join(vault, "Literature"));
+	writeFileSync(join(vault, "Literature", "smith2021.md"), "---\nevidence: full text\n---\nHome spirometry.\n");
+	const term = fakeTerminal(120, 30);
+	const agent = fakeAgent({ get_state: { model: { id: "m" } }, get_messages: { messages: [] }, get_commands: { commands: [] } });
+	agent.onRequest = (cmd) => {
+		const q = /^\/subsub-find (.*)$/.exec(cmd.message ?? "")?.[1];
+		if (q) agent.emit({ type: "extension_ui_request", method: "setStatus", statusKey: "subsub.find", statusText: JSON.stringify({ q, items: [{ key: "K1", citekey: "smith2021", title: "Home spirometry", authors: "Smith", year: 2021 }] }) });
+	};
+	const sessions = [{ title: "asthma in children", path: "/s/1.jsonl" }, { title: "spirometry review", path: "/s/2.jsonl" }];
+	const app = new TuiApp({ terminal: term as any, agent: agent as any, version: "0.22.0", lang: "en", cwd: vault, vault, palette: (b) => loadPalette(join(import.meta.dirname, "..", "themes"), b, "dark", "truecolor"), glyphs: UNICODE, words, reduceMotion: true, searchDelay: 0, sessions: async () => sessions });
+	const screen = () => strip(app.tui.getScreenLines().join("\n"));
+	const keys = async (...k: string[]) => { for (const x of k) { term.input(x); await tick(15); } await tick(150); };
+	await app.start();
+	agent.emit({ type: "extension_ui_request", method: "setStatus", statusKey: "subsub.web", statusText: JSON.stringify({ mode: "researcher", library: { zotero: "reachable", items: 1 }, down: [], starbuck: false }) });
+	await tick();
+	// notes
+	await keys("\x1bn");
+	assert.match(screen(), /Notes \(1\)/);
+	assert.match(screen(), /Literature\/smith2021\.md/);
+	assert.match(screen(), /evidence: full text/);
+	await keys("\x1b");
+	assert.doesNotMatch(screen(), /Notes \(1\)/, "Esc closes the screen");
+	// library
+	await keys("\x1bl", "a", "s", "t", "h");
+	await tick(200);
+	assert.ok(agent.requests.some((r) => r.type === "prompt" && r.message === "/subsub-find asth"), "the search goes through the extension");
+	assert.match(screen(), /Home spirometry/);
+	await keys("\r");
+	assert.equal(app.editorText(), "/read smith2021");
+	await keys("\x15"); // clear the line
+	// actions: the list is filtered by typing, Enter fills the editor
+	await keys("\x1ba", "t", "a", "g", "\r");
+	assert.match(app.editorText(), /^\/tag-batch 10 ?$/);
+	// the mode switch is a command of the extension
+	await keys("\x1bm");
+	assert.ok(agent.requests.some((r) => r.type === "prompt" && r.message === "/librarian"));
+	// commands typed in the editor
+	await keys("\x15");
+	for (const c of "/sessions") await keys(c);
+	await keys("\r");
+	assert.match(screen(), /Conversations/);
+	assert.match(screen(), /spirometry review/);
+	await keys("\x1b[B", "\r");
+	assert.deepEqual(agent.requests.filter((r) => r.type === "switch_session"), [{ type: "switch_session", sessionPath: "/s/2.jsonl" }]);
+	for (const c of "/new") await keys(c);
+	await keys("\r");
+	assert.ok(agent.requests.some((r) => r.type === "new_session"));
+	await app.stop();
 });
 
 test("themes: all eight load and name every required colour", async () => {

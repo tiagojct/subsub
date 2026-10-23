@@ -5,15 +5,18 @@
  * read from themes/, because RPC mode has no pi theme to share.
  */
 
+import { readFileSync, statSync } from "node:fs";
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { extname, join } from "node:path";
 import { CombinedAutocompleteProvider, Editor, HStack, Markdown, matchesKey, ProcessTerminal, ScrollView, type Component, type SlashCommand, type Terminal, TuiAltScreen, VStack } from "@earendil-works/pi-tui";
 import { agentDirFor, chooseCwd, PACKAGE_DIR, packageVersion } from "./cli.ts";
 import { fill, footerLines } from "./chrome.ts";
 import { loadConfig, uiLanguage } from "./config.ts";
 import { type LibraryState, LIBRARIAN_THEME, DEFAULT_THEME, QUOTES } from "./look.ts";
 import { PURPOSES } from "./read.ts";
-import { Agent, isDialog, Side, withHints } from "./rpc.ts";
+import { allowedFile, listNotes, OPENABLE, openFile } from "./files.ts";
+import { Agent, findLibrary, isDialog, Side, withHints } from "./rpc.ts";
+import { type Choice, ChoiceView, LibraryView, type LibraryItem, NotesView } from "./screens.ts";
 import { glyphs as chooseGlyphs, type Glyphs, workingFrames } from "./skin.ts";
 import { bannerLines, type Entry, entriesFromMessages, loadPalette, messageText, type Palette, schemeFromEnv, type Scheme, SIDE_WIDTH, sideLines, transcriptLines } from "./tui-view.ts";
 import { loadWords, type Words } from "./words.ts";
@@ -48,6 +51,10 @@ export interface TuiDeps {
 	themes?: { researcher?: string; librarian?: string };
 	/** The conversations of this folder, newest first (SessionManager.list in the real client). */
 	sessions?: () => Promise<Array<{ title: string; path?: string }>>;
+	/** The Sub-Sub folder, for /notes. */
+	vault?: string;
+	/** Milliseconds between the last key and the search in /library. */
+	searchDelay?: number;
 	/** Called when the user quits or pi stops. */
 	onQuit?: (code: number) => void;
 }
@@ -79,6 +86,8 @@ export class TuiApp {
 	private readonly tools = new Map<string, Extract<Entry, { kind: "tool" }>>();
 	private unlisten: (() => void) | undefined;
 	private stopped = false;
+	/** The screen over the conversation (notes, library, a list), if one is open. */
+	private overlay: { hide(): void } | undefined;
 
 	constructor(d: TuiDeps) {
 		this.d = d;
@@ -191,8 +200,14 @@ export class TuiApp {
 
 	private slashCommands(commands: Array<Record<string, any>>): SlashCommand[] {
 		const hidden = /^subsub-/;
+		const pt = this.lang === "pt";
 		const own: SlashCommand[] = [
-			{ name: "quit", description: this.lang === "pt" ? "Sair" : "Quit" },
+			{ name: "notes", description: pt ? "As notas da pasta do Sub-Sub" : "The notes in your Sub-Sub folder" },
+			{ name: "library", description: pt ? "Pesquisar na biblioteca à medida que escreve" : "Search your library as you type" },
+			{ name: "actions", description: pt ? "As ações da vista no navegador" : "The actions of the browser view" },
+			{ name: "sessions", description: pt ? "Conversas anteriores" : "Earlier conversations" },
+			{ name: "new", description: pt ? "Uma conversa nova" : "A new conversation" },
+			{ name: "quit", description: pt ? "Sair" : "Quit" },
 		];
 		const fromPi: SlashCommand[] = commands
 			.filter((c) => !hidden.test(String(c.name)))
@@ -341,10 +356,143 @@ export class TuiApp {
 		this.d.agent.write({ type: "extension_ui_response", id: ev.id, ...(ev.method === "confirm" ? { confirmed: false } : { cancelled: true }) });
 	}
 
+	// ---------------------------------------------------------------- screens
+
+	private open(component: Component, centered = false): void {
+		this.overlay = this.tui.showOverlay(component, centered ? { width: "72%", minWidth: 44, maxHeight: "80%", anchor: "center" } : { width: "100%", maxHeight: "100%", anchor: "top-left", margin: 0 });
+		this.tui.requestRender();
+	}
+
+	private close(): void {
+		this.overlay?.hide();
+		this.overlay = undefined;
+		this.tui.setFocus(this.editor);
+		this.tui.requestRender();
+	}
+
+	private common() {
+		return { lang: this.lang, paint: this.palette.paint(), glyphs: this.d.glyphs, rows: () => this.d.terminal.rows, redraw: () => this.tui.requestRender() };
+	}
+
+	/** Alt+N, /notes: the notes of the Sub-Sub folder, newest first, with the chosen note beside the list. */
+	async openNotes(): Promise<void> {
+		if (this.overlay) return;
+		const root = this.d.vault ?? this.d.cwd;
+		this.open(
+			new NotesView({
+				...this.common(),
+				notes: listNotes(root),
+				read: (path) => {
+					const file = allowedFile(path, root, this.d.vault);
+					return file && statSync(file).size < 2_000_000 ? readFileSync(file, "utf8") : "";
+				},
+				markdown: (text, width) => new Markdown(text, 1, 0, this.palette.markdownTheme() as never).render(width),
+				open: (path) => {
+					const file = allowedFile(path, root, this.d.vault);
+					if (file && OPENABLE.has(extname(file).toLowerCase())) openFile(file, this.d.vault);
+				},
+				done: () => this.close(),
+			}),
+		);
+	}
+
+	/** Alt+L, /library: search as you type; Enter puts /read <item> in the editor (the Librarian gets the key), ctrl+n puts /lit-note <item>. */
+	async openLibrary(): Promise<void> {
+		if (this.overlay) return;
+		const ref = (it: LibraryItem) => it.citekey || it.key;
+		this.open(
+			new LibraryView({
+				...this.common(),
+				researcher: this.mode === "researcher",
+				delay: this.d.searchDelay,
+				search: async (q) => {
+					const r = await findLibrary(this.d.agent, this.side, q);
+					if (r.error) throw new Error(r.error);
+					return ((r.items ?? []) as LibraryItem[]).filter((it) => it && it.key);
+				},
+				choose: (it) => {
+					this.close();
+					this.editor.setText(this.mode === "researcher" ? `/read ${ref(it)}` : ref(it));
+				},
+				note: (it) => {
+					this.close();
+					this.editor.setText(`/lit-note ${ref(it)}`);
+				},
+				done: () => this.close(),
+			}),
+		);
+	}
+
+	/** Alt+A, /actions: the actions of the browser view; the choice goes into the editor. */
+	async openActions(): Promise<void> {
+		if (this.overlay) return;
+		const w = this.d.words ?? (await loadWords());
+		const starbuck = Boolean((this.side.state as { starbuck?: boolean } | null)?.starbuck);
+		const list = [...(this.mode === "researcher" ? w.ACTIONS.research : []), ...w.ACTIONS.library].filter((a) => a.needs !== "starbuck" || starbuck);
+		const choices: Choice[] = list.map((a) => ({ label: a[this.lang], hint: `/${a.cmd}`, value: a.cmd }));
+		this.open(
+			new ChoiceView({
+				...this.common(),
+				title: this.lang === "pt" ? "Ações" : "Actions",
+				choices,
+				choose: (cmd) => {
+					this.close();
+					this.editor.setText(cmd.endsWith(" ") ? `/${cmd}` : `/${cmd} `);
+				},
+				cancel: () => this.close(),
+			}),
+			true,
+		);
+	}
+
+	/** /sessions: earlier conversations of this folder; the choice opens it. */
+	async openSessions(): Promise<void> {
+		if (this.overlay) return;
+		const list = (await this.d.sessions?.()) ?? [];
+		const choices: Choice[] = list.filter((s) => s.path).map((s) => ({ label: SHORT(s.title || "...", 70), value: s.path as string }));
+		this.open(
+			new ChoiceView({
+				...this.common(),
+				title: this.lang === "pt" ? "Conversas" : "Conversations",
+				choices,
+				choose: (path) => {
+					this.close();
+					void this.d.agent.request({ type: "switch_session", sessionPath: path }).then(() => this.load()).catch((err) => this.notice("error", (err as Error).message));
+				},
+				cancel: () => this.close(),
+			}),
+			true,
+		);
+	}
+
+	/** /new: an empty conversation. */
+	async newConversation(): Promise<void> {
+		try {
+			await this.d.agent.request({ type: "new_session" });
+			await this.load();
+		} catch (err) {
+			this.notice("error", (err as Error).message);
+			this.tui.requestRender();
+		}
+	}
+
 	// ---------------------------------------------------------------- input
 
 	/** Keys that count whatever has the focus. Returns true when the key is used. */
 	private globalKey(data: string): boolean {
+		if (this.overlay) return false; // the open screen has its own keys
+		const shortcuts: Record<string, () => void> = {
+			"alt+n": () => void this.openNotes(),
+			"alt+l": () => void this.openLibrary(),
+			"alt+a": () => void this.openActions(),
+			"alt+m": () => void this.d.agent.request({ type: "prompt", message: this.mode === "researcher" ? "/librarian" : "/researcher" }).catch(() => {}),
+		};
+		for (const [key, run] of Object.entries(shortcuts)) {
+			if (matchesKey(data, key as never)) {
+				run();
+				return true;
+			}
+		}
 		if (matchesKey(data, "ctrl+c")) {
 			const now = Date.now();
 			if (this.editor.getText()) this.editor.setText("");
@@ -366,6 +514,11 @@ export class TuiApp {
 		return false;
 	}
 
+	/** What is in the editor (for tests and for the screens that fill it). */
+	editorText(): string {
+		return this.editor.getText();
+	}
+
 	async quit(): Promise<void> {
 		await this.stop();
 		this.d.onQuit?.(0);
@@ -378,6 +531,8 @@ export class TuiApp {
 		this.editor.addToHistory?.(line);
 		this.editor.setText("");
 		if (/^\/(quit|exit)\s*$/.test(line)) return void (await this.quit());
+		const own: Record<string, () => Promise<void> | void> = { "/notes": () => this.openNotes(), "/library": () => this.openLibrary(), "/actions": () => this.openActions(), "/sessions": () => this.openSessions(), "/new": () => this.newConversation() };
+		if (own[line]) return void (await own[line]());
 		try {
 			await this.d.agent.request({ type: "prompt", message: line, ...(this.busy ? { streamingBehavior: "followUp" } : {}) });
 		} catch (err) {
@@ -435,6 +590,7 @@ export async function runTui(args: string[], env: NodeJS.ProcessEnv = process.en
 			palette: (base) => loadPalette(themesDir, base, scheme),
 			glyphs: chooseGlyphs(env),
 			words,
+			vault: cfg.vault,
 			quote: cfg.quotes === false ? undefined : QUOTES[Math.floor(Math.random() * QUOTES.length)],
 			reduceMotion: Boolean(env.SUBSUB_REDUCE_MOTION && env.SUBSUB_REDUCE_MOTION !== "0"),
 			themes: { researcher: typeof cfg.themes === "string" ? cfg.themes : undefined, librarian: cfg.themesLibrarian ?? (typeof cfg.themes === "string" ? cfg.themes : undefined) },

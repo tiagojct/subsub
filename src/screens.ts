@@ -18,12 +18,14 @@ export const SCREEN_WORDS = {
 		hintNotes: "up and down: choose   type: filter   PgUp PgDn: scroll   ctrl+o: open   Esc: close", hintRead: "up and down: scroll   ctrl+o: open   Esc: back",
 		library: "Library", typeToSearch: "Type to search your library.", searching: "Searching...", noItems: "Nothing found.", failed: "The search failed",
 		hintLibrary: "up and down: choose   Enter: read   ctrl+n: note   Esc: close", hintLibrarian: "up and down: choose   Enter: copy the key   Esc: close",
+		hintChoice: "up and down: choose   Enter: select   type: filter   Esc: cancel", noChoice: "Nothing matches.",
 	},
 	pt: {
 		notes: "Notas", of: "de", filter: "filtro", none: "Ainda não há notas. O Sub-Sub escreve-as em Literature/, Research/ e Syntheses/.", noMatch: "Nenhuma nota corresponde.", empty: "(nota vazia)",
 		hintNotes: "cima e baixo: escolher   escrever: filtrar   PgUp PgDn: deslocar   ctrl+o: abrir   Esc: fechar", hintRead: "cima e baixo: deslocar   ctrl+o: abrir   Esc: voltar",
 		library: "Biblioteca", typeToSearch: "Escreva para pesquisar na biblioteca.", searching: "A pesquisar...", noItems: "Nada encontrado.", failed: "A pesquisa falhou",
 		hintLibrary: "cima e baixo: escolher   Enter: ler   ctrl+n: nota   Esc: fechar", hintLibrarian: "cima e baixo: escolher   Enter: copiar a chave   Esc: fechar",
+		hintChoice: "cima e baixo: escolher   Enter: selecionar   escrever: filtrar   Esc: cancelar", noChoice: "Nada corresponde.",
 	},
 };
 
@@ -368,6 +370,105 @@ export class LibraryView {
 		} else if (printable(data)) {
 			this.query += data;
 			this.schedule();
+		} else return;
+		this.o.redraw?.();
+	}
+}
+
+// ---------------------------------------------------------------- a list to choose from
+
+export interface Choice {
+	label: string;
+	/** Dim text after the label (a command, a date). */
+	hint?: string;
+	value: string;
+}
+
+export interface ChoiceLayout {
+	title: string;
+	choices: Choice[];
+	selected: number;
+	filter: string;
+	width: number;
+	rows: number;
+	lang: Lang;
+	paint: Paint;
+	glyphs?: Glyphs;
+}
+
+export function choiceLines(o: ChoiceLayout): string[] {
+	const g = o.glyphs ?? UNICODE;
+	const p = o.paint;
+	const w = Math.max(20, o.width);
+	const words = SCREEN_WORDS[o.lang];
+	const room = Math.max(1, o.rows - 4);
+	const out = [p.mark(cut(` ${o.title}`, w)) + (o.filter ? p.muted(cut(`   ${words.filter}: ${o.filter}`, Math.max(0, w - o.title.length - 1))) : ""), rule(w, "solid", p.muted, g)];
+	if (!o.choices.length) out.push(p.muted(cut(`  ${words.noChoice}`, w)));
+	const start = Math.max(0, Math.min(o.selected - Math.floor(room / 2), o.choices.length - room));
+	for (const [k, c] of o.choices.slice(start, start + room).entries()) {
+		const chosen = start + k === o.selected;
+		const hint = c.hint ? `  ${c.hint}` : "";
+		const label = cut(c.label, Math.max(8, w - 2 - hint.length));
+		out.push(`${chosen ? p.mark(g.pointer) : " "} ${chosen ? p.text(label) : p.muted(label)}${p.dim(cut(hint, Math.max(0, w - 2 - label.length)))}`);
+	}
+	out.push(rule(w, "solid", p.muted, g), ...wrapTextWithAnsi(` ${words.hintChoice}`, w).map((l) => p.muted(l)));
+	return out;
+}
+
+export interface ChoiceOptions {
+	title: string;
+	choices: Choice[];
+	choose: (value: string) => void;
+	cancel: () => void;
+	lang: Lang;
+	paint: Paint;
+	glyphs?: Glyphs;
+	rows?: () => number;
+	redraw?: () => void;
+}
+
+export class ChoiceView {
+	private readonly o: ChoiceOptions;
+	private filter = "";
+	private selected = 0;
+	private answered = false;
+	constructor(o: ChoiceOptions) {
+		this.o = o;
+	}
+
+	private shown(): Choice[] {
+		const f = this.filter.toLowerCase();
+		return f ? this.o.choices.filter((c) => `${c.label} ${c.hint ?? ""}`.toLowerCase().includes(f)) : this.o.choices;
+	}
+
+	render(width: number): string[] {
+		const rows = Math.max(8, Math.floor(((this.o.rows?.() ?? 24) * 8) / 10));
+		return fill(choiceLines({ title: this.o.title, choices: this.shown(), selected: this.selected, filter: this.filter, width, rows, lang: this.o.lang, paint: this.o.paint, glyphs: this.o.glyphs }), width);
+	}
+
+	invalidate(): void {}
+
+	handleInput(data: string): void {
+		if (this.answered) return;
+		const list = this.shown();
+		if (matchesKey(data, "escape") || matchesKey(data, "ctrl+c")) {
+			this.answered = true;
+			return this.o.cancel();
+		}
+		if (matchesKey(data, "enter")) {
+			const c = list[this.selected];
+			if (!c) return;
+			this.answered = true;
+			return this.o.choose(c.value);
+		}
+		if (matchesKey(data, "up")) this.selected = Math.max(0, this.selected - 1);
+		else if (matchesKey(data, "down")) this.selected = Math.min(Math.max(0, list.length - 1), this.selected + 1);
+		else if (matchesKey(data, "backspace")) {
+			this.filter = this.filter.slice(0, -1);
+			this.selected = 0;
+		} else if (printable(data)) {
+			this.filter += data;
+			this.selected = 0;
 		} else return;
 		this.o.redraw?.();
 	}

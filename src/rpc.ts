@@ -174,7 +174,7 @@ export class Side {
 }
 
 /** Search the library through the extension (the hidden /subsub-find command); the answer comes back as a status text. */
-export async function findLibrary(agent: Agent, side: Side, q: string): Promise<LibrarySearch> {
+export async function findLibrary(agent: { request: Agent["request"] }, side: Side, q: string): Promise<LibrarySearch> {
 	if (!q) return { q, items: [] };
 	await agent.request({ type: "prompt", message: `/subsub-find ${q}` });
 	return side.find?.q === q ? side.find : { q, items: [] };
