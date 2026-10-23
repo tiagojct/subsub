@@ -541,19 +541,22 @@ test("look: banner, narrow terminal, scheme, theme names, coloured preview", asy
 	assert.equal(schemeFromAnsi("", "subsub-glauca-light"), "light");
 	assert.equal(themeName("dark"), "subsub-glauca-dark");
 	assert.equal(themeName("light", "subsub-try-works"), "subsub-try-works-light");
+	assert.equal(themeName("dark", undefined, "256color"), "subsub-glauca-dark-256");
+	assert.equal(themeName("dark", undefined, "truecolor"), "subsub-glauca-dark");
+	assert.equal(schemeFromAnsi("", "subsub-glauca-light-256"), "light");
 	const painted = paintPreview("Smith 2020: + topic/asthma, type/cohort; - topic/copd", (x) => `<${x}>`, (x) => `[${x}]`);
 	assert.equal(painted, "Smith 2020: <+ topic/asthma, type/cohort>; [- topic/copd]");
 	const based = paintPreview("2 item(s) would change.\nSmith 2020: Title: + a; - b\n- c", (x) => `<${x}>`, (x) => `[${x}]`, (x) => `{${x}}`);
 	assert.equal(based, "{2 item(s) would change.}\n{Smith 2020: Title: }<+ a>{; }[- b]\n[- c]");
 });
 
-test("themes: all four load and name every required colour", async () => {
+test("themes: all eight load and name every required colour", async () => {
 	const { readdirSync, readFileSync } = await import("node:fs");
 	const dir = join(import.meta.dirname, "..", "themes");
 	const schema = JSON.parse(readFileSync(join(import.meta.dirname, "..", "node_modules", "@earendil-works", "pi-coding-agent", "dist", "modes", "interactive", "theme", "theme-schema.json"), "utf8"));
 	const required: string[] = schema.properties.colors.required;
 	const files = readdirSync(dir).filter((f) => f.endsWith(".json"));
-	assert.deepEqual(files.sort(), ["subsub-glauca-dark.json", "subsub-glauca-light.json", "subsub-try-works-dark.json", "subsub-try-works-light.json"]);
+	assert.deepEqual(files.sort(), ["subsub-glauca-dark-256.json", "subsub-glauca-dark.json", "subsub-glauca-light-256.json", "subsub-glauca-light.json", "subsub-try-works-dark-256.json", "subsub-try-works-dark.json", "subsub-try-works-light-256.json", "subsub-try-works-light.json"]);
 	for (const f of files) {
 		const t = JSON.parse(readFileSync(join(dir, f), "utf8"));
 		assert.equal(`${t.name}.json`, f);
@@ -566,10 +569,11 @@ test("themes: all four load and name every required colour", async () => {
 });
 
 test("themes: generated from DESIGN.md, readable, and without red or green for errors and removals", async () => {
-	const { buildThemes } = await import("../scripts/make-themes.mjs");
+	const { buildThemes, xterm256 } = await import("../scripts/make-themes.mjs");
 	const root = join(import.meta.dirname, "..");
 	const built = buildThemes(readFileSync(join(root, "DESIGN.md"), "utf8"), JSON.parse(readFileSync(join(root, "scripts", "plate.json"), "utf8")));
-	assert.equal(Object.keys(built).length, 4);
+	assert.equal(Object.keys(built).length, 8);
+	const hexOf = (x: string | number) => (typeof x === "number" ? "#" + xterm256(x).map((v: number) => v.toString(16).padStart(2, "0")).join("") : x);
 	const lum = (h: string) => {
 		const [r, g, b] = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255).map((x) => (x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4));
 		return 0.2126 * r + 0.7152 * g + 0.0722 * b;
@@ -580,17 +584,18 @@ test("themes: generated from DESIGN.md, readable, and without red or green for e
 	};
 	for (const [id, t] of Object.entries<any>(built)) {
 		assert.deepEqual(JSON.parse(readFileSync(join(root, "themes", `${id}.json`), "utf8")), JSON.parse(JSON.stringify(t)), `${id}: run node scripts/make-themes.mjs`);
-		const c = (role: string): string => t.vars[t.colors[role]] ?? t.colors[role];
+		const c = (role: string): string => hexOf(t.vars[t.colors[role]] ?? t.colors[role]);
+		const sheet: string = built[id.replace(/-256$/, "")].vars.sheet;
 		// Text on the terminal's own background: the sheet of the scheme.
 		const onSheet = ["text", "muted", "dim", "mdHeading", "mdLink", "mdLinkUrl", "mdQuote", "mdCode", "toolTitle", "toolOutput", "toolDiffAdded", "toolDiffRemoved", "toolDiffContext", "success", "warning", "error", "accent",
 			"syntaxComment", "syntaxKeyword", "syntaxFunction", "syntaxString", "syntaxNumber", "syntaxType", "syntaxOperator", "syntaxPunctuation", "thinkingText", "thinkingHigh", "thinkingXhigh", "customMessageLabel"];
-		for (const r of onSheet) assert.ok(contrast(c(r), t.vars.sheet) >= 4.5, `${id}: ${r} on the sheet ${contrast(c(r), t.vars.sheet).toFixed(2)}`);
+		for (const r of onSheet) assert.ok(contrast(c(r), sheet) >= 4.5, `${id}: ${r} on the sheet ${contrast(c(r), sheet).toFixed(2)}`);
 		// Text on the backgrounds that the theme paints.
 		const onBg: [string, string][] = [["userMessageText", "userMessageBg"], ["customMessageText", "customMessageBg"], ["customMessageLabel", "customMessageBg"], ["toolTitle", "toolPendingBg"], ["toolOutput", "toolPendingBg"],
 			["toolTitle", "toolSuccessBg"], ["toolOutput", "toolSuccessBg"], ["toolTitle", "toolErrorBg"], ["toolOutput", "toolErrorBg"], ["text", "selectedBg"], ["searchMatchText", "searchMatchBg"], ["muted", "userMessageBg"], ["warning", "toolPendingBg"]];
-		for (const [fg, bg] of onBg) assert.ok(contrast(c(fg), c(bg)) >= 4.5, `${id}: ${fg} on ${bg} ${contrast(c(fg), c(bg)).toFixed(2)}`);
+		for (const [fg, bg] of onBg) if (c(bg) !== "") assert.ok(contrast(c(fg), c(bg)) >= 4.5, `${id}: ${fg} on ${bg} ${contrast(c(fg), c(bg)).toFixed(2)}`);
 		// Lines and marks need 3:1.
-		for (const r of ["border", "borderAccent", "mdQuoteBorder", "mdListBullet"]) assert.ok(contrast(c(r), t.vars.sheet) >= 3, `${id}: ${r} ${contrast(c(r), t.vars.sheet).toFixed(2)}`);
+		for (const r of ["border", "borderAccent", "mdQuoteBorder", "mdListBullet"]) assert.ok(contrast(c(r), sheet) >= 3, `${id}: ${r} ${contrast(c(r), sheet).toFixed(2)}`);
 		assert.ok(contrast(c("scrollbarThumb"), c("scrollbarTrack")) >= 3, `${id}: scrollbar`);
 		// Errors and removals have no hue (ink tints); additions and success are the sap green; the accent is the mode's colour.
 		assert.equal(t.colors.error, "ink");

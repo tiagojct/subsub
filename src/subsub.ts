@@ -190,7 +190,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	function applyTheme(ctx: ExtensionContext): void {
 		if (!lookOn(ctx) || cfg.themes === false) return;
 		scheme ??= schemeFromAnsi(ctx.ui.theme.getFgAnsi("text"), ctx.ui.theme.name);
-		const name = themeName(scheme, cfg.themes || undefined);
+		const name = themeName(scheme, cfg.themes || undefined, ctx.ui.theme.getColorMode?.());
 		const theme = name ? ctx.ui.getTheme(name) : undefined;
 		// A Theme object (not a name) changes the theme for this run only; the saved setting stays.
 		if (theme) ctx.ui.setTheme(theme);

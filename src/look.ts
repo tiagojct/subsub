@@ -31,8 +31,9 @@ export type Scheme = "dark" | "light";
 
 /** Light or dark terminal, judged from the text colour of the current theme (dark text means a light background). */
 export function schemeFromAnsi(fgAnsi: string, themeName?: string): Scheme {
-	if (themeName?.endsWith("-light") || themeName === "light") return "light";
-	if (themeName?.endsWith("-dark") || themeName === "dark") return "dark";
+	const base = themeName?.replace(/-256$/, "");
+	if (base?.endsWith("-light") || base === "light") return "light";
+	if (base?.endsWith("-dark") || base === "dark") return "dark";
 	const rgb = fgAnsi.match(/38;2;(\d+);(\d+);(\d+)/);
 	if (rgb) {
 		const [r, g, b] = rgb.slice(1).map(Number);
@@ -47,8 +48,9 @@ export function schemeFromAnsi(fgAnsi: string, themeName?: string): Scheme {
 	return "dark";
 }
 
-export function themeName(scheme: Scheme, base: string | undefined = DEFAULT_THEME): string | undefined {
-	return base ? `${base}-${scheme}` : undefined;
+/** The 256-colour variant ("-256") when the terminal has no truecolor: its colours are picked from the xterm palette, not rounded to it. */
+export function themeName(scheme: Scheme, base: string | undefined = DEFAULT_THEME, colorMode?: "truecolor" | "256color"): string | undefined {
+	return base ? `${base}-${scheme}${colorMode === "256color" ? "-256" : ""}` : undefined;
 }
 
 export interface LibraryState {
