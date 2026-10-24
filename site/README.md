@@ -26,6 +26,16 @@ npm run deploy
 
 `scripts/deploy.sh` refuses to run with uncommitted changes, builds the site, copies `_site/` to `/opt/vps/caddy/srv/subsub.tiagojacinto.eu/releases/<n>-<commit>/` and points `current` at it. To go back, point `current` at an earlier release.
 
+## Screenshots
+
+The web view screenshots on the workshop slides (`../workshop/assets/img/web-*.webp`) are made by a script that stages the view with a scripted fake model and the fake Zotero of the tests:
+
+```sh
+uv run --with playwright --with pillow python -I site/scripts/screenshots.py
+```
+
+Run it from the repository root after `npm run build`. It needs `ZLM_DIR` (default `~/Projects/zotero-local-mcp`) with a synced uv environment, as the e2e tests do.
+
 ## Installers
 
 `.github/workflows/installers.yml` runs both installers on clean Linux, macOS and Windows runners when they change, and every Monday against the published npm package.
