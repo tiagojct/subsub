@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          "web/index.html"
+        ],
+        "createdAt": "2026-10-24T14:15:15.291Z",
+        "reason": "Claude's triage: the h2 and h3 in index.html are small-capital section heads (DESIGN.md Small Capitals Rule); the headline roles (empty-state h1 up to 2.75rem, dialog h2 1.4rem) are built by app.js, so a static scan of this file sees only the labels"
+      }
+    ]
+  }
+}

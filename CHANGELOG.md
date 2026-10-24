@@ -2,6 +2,10 @@
 
 Sub-Sub follows the version numbers of npm: a change in the second number (0.13) adds features or changes how you use it; a change in the third (0.13.1) only fixes.
 
+## Unreleased
+
+- The browser view is set like the website. Replies and notes have the website's headings (a fine rule above each section), its numbered steps and a slightly larger text. A note opens on the lighter field of a page, and the list of notes is grouped by folder under small-capital heads, with the date on the right. The empty conversation has the website's running head and a larger heading. Notes and the model in the top bar are plain text buttons, as in the website's menu. A command you send (`/read ...`) is shown in the mono. The working line is drawn dotted, dashed and solid, as in the terminal, instead of a moving gradient. Scrollbars are thin. On a phone, Notes is no longer cut to "No..." (the theme button is in the side panel there).
+
 ## 0.22.0 (2026-10-24)
 
 - `subsub tui`: Sub-Sub on the whole terminal. It is a full-screen client of pi's RPC mode, like the browser view, with the look of `subsub`: a conversation that scrolls (mouse wheel, PgUp and PgDn), a side panel from 110 columns (mode, library, keys, earlier conversations), an editor that completes commands, and the footer. Alt+N, Alt+L, Alt+A and Alt+M open the notes, the library search and the actions, and switch the mode, as in `subsub`. `/sessions` and `/new` change the conversation, `/model` chooses the model, `/restart` starts pi again in the same conversation, `/quit` leaves. Ctrl+O shows the output of tool rows, Esc stops a running answer, and Ctrl+C twice quits. `--light` or `--dark` set the colours when the terminal does not say (the default is dark), and `--librarian` starts in the Librarian.

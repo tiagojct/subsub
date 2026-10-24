@@ -407,16 +407,34 @@ function renderNoteList() {
 	const q = $("note-filter").value.trim().toLowerCase();
 	const list = notesList.filter((n) => !q || n.rel.toLowerCase().includes(q));
 	const fmt = new Intl.DateTimeFormat(lang === "pt" ? "pt-PT" : "en-GB", { day: "numeric", month: "short", year: "numeric" });
+	// One group per folder (Inbox, Literature, ...), newest first inside each, as the server sorts them.
+	const groups = new Map();
+	for (const n of list) {
+		const [folder, ...rest] = n.rel.split(/[\\/]/);
+		if (!groups.has(folder)) groups.set(folder, []);
+		groups.get(folder).push({ ...n, name: rest.join("/").replace(/\.md$/i, "") || folder });
+	}
 	body.replaceChildren(
 		list.length
 			? el(
-					"ul",
+					"div",
 					{ class: "note-list" },
-					list.map((n) =>
+					[...groups].map(([folder, notes]) =>
 						el(
-							"li",
+							"section",
 							{},
-							el("button", { type: "button", onclick: () => openNote(n.path) }, el("span", { class: "rel", text: n.rel }), el("span", { class: "when", text: fmt.format(new Date(n.modified)) })),
+							el("h3", { text: folder }),
+							el(
+								"ul",
+								{},
+								notes.map((n) =>
+									el(
+										"li",
+										{},
+										el("button", { type: "button", title: n.rel, onclick: () => openNote(n.path) }, el("span", { class: "rel", text: n.name }), el("span", { class: "when", text: fmt.format(new Date(n.modified)) })),
+									),
+								),
+							),
 						),
 					),
 				)
@@ -692,7 +710,7 @@ function renderEmpty() {
 		el(
 			"div",
 			{ class: "empty" },
-			el("p", { class: "kicker", text: t(mode()) }),
+			el("p", { class: "runhead" }, el("span", { class: "nobr", text: "Sub-Sub" }), el("span", { class: "mid", text: t("tagline") }), el("span", { class: "mode", text: t(mode()) })),
 			el("h1", { text: t("emptyTitle") }),
 			el("p", { class: "lede", text: t(mode() === "librarian" ? "emptyLibrarian" : "emptyResearcher") }),
 			setupList(),
@@ -732,7 +750,7 @@ function userMessage(text) {
 	if (text.length > 700) {
 		const first = text.split("\n").find((l) => l.trim()) ?? "";
 		bubble = el("details", { class: "bubble" }, el("summary", { text: first.length > 120 ? `${first.slice(0, 117)}...` : first }), el("div", { text }));
-	} else bubble = el("div", { class: "bubble", text });
+	} else bubble = el("div", { class: /^\/\S/.test(text) ? "bubble cmd" : "bubble", text });
 	log.append(el("div", { class: "msg user" }, bubble));
 	scrollDown(true);
 }
