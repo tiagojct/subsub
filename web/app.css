@@ -323,7 +323,7 @@ select:hover { border-color: var(--rule-strong); }
 .new-btn:hover { border-color: var(--text); }
 .new-btn svg { width: 16px; height: 16px; color: var(--accent); }
 
-.actions { display: flex; flex-direction: column; }
+.actions, .actions > div { display: flex; flex-direction: column; }
 .actions button {
 	text-align: left;
 	padding: 0.32rem 0.5rem;
@@ -333,9 +333,35 @@ select:hover { border-color: var(--rule-strong); }
 }
 .actions button:hover { background: var(--bg); }
 .actions .group { margin: 0.6rem 0 0.15rem; padding: 0 0.5rem; font-family: var(--serif); font-style: italic; font-size: 0.86rem; color: var(--muted); }
-.actions .group:first-child { margin-top: 0; }
+.actions > :first-child .group { margin-top: 0; }
+
+/* Sections and action groups fold at their heading; a fine chevron points down when open, right when folded. */
+.side .fold {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.55em;
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	font-size: inherit;
+	letter-spacing: inherit;
+	color: inherit;
+	text-align: left;
+}
+.side .fold:hover { color: var(--text); background: none; }
+.side .fold::after {
+	content: "";
+	width: 0.34em;
+	height: 0.34em;
+	border-right: 1px solid currentColor;
+	border-bottom: 1px solid currentColor;
+	transform: translateY(-0.15em) rotate(45deg);
+}
+.side .fold[aria-expanded="false"]::after { transform: rotate(-45deg); }
+[data-fold].folded > :not(h2, .side-subhead, .group) { display: none; }
 
 .side .grow { flex: 1; display: flex; flex-direction: column; min-height: 8rem; }
+.side .grow.folded { flex: none; min-height: 0; }
 .side-subhead { display: flex; justify-content: space-between; align-items: baseline; padding-right: 0.3rem; }
 
 .search {

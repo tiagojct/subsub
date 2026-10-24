@@ -38,18 +38,18 @@
 					<button type="button" class="secondary" id="theme-btn-side"></button>
 				</label>
 			</section>
-			<section>
-				<h2 data-i18n="groupLibrary">Library</h2>
+			<section data-fold="library">
+				<h2><button type="button" class="fold" aria-expanded="true" data-i18n="groupLibrary">Library</button></h2>
 				<input type="search" id="library-search" class="search" data-i18n-placeholder="librarySearch" placeholder="Search your library" autocomplete="off">
 				<ul class="items" id="items" aria-live="polite"></ul>
 			</section>
-			<section>
-				<h2 data-i18n="actions">Actions</h2>
+			<section data-fold="actions">
+				<h2><button type="button" class="fold" aria-expanded="true" data-i18n="actions">Actions</button></h2>
 				<div class="actions" id="actions"></div>
 			</section>
-			<section class="grow">
+			<section class="grow" data-fold="conversations">
 				<div class="side-subhead">
-					<h2 data-i18n="conversations">Conversations</h2>
+					<h2><button type="button" class="fold" aria-expanded="true" data-i18n="conversations">Conversations</button></h2>
 					<button type="button" class="link-btn" id="export-btn" data-i18n="export" data-i18n-title="exportTitle">Export</button>
 				</div>
 				<input type="search" id="session-search" class="search" data-i18n-placeholder="searchConversations" placeholder="Search conversations" autocomplete="off">

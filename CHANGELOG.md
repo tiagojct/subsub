@@ -5,6 +5,7 @@ Sub-Sub follows the version numbers of npm: a change in the second number (0.13)
 ## Unreleased
 
 - The browser view is set like the website. Replies and notes have the website's headings (a fine rule above each section), its numbered steps and a slightly larger text. A note opens on the lighter field of a page, and the list of notes is grouped by folder under small-capital heads, with the date on the right. The empty conversation has the website's running head and a larger heading. Notes and the model in the top bar are plain text buttons, as in the website's menu. A command you send (`/read ...`) is shown in the mono. The working line is drawn dotted, dashed and solid, as in the terminal, instead of a moving gradient. Scrollbars are thin. On a phone, Notes is no longer cut to "No..." (the theme button is in the side panel there).
+- In the browser view, the sections of the side panel (Library, Actions, Conversations) and the two groups of actions (Research, Library) fold at their heading. With the others folded, the list of conversations takes the whole panel. The browser remembers which ones you folded.
 
 ## 0.22.0 (2026-10-24)
 

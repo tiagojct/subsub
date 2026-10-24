@@ -296,6 +296,16 @@ function hasCommand(name) {
 	return commands.length === 0 || commands.some((c) => c.name === base);
 }
 
+// Side panel sections and action groups fold at their heading; the folded ones are remembered on this computer.
+const folded = new Set((localStorage.getItem("subsub-folded") || "").split(" ").filter(Boolean));
+function setFold(box, on) {
+	box.classList.toggle("folded", on);
+	box.querySelector(".fold").setAttribute("aria-expanded", String(!on));
+	if (on) folded.add(box.dataset.fold);
+	else folded.delete(box.dataset.fold);
+	localStorage.setItem("subsub-folded", [...folded].join(" "));
+}
+
 function renderActions() {
 	const box = $("actions");
 	box.replaceChildren();
@@ -305,8 +315,9 @@ function renderActions() {
 	for (const [group, label] of groups) {
 		const list = ACTIONS[group].filter(shown);
 		if (!list.length) continue;
-		box.append(el("p", { class: "group", text: t(label) }));
-		for (const a of list) box.append(actionButton(a));
+		const g = el("div", { "data-fold": `actions-${group}` }, el("p", { class: "group" }, el("button", { type: "button", class: "fold", text: t(label) })), list.map(actionButton));
+		setFold(g, folded.has(g.dataset.fold));
+		box.append(g);
 	}
 }
 
@@ -315,7 +326,10 @@ function actionButton(a) {
 		type: "button",
 		text: a[lang] ?? a.en,
 		onclick: () => {
-			if (a.item) return $("library-search").focus();
+			if (a.item) {
+				setFold($("library-search").closest("[data-fold]"), false);
+				return $("library-search").focus();
+			}
 			closeSide();
 			if (a.send) sendMessage(`/${a.cmd}`);
 			else {
@@ -1535,6 +1549,11 @@ $("theme-btn-side")?.addEventListener("click", () => {
 	closeSide();
 	toggleTheme();
 });
+$("side").addEventListener("click", (e) => {
+	const box = e.target.closest(".fold")?.closest("[data-fold]");
+	if (box) setFold(box, !box.classList.contains("folded"));
+});
+for (const box of document.querySelectorAll(".side section[data-fold]")) setFold(box, folded.has(box.dataset.fold));
 $("session-search")?.addEventListener("input", (e) => renderSessionsList(e.target.value));
 $("library-search").addEventListener("input", searchLibrary);
 $("notes-btn").addEventListener("click", () => ($("note-pane").hidden ? showNoteList() : showPane(false)));
