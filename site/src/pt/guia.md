@@ -15,7 +15,7 @@ lead: Etiquete os seus primeiros itens, importe um artigo, leia um artigo com or
 
 O Sub-Sub tem dois modos. O Investigador é o modo por omissão. Lê a sua biblioteca, pesquisa a literatura, escreve notas e também altera a biblioteca. O Bibliotecário só gere a biblioteca: etiquetas, importações, metadados, PDF e coleções. Para mudar de modo, selecione Investigador ou Bibliotecário no topo. Cada modo pode ter o seu próprio modelo. Nos dois modos, cada alteração à biblioteca mostra primeiro uma pré-visualização e só é feita depois de selecionar Sim.
 
-O botão Notas e o botão do modelo estão no canto superior direito. O painel da esquerda tem uma pesquisa na biblioteca, os comandos mais usados e as suas conversas anteriores. No modo Investigador, os comandos estão em dois grupos, Investigação e Biblioteca. No modo Bibliotecário, só aparece o grupo Biblioteca.
+O botão Notas e o botão do modelo estão no canto superior direito. O painel da esquerda tem uma pesquisa na biblioteca, os comandos mais usados e as suas conversas anteriores. No modo Investigador, os comandos estão em dois grupos, Investigação e Biblioteca. No modo Bibliotecário, só aparece o grupo Biblioteca. Para recolher uma secção ou um grupo, selecione o título. Selecione-o outra vez para o abrir. Com as outras secções recolhidas, as conversas ocupam o painel todo. O navegador lembra-se do que recolheu.
 
 Este guia dá os comandos que escreve. No navegador, a maior parte deles também são botões.
 

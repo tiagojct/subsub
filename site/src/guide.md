@@ -14,7 +14,7 @@ lead: Tag your first items, import a paper, read a paper with guidance, write a 
 
 Sub-Sub has two modes. The Researcher is the default. It reads your library, searches the literature, writes notes and also changes the library. The Librarian manages the library only: tags, imports, metadata, PDFs and collections. To change the mode, select Researcher or Librarian at the top. Each mode can have its own model. In both modes, every library change shows a preview first and runs only after you select Yes.
 
-The Notes button and the model button are at the top right. The panel on the left has a library search, the most used commands and your earlier conversations. In the Researcher, the commands are in two groups, Research and Library. In the Librarian, only the Library group shows.
+The Notes button and the model button are at the top right. The panel on the left has a library search, the most used commands and your earlier conversations. In the Researcher, the commands are in two groups, Research and Library. In the Librarian, only the Library group shows. To fold a section or a group, select its heading. Select it again to open it. With the other sections folded, your conversations fill the panel. The browser remembers what you folded.
 
 This guide gives the commands that you type. In the browser, most of them are also buttons.
 
