@@ -1,0 +1,16 @@
+# Quarterdeck project metadata. See ~/quarterdeck/templates/project/workspace.yml for the fields.
+name: subsub
+category: apps
+type: other
+status: active
+build: actions
+deploy_target: external
+deploy_method: GitHub releases; site on rokovoko
+url: https://subsub.tiagojacinto.eu
+host: subsub.tiagojacinto.eu
+build_command: npm run build
+artifact: other
+remote_path: /opt/vps/caddy/srv/subsub.tiagojacinto.eu
+service: ""
+checks:
+  - curl -fsS -o /dev/null https://subsub.tiagojacinto.eu
