@@ -2,6 +2,21 @@
 
 Sub-Sub follows the version numbers of npm: a change in the second number (0.13) adds features or changes how you use it; a change in the third (0.13.1) only fixes.
 
+## 0.24.0 (2026-11-01)
+
+With the Zotero server 0.7.0.
+
+- Inside plain pi, Sub-Sub no longer turns off the tools of pi and of your other extensions: it adds its own and swaps only those when the mode changes (issue #1). The `subsub` command, `subsub web` and `subsub tui` keep only Sub-Sub's tools, as before.
+- Without Zotero. Sub-Sub starts when Zotero is closed, and `subsub doctor` shows a NOTE, not a FIX. The library line says "Zotero is closed: search only". The Researcher can then search PubMed, Europe PMC and OpenAlex, read open-access full texts and write notes; the Librarian needs Zotero. Sub-Sub is still made to start from your Zotero library. A new FAQ in the README and on the Help page says this.
+- Searching the library: one search with your words and their synonyms. The items that only a synonym found are listed under their own head, "Found only by a synonym", because they can be only near the topic.
+- Another provider that speaks the OpenAI API: your institution's server, or a local one (Ollama, LM Studio). Connect it in `subsub init`, in the browser view (the model button, "Another provider") or with `/login` in `subsub tui`. Sub-Sub saves it in `models.json`, readable only by you; a server on another computer must use https. This is also how the FMUP model service will connect.
+- Group libraries, read-only. The library search covers your library and the group libraries in Zotero, and marks each item from a group with the group's name. Sub-Sub can read, quote and write notes on items in a group; it cannot change them.
+- `subsub tui`: `/login` connects a provider (an API key, shown as stars, or another provider), and `/resume` opens the earlier conversations.
+- A cost limit. With `"costLimit": 2` (US dollars) in the settings, Sub-Sub says when a conversation has used 80% of it, and from the limit on it asks before each new request to the model. It never stops an answer that is running. The browser view then shows the cost next to the model.
+- `/check-library` (Check the library in the actions): duplicates, retracted or corrected works and files without a parent item, in one report, then one preview to tag the retracted works `_retracted`. Sub-Sub does not merge or delete.
+- `/lit` counts the duplicates removed and the works already in your library, in the screening log and the flow diagram. At the end it offers a RIS file of the screened works, for a second screening in Rayyan or Covidence. Bibliographies can now be RIS as well as CSL JSON, and can include works that are not in your library (by DOI, PMID or ISBN).
+- Tests: plain pi with other tools, the prompt without Zotero, the library search with groups, the provider checks, `/login` in `subsub tui` with the key hidden, the cost limit, and the new command.
+
 ## 0.23.0 (2026-10-24)
 
 - The browser view is set like the website. Replies and notes have the website's headings (a fine rule above each section), its numbered steps and a slightly larger text. A note opens on the lighter field of a page, and the list of notes is grouped by folder under small-capital heads, with the date on the right. The empty conversation has the website's running head and a larger heading. Notes and the model in the top bar are plain text buttons, as in the website's menu. A command you send (`/read ...`) is shown in the mono. The working line is drawn dotted, dashed and solid, as in the terminal, instead of a moving gradient. Scrollbars are thin. On a phone, Notes is no longer cut to "No..." (the theme button is in the side panel there).
