@@ -157,9 +157,11 @@ As pontuações de investigação vêm de um só juiz de IA. Para o verificar, d
 
 Correções. A 8 de outubro de 2026 encontrámos dois erros no nosso avaliador automático. Nenhum mudou um modelo predefinido. As pontuações das etiquetas desta página estavam certas, mas o avaliador guardado no repositório comparava as etiquetas dos modelos com a referência de outro conjunto de itens. Agora avalia os itens que cada modelo recebeu. O avaliador das importações só contava as importações que o modelo aplicou. Um modelo que mostrou a pré-visualização e perguntou antes, ou que deixou de fora a obra já presente na biblioteca, contava como errado. Esta página dizia que o glm-5.3-flash falhou um identificador e que o longcat-2.0 e o mimo-v2.5-pro não importaram nada. Os três importaram corretamente.
 
-## Modelos locais
+## Modelos locais e outros servidores
 
-O pi pode usar um modelo local através do Ollama ou de outro servidor com uma API compatível com a da OpenAI (um fornecedor personalizado no `models.json` do pi). Assim, o seu texto fica no seu computador. Os modelos locais pequenos erram muitas vezes nas chamadas a ferramentas, por isso teste um antes de depender dele.
+O Sub-Sub pode usar qualquer servidor que fale a API da OpenAI: o servidor da sua instituição, ou um servidor local como o Ollama ou o LM Studio. Na vista no navegador, selecione o botão do modelo, depois o fornecedor "Outro fornecedor (API da OpenAI)", e indique o endereço do servidor (normalmente termina em `/v1`), o identificador do modelo e a chave. Um servidor local não precisa de chave. No `subsub init`, escolha "Another provider". O Sub-Sub guarda o fornecedor no `models.json` da sua pasta de definições, que só pode ser lido por si. Um servidor noutro computador tem de usar `https://`.
+
+Com um modelo local, o seu texto fica no seu computador. Os modelos locais pequenos erram muitas vezes nas chamadas a ferramentas, por isso teste um antes de depender dele.
 
 ## Testar modelos na sua biblioteca
 

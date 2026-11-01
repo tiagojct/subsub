@@ -120,6 +120,12 @@
 			<label><span data-i18n="provider">Provider</span>
 				<select id="login-provider"></select>
 			</label>
+			<label id="login-url-row" hidden><span data-i18n="serverUrl">Server address</span>
+				<input type="url" id="login-url" autocomplete="off" spellcheck="false" placeholder="https://llm.example.org/v1">
+			</label>
+			<label id="login-model-row" hidden><span data-i18n="modelId">Model id</span>
+				<input type="text" id="login-model" autocomplete="off" spellcheck="false">
+			</label>
 			<label><span data-i18n="apiKey">API key</span>
 				<input type="password" id="login-key" autocomplete="off" spellcheck="false" required>
 			</label>

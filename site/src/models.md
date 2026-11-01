@@ -156,9 +156,11 @@ The research scores come from one AI judge. To check it, two people will score a
 
 Corrections. On 8 October 2026 we found two errors in our scorer. Neither changed a default. The tag scores on this page were right, but the scorer kept in the repository compared the models' tags with the reference for another set of items. It now scores the items each model was given. The import scorer counted only imports that a model applied. A model that previewed the import and asked first, or that left out the work already in the library, was counted wrong. This page had said that glm-5.3-flash missed an identifier, and that longcat-2.0 and mimo-v2.5-pro imported nothing. All three imported correctly.
 
-## Local models
+## Local models and other servers
 
-pi can use a local model through Ollama or another server with an OpenAI-compatible API (a custom provider in pi's `models.json`). Your text then stays on your computer. Small local models often make mistakes with tool calls, so test one before you rely on it.
+Sub-Sub can use any server that speaks the OpenAI API: your institution's server, or a local one such as Ollama or LM Studio. In the browser view, select the model button, then the provider "Another provider (OpenAI API)", and give the server address (it usually ends in `/v1`), the model id and the key. A local server needs no key. In `subsub init`, choose "Another provider". Sub-Sub saves the provider in `models.json` in its settings folder, readable only by you. A server on another computer must use `https://`.
+
+With a local model, your text stays on your computer. Small local models often make mistakes with tool calls, so test one before you rely on it.
 
 ## Test models on your library
 

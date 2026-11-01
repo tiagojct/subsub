@@ -12,6 +12,8 @@ let session = null; // pi's session state
 let busy = false;
 let commands = [];
 let providers = [];
+/** The login form's choice for a provider that pi does not include (src/providers.ts CUSTOM_DEFAULT_NAME). */
+const OTHER_PROVIDER = "custom";
 const dialogs = []; // waiting dialog requests, oldest first
 let shownDialog = null;
 let currentMsg = null; // assistant message being streamed
@@ -1260,15 +1262,22 @@ async function openModels() {
 	const ul = $("models");
 	ul.replaceChildren(el("li", { class: "empty-models", text: "…" }));
 	const sel = $("login-provider");
-	sel.replaceChildren(...providers.map((p) => el("option", { value: p.id, text: p.label })));
+	sel.replaceChildren(...providers.map((p) => el("option", { value: p.id, text: p.label })), el("option", { value: OTHER_PROVIDER, text: t("otherProvider") }));
 	const link = $("login-link");
 	const setLink = () => {
 		const p = providers.find((x) => x.id === sel.value);
+		const other = sel.value === OTHER_PROVIDER;
+		link.hidden = other;
 		link.href = p?.url ?? "#";
+		$("login-url-row").hidden = !other;
+		$("login-model-row").hidden = !other;
+		$("login-url").required = other;
+		$("login-model").required = other;
+		$("login-key").required = !other;
 		const free = { google: "freeGoogle", openrouter: "freeOpenRouter" }[sel.value];
 		$("login-free").hidden = !free;
 		$("login-free").textContent = free ? t(free) : "";
-		$("login-where").textContent = p?.where ? t(`where_${p.where}`) : "";
+		$("login-where").textContent = other ? t("otherNote") : p?.where ? t(`where_${p.where}`) : "";
 	};
 	sel.onchange = setLink;
 	setLink();
@@ -1361,7 +1370,7 @@ $("login-form")?.addEventListener("submit", async (e) => {
 	btn.disabled = true;
 	btn.textContent = t("saving");
 	try {
-		await api("/api/login", { provider: $("login-provider").value, key: $("login-key").value });
+		await api("/api/login", { provider: $("login-provider").value, key: $("login-key").value, baseUrl: $("login-url").value, model: $("login-model").value });
 		$("login-key").value = "";
 		note(t("saved"));
 		await openModels();

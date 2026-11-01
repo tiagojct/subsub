@@ -631,6 +631,15 @@ test("the web view: the page answers Sub-Sub's approval; other sites and hosts a
 		assert.ok(!JSON.parse((await call(port, "GET", "/api/sessions", { headers: ok })).body).sessions.some((x: any) => x.path === cur));
 		assert.ok(existsSync(join(home, ".subsub", "trash", relative(join(agentDir, "sessions"), cur))), "same subfolder as under sessions/");
 
+		// Another provider (OpenAI API): a wrong address is refused; a right one goes to models.json, next to the others.
+		const bad = await call(port, "POST", "/api/login", { headers: ok, body: { provider: "custom", baseUrl: "http://llm.example.org/v1", key: "k", model: "m" } });
+		assert.notEqual(bad.status, 200);
+		assert.match(bad.body, /https/);
+		assert.equal((await call(port, "POST", "/api/login", { headers: ok, body: { provider: "custom", baseUrl: "https://llm.example.org/v1", key: "sk-3", model: "big" } })).status, 200);
+		const mj = JSON.parse(readFileSync(join(agentDir, "models.json"), "utf8"));
+		assert.equal(mj.providers.custom.apiKey, "sk-3");
+		assert.ok(Object.keys(mj.providers).length >= 2, "the test provider stays");
+
 		// Reference checks: the toggle saves the setting and restarts pi with the verify server.
 		if (existsSync(join(STARBUCK, ".venv"))) {
 			const cf = baseEnv.SUBSUB_CONFIG!;

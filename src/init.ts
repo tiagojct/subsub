@@ -19,7 +19,8 @@
  * Flags (for scripts and tests): --yes (take every default), --setup
  * standard|fmup, --name, --about, --language, --folder (or --notes), --move
  * yes|no, --tags health-sciences|health-informatics|any-field,
- * --email, --starbuck on|off, --models keep|later|opencode-go|mistral-eu|google-free.
+ * --email, --starbuck on|off, --models keep|later|opencode-go|mistral-eu|google-free|custom,
+ * and for custom: --provider-url, --provider-key, --provider-model.
  */
 
 import { chmodSync, copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -44,6 +45,7 @@ import {
 import { defaultRunner, starbuckCheck } from "./doctor.ts";
 import { applyMoves, FOLDER_NAME, leftBehind, NOTE_DIRS, planMoves, SETTINGS_DIR, SETTINGS_FILES, subsubFolder } from "./layout.ts";
 import { KEY_PROVIDERS, saveApiKey } from "./keys.ts";
+import { CUSTOM_DEFAULT_NAME, type CustomProvider, saveCustomProvider } from "./providers.ts";
 
 const TEMPLATES = resolve(dirname(fileURLToPath(import.meta.url)), "..", "templates");
 
@@ -252,6 +254,7 @@ export async function runInit(
 		{ value: "opencode-go", label: `OpenCode Go, tested: ${TESTED_MODELS.librarian} for the Librarian, ${TESTED_MODELS.researcher} for the Researcher` },
 		{ value: "mistral-eu", label: `Mistral, servers in the EU (GDPR): ${EU_MODELS.researcher} in both modes; about six times the cost of OpenCode Go` },
 		{ value: "google-free", label: `Free, to try Sub-Sub: Google AI Studio, ${FREE_MODELS.researcher} in both modes (a free key, no card; limits per minute and per day; 18 or older)` },
+		{ value: "custom", label: "Another provider that speaks the OpenAI API: your institution's server, or a local one (Ollama, LM Studio)" },
 	];
 	const agentDir = initEnv.SUBSUB_AGENT_DIR ? expand(initEnv.SUBSUB_AGENT_DIR, home) : join(home, ".subsub", "agent");
 	const modelDefault = hadModel ? "keep" : hasProvider(agentDir, "opencode") ? "opencode-go" : "later";
@@ -264,6 +267,20 @@ export async function runInit(
 			`Open ${url}, sign in with a Google account, and select "Create API key". Copy the key and paste it here. Sub-Sub saves it in ${join(agentDir, "auth.json")}, readable only by you. In the EU, the UK and Switzerland, Google does not use your prompts to improve its products; elsewhere, on the free tier, it may. When a limit is reached, Sub-Sub says so.`,
 		);
 		googleKey = (await io.ask("Google API key (Enter to add it later with the model button or /login)", "")).trim();
+	}
+
+	let custom: CustomProvider | undefined;
+	if (models === "custom") {
+		explain(
+			"Another provider",
+			`Give the address of the server (it usually ends in /v1), the API key and the model id. Sub-Sub saves them in ${join(agentDir, "models.json")}, readable only by you, and uses the model in both modes. Your messages go to that server.`,
+		);
+		custom = {
+			name: CUSTOM_DEFAULT_NAME,
+			baseUrl: (await io.ask("Server address, e.g. https://llm.example.org/v1", flags["provider-url"] ?? "")).trim(),
+			apiKey: (await io.ask("API key (Enter for none, for a local server)", flags["provider-key"] ?? "")).trim(),
+			models: [(await io.ask("Model id", flags["provider-model"] ?? "")).trim()],
+		};
 	}
 
 	// ---- write
@@ -315,8 +332,18 @@ export async function runInit(
 	if (models === "opencode-go") patch.models = TESTED_MODELS;
 	if (models === "google-free") patch.models = FREE_MODELS;
 	if (models === "mistral-eu") patch.models = EU_MODELS;
-	saveConfig(patch, initEnv);
 	let keyNote = "";
+	if (custom) {
+		try {
+			const [spec] = saveCustomProvider(agentDir, custom);
+			patch.models = { librarian: spec, researcher: spec };
+			keyNote = `Saved: the provider ${custom.name}, in ${join(agentDir, "models.json")}`;
+		} catch (err) {
+			patch.models = current.models;
+			keyNote = `The provider was not saved: ${(err as Error).message} Type subsub init again, or choose a model in Sub-Sub.`;
+		}
+	}
+	saveConfig(patch, initEnv);
 	if (googleKey) {
 		try {
 			saveApiKey(agentDir, "google", googleKey);

@@ -1366,6 +1366,43 @@ test("init: new user with defaults, then again without replacing files", async (
 	assert.ok(!asked.some((q) => /Google API key/.test(q)));
 });
 
+test("custom provider: written to models.json, merged, checked", async () => {
+	const { saveCustomProvider, customProviders, customProviderProblem } = await import("../src/providers.ts");
+	const agent = mkdtempSync(join(tmpdir(), "subsub-prov-"));
+	writeFileSync(join(agent, "models.json"), JSON.stringify({ providers: { ollama: { baseUrl: "http://localhost:11434/v1", api: "openai-completions", apiKey: "ollama", models: [{ id: "q" }] } } }));
+	const specs = saveCustomProvider(agent, { name: "custom", baseUrl: " https://llm.example.org/v1 ", apiKey: " sk-1 ", models: ["big-model", "big-model", " small "] });
+	assert.deepEqual(specs, ["custom/big-model", "custom/small"]);
+	const data = JSON.parse(readFileSync(join(agent, "models.json"), "utf8"));
+	assert.deepEqual(data.providers.custom, { baseUrl: "https://llm.example.org/v1", api: "openai-completions", apiKey: "sk-1", models: [{ id: "big-model" }, { id: "small" }] });
+	assert.ok(data.providers.ollama, "other providers stay");
+	if (process.platform !== "win32") assert.equal(statSync(join(agent, "models.json")).mode & 0o777, 0o600);
+	assert.deepEqual(customProviders(agent).sort(), ["custom", "ollama"]);
+	// a local server without a key gets a placeholder, so that pi lists its models
+	saveCustomProvider(agent, { name: "lmstudio", baseUrl: "http://127.0.0.1:1234/v1", models: ["m"] });
+	assert.equal(JSON.parse(readFileSync(join(agent, "models.json"), "utf8")).providers.lmstudio.apiKey, "none");
+	assert.match(customProviderProblem({ name: "custom", baseUrl: "http://llm.example.org/v1", apiKey: "k", models: ["m"] })!, /https/);
+	assert.match(customProviderProblem({ name: "openai", baseUrl: "https://x.org", models: ["m"] })!, /already has/);
+	assert.match(customProviderProblem({ name: "Custom", baseUrl: "https://x.org", models: ["m"] })!, /lowercase/);
+	assert.match(customProviderProblem({ name: "custom", baseUrl: "https://x.org", models: [" "] })!, /at least one model/);
+	assert.equal(customProviders(mkdtempSync(join(tmpdir(), "subsub-prov-"))).length, 0);
+});
+
+test("init: another provider (OpenAI-compatible) from the flags", async () => {
+	const home = mkdtempSync(join(tmpdir(), "subsub-init-prov-"));
+	const env = { SUBSUB_CONFIG: join(home, "c.json"), ZOTERO_MCP_ENV: join(home, "env"), SUBSUB_AGENT_DIR: join(home, "agent") } as any;
+	const said: string[] = [];
+	const io = { ask: async (_q: string, d: string) => d, choose: async (_q: string, _o: unknown, d: string) => d, say: (l: string) => said.push(l) };
+	const notFound = (async () => { throw new Error("no zotero"); }) as unknown as typeof fetch;
+	await runInit(io, { models: "custom", "provider-url": "https://llm.example.org/v1", "provider-key": "sk-2", "provider-model": "big-model" }, env, { home, fetch: notFound });
+	assert.deepEqual(JSON.parse(readFileSync(join(home, "c.json"), "utf8")).models, { librarian: "custom/big-model", researcher: "custom/big-model" });
+	assert.equal(JSON.parse(readFileSync(join(home, "agent", "models.json"), "utf8")).providers.custom.apiKey, "sk-2");
+	assert.ok(said.some((l) => /Saved: the provider custom/.test(l)));
+	// a wrong address is not saved, and init says so
+	const said2: string[] = [];
+	await runInit({ ...io, say: (l: string) => said2.push(l) }, { models: "custom", "provider-url": "http://llm.example.org/v1", "provider-key": "k", "provider-model": "m" }, env, { home, fetch: notFound });
+	assert.ok(said2.some((l) => /was not saved.*https/.test(l)));
+});
+
 test("usage log: off by default, counts only, and a summary", async () => {
 	const { logUsage, summarizeUsage, usageFile } = await import("../src/usage.ts");
 	const home = mkdtempSync(join(tmpdir(), "subsub-usage-"));
@@ -1426,6 +1463,10 @@ test("doctor: checks and fixes", () => {
 	assert.ok(by["Tag list"].warn && /propose topics/.test(by["Tag list"].fix!));
 	assert.ok(by["Contact email"].warn);
 	assert.equal(by["Model login"].ok, false);
+	// another provider in models.json is a login too
+	writeFileSync(join(agent, "models.json"), JSON.stringify({ providers: { custom: { baseUrl: "https://x.org/v1", apiKey: "k", models: [{ id: "m" }] } } }));
+	assert.ok(runChecks(cfg, {}, { run, nodeVersion: "22.20.0", agentDir: agent }).find((c) => c.name === "Model login")!.ok);
+	rmSync(join(agent, "models.json"));
 	writeFileSync(join(agent, "auth.json"), JSON.stringify({ "opencode-go": { key: "x" } }));
 	const down = { ...status, zotero: "unreachable", error: "connection refused" };
 	const checks2 = runChecks(cfg, {}, { run: (c, a) => (a[0] === "--version" ? run(c, a) : { status: 0, stdout: JSON.stringify(down), stderr: "" }), nodeVersion: "20.1.0", agentDir: agent });

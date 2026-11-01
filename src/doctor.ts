@@ -24,6 +24,7 @@ import {
 	refreshedArgs,
 } from "./config.ts";
 import { isObsidianVault, LEGACY_SETTINGS_DIR, SETTINGS_FILES, settingsFile } from "./layout.ts";
+import { customProviders } from "./providers.ts";
 
 export interface Check {
 	name: string;
@@ -56,6 +57,7 @@ function nodeOk(version: string): boolean {
 }
 
 function hasLogin(agentDir: string): boolean {
+	if (customProviders(agentDir).length) return true; // another provider, in models.json
 	try {
 		const data = JSON.parse(readFileSync(join(agentDir, "auth.json"), "utf8"));
 		return Boolean(data) && typeof data === "object" && Object.keys(data).length > 0;

@@ -23,6 +23,7 @@ import { agentDirFor, chooseCwd, PACKAGE_DIR, packageVersion } from "./cli.ts";
 import { configPath, loadConfig, RECOMMENDED_MODELS, readConfigFile, saveConfig, type SubsubConfig, uiLanguage, withStarbuck } from "./config.ts";
 import { TESTED_MODELS } from "./init.ts";
 import { KEY_PROVIDERS, saveApiKey } from "./keys.ts";
+import { CUSTOM_DEFAULT_NAME, saveCustomProvider } from "./providers.ts";
 
 // ---------------------------------------------------------------- options
 
@@ -479,6 +480,12 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 					if (busy || switching) return send(res, 409, { error: "busy" });
 					const body = await readJson(req);
 					return withRestart(res, () => {
+						if (body.provider === CUSTOM_DEFAULT_NAME) {
+							// Another provider (OpenAI API): models.json; its model becomes the default when none is set.
+							const [spec] = saveCustomProvider(agentDir, { name: CUSTOM_DEFAULT_NAME, baseUrl: String(body.baseUrl ?? ""), apiKey: String(body.key ?? ""), models: [String(body.model ?? "")] });
+							if (Object.keys(loadConfig(env).models).length === 0) saveConfig({ models: { librarian: spec, researcher: spec }, model: undefined }, env);
+							return;
+						}
 						saveApiKey(agentDir, String(body.provider ?? ""), String(body.key ?? ""));
 						const current = loadConfig(env);
 						if (body.provider === "opencode-go" && Object.keys(current.models).length === 0) saveConfig({ models: TESTED_MODELS, model: undefined }, env);
