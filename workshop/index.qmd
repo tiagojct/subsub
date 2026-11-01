@@ -372,7 +372,7 @@ o plano, as frases de pesquisa e o registo de triagem, para outra pessoa verific
 ::: {.card .flat}
 [No fim]{.h3}
 
-propõe as obras que faltam na biblioteca e importa-as com uma só pré-visualização
+propõe as obras que faltam na biblioteca e importa-as com uma só pré-visualização; se quiser, dá um ficheiro RIS das obras triadas, para o Rayyan ou o Covidence
 :::
 :::
 
@@ -517,7 +517,7 @@ Dar 2 minutos. Circular pela sala. Os problemas mais comuns: o Zotero fechado, o
 :::
 
 ::: {.look}
-**Depois experimente:** [Procure duplicados.]{.say}<br>O Sub-Sub mostra cada grupo com as provas. Depois, junte-os no Zotero.
+**Depois experimente:** [Verifique a biblioteca.]{.say}<br>O Sub-Sub mostra os duplicados com as provas, as obras retratadas e os ficheiros sem item principal. Os duplicados junta-os no Zotero.
 :::
 :::
 
@@ -534,7 +534,7 @@ Dar 2 minutos. Circular pela sala. Os problemas mais comuns: o Zotero fechado, o
 ::: notes
 Clique em «4 min» para iniciar o cronómetro; clique outra vez para o parar.
 
-Neste exercício nada muda: o resumo e a procura de duplicados só leem. Serve para ganhar confiança.
+Neste exercício nada muda: o resumo e a verificação só leem. No fim da verificação, o Sub-Sub pode propor a etiqueta _retracted para as obras retratadas: é uma pré-visualização, e só muda com Sim. Serve para ganhar confiança.
 :::
 
 ## Exercício 2 · Ler um artigo com o Sub-Sub
@@ -739,6 +739,7 @@ Perguntas. Deixar este diapositivo no ecrã durante as perguntas.
 <div><p class="cmds-h">Biblioteca</p><div class="cmd-grid">
 <div><code>/tag-batch</code></div><span>propõe etiquetas para os itens seguintes</span>
 <div><code>/clean-tags</code></div><span>encontra etiquetas mal postas</span>
+<div><code>/check-library</code></div><span>duplicados, obras retratadas, ficheiros sem item principal</span>
 <div><code>/import-queue</code></div><span>importa as linhas marcadas da fila</span>
 <div><code>/history</code></div><span>as alterações recentes</span>
 <div><code>/undo</code></div><span>anula a última alteração, depois de perguntar</span>

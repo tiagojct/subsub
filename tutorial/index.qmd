@@ -46,6 +46,8 @@ Use a terminal for this section.
   Result: the list of `subsub` commands and options.
 - [ ] Type `subsub doctor`.\
   Result: one line for each check (Node, uv, Settings, Zotero, Zotero server, Tag list, Models). A line marked FIX says what to do. Do each fix, then type `subsub doctor` again until no line says FIX.
+- [ ] Quit Zotero and type `subsub doctor` again.\
+  Result: the Zotero line says NOTE, not FIX: the search tools work without Zotero, the library tools do not. Start Zotero again.
 - [ ] Type `subsub init`. Press Enter at each question to keep the current value.\
   Result: no setting changes, and no file in your Sub-Sub folder is replaced.
 - [ ] Open `~/.config/subsub/config.json` in a text editor.\
@@ -166,6 +168,8 @@ Use the Researcher.
   Result: one CONSORT item.
 - [ ] Type `check the items I imported today for retractions`.\
   Result: the Wakefield paper is retracted. Sub-Sub proposes the tag `_retracted`. Select Yes.
+- [ ] Select Check the library in the left panel (`/check-library`).\
+  Result: one report with counts first: duplicate groups with their evidence, retracted works and expressions of concern, corrections, and files without a parent item. Then one preview to tag the retracted works `_retracted`. Select No: the earlier step tagged them already. Sub-Sub merges and deletes nothing.
 - [ ] Type `create a collection Sub-Sub test and file the items I imported today in it`.\
   Result: one preview for the collection and the items. Select Yes.
 - [ ] Type `add a note to the PRISMA item: test note from the tutorial`.\
@@ -189,7 +193,11 @@ Use the Researcher.
 ## Questions and searches {#sec-search}
 
 - [ ] Type `What do I have on spirometry?`.\
-  Result: an answer from your library, one line per item, with citekeys. It says which words it searched: yours first, then close synonyms and other word forms. Scan the list for items that are only near the topic.
+  Result: an answer from your library, one line per item, with citekeys. It says which words it searched: yours first, then close synonyms and other word forms. Items that only a synonym found are under their own head, "Found only by a synonym": check that they are on the topic.
+- [ ] If you are in a Zotero group library, type a word from a title of a group item in the library search.\
+  Result: the group's items come after yours, with the group's name. Ask `tag that item`: Sub-Sub says that group libraries are read-only. Skip this step if you have no group.
+- [ ] Quit Zotero. Type `find recent systematic reviews on home spirometry`.\
+  Result: the library line says "Zotero is closed: search only". Sub-Sub searches PubMed, Europe PMC and OpenAlex and does not say whether a work is in your library. Start Zotero again and type `/subsub`.
 - [ ] Select What is missing in the left panel. Complete the command: `/gaps home spirometry in children`.\
   Result: how many results are already in your library, and a ranked list of 5 to 15 relevant works that are missing, the best fit first. Sub-Sub does not read them, and asks before it imports.
 - [ ] Answer `queue the first three for later`.\
@@ -256,9 +264,11 @@ Use a primary study with a PDF in your library for the steps with the full text.
 - [ ] Select Literature review in the left panel. Complete the command: `/lit home spirometry in children with asthma`.\
   Result: a three-line plan with a rating of how hard the search is (1 to 10) and a publication window, then searches of your library and of PubMed, Europe PMC and OpenAlex. Then a note `Research/<date> <slug>.md` with an answer, an evidence table, agreement, disagreement, open questions, methods, the section "What this review is" and the sources.
 - [ ] Open the review in the notes pane and go to Methods.\
-  Result: the rating, the follow-up rounds (none, one or two, as the rating allows) and what each round found. Under the text, the flow of works drawn as boxes: found, unique, screened, read and used, with what was left out at each step to the side.
+  Result: the rating, the follow-up rounds (none, one or two, as the rating allows) and what each round found. Under the text, the flow of works drawn as boxes: found, unique (with how many are already in your library), screened, read and used, with the duplicates removed and what was left out at each step to the side.
 - [ ] Check the numbers of the flow.\
-  Result: they add up. Unique works = pre-screen excluded + screened; screened = excluded at screening + read; read = not used + used.
+  Result: they add up. Found = duplicates removed + unique works; unique works = pre-screen excluded + screened; screened = excluded at screening + read; read = not used + used.
+- [ ] At the end of the review, Sub-Sub offers a RIS file of the screened works. Answer `yes`.\
+  Result: a preview, then `Research/.plans/<slug>-screened.ris`. Import it in Rayyan or Covidence, or open it in a text editor: one record for each work, from `TY  -` to `ER  -`.
 - [ ] Open the same note in Obsidian.\
   Result: Obsidian draws the same flow from its Mermaid block.
 - [ ] In the notes pane, under the evidence table, select Download CSV.\
@@ -356,6 +366,10 @@ Home spirometry is feasible in school-age children.
   Result: a Markdown file `Sub-Sub-<date>.md` in your downloads folder, with the messages and the tools that Sub-Sub used, with their results.
 - [ ] Under a table in a reply, select Download CSV.\
   Result: a CSV file of that table. With the interface in Portuguese, the columns are separated by semicolons, as Excel expects there.
+- [ ] Select the model button. Under Connect a provider, choose Another provider (OpenAI API).\
+  Result: fields for the server address and the model id appear, and the key is optional. Type `http://llm.example.org/v1`, `m` and Save: Sub-Sub refuses, because a server on another computer must use https. Close the dialog.
+- [ ] Add `"costLimit": 0.01` to `~/.config/subsub/config.json` and open Sub-Sub again. Ask a question.\
+  Result: the model button shows the cost next to the model. When the conversation passes the limit, Sub-Sub says so, and asks before each new request. Select No: nothing is sent. Remove the line afterwards.
 - [ ] Select Report a problem in the left panel. Complete the command: `/feedback the notes pane did not open`.\
   Result: a draft report `Inbox/<date> Sub-Sub feedback.md` with the versions, the mode and model, the output of `subsub doctor` and the last error. Your home and Sub-Sub folders show as `~` and `<Sub-Sub folder>`; no email address or key. Sub-Sub says that it has sent nothing.
 - [ ] Select New conversation.\
@@ -418,8 +432,12 @@ Use a terminal at least 120 columns wide for this section.
   Result: that conversation is on screen. Type `/new` for an empty one.
 - [ ] Type `/model`.\
   Result: a list of the models that are connected. Press Esc.
-- [ ] Type `/login`.\
-  Result: a notice that `/login` is not in `subsub tui`; use `subsub` or `subsub web`.
+- [ ] Type `/resume`.\
+  Result: the same list of earlier conversations as `/sessions`. Press Esc.
+- [ ] Type `/login` and choose a provider.\
+  Result: a field for the API key; what you type shows as stars. Press Esc to leave without a change. With a key and Enter, Sub-Sub saves it and starts pi again in the same conversation.
+- [ ] Type `/settings`.\
+  Result: a notice that `/settings` is not in `subsub tui`; use `subsub` or `subsub web`.
 - [ ] Press Ctrl+C twice.\
   Result: Sub-Sub closes and your terminal is as it was.
 

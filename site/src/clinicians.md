@@ -43,7 +43,7 @@ You do not need tags to start. `/lit`, `/lit-note`, `/review` and `/verify` work
 If your references are in EndNote or Mendeley, move them to Zotero first. Zotero's own guides explain it: [from EndNote](https://www.zotero.org/support/kb/importing_records_from_endnote) and [from Mendeley](https://www.zotero.org/support/kb/mendeley_import). Then ask Sub-Sub, in plain words:
 
 1. "Give me an overview of my library." It counts the items, and the ones without tags or citation keys.
-2. "Find duplicates." It shows each group with its evidence; you merge them in Zotero.
+2. "Check my library." It shows the duplicates with their evidence, the retracted works and the files without a parent item; you merge duplicates in Zotero.
 3. "Repair the metadata of items without a DOI." It shows each change first.
 
 ## Data protection and ethics

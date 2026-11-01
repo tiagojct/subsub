@@ -44,7 +44,7 @@ Não precisa de etiquetas para começar. O `/lit`, o `/lit-note`, o `/review` e 
 Se as suas referências estão no EndNote ou no Mendeley, passe-as primeiro para o Zotero. Os guias do próprio Zotero explicam como: [a partir do EndNote](https://www.zotero.org/support/kb/importing_records_from_endnote) e [a partir do Mendeley](https://www.zotero.org/support/kb/mendeley_import) (em inglês). Depois peça ao Sub-Sub, em linguagem corrente:
 
 1. "Dê-me um resumo da minha biblioteca." Conta os itens, e os que não têm etiquetas nem chaves de citação.
-2. "Procure duplicados." Mostra cada grupo com as suas provas; depois, junte-os no Zotero.
+2. "Verifique a minha biblioteca." Mostra os duplicados com as suas provas, as obras retratadas e os ficheiros sem item principal; os duplicados junta-os no Zotero.
 3. "Corrija os metadados dos itens sem DOI." Mostra cada alteração primeiro.
 
 ## Proteção de dados e ética

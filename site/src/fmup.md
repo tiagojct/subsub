@@ -28,7 +28,7 @@ Sub-Sub does not use unlicensed sources.
 
 ## The FMUP model service
 
-Soon, the FMUP set-up will include a model service at no cost to you. Until then, connect your own provider with the model button (in the terminal, `/login`; see [Models](/models/)).
+Soon, the FMUP set-up will include a model service at no cost to you. Until then, connect your own provider with the model button (in the terminal, `/login`; see [Models](/models/)). The service will connect as "Another provider (OpenAI API)", the same way as an institution's own server.
 
 ## Rules for the use of AI
 

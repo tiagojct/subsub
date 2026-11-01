@@ -65,3 +65,4 @@ Sub-Sub sends no email. `/request-copy` writes a draft in your Sub-Sub folder; y
 - Sub-Sub has no shell access. Writes outside your Sub-Sub folder and the current folder, and writes to settings and rule files, need your yes.
 - The browser view is a small server on your own computer. It listens only on 127.0.0.1, so other computers cannot reach it. The address that opens it contains a random key; other websites cannot read the page or answer an approval. It stops by itself 10 minutes after you close the page.
 - An API key that you save in the browser view is stored on your computer, in the same file as `/login` uses (`~/.subsub/agent/auth.json`, readable only by you). It is sent only to that provider.
+- Another provider that speaks the OpenAI API (your institution's server, or a local one) is saved in `~/.subsub/agent/models.json`, readable only by you, with its address and key. Your messages then go to that server. A server on another computer must use https.

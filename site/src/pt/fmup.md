@@ -29,7 +29,7 @@ O Sub-Sub não usa fontes sem licença.
 
 ## O serviço de modelos da FMUP
 
-Em breve, a configuração da FMUP vai incluir um serviço de modelos sem custos para si. Até lá, ligue o seu próprio fornecedor do modelo com o botão do modelo (no terminal, `/login`; veja [Modelos](/pt/modelos/)).
+Em breve, a configuração da FMUP vai incluir um serviço de modelos sem custos para si. Até lá, ligue o seu próprio fornecedor do modelo com o botão do modelo (no terminal, `/login`; veja [Modelos](/pt/modelos/)). O serviço vai ligar-se como "Outro fornecedor (API da OpenAI)", da mesma forma que o servidor de uma instituição.
 
 ## Regras para o uso de IA
 

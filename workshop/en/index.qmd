@@ -372,7 +372,7 @@ the plan, the search phrases and the screening log, for someone else to check an
 ::: {.card .flat}
 [At the end]{.h3}
 
-it proposes the works missing from your library and imports them with one preview
+it proposes the works missing from your library and imports them with one preview; on request, a RIS file of the screened works, for Rayyan or Covidence
 :::
 :::
 
@@ -517,7 +517,7 @@ Give 2 minutes. Walk round the room. The usual problems: Zotero is closed, or "A
 :::
 
 ::: {.look}
-**Then try:** [Find duplicates.]{.say}<br>Sub-Sub shows each group with its evidence. You merge them, in Zotero.
+**Then try:** [Check my library.]{.say}<br>Sub-Sub shows the duplicates with their evidence, the retracted works and the files without a parent item. You merge duplicates in Zotero.
 :::
 :::
 
@@ -534,7 +534,7 @@ Give 2 minutes. Walk round the room. The usual problems: Zotero is closed, or "A
 ::: notes
 Click "4 min" to start the timer; click again to stop it.
 
-Nothing changes in this exercise: the overview and the duplicate search only read. It builds confidence.
+Nothing changes in this exercise: the overview and the check only read. At the end of the check, Sub-Sub can propose the tag _retracted for retracted works: it is a preview, and changes nothing without a Yes. It builds confidence.
 :::
 
 ## Exercise 2 · Read a paper with Sub-Sub
@@ -739,6 +739,7 @@ Questions. Leave this slide on the screen during questions.
 <div><p class="cmds-h">Library</p><div class="cmd-grid">
 <div><code>/tag-batch</code></div><span>proposes tags for the next items</span>
 <div><code>/clean-tags</code></div><span>finds badly tagged items</span>
+<div><code>/check-library</code></div><span>duplicates, retracted works, files without a parent item</span>
 <div><code>/import-queue</code></div><span>imports the ticked lines of the queue</span>
 <div><code>/history</code></div><span>recent library changes</span>
 <div><code>/undo</code></div><span>reverts the last change, after asking</span>
