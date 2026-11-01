@@ -766,7 +766,8 @@ test("chrome: paint roles carry the meaning, and the words match the web view", 
 });
 
 test("look: the footer, the theme of the mode, plain tool rows and the working indicator", async () => {
-	const { usageTotals } = await import("../src/chrome.ts");
+	const { usageTotals, toolDetail } = await import("../src/chrome.ts");
+	assert.equal(toolDetail({ queries: ["home spirometry", "home FEV1"], limit: 25 }), "home spirometry, home FEV1", "a search with several queries shows them");
 	assert.deepEqual(usageTotals([{ type: "message", message: { role: "assistant", usage: { totalTokens: 1000, cost: { total: 0.01 } } } }, { type: "message", message: { role: "user" } }, { type: "message", message: { role: "assistant", usage: { input: 200, output: 300, cacheRead: 0, cacheWrite: 0, cost: { total: 0.02 } } } }]), { tokens: 1500, cost: 0.03 });
 	assert.deepEqual(usageTotals([{ type: "message", message: { role: "assistant" } }]), { tokens: null, cost: null });
 	assert.deepEqual(usageTotals([]), { tokens: 0, cost: 0 });

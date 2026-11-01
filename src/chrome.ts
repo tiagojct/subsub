@@ -116,7 +116,7 @@ export function toolLine(opts: { state: ToolState; word: string; detail?: string
 export function toolDetail(args: unknown, max = 40): string {
 	if (!args || typeof args !== "object") return "";
 	const a = args as Record<string, unknown>;
-	for (const k of ["query", "q", "title", "citekey", "key", "keys", "doi", "identifier", "path", "name", "text"]) {
+	for (const k of ["query", "queries", "q", "title", "citekey", "key", "keys", "doi", "identifier", "path", "name", "text"]) {
 		const v = a[k];
 		if (v === undefined || v === null || v === "") continue;
 		const s = Array.isArray(v) ? v.filter((x) => typeof x !== "object").join(", ") : String(v);

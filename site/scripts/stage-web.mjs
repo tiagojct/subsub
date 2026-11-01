@@ -12,14 +12,15 @@ const ZLM = process.env.ZLM_DIR ?? join(homedir(), "Projects", "zotero-local-mcp
 const lang = process.argv[2] === "pt" ? "pt" : "en";
 
 const ANSWER = {
-	en: `You have **4 items** on home spirometry. Two are cohorts in children; one is a systematic review from 2024.
+	en: `You have **4 items** on home spirometry. I searched for *home spirometry*, then for *home spirometer*, *remote spirometry* and *home FEV1*.
 
 | Citekey | Year | Title | Design |
 |---|---|---|---|
 | \`smith2021\` | 2021 | Home spirometry in children with asthma | cohort |
-| \`okafor2023\` | 2023 | Remote monitoring after lung transplant | cohort |
-| \`lind2020\` | 2020 | Agreement of home and clinic FEV1 | cross-sectional |
 | \`reyes2024\` | 2024 | Home spirometry: a systematic review | systematic review |
+| \`okafor2023\` | 2023 | Remote monitoring after lung transplant | cohort |
+
+**Found only by a synonym** (check that they are on the topic): \`lind2020\`, 2020, *Agreement of home and clinic FEV1*, cross-sectional (*home FEV1*).
 
 PubMed has 38 works on the topic since 2024. Three look relevant and are not in your library:
 
@@ -28,14 +29,15 @@ PubMed has 38 works on the topic since 2024. Three look relevant and are not in 
 3. Kim et al. 2025, *Home spirometry after COVID-19*, Respir Med.
 
 Shall I import them? You will see a preview first. To read one of your items with guidance, type \`/read smith2021\`.`,
-	pt: `Tem **4 itens** sobre espirometria em casa. Dois são coortes em crianças; um é uma revisão sistemática de 2024.
+	pt: `Tem **4 itens** sobre espirometria em casa. Pesquisei *espirometria em casa* e depois *espirómetro doméstico*, *espirometria remota* e *FEV1 em casa*.
 
 | Citekey | Ano | Título | Desenho |
 |---|---|---|---|
 | \`smith2021\` | 2021 | Home spirometry in children with asthma | coorte |
-| \`okafor2023\` | 2023 | Remote monitoring after lung transplant | coorte |
-| \`lind2020\` | 2020 | Agreement of home and clinic FEV1 | transversal |
 | \`reyes2024\` | 2024 | Home spirometry: a systematic review | revisão sistemática |
+| \`okafor2023\` | 2023 | Remote monitoring after lung transplant | coorte |
+
+**Encontrados só por um sinónimo** (confirme que são sobre o tema): \`lind2020\`, 2020, *Agreement of home and clinic FEV1*, transversal (*FEV1 em casa*).
 
 A PubMed tem 38 obras sobre o tema desde 2024. Três parecem relevantes e não estão na sua biblioteca:
 
@@ -71,7 +73,7 @@ const model = createServer((req, res) => {
 			{ ...base, choices: [{ index: 0, delta: {}, finish_reason: "stop" }], usage },
 		]);
 		const user = JSON.stringify([...msgs].reverse().find((m) => m.role === "user")?.content ?? "");
-		if (last?.role === "user" && /spirometr|espirometria/i.test(user)) return tool("zotero_find_items", { query: "spirometry", limit: 25 });
+		if (last?.role === "user" && /spirometr|espirometria/i.test(user)) return tool("zotero_find_items", { queries: lang === "pt" ? ["espirometria em casa", "espirómetro doméstico", "espirometria remota", "FEV1 em casa"] : ["home spirometry", "home spirometer", "remote spirometry", "home FEV1"], limit: 25 });
 		if (last?.role === "user" && /tag|etiquet/i.test(user)) return tool("zotero_tag_items", { changes: [{ key: "AAAA2222", add: ["topic/spirometry"] }, { key: "BBBB3333", add: ["topic/asthma", "status/to-read"], remove: ["status/read"] }], dry_run: false });
 		if (/tag/i.test(user) || /etiquet/i.test(user)) return text(lang === "pt" ? "Etiquetei 2 itens. O botão Anular está junto à alteração." : "Tagged 2 items. Undo is next to the change.");
 		return text(ANSWER[lang]);
