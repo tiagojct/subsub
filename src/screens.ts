@@ -489,6 +489,8 @@ export interface InputOptions {
 	title: string;
 	placeholder?: string;
 	prefill?: string;
+	/** An API key: each character is shown as a star. */
+	secret?: boolean;
 	submit: (text: string) => void;
 	cancel: () => void;
 	lang: Lang;
@@ -515,7 +517,8 @@ export class InputView {
 	}
 
 	render(width: number): string[] {
-		return fill(inputLines({ title: this.o.title, placeholder: this.o.placeholder, text: this.text, width, lang: this.o.lang, paint: this.o.paint, glyphs: this.o.glyphs }), width);
+		const text = this.o.secret ? "*".repeat([...this.text].length) : this.text;
+		return fill(inputLines({ title: this.o.title, placeholder: this.o.placeholder, text, width, lang: this.o.lang, paint: this.o.paint, glyphs: this.o.glyphs }), width);
 	}
 
 	invalidate(): void {}

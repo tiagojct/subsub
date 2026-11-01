@@ -12,10 +12,13 @@ import { CombinedAutocompleteProvider, Editor, HStack, Markdown, matchesKey, Pro
 import { agentDirFor, chooseCwd, PACKAGE_DIR, packageVersion } from "./cli.ts";
 import { fill, footerLines } from "./chrome.ts";
 import { loadConfig, uiLanguage } from "./config.ts";
+import { modelsAfterLogin } from "./init.ts";
 import { type LibraryState, LIBRARIAN_THEME, DEFAULT_THEME, paintPreview, QUOTES } from "./look.ts";
 import { PURPOSES } from "./read.ts";
 import { allowedFile, listNotes, OPENABLE, openFile } from "./files.ts";
 import { Agent, findLibrary, isDialog, Side, withHints } from "./rpc.ts";
+import { KEY_PROVIDERS, saveApiKey } from "./keys.ts";
+import { CUSTOM_DEFAULT_NAME, saveCustomProvider } from "./providers.ts";
 import { ApprovalView } from "./dialogs.ts";
 import { itemRef, type Choice, ChoiceView, InputView, LibraryView, type LibraryItem, NotesView } from "./screens.ts";
 import { glyphs as chooseGlyphs, type Glyphs, workingFrames } from "./skin.ts";
@@ -58,6 +61,10 @@ export interface TuiDeps {
 	searchDelay?: number;
 	/** Called when the user quits or pi stops. */
 	onQuit?: (code: number) => void;
+	/** pi's agent folder, where /login saves keys (auth.json) and other providers (models.json). */
+	agentDir?: string;
+	/** After /login saved a provider: set the models when none are set (spec: the other provider's model). */
+	afterLogin?: (provider: string, spec?: string) => void;
 }
 
 const SHORT = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 3)}...` : s);
@@ -213,6 +220,8 @@ export class TuiApp {
 			{ name: "library", description: pt ? "Pesquisar na biblioteca à medida que escreve" : "Search your library as you type" },
 			{ name: "actions", description: pt ? "As ações da vista no navegador" : "The actions of the browser view" },
 			{ name: "sessions", description: pt ? "Conversas anteriores" : "Earlier conversations" },
+			{ name: "resume", description: pt ? "Retomar uma conversa anterior" : "Resume an earlier conversation" },
+			{ name: "login", description: pt ? "Ligar um fornecedor do modelo" : "Connect a model provider" },
 			{ name: "new", description: pt ? "Uma conversa nova" : "A new conversation" },
 			{ name: "model", description: pt ? "Escolher o modelo" : "Choose the model" },
 			{ name: "restart", description: pt ? "Recomeçar o pi na mesma conversa" : "Start pi again in the same conversation" },
@@ -558,6 +567,70 @@ export class TuiApp {
 		);
 	}
 
+	/** Ask one line on its own screen; undefined when the user presses Esc. */
+	private ask(title: string, opts: { placeholder?: string; secret?: boolean } = {}): Promise<string | undefined> {
+		return new Promise((resolve) => {
+			this.open(
+				new InputView({
+					...this.common(),
+					title,
+					...opts,
+					submit: (text) => (this.close(), resolve(text.trim())),
+					cancel: () => (this.close(), resolve(undefined)),
+				}),
+				true,
+			);
+		});
+	}
+
+	/** /login: a provider that pi has (its API key) or another provider that speaks the OpenAI API; then pi starts again. */
+	async openLogin(): Promise<void> {
+		if (this.overlay) return;
+		const pt = this.lang === "pt";
+		const agentDir = this.d.agentDir;
+		if (!agentDir) return void this.notice("error", pt ? "Sem pasta do agente: use subsub web." : "No agent folder: use subsub web.");
+		const choices: Choice[] = [
+			...KEY_PROVIDERS.map((p) => ({ label: p.label, hint: p.url, value: p.id })),
+			{ label: pt ? "Outro fornecedor (API da OpenAI)" : "Another provider (OpenAI API)", hint: pt ? "servidor da instituição, Ollama, LM Studio" : "your institution's server, Ollama, LM Studio", value: CUSTOM_DEFAULT_NAME },
+		];
+		const provider = await new Promise<string | undefined>((resolve) => {
+			this.open(
+				new ChoiceView({
+					...this.common(),
+					title: pt ? "Ligar um fornecedor" : "Connect a provider",
+					choices,
+					choose: (v) => (this.close(), resolve(v)),
+					cancel: () => (this.close(), resolve(undefined)),
+				}),
+				true,
+			);
+		});
+		if (!provider) return;
+		let spec: string | undefined;
+		try {
+			if (provider === CUSTOM_DEFAULT_NAME) {
+				const baseUrl = await this.ask(pt ? "Endereço do servidor" : "Server address", { placeholder: "https://llm.example.org/v1" });
+				if (baseUrl === undefined) return;
+				const model = await this.ask(pt ? "Identificador do modelo" : "Model id");
+				if (model === undefined) return;
+				const key = await this.ask(pt ? "Chave de API (Enter sem chave, num servidor local)" : "API key (Enter for none, for a local server)", { secret: true });
+				if (key === undefined) return;
+				[spec] = saveCustomProvider(agentDir, { name: CUSTOM_DEFAULT_NAME, baseUrl, apiKey: key, models: [model] });
+			} else {
+				const label = KEY_PROVIDERS.find((p) => p.id === provider)?.label ?? provider;
+				const key = await this.ask(pt ? `Chave de API de ${label}` : `API key for ${label}`, { secret: true });
+				if (!key) return;
+				saveApiKey(agentDir, provider, key);
+			}
+			this.d.afterLogin?.(provider, spec);
+		} catch (err) {
+			this.notice("error", (err as Error).message);
+			return void this.tui.requestRender();
+		}
+		this.notice("info", pt ? "Guardado. O pi recomeça com o fornecedor." : "Saved. pi starts again with the provider.");
+		await this.restart();
+	}
+
 	/** /new: an empty conversation. */
 	async newConversation(): Promise<void> {
 		try {
@@ -633,12 +706,12 @@ export class TuiApp {
 		this.editor.addToHistory?.(line);
 		this.editor.setText("");
 		if (/^\/(quit|exit)\s*$/.test(line)) return void (await this.quit());
-		const unavailable = /^\/(login|logout|settings|tree|resume|fork|share|export|import|hotkeys|reload)\b/.exec(line);
+		const unavailable = /^\/(logout|settings|tree|fork|share|export|import|hotkeys|reload)\b/.exec(line);
 		if (unavailable) {
 			this.notice("info", this.lang === "pt" ? `/${unavailable[1]} não existe em subsub tui. Use subsub no terminal ou subsub web.` : `/${unavailable[1]} is not in subsub tui. Use subsub in the terminal, or subsub web.`);
 			return void this.tui.requestRender();
 		}
-		const own: Record<string, () => Promise<void> | void> = { "/restart": () => this.restart(), "/model": () => this.openModels(), "/notes": () => this.openNotes(), "/library": () => this.openLibrary(), "/actions": () => this.openActions(), "/sessions": () => this.openSessions(), "/new": () => this.newConversation() };
+		const own: Record<string, () => Promise<void> | void> = { "/restart": () => this.restart(), "/model": () => this.openModels(), "/notes": () => this.openNotes(), "/library": () => this.openLibrary(), "/actions": () => this.openActions(), "/sessions": () => this.openSessions(), "/resume": () => this.openSessions(), "/login": () => this.openLogin(), "/new": () => this.newConversation() };
 		if (own[line]) return void (await own[line]());
 		try {
 			await this.d.agent.request({ type: "prompt", message: line, ...(this.busy ? { streamingBehavior: "followUp" } : {}) });
@@ -703,6 +776,8 @@ export async function runTui(args: string[], env: NodeJS.ProcessEnv = process.en
 			themes: { researcher: typeof cfg.themes === "string" ? cfg.themes : undefined, librarian: cfg.themesLibrarian ?? (typeof cfg.themes === "string" ? cfg.themes : undefined) },
 			sessions: async () => (await SessionManager.list(cwd)).filter((s) => s.messageCount > 0).sort((a, b) => +new Date(b.modified) - +new Date(a.modified)).map((s) => ({ title: s.name ?? s.firstMessage.slice(0, 60), path: s.path })),
 			onQuit: resolve,
+			agentDir: env.PI_CODING_AGENT_DIR,
+			afterLogin: (provider, spec) => modelsAfterLogin(env, provider, spec),
 		});
 		void app.start();
 	});

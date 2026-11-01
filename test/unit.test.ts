@@ -1124,6 +1124,71 @@ test("tui: Alt+N, Alt+L, Alt+A, Alt+M and the commands open the screens and fill
 	await app.stop();
 });
 
+test("tui: /login saves a key or another provider and restarts pi; /resume lists the conversations", async () => {
+	const { TuiApp } = await import("../src/tui.ts");
+	const { loadPalette } = await import("../src/tui-view.ts");
+	const { UNICODE } = await import("../src/skin.ts");
+	const agentDir = mkdtempSync(join(tmpdir(), "subsub-tui-login-"));
+	const term = fakeTerminal(120, 30);
+	const agent = fakeAgent({ get_state: { model: { id: "m" } }, get_messages: { messages: [] }, get_commands: { commands: [] } });
+	const logins: Array<[string, string | undefined]> = [];
+	const sessions = [{ title: "asthma in children", path: "/s/1.jsonl" }];
+	const app = new TuiApp({ terminal: term as any, agent: agent as any, version: "0.24.0", lang: "en", cwd: agentDir, palette: (b) => loadPalette(join(import.meta.dirname, "..", "themes"), b, "dark", "truecolor"), glyphs: UNICODE, reduceMotion: true, sessions: async () => sessions, agentDir, afterLogin: (p, spec) => logins.push([p, spec]) });
+	const screen = () => strip(app.tui.getScreenLines().join("\n"));
+	const keys = async (...k: string[]) => { for (const x of k) { term.input(x); await tick(15); } await tick(150); };
+	const type = async (text: string) => { for (const c of text) await keys(c); };
+	await app.start();
+	// a provider that pi has: the key, not shown on screen
+	await type("/login");
+	await keys("\r");
+	assert.match(screen(), /Connect a provider/);
+	await type("gemini");
+	await keys("\r");
+	assert.match(screen(), /API key for Google Gemini/);
+	await type("AIza-secret");
+	assert.doesNotMatch(screen(), /AIza-secret/, "the key is not shown");
+	const started = agent.started;
+	await keys("\r");
+	await tick(100);
+	assert.deepEqual(JSON.parse(readFileSync(join(agentDir, "auth.json"), "utf8")).google, { type: "api_key", key: "AIza-secret" });
+	assert.ok(agent.stopped >= 1 && agent.started > started, "pi starts again with the key");
+	assert.deepEqual(logins.at(-1), ["google", undefined]);
+	// another provider: address, model id, key (empty for a local server)
+	await type("/login");
+	await keys("\r");
+	await type("another");
+	await keys("\r");
+	await type("http://127.0.0.1:1234/v1");
+	await keys("\r");
+	await type("local-model");
+	await keys("\r");
+	await keys("\r");
+	await tick(100);
+	assert.equal(JSON.parse(readFileSync(join(agentDir, "models.json"), "utf8")).providers.custom.baseUrl, "http://127.0.0.1:1234/v1");
+	assert.deepEqual(logins.at(-1), ["custom", "custom/local-model"]);
+	// a wrong address is refused, and pi is not restarted
+	const before = agent.started;
+	await type("/login");
+	await keys("\r");
+	await type("another");
+	await keys("\r");
+	await type("http://llm.example.org/v1");
+	await keys("\r");
+	await type("m");
+	await keys("\r");
+	await keys("\r");
+	await tick(100);
+	assert.match(screen(), /https/);
+	assert.equal(agent.started, before);
+	// /resume is /sessions
+	await type("/resume");
+	await keys("\r");
+	assert.match(screen(), /Conversations/);
+	assert.match(screen(), /asthma in children/);
+	await keys("\x1b");
+	await app.stop();
+});
+
 test("tui: the dialogs of the extension: only y applies a change; lists and questions are answered; one at a time; restart", async () => {
 	const { TuiApp } = await import("../src/tui.ts");
 	const { loadPalette } = await import("../src/tui-view.ts");
@@ -1186,9 +1251,9 @@ test("tui: the dialogs of the extension: only y applies a change; lists and ques
 	assert.equal(agent.stopped, 1);
 	assert.deepEqual(starts, [["--researcher", "--session", "/s/1.jsonl"]]);
 	// commands that only pi's own screen has
-	for (const c of "/login") await keys(c);
+	for (const c of "/settings") await keys(c);
 	await keys("\r");
-	assert.match(screen(), /\/login is not in subsub tui/);
+	assert.match(screen(), /\/settings is not in subsub tui/);
 	await app.stop();
 });
 

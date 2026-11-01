@@ -57,6 +57,16 @@ export const STARTER_TAGS: Record<string, string> = {
 
 export const TESTED_MODELS = DEFAULT_MODELS;
 
+/**
+ * After a login in subsub web or subsub tui: when no models are set yet, OpenCode Go gets the tested models and
+ * another provider (spec "<name>/<id>") its own model in both modes. Models already chosen stay.
+ */
+export function modelsAfterLogin(env: NodeJS.ProcessEnv, provider: string, spec?: string): void {
+	if (Object.keys(loadConfig(env).models).length) return;
+	if (spec) saveConfig({ models: { librarian: spec, researcher: spec }, model: undefined }, env);
+	else if (provider === "opencode-go") saveConfig({ models: TESTED_MODELS, model: undefined }, env);
+}
+
 export interface InitIO {
 	ask(question: string, def: string): Promise<string>;
 	choose(question: string, options: Array<{ value: string; label: string }>, def: string): Promise<string>;
