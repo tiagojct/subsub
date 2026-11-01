@@ -168,7 +168,7 @@ Turn it on in `subsub init`, with the switch in the browser view, or with `"addo
 
 Sub-Sub is made to start from your Zotero library: it reads what you already have, and it finds, imports and tags only what is missing. Use it with Zotero when you can, even if the library is empty at first.
 
-Sub-Sub also starts when Zotero is not running. Then it can search PubMed, Europe PMC and OpenAlex, read open-access full texts and write notes in the Sub-Sub folder. It cannot search, read, import, tag or undo in the library, and it cannot attach notes to items. `subsub doctor` shows a NOTE for Zotero, not a FIX. Start Zotero and type `/subsub` to connect.
+Sub-Sub also starts when Zotero is not running. The library line then says "Zotero is closed: search only". In the Researcher, Sub-Sub can search PubMed, Europe PMC and OpenAlex, read open-access full texts and write notes in the Sub-Sub folder. It cannot search, read, import, tag or undo in the library, and it cannot attach notes to items. The Librarian needs Zotero. `subsub doctor` shows a NOTE for Zotero, not a FIX. Start Zotero and type `/subsub` to connect.
 
 ## Model test
 

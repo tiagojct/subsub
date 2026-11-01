@@ -154,6 +154,20 @@ test("standalone subsub: only Sub-Sub's tools are active", async () => {
 	}
 });
 
+test("Zotero closed: the prompt says what works without it, only when Zotero is down", async () => {
+	const res = systemAddition("researcher", CFG, "/elsewhere", { zoteroDown: true });
+	assert.match(res, /# Zotero is closed\n\n[^\n]*scholar_ tools work[\s\S]*# Language/);
+	assert.match(systemAddition("librarian", CFG, "/elsewhere", { zoteroDown: true }), /# Zotero is closed\n\n[^\n]*The Librarian needs Zotero/);
+	assert.doesNotMatch(systemAddition("researcher", CFG, "/elsewhere"), /# Zotero is closed/);
+	// Wired: after the library check finds Zotero closed, the next turn gets the note
+	const { fp, bridge, ctx } = await setup();
+	const turn = async () => (await fp.handlers.before_agent_start[0]({ systemPrompt: "BASE" }, ctx)).systemPrompt as string;
+	assert.doesNotMatch(await turn(), /# Zotero is closed/);
+	bridge.responses.zotero_status = { isError: false, text: "{}", data: { zotero: "unreachable", error: "connection refused" } };
+	await fp.commands["subsub-refresh"].handler("", ctx);
+	assert.match(await turn(), /# Zotero is closed/);
+});
+
 test("gate kinds", () => {
 	assert.equal(gateKind("zotero_tag_items", { dry_run: false }), "preview");
 	assert.equal(gateKind("zotero_tag_items", {}), null);
@@ -572,7 +586,7 @@ test("look: banner, narrow terminal, scheme, theme names, coloured preview", asy
 	assert.ok(narrow.every((l) => [...l].length <= 18));
 	const down = headerLines({ version: "0.3.0", mode: "librarian", model: "m", library: { zotero: "down" }, width: 60 });
 	assert.ok(down.some((l) => /^Librarian  m/.test(l)));
-	assert.ok(down.some((l) => /Zotero is not running/.test(l)));
+	assert.ok(down.some((l) => /Zotero is closed: search only/.test(l)));
 	assert.ok(headerLines({ version: "1", mode: "researcher", model: "m", library: { zotero: "checking" }, width: 40 }).every((l) => [...l].length <= 40));
 	assert.equal(schemeFromAnsi("\x1b[38;2;232;238;242m"), "dark");
 	assert.equal(schemeFromAnsi("\x1b[38;2;22;34;42m"), "light");

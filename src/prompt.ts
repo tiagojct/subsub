@@ -56,7 +56,12 @@ export function roleText(mode: Mode, cfg?: Pick<SubsubConfig, "userName" | "abou
 	return cfg ? fill(raw, cfg) : raw;
 }
 
-export function systemAddition(mode: Mode, cfg: SubsubConfig, cwd: string): string {
+/** What Sub-Sub knows now: `zoteroDown` when the last check found Zotero closed. */
+export interface PromptState {
+	zoteroDown?: boolean;
+}
+
+export function systemAddition(mode: Mode, cfg: SubsubConfig, cwd: string, state: PromptState = {}): string {
 	const user = who(cfg);
 	const parts = [`# Sub-Sub: ${mode === "librarian" ? "Librarian" : "Researcher"} mode`, roleText(mode, cfg)];
 	if (cfg.vault) {
@@ -83,6 +88,14 @@ export function systemAddition(mode: Mode, cfg: SubsubConfig, cwd: string): stri
 		parts.push(
 			"# U.Porto",
 			`${capital(user)} works at the University of Porto. Papers that are not open access often open through the university's subscriptions when ${user} uses Sub-Sub on the U.Porto network: say so when a work is not open access.`,
+		);
+	}
+	if (state.zoteroDown) {
+		parts.push(
+			"# Zotero is closed",
+			mode === "librarian"
+				? `Zotero is not running now, so the zotero_ tools fail. The Librarian needs Zotero: tell ${user} to start Zotero and type /subsub. In the Researcher, searches in PubMed, Europe PMC and OpenAlex work without Zotero.`
+				: `Zotero is not running now, so the zotero_ tools fail. The scholar_ tools work: search PubMed, Europe PMC and OpenAlex, read open-access full texts, and write notes in the Sub-Sub folder. When a request needs ${user}'s library, say that Zotero is closed and ask ${user} to start it and type /subsub. Do not say whether a work is in the library.`,
 		);
 	}
 	// The language rule comes last, so it wins over the shared rules and the vault conventions.

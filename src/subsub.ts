@@ -578,7 +578,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	});
 
 	pi.on("before_agent_start", async (event, ctx) => ({
-		systemPrompt: `${event.systemPrompt}\n\n${systemAddition(mode, cfg, ctx.cwd)}`,
+		systemPrompt: `${event.systemPrompt}\n\n${systemAddition(mode, cfg, ctx.cwd, { zoteroDown: library.zotero === "down" })}`,
 	}));
 
 	/** Model test (subsub-bench): record every change instead of asking, and apply none. */

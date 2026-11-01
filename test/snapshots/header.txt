@@ -18,7 +18,7 @@ Zotero: 990 items, 975 to check
 ╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  0.21.0
 
 Librarian  mimo-v2.6-flash
-○ Zotero is not running. Start it, th...
+○ Zotero is closed: search only. Star...
 /researcher  /librarian  /read  /note...
 
 
@@ -40,7 +40,7 @@ Researcher  mimo-v2.6-pro  |  Zotero: 990 items, 975 to check
 ╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  0.21.0
 
 Librarian  mimo-v2.6-flash
-○ Zotero is not running. Start it, then type /subsub.
+○ Zotero is closed: search only. Start it, then type /subsub.
 /researcher  /librarian  /read  /notes  /library  /actions  |  / for all comm...
 
 
@@ -61,7 +61,7 @@ Researcher  mimo-v2.6-pro  |  Zotero: 990 items, 975 to check
 ╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗
 ╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  0.21.0
 
-Librarian  mimo-v2.6-flash  |  ○ Zotero is not running. Start it, then type /subsub.
+Librarian  mimo-v2.6-flash  |  ○ Zotero is closed: search only. Start it, then type /subsub.
 /researcher  /librarian  /read  /notes  /library  /actions  |  / for all commands
 
 
@@ -85,7 +85,7 @@ Zotero: 990 itens, 975 por verificar
 ╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  0.21.0
 
 Librarian  mimo-v2.6-flash
-○ O Zotero não está aberto. Abra-o e ...
+○ O Zotero está fechado: só pesquisa....
 /researcher  /librarian  /read  /note...
 
 
@@ -107,7 +107,7 @@ Researcher  mimo-v2.6-pro  |  Zotero: 990 itens, 975 por verificar
 ╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  0.21.0
 
 Librarian  mimo-v2.6-flash
-○ O Zotero não está aberto. Abra-o e escreva /subsub.
+○ O Zotero está fechado: só pesquisa. Abra-o e escreva /subsub.
 /researcher  /librarian  /read  /notes  /library  /actions  |  / for all comm...
 
 
@@ -128,6 +128,6 @@ Researcher  mimo-v2.6-pro  |  Zotero: 990 itens, 975 por verificar
 ╚═╗║ ║╠╩╗───╚═╗║ ║╠╩╗
 ╚═╝╚═╝╚═╝   ╚═╝╚═╝╚═╝  0.21.0
 
-Librarian  mimo-v2.6-flash  |  ○ O Zotero não está aberto. Abra-o e escreva /subsub.
+Librarian  mimo-v2.6-flash  |  ○ O Zotero está fechado: só pesquisa. Abra-o e escreva /subsub.
 /researcher  /librarian  /read  /notes  /library  /actions  |  / for all commands
 

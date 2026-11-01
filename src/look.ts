@@ -84,8 +84,8 @@ type Lang = "en" | "pt";
 
 /** The words of the library line, as in the web view (web/i18n.js: zoteroChecking, zoteroDown, items, toReview). */
 export const LIBRARY_WORDS = {
-	en: { checking: "Zotero: checking...", down: "Zotero is not running. Start it, then type /subsub.", items: "items", toCheck: "to check", prefix: "Zotero" },
-	pt: { checking: "Zotero: a verificar...", down: "O Zotero não está aberto. Abra-o e escreva /subsub.", items: "itens", toCheck: "por verificar", prefix: "Zotero" },
+	en: { checking: "Zotero: checking...", down: "Zotero is closed: search only. Start it, then type /subsub.", items: "items", toCheck: "to check", prefix: "Zotero" },
+	pt: { checking: "Zotero: a verificar...", down: "O Zotero está fechado: só pesquisa. Abra-o e escreva /subsub.", items: "itens", toCheck: "por verificar", prefix: "Zotero" },
 };
 
 function cut(s: string, width: number): string {

@@ -25,6 +25,12 @@ Escreva `subsub doctor`. Cada linha começa por `ok`, `NOTE` ou `FIX`. Faça a c
 | FIX Starbuck | Só aparece quando a verificação de referências está ligada. Verifique a ligação à internet: no primeiro arranque, o Sub-Sub descarrega o Starbuck. Depois escreva `subsub doctor` outra vez. Para desligar a verificação de referências, escreva `subsub init`. |
 | FIX Model login | Abra o Sub-Sub, selecione o botão do modelo e guarde uma chave de API. Em alternativa, escreva `subsub` e depois `/login`. |
 
+## Preciso de uma biblioteca do Zotero?
+
+O Sub-Sub foi feito para partir da sua biblioteca do Zotero: lê o que já tem e só procura, importa e etiqueta o que falta. Use-o com o Zotero sempre que puder, mesmo que a biblioteca esteja vazia no início.
+
+O Sub-Sub também arranca quando o Zotero não está aberto. A linha da biblioteca diz então "O Zotero está fechado: só pesquisa". No Investigador, o Sub-Sub pode pesquisar no PubMed, na Europe PMC e no OpenAlex, ler textos completos em acesso aberto e escrever notas na pasta do Sub-Sub. Não pode pesquisar, ler, importar, etiquetar nem desfazer alterações na biblioteca, e não pode anexar notas aos itens. O Bibliotecário precisa do Zotero. O `subsub doctor` mostra uma linha NOTE para o Zotero, não FIX. Abra o Zotero e escreva `/subsub` para ligar.
+
 ## Outros problemas
 
 - "command not found: subsub": abra uma nova janela do terminal. Se o problema continuar, escreva outra vez o comando de instalação.

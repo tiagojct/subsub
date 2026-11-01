@@ -24,6 +24,12 @@ Type `subsub doctor`. Each line starts with `ok`, `NOTE` or `FIX`. Do the fix th
 | FIX Starbuck | Only when reference checks are on. Check the internet connection: the first start downloads Starbuck. Then type `subsub doctor` again. To turn reference checks off, type `subsub init`. |
 | FIX Model login | Open Sub-Sub, select the model button and save an API key. Or type `subsub`, then `/login`. |
 
+## Do I need a Zotero library?
+
+Sub-Sub is made to start from your Zotero library: it reads what you already have, and it finds, imports and tags only what is missing. Use it with Zotero when you can, even if the library is empty at first.
+
+Sub-Sub also starts when Zotero is not running. The library line then says "Zotero is closed: search only". In the Researcher, Sub-Sub can search PubMed, Europe PMC and OpenAlex, read open-access full texts and write notes in the Sub-Sub folder. It cannot search, read, import, tag or undo in the library, and it cannot attach notes to items. The Librarian needs Zotero. `subsub doctor` shows a NOTE for Zotero, not a FIX. Start Zotero and type `/subsub` to connect.
+
 ## Other problems
 
 - "command not found: subsub": open a new terminal window. If the problem continues, type the install command again.
