@@ -96,7 +96,7 @@ If you have Node.js 22.19 or later and uv:
 
 npm also installs pi 1.0, which Sub-Sub needs. Then type `subsub init`, and `subsub shortcut` for the shortcut.
 
-If you already use [pi](https://pi.dev), you can also add Sub-Sub to pi: `pi install npm:@tiagojct/subsub`. Sub-Sub needs pi 1.0 or later.
+If you already use [pi](https://pi.dev), you can also add Sub-Sub to pi: `pi install npm:@tiagojct/subsub`. Sub-Sub needs pi 1.0 or later. Sub-Sub then adds its tools and keeps pi's tools and the tools of your other extensions.
 
 ## What `subsub init` creates
 

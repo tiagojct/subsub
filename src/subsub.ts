@@ -52,7 +52,7 @@ import { glyphs, paintFromTheme, workingFrames } from "./skin.ts";
 import { loadWords, toolWord, type Words } from "./words.ts";
 import { systemAddition } from "./prompt.ts";
 import { logUsage } from "./usage.ts";
-import { gateKind, SERVER_PREFIXES, toolsFor, unavailableReason, outboundProblem } from "./roles.ts";
+import { activeTools, gateKind, SERVER_PREFIXES, toolsFor, unavailableReason, outboundProblem } from "./roles.ts";
 
 const MODE_ENTRY = "subsub-mode";
 
@@ -410,7 +410,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	/** Set the mode's tools and, unless `switchModel` is false, the mode's model. */
 	async function applyMode(ctx: ExtensionContext, next: Mode, remember: boolean, switchModel = true): Promise<void> {
 		mode = next;
-		pi.setActiveTools(toolsFor(mode, registered(), toolOpts()));
+		pi.setActiveTools(activeTools(pi.getActiveTools(), toolsFor(mode, registered(), toolOpts()), standalone));
 		const spec = cfg.models[mode];
 		if (spec && switchModel) {
 			const i = spec.indexOf("/");

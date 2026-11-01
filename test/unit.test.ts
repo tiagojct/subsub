@@ -122,6 +122,38 @@ test("tool sets: the Librarian manages the library; the Researcher has that and 
 	assert.ok(!lib.includes("bash") && !res.includes("bash"));
 });
 
+test("plain pi: Sub-Sub swaps only its own tools and keeps pi's and other extensions' tools (issue #1)", async () => {
+	delete process.env.SUBSUB_CLI;
+	const fp = fakePi();
+	fp.pi.getAllTools = () => [...fp.tools.map((t) => ({ name: t.name })), ...["read", "edit", "write", "grep", "find", "ls", "bash", "subagent", "web_search"].map((name) => ({ name }))];
+	fp.pi.setActiveTools(["read", "bash", "edit", "write", "subagent", "web_search"]);
+	await createSubsub(fp.pi as any, { config: CFG, bridge: new FakeBridge() as unknown as Bridge });
+	const { ctx } = fakeCtx();
+	for (const h of fp.handlers.session_start) await h({ reason: "startup" }, ctx);
+	for (const t of ["bash", "subagent", "web_search", "read", "scholar_search_pubmed", "zotero_tag_items"]) assert.ok(fp.active.includes(t), `${t} is active`);
+	await fp.commands.librarian.handler("", ctx);
+	assert.ok(fp.active.includes("subagent") && fp.active.includes("bash") && !fp.active.includes("scholar_search_pubmed"));
+	await fp.commands.researcher.handler("", ctx);
+	assert.ok(fp.active.includes("subagent") && fp.active.includes("scholar_search_pubmed"));
+	assert.equal(new Set(fp.active).size, fp.active.length, "no tool twice");
+});
+
+test("standalone subsub: only Sub-Sub's tools are active", async () => {
+	process.env.SUBSUB_CLI = "1";
+	try {
+		const fp = fakePi();
+		fp.pi.getAllTools = () => [...fp.tools.map((t) => ({ name: t.name })), ...["read", "edit", "write", "grep", "find", "ls", "bash", "subagent"].map((name) => ({ name }))];
+		fp.pi.setActiveTools(["read", "bash", "subagent"]);
+		await createSubsub(fp.pi as any, { config: CFG, bridge: new FakeBridge() as unknown as Bridge });
+		const { ctx } = fakeCtx({ hasUI: false });
+		(ctx.ui as any).setTitle = () => {};
+		for (const h of fp.handlers.session_start) await h({ reason: "startup" }, ctx);
+		assert.ok(!fp.active.includes("bash") && !fp.active.includes("subagent") && fp.active.includes("zotero_find_items"));
+	} finally {
+		delete process.env.SUBSUB_CLI;
+	}
+});
+
 test("gate kinds", () => {
 	assert.equal(gateKind("zotero_tag_items", { dry_run: false }), "preview");
 	assert.equal(gateKind("zotero_tag_items", {}), null);

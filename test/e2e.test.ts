@@ -210,7 +210,8 @@ test("the Researcher makes a library change: previewed, approved and applied", {
 		assert.match(sys, /Shared rules: use vocabulary tags only/);
 		const toolNames = requests[0].tools.map((t: any) => t.function.name);
 		assert.ok(toolNames.includes("zotero_tag_items") && toolNames.includes("scholar_search_pubmed"));
-		assert.ok(!toolNames.includes("bash"));
+		// Plain pi: Sub-Sub keeps pi's own tools (issue #1); the subsub command test checks the closed set
+		assert.ok(toolNames.includes("bash"));
 		// Tiago saw the server preview
 		assert.equal(pi.confirms.length, 1);
 		assert.match(pi.confirms[0].message, /1 item\(s\) would change[\s\S]*topic\/spirometry/);
@@ -306,6 +307,9 @@ test("the subsub command: own agent folder, package, prompts, vault as start fol
 		const sys = JSON.stringify(requests[0].messages[0]);
 		assert.match(sys, /# Sub-Sub: Researcher mode\\n\\nYou are Sub-Sub/);
 		assert.match(sys, /Always reply in English/);
+		// The subsub command: Sub-Sub's tools only, without bash
+		const names = requests[0].tools.map((t: any) => t.function.name);
+		assert.ok(names.includes("zotero_find_items") && !names.includes("bash"));
 		// Compare paths with / and in lower case: the prompt is JSON (backslashes doubled), and on
 		// Windows the folder may appear with / or \\, in its short 8.3 form (RUNNER~1) or in full.
 		const norm = (s: string) => s.toLowerCase().replace(/\\\\/g, "/").replace(/\\/g, "/");

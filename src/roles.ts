@@ -87,6 +87,17 @@ export function toolsFor(mode: Mode, registered: string[], opts: ToolOptions = {
 	return [...new Set(wanted)].filter((n) => has.has(n));
 }
 
+/**
+ * The active tools for `next`, Sub-Sub's set for the mode. Inside plain pi, Sub-Sub replaces only its own
+ * server tools and keeps the rest (pi's tools, other extensions' tools); with the `subsub` command, the set is
+ * Sub-Sub's alone.
+ */
+export function activeTools(current: string[], next: string[], standalone: boolean): string[] {
+	if (standalone) return next;
+	const kept = current.filter((n) => !SERVER_PREFIXES.some((p) => n.startsWith(p)));
+	return [...new Set([...kept, ...next])];
+}
+
 /** Why a Sub-Sub tool is not available now, or undefined when it is. */
 export function unavailableReason(name: string, mode: Mode, registered: string[], opts: ToolOptions = {}): string | undefined {
 	if (toolsFor(mode, registered, opts).includes(name)) return undefined;

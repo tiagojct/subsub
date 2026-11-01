@@ -70,7 +70,7 @@ subsub doctor
 
 `subsub init` asks a few questions. Press Enter to accept the default. It creates the Sub-Sub folder (`~/Documents/Sub-Sub`, or a `Sub-Sub` folder inside your Obsidian vault) with `Inbox/`, `Literature/`, `Syntheses/`, `Research/` and `Zotero/`, a starter tag list (`Zotero/Zotero tags.md`) and the note formats (`Zotero/Zotero agent.md`). `subsub doctor` checks the set-up; each line marked FIX says what to do.
 
-If you already use pi, you can add Sub-Sub to it: `pi install npm:@tiagojct/subsub`.
+If you already use pi, you can add Sub-Sub to it: `pi install npm:@tiagojct/subsub`. Sub-Sub then adds its tools and keeps pi's tools and the tools of your other extensions.
 
 Sub-Sub runs its Zotero server, [zotero-local-mcp](https://github.com/tiagojct/zotero-local-mcp), from PyPI with uv.
 
