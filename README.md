@@ -39,7 +39,7 @@ The [Commands page](https://subsub.tiagojacinto.eu/profiles/) lists the tools an
 
 ## Requirements
 
-- Zotero 10 or later, running, with Settings > Advanced > "Allow other applications on this computer to communicate with Zotero" on.
+- Zotero 10 or later, running, with Settings > Advanced > "Allow other applications on this computer to communicate with Zotero" on. Sub-Sub starts without Zotero, but then only the search tools work (see [FAQ](#faq)).
 - Node.js 22.19 or later, and [uv](https://docs.astral.sh/uv/). The installers add both if they are missing.
 - An account with a model provider that pi supports (for example OpenCode Go, OpenRouter, Anthropic, OpenAI, Mistral, Google), or a local model. To try Sub-Sub without paying, a free Google AI Studio key is enough (see [Use Sub-Sub for free](https://subsub.tiagojacinto.eu/models/#use-sub-sub-for-free)).
 - macOS, Linux or Windows.
@@ -161,6 +161,14 @@ Sub-Sub finds open-access copies through Unpaywall and Europe PMC. For other pap
 [Starbuck](https://github.com/tiagojct/starbuck) is an optional add-on. It checks that each cited work exists, that its title, first author and year match the citation, and that it was not retracted or corrected. On request, it also checks whether the source supports the sentence that cites it; Sub-Sub's model judges, and Starbuck checks that every quoted passage is in the source.
 
 Turn it on in `subsub init`, with the switch in the browser view, or with `"addons": ["starbuck"]` in the settings. Then `subsub doctor` must show Starbuck ok. Starbuck writes its report in a `_starbuck` folder next to the manuscript.
+
+## FAQ
+
+### Do I need a Zotero library?
+
+Sub-Sub is made to start from your Zotero library: it reads what you already have, and it finds, imports and tags only what is missing. Use it with Zotero when you can, even if the library is empty at first.
+
+Sub-Sub also starts when Zotero is not running. Then it can search PubMed, Europe PMC and OpenAlex, read open-access full texts and write notes in the Sub-Sub folder. It cannot search, read, import, tag or undo in the library, and it cannot attach notes to items. `subsub doctor` shows a NOTE for Zotero, not a FIX. Start Zotero and type `/subsub` to connect.
 
 ## Model test
 

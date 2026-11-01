@@ -17,7 +17,7 @@ Escreva `subsub doctor`. Cada linha começa por `ok`, `NOTE` ou `FIX`. Faça a c
 | FIX Settings | Escreva `subsub init`. |
 | FIX uv | Instale o [uv](https://docs.astral.sh/uv/), ou escreva outra vez o comando de instalação. |
 | FIX Zotero server | Verifique a ligação à internet: no primeiro arranque, o Sub-Sub descarrega o servidor do Zotero. Depois escreva `subsub doctor` outra vez. |
-| FIX Zotero | Abra o Zotero 10. No Zotero, abra Settings > Advanced e ligue a opção "Allow other applications on this computer to communicate with Zotero". |
+| NOTE Zotero | O Zotero não está aberto. O Sub-Sub pode pesquisar, mas não pode usar a sua biblioteca. Abra o Zotero 10. No Zotero, abra Settings > Advanced e ligue a opção "Allow other applications on this computer to communicate with Zotero". |
 | FIX Tag list | Escreva `subsub init`. Este comando cria uma lista de etiquetas inicial. |
 | NOTE Tag list: no topic/ tags | No Sub-Sub, peça: `propose topics for my tag list`. |
 | NOTE Sub-Sub folder | A pasta é um cofre (vault) inteiro do Obsidian, ou a lista de etiquetas e os formatos das notas ainda estão em `Systems/` (anterior à versão 0.9). Escreva `subsub init`: este comando move os ficheiros do Sub-Sub para uma pasta `Sub-Sub`, com os ficheiros de definições em `Zotero/`. |

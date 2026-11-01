@@ -4,7 +4,8 @@
  * Checks Node, the settings file, uv, the Zotero server (it runs
  * `zotero-local-mcp --check`), Zotero itself, the tag list, the notes folder,
  * the contact email, Starbuck (when the add-on is on) and the model login. Exit
- * code 1 when something needs a fix.
+ * code 1 when something needs a fix. Zotero is optional: when it is not
+ * running, the line is a NOTE, because the search tools work without it.
  */
 
 import { spawnSync } from "node:child_process";
@@ -122,7 +123,14 @@ export function runChecks(
 	out.push(
 		st.zotero === "reachable"
 			? { name: "Zotero", ok: true, detail: `reachable, write permission ${st.write_key_remembered ? "remembered" : "asked at the first change"}` }
-			: { name: "Zotero", ok: false, detail: String(st.error ?? "not reachable"), fix: `Start Zotero 10 or later. ${ZOTERO_SETTING}` },
+			: // Optional: without Zotero, Sub-Sub still searches PubMed, Europe PMC and OpenAlex and writes notes.
+				{
+					name: "Zotero",
+					ok: true,
+					warn: true,
+					detail: `${String(st.error ?? "not reachable")}: the search tools work, the library tools do not`,
+					fix: `Start Zotero 10 or later. ${ZOTERO_SETTING}`,
+				},
 	);
 	const v = st.vocabulary ?? {};
 	if (v.loaded === false || !v.tags) {

@@ -1385,7 +1385,8 @@ test("doctor: checks and fixes", () => {
 	const checks2 = runChecks(cfg, {}, { run: (c, a) => (a[0] === "--version" ? run(c, a) : { status: 0, stdout: JSON.stringify(down), stderr: "" }), nodeVersion: "20.1.0", agentDir: agent });
 	const text = formatChecks(checks2);
 	assert.match(text, /FIX +Node/);
-	assert.match(text, /FIX +Zotero +connection refused\n +Start Zotero 10/);
+	assert.match(text, /NOTE +Zotero +connection refused: the search tools work, the library tools do not\n +Start Zotero 10/);
+	assert.ok(checks2.find((c) => c.name === "Zotero")!.ok, "a closed Zotero is not a problem to fix");
 	assert.match(text, /ok +Model login/);
 	const noUv = runChecks(cfg, {}, { run: () => ({ status: null, stdout: "", stderr: "", error: "ENOENT" }), nodeVersion: "22.20.0", agentDir: agent });
 	assert.equal(noUv.at(-1)!.name, "uv");
