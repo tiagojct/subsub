@@ -1789,7 +1789,7 @@ test("prompt commands: research ones need the Researcher; /profile is gone; /lit
 });
 
 test("check the library: one action for duplicates, retractions and files without a parent item", async () => {
-	const text = readFileSync(join(import.meta.dirname, "..", "prompts", "check-library.md"), "utf8");
+	const text = readFileSync(join(import.meta.dirname, "..", "prompts", "check-library.md"), "utf8").replace(/\r\n/g, "\n"); // Windows checks out CRLF
 	assert.match(text, /^---\ndescription: "[^"]+"\n---\n/);
 	for (const tool of ["zotero_find_duplicates", "zotero_check_retractions", "still_unchecked", "zotero_standalone_items", "zotero_tag_items", "_retracted"]) assert.ok(text.includes(tool), tool);
 	assert.doesNotMatch(text, /trash_items|update_fields/, "Sub-Sub does not merge or delete");
