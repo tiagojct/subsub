@@ -156,6 +156,7 @@ Sub-Sub does not change the manuscript. Starbuck writes an HTML report in a `_st
 | `/ai-statement [uses]` | A draft statement on the use of AI for a manuscript |
 | `/read [reason] <citekey>` | Guided reading of one paper: Sub-Sub finds the passages and asks, you write the answers (Researcher) |
 | `/tag-batch [size]`, `/clean-tags`, `/import-queue` | Library templates (both modes) |
+| `/check-library` | Duplicates, retracted or corrected works and files without a parent item, in one report; then one preview to tag retracted works (both modes) |
 | `/lit-note <citekey>`, `/synthesis <topic>`, `/gaps <topic>`, `/manuscript <file>`, `/alert` | Research templates (Researcher) |
 | `/lit <question>`, `/compare <question>`, `/review <file>`, `/digest [days]`, `/request-copy <citekey>` | Research templates (Researcher) |
 | `/lit reading list: <topic>` | A reading list with questions to read with, and no results (Researcher) |

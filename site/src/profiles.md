@@ -31,7 +31,7 @@ The Researcher has every command and tool. These need it:
 - Tag items with tags from your tag list (`/tag-batch`, `/clean-tags`).
 - Import by DOI, PMID or ISBN (`/import-queue`).
 - Attach open-access PDFs, add notes, file items in collections, set citekeys.
-- Find duplicates, check retractions, check tags and metadata.
+- Find duplicates, check retractions, check tags and metadata. `/check-library` does the first two and lists the files without a parent item, in one report.
 - Rename or remove tags, remove automatic tags.
 - Edit fields, repair metadata.
 - Move items to the Zotero trash.

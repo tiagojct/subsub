@@ -32,7 +32,7 @@ O Investigador tem todos os comandos e ferramentas. Estes precisam dele:
 - Atribuir etiquetas aos itens, com etiquetas da sua lista de etiquetas (`/tag-batch`, `/clean-tags`).
 - Importar por DOI, PMID ou ISBN (`/import-queue`).
 - Anexar PDF de acesso aberto, acrescentar notas, arquivar itens em coleções, definir citekeys.
-- Encontrar duplicados, verificar retratações, verificar etiquetas e metadados.
+- Encontrar duplicados, verificar retratações, verificar etiquetas e metadados. O `/check-library` faz as duas primeiras e lista os ficheiros sem item principal, num só relatório.
 - Mudar o nome ou retirar etiquetas, retirar etiquetas automáticas.
 - Editar campos, corrigir metadados.
 - Mover itens para o lixo do Zotero.

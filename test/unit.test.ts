@@ -1785,6 +1785,18 @@ test("prompt commands: research ones need the Researcher; /profile is gone; /lit
 	assert.deepEqual(await input("/compare FeNO"), { action: "handled" });
 	assert.match(notes.at(-1)!, /\/compare is part of the Researcher/);
 	assert.deepEqual(await input("/tag-batch 10"), { action: "continue" });
+	assert.deepEqual(await input("/check-library"), { action: "continue" }, "a library task: also in the Librarian");
+});
+
+test("check the library: one action for duplicates, retractions and files without a parent item", async () => {
+	const text = readFileSync(join(import.meta.dirname, "..", "prompts", "check-library.md"), "utf8");
+	assert.match(text, /^---\ndescription: "[^"]+"\n---\n/);
+	for (const tool of ["zotero_find_duplicates", "zotero_check_retractions", "still_unchecked", "zotero_standalone_items", "zotero_tag_items", "_retracted"]) assert.ok(text.includes(tool), tool);
+	assert.doesNotMatch(text, /trash_items|update_fields/, "Sub-Sub does not merge or delete");
+	const { loadWords } = await import("../src/words.ts");
+	const w = await loadWords();
+	const action = w.ACTIONS.library.find((a) => a.cmd === "check-library");
+	assert.deepEqual([action?.en, action?.pt, action?.send], ["Check the library", "Verificar a biblioteca", true]);
 });
 
 test("literature notes: evidence field required, page numbers only from the full text", async () => {

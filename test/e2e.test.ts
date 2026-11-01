@@ -550,6 +550,7 @@ test("the web view: the page answers Sub-Sub's approval; other sites and hosts a
 		const hello = await stream.wait((e) => e.type === "hello");
 		assert.equal(hello.lang, "en");
 		assert.ok(Array.isArray(hello.commands) && hello.commands.some((c: any) => c.name === "tag-batch"));
+		assert.ok(hello.commands.some((c: any) => c.name === "check-library"), "the new library task is a command");
 		assert.equal(hello.commands.find((c: any) => c.name === "lit-note")?.hint, "<citekey or title words>", "argument hints from the prompt files");
 		await stream.wait((e) => e.type === "subsub_state" && e.state?.mode === "librarian");
 

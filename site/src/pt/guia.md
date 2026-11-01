@@ -156,6 +156,7 @@ O Sub-Sub não altera o manuscrito. O Starbuck escreve um relatório HTML numa p
 | `/ai-statement [usos]` | Um rascunho da declaração sobre o uso de IA para um manuscrito |
 | `/read [motivo] <citekey>` | Leitura guiada de um artigo: o Sub-Sub encontra as passagens e pergunta, escreve as respostas (Investigador) |
 | `/tag-batch [tamanho]`, `/clean-tags`, `/import-queue` | Tarefas predefinidas da biblioteca (os dois modos) |
+| `/check-library` | Duplicados, obras retratadas ou corrigidas e ficheiros sem item principal, num só relatório; depois, uma pré-visualização para etiquetar as obras retratadas (os dois modos) |
 | `/lit-note <citekey>`, `/synthesis <tema>`, `/gaps <tema>`, `/manuscript <ficheiro>`, `/alert` | Tarefas predefinidas de investigação (Investigador) |
 | `/lit <pergunta>`, `/compare <pergunta>`, `/review <ficheiro>`, `/digest [dias]`, `/request-copy <citekey>` | Tarefas predefinidas de investigação (Investigador) |
 | `/lit reading list: <tema>` | Uma lista de leitura com perguntas para orientar a leitura, sem resultados (Investigador) |

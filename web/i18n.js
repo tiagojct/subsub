@@ -324,6 +324,7 @@ export const ACTIONS = {
 		{ cmd: "subsub", send: true, en: "Library overview", pt: "Resumo da biblioteca" },
 		{ cmd: "tag-batch 10", send: true, en: "Tag 10 items", pt: "Etiquetar 10 itens" },
 		{ cmd: "clean-tags", send: true, en: "Clean up tags", pt: "Limpar etiquetas" },
+		{ cmd: "check-library", send: true, en: "Check the library", pt: "Verificar a biblioteca" },
 		{ cmd: "import-queue", send: true, en: "Import the queue", pt: "Importar a fila" },
 		{ cmd: "history", send: true, en: "Recent changes", pt: "Alterações recentes" },
 		{ cmd: "undo", send: true, en: "Undo the last change", pt: "Desfazer a última alteração" },
