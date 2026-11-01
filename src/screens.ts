@@ -237,6 +237,15 @@ export interface LibraryItem {
 	title?: string;
 	authors?: string;
 	year?: string | number;
+	/** A group library's item: "group:<id>" and the group's name. Groups are read-only. */
+	library?: string;
+	group?: string;
+}
+
+/** How a command names an item: the citekey (or key), and the group library when it is in one. */
+export function itemRef(it: LibraryItem): string {
+	const ref = it.citekey || it.key;
+	return it.library ? `${ref} in ${it.library}` : ref;
 }
 
 export interface LibraryLayout {
@@ -270,7 +279,7 @@ export function libraryLines(o: LibraryLayout): string[] {
 		const start = Math.max(0, Math.min(o.selected - Math.floor(fit / 2), o.items.length - fit));
 		for (const [k, it] of o.items.slice(start, start + fit).entries()) {
 			const chosen = start + k === o.selected;
-			const meta = [it.authors, it.year, it.citekey].filter(Boolean).join(" · ");
+			const meta = [it.authors, it.year, it.citekey, it.group].filter(Boolean).join(" · ");
 			out.push(chosen ? `${p.mark(g.pointer)} ${p.text(cut(it.title || it.key, w - 2))}` : `  ${p.muted(cut(it.title || it.key, w - 2))}`, `  ${p.dim(cut(meta, w - 2))}`);
 		}
 	}

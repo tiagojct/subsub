@@ -349,6 +349,7 @@ export const SUGGESTIONS = {
 export const TOOLS = {
 	en: {
 		find_items: "search the library",
+		list_libraries: "list the libraries",
 		get_figure: "cut a figure out of the PDF",
 		standalone_items: "list files without a parent item",
 		set_parent_items: "give files a parent item",
@@ -410,6 +411,7 @@ export const TOOLS = {
 	},
 	pt: {
 		find_items: "pesquisar na biblioteca",
+		list_libraries: "listar as bibliotecas",
 		get_figure: "recortar uma figura do PDF",
 		standalone_items: "listar ficheiros sem item principal",
 		set_parent_items: "dar um item principal aos ficheiros",

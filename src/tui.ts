@@ -17,7 +17,7 @@ import { PURPOSES } from "./read.ts";
 import { allowedFile, listNotes, OPENABLE, openFile } from "./files.ts";
 import { Agent, findLibrary, isDialog, Side, withHints } from "./rpc.ts";
 import { ApprovalView } from "./dialogs.ts";
-import { type Choice, ChoiceView, InputView, LibraryView, type LibraryItem, NotesView } from "./screens.ts";
+import { itemRef, type Choice, ChoiceView, InputView, LibraryView, type LibraryItem, NotesView } from "./screens.ts";
 import { glyphs as chooseGlyphs, type Glyphs, workingFrames } from "./skin.ts";
 import { bannerLines, type Entry, entriesFromMessages, loadPalette, messageText, type Palette, schemeFromEnv, type Scheme, SIDE_WIDTH, sideLines, transcriptLines } from "./tui-view.ts";
 import { loadWords, type Words } from "./words.ts";
@@ -492,7 +492,7 @@ export class TuiApp {
 	/** Alt+L, /library: search as you type; Enter puts /read <item> in the editor (the Librarian gets the key), ctrl+n puts /lit-note <item>. */
 	async openLibrary(): Promise<void> {
 		if (this.overlay) return;
-		const ref = (it: LibraryItem) => it.citekey || it.key;
+		const ref = itemRef;
 		this.open(
 			new LibraryView({
 				...this.common(),

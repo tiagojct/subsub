@@ -31,6 +31,10 @@ O Sub-Sub foi feito para partir da sua biblioteca do Zotero: lê o que já tem e
 
 O Sub-Sub também arranca quando o Zotero não está aberto. A linha da biblioteca diz então "O Zotero está fechado: só pesquisa". No Investigador, o Sub-Sub pode pesquisar no PubMed, na Europe PMC e no OpenAlex, ler textos completos em acesso aberto e escrever notas na pasta do Sub-Sub. Não pode pesquisar, ler, importar, etiquetar nem desfazer alterações na biblioteca, e não pode anexar notas aos itens. O Bibliotecário precisa do Zotero. O `subsub doctor` mostra uma linha NOTE para o Zotero, não FIX. Abra o Zotero e escreva `/subsub` para ligar.
 
+## O Sub-Sub pode usar bibliotecas de grupo?
+
+Sim, para leitura. A pesquisa na biblioteca abrange a sua biblioteca e as bibliotecas de grupo do seu Zotero, e marca cada item de um grupo com o nome do grupo. O Sub-Sub pode ler, citar e escrever notas sobre itens de um grupo, mas não os pode alterar (etiquetas, campos, importações): altere-os na janela do Zotero.
+
 ## Outros problemas
 
 - "command not found: subsub": abra uma nova janela do terminal. Se o problema continuar, escreva outra vez o comando de instalação.

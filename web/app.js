@@ -365,7 +365,9 @@ function renderItems(items, message) {
 	if (message) return ul.append(el("li", { class: "muted", text: message }));
 	const researcher = mode() === "researcher";
 	for (const it of items) {
-		const ref = it.citekey || it.key;
+		// A group library's item says its library (keep in step with itemRef in src/screens.ts).
+		const ref = it.library ? `${it.citekey || it.key} in ${it.library}` : it.citekey || it.key;
+		const scope = it.library ? `groups/${it.library.split(":")[1]}` : "library";
 		const run = (cmd) => () => {
 			closeSide();
 			sendMessage(`/${cmd} ${ref}`);
@@ -375,13 +377,13 @@ function renderItems(items, message) {
 				"li",
 				{},
 				el("div", { class: "item-title", text: it.title || it.key }),
-				el("div", { class: "item-meta", text: [it.authors, it.year, it.citekey].filter(Boolean).join(" · ") }),
+				el("div", { class: "item-meta", text: [it.authors, it.year, it.citekey, it.group].filter(Boolean).join(" · ") }),
 				el(
 					"div",
 					{ class: "item-actions" },
 					researcher ? el("button", { type: "button", text: t("readItem"), onclick: run("read") }) : null,
 					researcher ? el("button", { type: "button", text: t("noteItem"), onclick: run("lit-note") }) : null,
-					el("a", { href: `zotero://select/library/items/${encodeURIComponent(it.key)}`, text: "Zotero" }),
+					el("a", { href: `zotero://select/${scope}/items/${encodeURIComponent(it.key)}`, text: "Zotero" }),
 				),
 			),
 		);

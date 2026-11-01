@@ -30,6 +30,10 @@ Sub-Sub is made to start from your Zotero library: it reads what you already hav
 
 Sub-Sub also starts when Zotero is not running. The library line then says "Zotero is closed: search only". In the Researcher, Sub-Sub can search PubMed, Europe PMC and OpenAlex, read open-access full texts and write notes in the Sub-Sub folder. It cannot search, read, import, tag or undo in the library, and it cannot attach notes to items. The Librarian needs Zotero. `subsub doctor` shows a NOTE for Zotero, not a FIX. Start Zotero and type `/subsub` to connect.
 
+## Can Sub-Sub use group libraries?
+
+Yes, for reading. The library search covers your own library and the group libraries in your Zotero, and marks each item from a group with the group's name. Sub-Sub can read, quote and write notes on items in a group, but it cannot change them (tags, fields, imports): change them in the Zotero window.
+
 ## Other problems
 
 - "command not found: subsub": open a new terminal window. If the problem continues, type the install command again.

@@ -27,7 +27,7 @@ import { starbuckCheck } from "../src/doctor.ts";
 
 const TOOL_NAMES = [
 	"zotero_status", "zotero_find_items", "zotero_get_item", "zotero_history", "zotero_tag_items",
-	"zotero_undo", "zotero_trash_items", "zotero_library_overview", "zotero_bakeoff_submit",
+	"zotero_undo", "zotero_trash_items", "zotero_library_overview", "zotero_bakeoff_submit", "zotero_list_libraries",
 	"scholar_search_pubmed", "scholar_attach_note", "scholar_export_bibliography", "scholar_queue_imports",
 	"verify_check_manuscript", "verify_record_claims",
 ];
@@ -166,6 +166,39 @@ test("Zotero closed: the prompt says what works without it, only when Zotero is 
 	bridge.responses.zotero_status = { isError: false, text: "{}", data: { zotero: "unreachable", error: "connection refused" } };
 	await fp.commands["subsub-refresh"].handler("", ctx);
 	assert.match(await turn(), /# Zotero is closed/);
+});
+
+test("group libraries: the library search covers the groups, and a group item says its library", async () => {
+	const { itemRef } = await import("../src/screens.ts");
+	assert.equal(itemRef({ key: "K1", citekey: "silva2025" }), "silva2025");
+	assert.equal(itemRef({ key: "K2", library: "group:4242" }), "K2 in group:4242");
+	const { fp, bridge, ctx } = await setup();
+	const calls: Array<Record<string, unknown>> = [];
+	bridge.call = async (name: string, args: Record<string, unknown>) => {
+		calls.push({ name, ...args });
+		if (name === "zotero_status") return { isError: false, text: "{}", data: { zotero: "reachable" } };
+		if (name === "zotero_library_overview") return { isError: false, text: "{}", data: { items: 4 } };
+		if (name === "zotero_list_libraries") return { isError: false, text: "{}", data: { libraries: [{ library: "user", name: "My Library" }, { library: "group:4242", name: "Lung lab" }] } };
+		if (name === "zotero_find_items") {
+			const items = args.library ? [{ key: "GGGG1111", title: "Spirometry in the lab" }] : [{ key: "AAAA1111", citekey: "jacinto2025", title: "Spirometry" }];
+			return { isError: false, text: "{}", data: { items } };
+		}
+		return { isError: false, text: "{}", data: {} };
+	};
+	await fp.commands["subsub-refresh"].handler("", ctx);
+	let status = "";
+	const rpc = { ...ctx, mode: "rpc", ui: { ...ctx.ui, setStatus: (k: string, v: string) => { if (k === "subsub.find") status = v; } } };
+	await fp.commands["subsub-find"].handler("spirometry", rpc);
+	const found = JSON.parse(status);
+	assert.deepEqual(found.items.map((i: any) => [i.key, i.library, i.group]), [["AAAA1111", undefined, undefined], ["GGGG1111", "group:4242", "Lung lab"]]);
+	assert.ok(calls.some((c) => c.name === "zotero_find_items" && c.library === "group:4242"));
+	// without groups, one search as before
+	calls.length = 0;
+	bridge.call = async (name: string, args: Record<string, unknown>) => (calls.push({ name, ...args }), { isError: false, text: "{}", data: name === "zotero_status" ? { zotero: "reachable" } : name === "zotero_list_libraries" ? { libraries: [{ library: "user" }] } : { items: [] } });
+	await fp.commands["subsub-refresh"].handler("", ctx);
+	calls.length = 0;
+	await fp.commands["subsub-find"].handler("x", rpc);
+	assert.equal(calls.filter((c) => c.name === "zotero_find_items").length, 1);
 });
 
 test("gate kinds", () => {

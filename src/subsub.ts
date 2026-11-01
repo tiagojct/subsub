@@ -47,7 +47,7 @@ import { headerLines, LIBRARIAN_THEME, type LibraryState, paintPreview, QUOTES, 
 import { footerLines, toolRenderers, usageTotals } from "./chrome.ts";
 import { ApprovalView } from "./dialogs.ts";
 import { allowedFile, listNotes, OPENABLE, openFile } from "./files.ts";
-import { LibraryView, NotesView, type LibraryItem } from "./screens.ts";
+import { itemRef, LibraryView, NotesView, type LibraryItem } from "./screens.ts";
 import { glyphs, paintFromTheme, workingFrames } from "./skin.ts";
 import { loadWords, toolWord, type Words } from "./words.ts";
 import { systemAddition } from "./prompt.ts";
@@ -277,15 +277,11 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	/** /library: search as you type; Enter puts /read <item> in the box (the Librarian gets the key), ctrl+n puts /lit-note <item>. */
 	async function openLibrary(ctx: ExtensionContext): Promise<void> {
 		if (!screenOk(ctx)) return;
-		const ref = (it: LibraryItem) => it.citekey || it.key;
+		const ref = itemRef;
 		await ctx.ui.custom<void>(
 			(tui, theme, _keys, done) =>
 				new LibraryView({
-					search: async (query) => {
-						const r = await current().call("zotero_find_items", { query, limit: 25 });
-						if (r.isError) throw new Error(r.text);
-						return ((r.data as { items?: LibraryItem[] })?.items ?? []).filter((it) => it && it.key);
-					},
+					search: searchLibraries,
 					choose: (it) => {
 						ctx.ui.setEditorText(mode === "researcher" ? `/read ${ref(it)}` : ref(it));
 						done();
@@ -326,6 +322,33 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 				: text;
 	}
 
+	/** The group libraries in Zotero, from the last library check (read-only; searched with the user's library). */
+	let groups: Array<{ library: string; name: string }> = [];
+
+	/** Search the user's library, then each group library; a group's items carry the group. */
+	async function searchLibraries(query: string): Promise<LibraryItem[]> {
+		const first = await current().call("zotero_find_items", { query, limit: 25 });
+		if (first.isError) throw new Error(first.text);
+		const items = ((first.data as { items?: LibraryItem[] })?.items ?? []).filter((it) => it && it.key);
+		for (const g of groups) {
+			const r = await current().call("zotero_find_items", { query, limit: 25, library: g.library });
+			if (r.isError) continue;
+			for (const it of (r.data as { items?: LibraryItem[] })?.items ?? []) if (it?.key) items.push({ ...it, library: g.library, group: g.name });
+		}
+		return items;
+	}
+
+	async function refreshGroups(): Promise<void> {
+		if (!current().has("zotero_list_libraries")) return;
+		try {
+			const r = await current().call("zotero_list_libraries", {});
+			const all = ((r.data as { libraries?: Array<{ library: string; name?: string }> })?.libraries ?? []);
+			groups = r.isError ? [] : all.filter((l) => l.library?.startsWith("group:")).map((l) => ({ library: l.library, name: l.name || l.library }));
+		} catch {
+			groups = [];
+		}
+	}
+
 	async function refreshLibrary(): Promise<void> {
 		try {
 			const st = await current().call("zotero_status", {});
@@ -336,6 +359,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 				const ov = await current().call("zotero_library_overview", {});
 				const o = (ov.data ?? {}) as Record<string, unknown>;
 				Object.assign(library, { zotero: "reachable", items: o.items as number, toReview: o.awaiting_review as number });
+				await refreshGroups();
 			}
 		} catch {
 			library.zotero = "down";
@@ -846,6 +870,8 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 							? ov.text
 							: `Items: ${o.items}. Without tags: ${o.without_manual_tags}. Missing facets: ${JSON.stringify(o.missing_facet)}. Awaiting review (_agent): ${o.awaiting_review}.`,
 					);
+					await refreshGroups();
+					if (groups.length) lines.push(`Group libraries (read-only, searched with yours): ${groups.map((g) => g.name).join(", ")}.`);
 				}
 			}
 			redraw();
@@ -870,8 +896,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			const q = String(args ?? "").trim();
 			let out: Record<string, unknown>;
 			try {
-				const r = await current().call("zotero_find_items", { query: q, limit: 25 });
-				out = r.isError ? { error: r.text } : { items: (r.data as { items?: unknown[] })?.items ?? [] };
+				out = { items: await searchLibraries(q) };
 			} catch (err) {
 				out = { error: (err as Error).message };
 			}
