@@ -58,6 +58,19 @@ function sourceOf(entry: unknown): string | undefined {
  * Make sure settings.json in the agent folder declares the Sub-Sub package.
  * Other settings are kept. Returns what happened, for tests and messages.
  */
+/** pi's own commands (pi install, pi mcp list, ...): their arguments go to pi unchanged. */
+const PI_COMMANDS = new Set(["install", "remove", "uninstall", "update", "list", "config", "auth", "mcp"]);
+
+/**
+ * Arguments for a Sub-Sub session: pi's MCP support is off. A server from an mcp.json file would get
+ * the library content and could change the library without Sub-Sub's previews. To use other MCP
+ * servers with Sub-Sub, add the Sub-Sub package to plain pi.
+ */
+export function withoutMcp(args: string[]): string[] {
+	if (PI_COMMANDS.has(args[0] ?? "") || args.includes("--no-mcp")) return args;
+	return ["--no-mcp", ...args];
+}
+
 export function ensureSettings(agentDir: string, packageDir: string = PACKAGE_DIR): "created" | "added" | "present" | "unreadable" {
 	mkdirSync(agentDir, { recursive: true });
 	const file = join(agentDir, "settings.json");
@@ -255,7 +268,7 @@ export async function run(argv: string[] = process.argv.slice(2)): Promise<void>
 	// pi reports a first install to pi.dev and names itself to some providers; Sub-Sub sends no usage data.
 	env.PI_TELEMETRY ??= "0";
 
-	process.argv = [process.argv[0], process.argv[1], ...args];
+	process.argv = [process.argv[0], process.argv[1], ...withoutMcp(args)];
 	const index = fileURLToPath(import.meta.resolve("@earendil-works/pi-coding-agent"));
 	await import(pathToFileURL(join(dirname(index), "bundle", "cli.js")).href);
 }

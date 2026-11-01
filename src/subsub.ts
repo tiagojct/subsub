@@ -53,7 +53,7 @@ import { glyphs, paintFromTheme, workingFrames } from "./skin.ts";
 import { loadWords, toolWord, type Words } from "./words.ts";
 import { systemAddition } from "./prompt.ts";
 import { logUsage } from "./usage.ts";
-import { activeTools, gateKind, SERVER_PREFIXES, toolsFor, unavailableReason, outboundProblem } from "./roles.ts";
+import { activeTools, duplicateServerTool, gateKind, SERVER_PREFIXES, toolsFor, unavailableReason, outboundProblem } from "./roles.ts";
 
 const MODE_ENTRY = "subsub-mode";
 
@@ -647,6 +647,11 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		const schema = schemas.get(name);
 		if (schema) coerceArgs(schema, input);
 		resolvePathArgs(name, input, (p) => normalizeToolPath(p, ctx.cwd));
+		const twin = duplicateServerTool(name, pi.getAllTools().find((t) => t.name === name)?.description, bridge?.tools ?? []);
+		if (twin) {
+			if (benchOut) record({ kind: "duplicate_server_blocked", tool: name });
+			return { block: true, reason: `${name} reaches Sub-Sub's server outside Sub-Sub, without the mode check and the previews. Use ${twin} instead.` };
+		}
 		if (SERVER_PREFIXES.some((p) => name.startsWith(p))) {
 			const why = unavailableReason(name, mode, registered(), toolOpts());
 			if (why) {

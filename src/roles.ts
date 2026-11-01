@@ -98,6 +98,32 @@ export function activeTools(current: string[], next: string[], standalone: boole
 	return [...new Set([...kept, ...next])];
 }
 
+/** Tool names of Sub-Sub's servers without the prefix, for when the servers are not running. */
+const KNOWN_SERVER_TOOLS = [...ZOTERO_READ, ...ZOTERO_CHECKS, ...PREVIEW_WRITES, ...CONFIRM_WRITES];
+
+/**
+ * The Sub-Sub name of a tool that pi's MCP support reaches on Sub-Sub's own servers (for example
+ * zotero-local-mcp in the user's mcp.json), or undefined. pi names these tools mcp__<server>__<tool>.
+ * Such a call skips the mode check and the preview, so the gate blocks it. A tool matches when its
+ * name and description are those of a Sub-Sub tool, or when the server name has "zotero" or
+ * "scholar" and the tool name is one of Sub-Sub's.
+ */
+export function duplicateServerTool(name: string, description: string | undefined, own: Array<{ name: string; fullName: string; description: string }>): string | undefined {
+	if (!name.startsWith("mcp__")) return undefined;
+	const rest = name.slice("mcp__".length);
+	const cut = rest.indexOf("__");
+	if (cut < 0) return undefined;
+	const server = rest.slice(0, cut).toLowerCase();
+	const tool = rest.slice(cut + 2);
+	const norm = (s: string) => s.replace(/-/g, "_");
+	const same = own.find((t) => norm(t.name) === tool && description !== undefined && t.description !== "" && description.trim() === t.description.trim());
+	if (same) return same.fullName;
+	if (!/zotero|scholar/.test(server)) return undefined;
+	const byName = own.find((t) => norm(t.name) === tool);
+	if (byName) return byName.fullName;
+	return KNOWN_SERVER_TOOLS.find((n) => n.slice(n.indexOf("_") + 1) === tool);
+}
+
 /** Why a Sub-Sub tool is not available now, or undefined when it is. */
 export function unavailableReason(name: string, mode: Mode, registered: string[], opts: ToolOptions = {}): string | undefined {
 	if (toolsFor(mode, registered, opts).includes(name)) return undefined;

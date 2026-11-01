@@ -2,6 +2,14 @@
 
 Sub-Sub follows the version numbers of npm: a change in the second number (0.13) adds features or changes how you use it; a change in the third (0.13.1) only fixes.
 
+## 0.25.0 (2026-11-01)
+
+- Sub-Sub runs on pi 1.4.0 (was 1.0.4). Install pi 1.4 to use the package in plain pi.
+- The `subsub` command, `subsub web` and `subsub tui` turn off pi's MCP support (`--no-mcp`). A server in an `mcp.json` file would get your library content and could change the library without Sub-Sub's previews. To use other MCP servers with Sub-Sub, add the Sub-Sub package to plain pi.
+- Inside plain pi, Sub-Sub blocks its own Zotero servers when pi reaches them through MCP (for example zotero-local-mcp in your `mcp.json`, as `mcp__zotero__tag_items`). These calls skipped the mode check and the previews. The model is told to use the Sub-Sub tool (`zotero_tag_items`) instead.
+- The themes use pi's new schema address, `https://pi.dev/schemas/theme.schema.json`.
+- Tests: `--no-mcp` for Sub-Sub sessions and not for pi's own commands, the block of the MCP copies of Sub-Sub's tools, and the themes against pi's theme schema.
+
 ## 0.24.1 (2026-11-01)
 
 - In the terminal, the tool line of a library search with several queries (your words and their synonyms, 0.24.0) shows the words it searched. It showed nothing after the tool name.

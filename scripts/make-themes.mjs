@@ -10,7 +10,7 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
-const SCHEMA = "https://raw.githubusercontent.com/earendil-works/pi/main/packages/coding-agent/src/modes/interactive/theme/theme-schema.json";
+const SCHEMA = "https://pi.dev/schemas/theme.schema.json";
 
 /** The `colors:` block of the DESIGN.md front matter as {token: "#rrggbb"}. */
 export function designColors(markdown) {

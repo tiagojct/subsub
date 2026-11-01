@@ -6,10 +6,10 @@ import { join, resolve } from "node:path";
 import { test } from "node:test";
 
 import type { Bridge, BridgeTool, CallResult } from "../src/bridge.ts";
-import { agentDirFor, chooseCwd, ensureSettings, isSelfUpdate, reviewCommand, shareAuth } from "../src/cli.ts";
+import { agentDirFor, chooseCwd, ensureSettings, isSelfUpdate, reviewCommand, shareAuth, withoutMcp } from "../src/cli.ts";
 import { findUv, loadConfig as loadCfg, refreshedArgs, SERVER_VERSION } from "../src/config.ts";
 import { fill, languageRule } from "../src/prompt.ts";
-import { unavailableReason } from "../src/roles.ts";
+import { duplicateServerTool, unavailableReason } from "../src/roles.ts";
 import { runInit, upsertEnv } from "../src/init.ts";
 import { formatChecks, runChecks } from "../src/doctor.ts";
 import { expand, loadConfig, parseEnvFile, type SubsubConfig } from "../src/config.ts";
@@ -152,6 +152,30 @@ test("standalone subsub: only Sub-Sub's tools are active", async () => {
 	} finally {
 		delete process.env.SUBSUB_CLI;
 	}
+});
+
+test("pi's MCP support: off in a Sub-Sub session, untouched for pi's own commands", () => {
+	assert.deepEqual(withoutMcp([]), ["--no-mcp"]);
+	assert.deepEqual(withoutMcp(["--mode", "rpc", "--librarian"]), ["--no-mcp", "--mode", "rpc", "--librarian"]);
+	assert.deepEqual(withoutMcp(["--no-mcp", "-c"]), ["--no-mcp", "-c"]);
+	for (const cmd of ["install", "update", "mcp", "config", "list"]) assert.deepEqual(withoutMcp([cmd, "x"]), [cmd, "x"]);
+});
+
+test("Sub-Sub's servers reached through pi's MCP support are blocked; other MCP tools pass", async () => {
+	const own = new FakeBridge().tools;
+	assert.equal(duplicateServerTool("mcp__zotero_local__tag_items", undefined, own), "zotero_tag_items");
+	assert.equal(duplicateServerTool("mcp__zlm__tag_items", "desc zotero_tag_items", own), "zotero_tag_items");
+	assert.equal(duplicateServerTool("mcp__zotero__rename_tags", undefined, []), "zotero_rename_tags");
+	assert.equal(duplicateServerTool("mcp__notes__tag_items", "Tag notes", own), undefined);
+	assert.equal(duplicateServerTool("mcp__zotero__some_other_tool", undefined, own), undefined);
+	assert.equal(duplicateServerTool("zotero_tag_items", undefined, own), undefined);
+	const { fp, ctx, bridge } = await setup(true);
+	const before = bridge.calls.length;
+	const res = await fp.handlers.tool_call[0]({ toolName: "mcp__zotero__tag_items", input: { keys: ["K"], dry_run: false } }, ctx);
+	assert.equal(res.block, true);
+	assert.match(res.reason, /Use zotero_tag_items instead/);
+	assert.equal(bridge.calls.length, before, "no preview, no call");
+	assert.equal(await fp.handlers.tool_call[0]({ toolName: "mcp__github__search_code", input: {} }, ctx), undefined);
 });
 
 test("Zotero closed: the prompt says what works without it, only when Zotero is down", async () => {
@@ -1293,13 +1317,17 @@ test("tui: the dialogs of the extension: only y applies a change; lists and ques
 test("themes: all eight load and name every required colour", async () => {
 	const { readdirSync, readFileSync } = await import("node:fs");
 	const dir = join(import.meta.dirname, "..", "themes");
-	const schema = JSON.parse(readFileSync(join(import.meta.dirname, "..", "node_modules", "@earendil-works", "pi-coding-agent", "dist", "modes", "interactive", "theme", "theme-schema.json"), "utf8"));
+	// pi checks themes against this schema when it starts (since pi 1.2.0): no keys outside it.
+	const schema = JSON.parse(readFileSync(join(import.meta.dirname, "..", "node_modules", "@earendil-works", "pi-coding-agent", "schemas", "theme.schema.json"), "utf8"));
 	const required: string[] = schema.properties.colors.required;
 	const files = readdirSync(dir).filter((f) => f.endsWith(".json"));
 	assert.deepEqual(files.sort(), ["subsub-glauca-dark-256.json", "subsub-glauca-dark.json", "subsub-glauca-light-256.json", "subsub-glauca-light.json", "subsub-try-works-dark-256.json", "subsub-try-works-dark.json", "subsub-try-works-light-256.json", "subsub-try-works-light.json"]);
 	for (const f of files) {
 		const t = JSON.parse(readFileSync(join(dir, f), "utf8"));
 		assert.equal(`${t.name}.json`, f);
+		assert.equal(t.$schema, schema.$id, `${f}: $schema`);
+		for (const k of Object.keys(t)) assert.ok(k in schema.properties, `${f}: unknown key ${k}`);
+		for (const k of Object.keys(t.colors)) assert.ok(k in schema.properties.colors.properties, `${f}: unknown colour ${k}`);
 		for (const c of required) {
 			const v = t.colors[c];
 			assert.ok(v !== undefined, `${f}: ${c}`);
