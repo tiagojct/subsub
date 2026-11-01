@@ -26,7 +26,7 @@ Two language-model raters rated every answer without knowing which version made 
 
 ## What changed for 0.20
 
-- Search: it now searches with your own words, then with close synonyms and other word forms, and says which words it used. On the four search tasks, recall rose from 0.87 to 0.96 and precision fell from 0.98 to 0.91. On 16 tasks together, precision was 0.90 against 0.85 and recall 0.94 against 0.90. The wider search sometimes lists items that are only near the topic. Check the list.
+- Search: it now searches with your own words, then with close synonyms and other word forms, and says which words it used. On the four search tasks, recall rose from 0.87 to 0.96 and precision fell from 0.98 to 0.91. On 16 tasks together, precision was 0.90 against 0.85 and recall 0.94 against 0.90. The wider search sometimes lists items that are only near the topic. Check the list. From version 0.24, the items that only a synonym found are under their own head.
 - Drafts: it now chooses a quote for each sentence first and writes the sentence from the quote. A table, "Quotes for the check", follows the draft. In a test on 18 drafts, the share of sentences not fully supported fell to 12% to 14%. In a second test on nine drafts of other tasks it was 14% and 16%, against 35% and 37% for 0.19.0. On one of the three tasks there was no change.
 - Reference checks: "not found by search" is now reported as "not confirmed".
 - Answer quality as a whole: the average score (0 to 2) went from 1.72 and 1.67 to 1.82 and 1.74 for the two raters. The gain is within the noise of a small sample. The test shows that the changes did not lower the quality of answers that were already good.

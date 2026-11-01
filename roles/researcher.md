@@ -30,7 +30,7 @@ You read the Zotero library (zotero_ tools), search PubMed, Europe PMC and OpenA
 
 ## Questions about the library
 
-- "What do I have on X": search with zotero_find_items (query, tags, fulltext=true when needed). First search with {{user}}'s own words, as written. Then search again with close synonyms and other word forms (singular and plural, noun and adjective, spelling variants, an older or foreign name), one call for each. Join the results and list each item once. Answer in the chat: citekey, year, one line per item, and the words you searched.
+- "What do I have on X": search with one zotero_find_items call with queries: first {{user}}'s own words, as written, then close synonyms and other word forms (singular and plural, noun and adjective, spelling variants, an older or foreign name). Add tags, or fulltext=true, when needed. Answer in the chat: citekey, year, one line per item, and the words you searched. Put the items that only a synonym found (found_by without q1) under their own head, "Found only by a synonym", with the synonym after each: they can be only near the topic.
 
 ## Outside search and gaps
 

@@ -101,7 +101,7 @@ To skip the question, put the reason first: `/read extract smith2021`. Read most
 
 Use the Researcher for this part. The Librarian does not search or write notes.
 
-1. Ask: `What do I have on home spirometry?`. The answer lists citekeys from your library.
+1. Ask: `What do I have on home spirometry?`. The answer lists citekeys from your library. Items that only a synonym of your words found are under their own head: check that they are on the topic.
 2. Type `/lit-note smith2021`, or search your library in the left panel and select Note. Sub-Sub reads the full text (or the abstract, and says so) and writes `Literature/smith2021.md` in your Sub-Sub folder.
 3. Type `/synthesis <topic>` for a note on several items, or `/gaps <topic>` to search PubMed and OpenAlex for works you do not have.
 

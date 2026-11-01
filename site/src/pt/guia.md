@@ -101,7 +101,7 @@ Para não ter de responder à pergunta, escreva o motivo primeiro: `/read extrac
 
 Use o modo Investigador nesta parte. O modo Bibliotecário não pesquisa nem escreve notas.
 
-1. Pergunte: `O que tenho sobre espirometria em casa?`. A resposta lista citekeys da sua biblioteca.
+1. Pergunte: `O que tenho sobre espirometria em casa?`. A resposta lista citekeys da sua biblioteca. Os itens que só um sinónimo das suas palavras encontrou ficam sob um título próprio: confirme que são sobre o tema.
 2. Escreva `/lit-note smith2021`, ou pesquise a biblioteca no painel da esquerda e selecione Nota. O Sub-Sub lê o texto completo (ou o resumo, e diz isso) e escreve `Literature/smith2021.md` na sua pasta do Sub-Sub.
 3. Escreva `/synthesis <tema>` para uma nota sobre vários itens, ou `/gaps <tema>` para procurar na PubMed e no OpenAlex obras que ainda não tem.
 
