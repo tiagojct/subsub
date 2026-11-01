@@ -123,6 +123,10 @@ O que isto mostra:
 
 Por isso, os modelos predefinidos mantêm-se: o mimo-v2.6-flash para o Bibliotecário e o mimo-v2.6-pro para o Investigador. Um modelo que adivinha argumentos é um risco com as ferramentas menos usadas. Se quiser um custo mais baixo na investigação, o qwen3.8-flash é uma boa escolha: selecione-o com o botão do modelo no modo Investigador.
 
+## Um limite de custo
+
+Para manter uma conversa dentro de um orçamento, acrescente `"costLimit": 2` (dólares americanos) ao ficheiro de definições `~/.config/subsub/config.json`. Quando a conversa chega a 80% do limite, o Sub-Sub avisa. A partir do limite, pergunta antes de cada pedido novo ao modelo; um não interrompe o pedido. O Sub-Sub não interrompe uma resposta em curso. A vista no navegador mostra o custo da conversa ao lado do modelo. Uma conversa nova começa do zero. O custo é o que o pi calcula a partir dos preços do fornecedor; alguns fornecedores não o indicam, e nesse caso o Sub-Sub não pode verificar o limite.
+
 ## Para onde vão os seus dados
 
 O fornecedor do modelo recebe as suas mensagens e o que as ferramentas devolvem: títulos, resumos, etiquetas e passagens de textos completos. O local onde o fornecedor os processa tem importância perante o RGPD e para o trabalho não publicado.

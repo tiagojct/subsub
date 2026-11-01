@@ -257,7 +257,10 @@ function renderHeader() {
 	$("starbuck-label").title = t("starbuckHint");
 	const m = state?.model ?? session?.model;
 	const none = !m || !m.id || m.id === "unknown";
-	$("model-btn").textContent = $("model-btn-side").textContent = none ? t("noModel") : m.id;
+	// With a cost limit in the settings, the conversation's cost and the limit follow the model.
+	const c = state?.cost;
+	const cost = c && typeof c.spent === "number" ? ` · $${c.spent.toFixed(2)}/$${c.limit.toFixed(2)}` : "";
+	$("model-btn").textContent = $("model-btn-side").textContent = none ? t("noModel") : m.id + cost;
 	for (const b of [$("model-btn"), $("model-btn-side")]) b.classList.toggle("needs", none);
 	const lib = $("library");
 	const txt = lib.querySelector(".library-text") ?? lib;

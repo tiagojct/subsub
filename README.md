@@ -142,6 +142,7 @@ subsub review apply 13-31
 | `defaultMode` | `researcher` or `librarian` | `researcher` |
 | `addons` | `["starbuck"]` adds reference checks | `[]` |
 | `usageLog` | `true` keeps the pilot's usage log on this computer (`subsub usage`) | off |
+| `costLimit` | US dollars for one conversation, for example `2`. At 80% Sub-Sub says so; from the limit on, it asks before each new request to the model. A running answer is not stopped. The browser view then shows the cost next to the model | none |
 | `serverDir` | A local copy of zotero-local-mcp, for development | the PyPI release |
 | `starbuckDir` | A local copy of Starbuck, for development | the pinned release |
 | `look`, `quotes`, `themes` | The terminal look (header, footer, approval screen, tool lines), the Moby-Dick quotations, and the terminal colours (`subsub-glauca`, `subsub-try-works`, or `false` for your pi theme). `themes` can be `{"researcher": "...", "librarian": "..."}`: the Librarian uses `subsub-try-works` unless you say otherwise | on, on, `subsub-glauca` |

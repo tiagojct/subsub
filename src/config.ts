@@ -107,6 +107,8 @@ export interface SubsubConfig {
 	starbuckDir?: string;
 	/** The pilot's usage log, kept on this computer only (see usage.ts). Off by default. */
 	usageLog?: boolean;
+	/** US dollars per session: a note at 80%, a question before each new request from 100% (see cost.ts). */
+	costLimit?: number;
 }
 
 export function expand(p: string, home?: string): string {
@@ -208,6 +210,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): SubsubConfig {
 				? settingsFile(vault, "rules")
 				: undefined,
 		startTimeout: user.startTimeout ?? 45,
+		costLimit: typeof user.costLimit === "number" && user.costLimit > 0 ? user.costLimit : undefined,
 		uvPath: user.uvPath ? expand(user.uvPath, home) : undefined,
 		look: user.look,
 		quotes: user.quotes,

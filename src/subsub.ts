@@ -45,6 +45,7 @@ import { describeArgs, formatPreview, isEmptyPreview } from "./preview.ts";
 import { perMinuteWait, providerTrouble, TROUBLE_TEXT, TROUBLE_TEXT_PT } from "./keys.ts";
 import { headerLines, LIBRARIAN_THEME, type LibraryState, paintPreview, QUOTES, type Scheme, schemeFromAnsi, themeName } from "./look.ts";
 import { footerLines, toolRenderers, usageTotals } from "./chrome.ts";
+import { type CostLevel, costStatus, money, usesModel } from "./cost.ts";
 import { ApprovalView } from "./dialogs.ts";
 import { allowedFile, listNotes, OPENABLE, openFile } from "./files.ts";
 import { itemRef, LibraryView, NotesView, type LibraryItem } from "./screens.ts";
@@ -181,6 +182,8 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	let resumeTimer: ReturnType<typeof setTimeout> | undefined;
 	let turnStart = 0;
 	let turnTools = 0;
+	/** The cost level already noted in this session, so each note comes once. */
+	let costNoted: CostLevel | undefined;
 	let webCtx: ExtensionContext | undefined;
 	function emitWeb(): void {
 		const ctx = webCtx;
@@ -195,6 +198,8 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			userName: cfg.userName ?? null,
 			vault: cfg.vault ?? null,
 			starbuck: starbuckEnabled(cfg),
+			// Shown next to the model only when there is a limit.
+			cost: cfg.costLimit ? { spent: usageTotals(ctx.sessionManager.getEntries()).cost, limit: cfg.costLimit } : null,
 		};
 		try {
 			ctx.ui.setStatus("subsub.web", JSON.stringify(state));
@@ -466,6 +471,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	}
 
 	pi.on("session_start", async (_event, ctx) => {
+		costNoted = undefined; // a new or another conversation: its own cost
 		if (!bridge) {
 			const b = new Bridge();
 			await b.start(deps.specs ?? serverSpecs(cfg), cfg.startTimeout * 1000);
@@ -555,6 +561,17 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	// A per-minute limit (free tiers): wait as long as the provider says, then continue the task,
 	// up to three times per request of the user. Anything the user types cancels the wait.
 	pi.on("agent_end", async (_event, ctx) => {
+		const spent = costStatus(usageTotals(ctx.sessionManager.getEntries()).cost, cfg.costLimit);
+		if (spent.level !== "ok" && costNoted !== spent.level) {
+			costNoted = spent.level;
+			ctx.ui.notify(
+				spent.level === "near"
+					? L(`Sub-Sub: this conversation has used 80% of your cost limit (${money(spent.spent)} of ${money(spent.limit!)}).`, `Sub-Sub: esta conversa já usou 80% do seu limite de custo (${money(spent.spent)} de ${money(spent.limit!)}).`)
+					: L(`Sub-Sub: this conversation has reached your cost limit (${money(spent.spent)} of ${money(spent.limit!)}). Sub-Sub will ask before each new request.`, `Sub-Sub: esta conversa atingiu o seu limite de custo (${money(spent.spent)} de ${money(spent.limit!)}). O Sub-Sub vai perguntar antes de cada pedido novo.`),
+				"warning",
+			);
+		}
+		if (cfg.costLimit) emitWeb(); // the cost next to the model in the browser view
 		if (turnStart) logUsage(cfg.usageLog, { ev: "turn", seconds: Math.round((Date.now() - turnStart) / 1000), tools: turnTools, error: providerTrouble(lastError) ?? (lastError ? "other" : undefined) });
 		turnStart = 0;
 		const wait = perMinuteWait(lastError);
@@ -582,6 +599,19 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		resumeTimer = undefined;
 		resumes = 0;
 		const cmd = /^\/([\w-]+)(?:\s|$)/.exec(event.text.trim())?.[1];
+		// Over the cost limit: ask before each new request to the model (a running answer is not cut).
+		const spent = costStatus(usageTotals(ctx.sessionManager.getEntries()).cost, cfg.costLimit);
+		if (spent.level === "over" && usesModel(event.text)) {
+			const text = L(
+				`This conversation has cost ${money(spent.spent)}, over your limit of ${money(spent.limit!)} (costLimit in the settings). Send this request to the model?`,
+				`Esta conversa já custou ${money(spent.spent)}, acima do seu limite de ${money(spent.limit!)} (costLimit nas definições). Enviar este pedido ao modelo?`,
+			);
+			const go = ctx.hasUI ? await ctx.ui.confirm(L("Sub-Sub: cost limit", "Sub-Sub: limite de custo"), text) : false;
+			if (!go) {
+				if (!ctx.hasUI) ctx.ui.notify(text, "warning");
+				return { action: "handled" };
+			}
+		}
 		// The usage log keeps the kind of request and its length, never its text.
 		if (cmd !== "subsub-refresh") logUsage(cfg.usageLog, { ev: "ask", kind: cmd ? `/${cmd}` : "message", words: event.text.trim().split(/\s+/).filter(Boolean).length });
 		if (mode === "librarian" && cmd && RESEARCH_PROMPTS.includes(cmd)) {

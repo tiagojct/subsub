@@ -201,6 +201,38 @@ test("group libraries: the library search covers the groups, and a group item sa
 	assert.equal(calls.filter((c) => c.name === "zotero_find_items").length, 1);
 });
 
+test("cost limit: a note at 80% once, then a question before each new request; commands that do not use the model pass", async () => {
+	const { costStatus } = await import("../src/cost.ts");
+	assert.equal(costStatus(0.5, 1).level, "ok");
+	assert.equal(costStatus(0.8, 1).level, "near");
+	assert.equal(costStatus(1, 1).level, "over");
+	assert.equal(costStatus(null, 1).level, "ok", "unknown cost: no question");
+	assert.equal(costStatus(5, undefined).level, "ok", "no limit");
+	const fp = fakePi();
+	await createSubsub(fp.pi as any, { config: { ...CFG, costLimit: 1 }, bridge: new FakeBridge() as unknown as Bridge });
+	const { ctx, asked, notes } = fakeCtx({ confirm: false });
+	let cost = 0.5;
+	ctx.sessionManager.getEntries = () => [{ type: "message", message: { role: "assistant", usage: { totalTokens: 10, cost: { total: cost } } } }];
+	for (const h of fp.handlers.session_start) await h({ reason: "startup" }, ctx);
+	const end = async () => { for (const h of fp.handlers.agent_end) await h({}, ctx); };
+	const input = async (text: string) => fp.handlers.input[0]({ text }, ctx);
+	await end();
+	assert.ok(!notes.some((n) => /limit/i.test(n)));
+	cost = 0.85;
+	await end();
+	await end();
+	assert.equal(notes.filter((n) => /80%/.test(n)).length, 1, "the note comes once");
+	assert.deepEqual(await input("hello"), { action: "continue" });
+	cost = 1.2;
+	assert.deepEqual(await input("hello"), { action: "handled" }, "a no stops the request");
+	assert.match(asked.at(-1)!.message, /\$1\.20.*\$1\.00/);
+	assert.deepEqual(await input("/subsub-refresh"), { action: "continue" }, "no question for a command that does not use the model");
+	const yes = fakeCtx({ confirm: true });
+	yes.ctx.sessionManager.getEntries = ctx.sessionManager.getEntries;
+	assert.deepEqual(await fp.handlers.input[0]({ text: "go on" }, yes.ctx), { action: "continue" });
+	assert.equal(yes.asked.length, 1, "asked again for each new request");
+});
+
 test("gate kinds", () => {
 	assert.equal(gateKind("zotero_tag_items", { dry_run: false }), "preview");
 	assert.equal(gateKind("zotero_tag_items", {}), null);

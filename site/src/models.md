@@ -122,6 +122,10 @@ What this shows:
 
 So the defaults stay: mimo-v2.6-flash for the Librarian, mimo-v2.6-pro for the Researcher. A model that guesses arguments is a risk with tools that are used less often. If you want a lower cost for research, qwen3.8-flash is a good choice: select it with the model button in the Researcher.
 
+## A cost limit
+
+To keep a conversation within a budget, add `"costLimit": 2` (US dollars) to the settings file `~/.config/subsub/config.json`. When the conversation reaches 80% of the limit, Sub-Sub says so. From the limit on, it asks before each new request to the model; a no stops the request. Sub-Sub does not stop an answer that is running. The browser view shows the cost of the conversation next to the model. A new conversation starts from zero. The cost is what pi counts from the provider's prices; some providers do not report it, and then Sub-Sub cannot check the limit.
+
 ## Where your data goes
 
 The model provider receives your messages and what the tools return: titles, abstracts, tags, and passages of full texts. Where the provider processes them matters under the GDPR, and for unpublished work.
