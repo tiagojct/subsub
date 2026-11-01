@@ -2,6 +2,10 @@
 
 Sub-Sub follows the version numbers of npm: a change in the second number (0.13) adds features or changes how you use it; a change in the third (0.13.1) only fixes.
 
+## 0.24.1 (2026-11-01)
+
+- In the terminal, the tool line of a library search with several queries (your words and their synonyms, 0.24.0) shows the words it searched. It showed nothing after the tool name.
+
 ## 0.24.0 (2026-11-01)
 
 With the Zotero server 0.7.0.
