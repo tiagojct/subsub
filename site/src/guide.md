@@ -118,7 +118,7 @@ Sub-Sub drafts text for a manuscript or a thesis only when you ask, and marks th
 5. It looks for gaps, checks the references and writes one note in `Research/`.
 6. It lists the works worth adding. Say which ones, and it imports them in the same conversation: one preview for all. Then it offers to tag them.
 
-`/lit` is a rapid review, not a systematic review: one AI screens, with no second reviewer, no registered protocol and no formal risk-of-bias assessment. Each note says so in a section, "What this review is". Use it to scope a question, for a background section or as a first search. For a systematic review, start from its searches and screening log, then screen in duplicate, assess the risk of bias and report to PRISMA.
+`/lit` is a rapid review, not a systematic review: one AI screens, with no second reviewer, no registered protocol and no formal risk-of-bias assessment. Each note says so in a section, "What this review is". Use it to scope a question, for a background section or as a first search. For a systematic review, start from its searches and screening log, then screen in duplicate, assess the risk of bias and report to PRISMA. The note's flow diagram counts the duplicates removed and the works already in your library. At the end, Sub-Sub offers a RIS file of the screened works, which Rayyan and Covidence import for a second screening.
 
 To get a reading list in place of a review, type `/lit reading list:` and your topic, for example `/lit reading list: home spirometry in children with asthma`. In the browser, select Reading list. Sub-Sub searches and screens in the same way. Then it writes the works to read, the order to read them in and questions to read each one with. It states no results.
 

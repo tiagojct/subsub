@@ -109,7 +109,7 @@ Commands in Sub-Sub:
 | `/check-library` | Check the whole library: duplicates, retracted or corrected works, files without a parent item. One report, then one preview to tag retracted works `_retracted` |
 | `/import-queue [path]` | Import the references in the import queue note |
 | `/read [reason] <citekey>` | Guided reading of one paper. Sub-Sub asks why you read it (background, one fact, extraction for a review, critique), finds the passages and asks questions; you write the answers. For extraction it adds a row to your extraction sheet in `Research/` |
-| `/lit <question>` | Literature review: the library first, then one merged search; an evidence table, agreement, disagreement and open questions; one note in `Research/` |
+| `/lit <question>` | Literature review: the library first, then one merged search; an evidence table, agreement, disagreement and open questions; one note in `Research/`, with a flow of the counts (duplicates removed, already in the library, screened, read, used). On request, a RIS file of the screened works for Rayyan or Covidence |
 | `/compare <question or citekeys>` | A matrix of sources: claim, evidence, caveats, confidence |
 | `/lit-note <citekey>` | A literature note on one item, from its full text |
 | `/synthesis <topic>` | A synthesis of what the library says on a topic |

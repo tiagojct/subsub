@@ -20,7 +20,7 @@ Make a short slug from the topic: lower case, hyphens, at most five words. Use t
 
 1. Library first: one zotero_find_items call for the topic with queries: the user's own words first, then close synonyms and word forms (and the topic tags). Note what the library already has. Check that the items that only a synonym found (found_by without q1) are on the topic before you use them.
 2. Outside: scholar_search_multi with three or four phrasings of the question (synonyms, the test or drug name, the condition name, MeSH terms). Give include_terms (the key concepts) and exclude_terms (populations or designs outside the question) so that the server pre-screens the results. Use year limits when the question needs recent work.
-3. Screen. For every work in the merged list, decide: read, maybe, or exclude, with a reason of a few words. Prefer systematic reviews, guidelines and primary studies with the right design. Write the screening log to `Research/.plans/<slug>-screening.md`: a table (#, work, identifier, pre-screen, decision, reason) and the counts for a flow diagram: found by the searches, unique works, pre-screen excluded, screened, read, used.
+3. Screen. For every work in the merged list, decide: read, maybe, or exclude, with a reason of a few words. Prefer systematic reviews, guidelines and primary studies with the right design. Write the screening log to `Research/.plans/<slug>-screening.md`: a table (#, work, identifier, pre-screen, decision, reason) and the counts for a flow diagram: found by the searches (the library search included), duplicates removed, unique works, of these already in the library, pre-screen excluded, screened, read, used.
 4. Read before you summarise:
    - Library items: zotero_get_fulltext, or the abstract when there is no full text.
    - Open-access works: scholar_read_oa_fulltext, first the section list, then only the sections you need (usually methods and results).
@@ -62,6 +62,8 @@ review_type: AI-assisted rapid review (not a systematic review)
 question: "<question in one sentence>"
 searches: ["<phrasing 1>", "<phrasing 2>", "<phrasing 3>"]
 sources_found: <number of unique works>
+duplicates_removed: <number>
+sources_in_library: <number of unique works already in the library>
 sources_screened: <number>
 sources_read: <number>
 sources_used: <number>
@@ -94,7 +96,8 @@ Under Methods, after the text, draw the flow of works with the counts of the scr
 
 ```mermaid
 flowchart TD
-  A["Found by the searches: <n>"] --> B["Unique works: <n>"]
+  A["Found by the searches: <n>"] --> B["Unique works: <n> (in the library: <n>)"]
+  A -.-> X0["Duplicates removed: <n>"]
   B -.-> X1["Excluded by the pre-screen: <n>"]
   B --> C["Screened: <n>"]
   C -.-> X2["Excluded at screening: <n>"]
@@ -103,7 +106,7 @@ flowchart TD
   D --> E["Used in this note: <n>"]
 ```
 
-The counts must add up: unique works = pre-screen excluded + screened; screened = excluded at screening + read; read = not used + used.
+The counts must add up: found = duplicates removed + unique works; unique works = pre-screen excluded + screened; screened = excluded at screening + read; read = not used + used.
 
 If a step fails (a service does not answer, a full text cannot be read), do not stop. Finish the note, mark the step "BLOCKED: <what failed>", and set verification: BLOCKED.
 
@@ -129,3 +132,5 @@ When the user asks for a reading list (for example `/lit reading list: <topic>`,
 The Methods section has the same flow diagram, with "On the reading list: <n>" as the last box. "What it studies" says what the work asks and how, never what it found. Do not state results, effect sizes or conclusions anywhere in the note. Then give the user the path, the first work to read and why, and the works worth adding to the library.
 
 Before you answer, read the note back to confirm that it exists. For a review, give the user the path, the answer in three lines, and the works worth adding to the library (offer to import them). For a reading list, give the user what the section above says, with no results.
+
+Then offer a RIS file of the screened works, for a second screening in Rayyan or Covidence: `Research/.plans/<slug>-screened.ris`. Write it only when the user agrees, with one scholar_export_bibliography call: citekeys for the library items, and identifiers (the DOI, or pmid:<number>) for the others. Report the works it did not find.
