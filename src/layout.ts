@@ -38,14 +38,26 @@ export type NoteDir = "Inbox" | "Literature" | "Syntheses" | "Research" | "Zoter
 export function layoutStyle(folder: string): LayoutStyle {
 	try {
 		const names = new Set(readdirSync(folder));
-		return ["inbox", "literature", "syntheses", "research", "zotero"].some((n) => names.has(n)) ? "lower" : "title";
+		if (["inbox", "literature", "syntheses", "research", "zotero"].some((n) => names.has(n))) return "lower";
+		if (["Inbox", "Literature", "Syntheses", "Research", "Zotero"].some((n) => names.has(n))) return "title";
 	} catch {
-		return "title";
+		// The folder does not exist yet: its own name decides.
 	}
+	return basename(folder) === FOLDER_NAME.toLowerCase() ? "lower" : "title";
 }
 
-/** The full path of a Sub-Sub subfolder, in the case of the folder's style. */
+/**
+ * The full path of a Sub-Sub subfolder: the folder that exists with the exact name (X or lowercase X),
+ * so a mixed folder works; when neither exists, the name of the style.
+ */
 export function dirName(folder: string, dir: NoteDir): string {
+	try {
+		const names = readdirSync(folder);
+		if (names.includes(dir)) return join(folder, dir);
+		if (names.includes(dir.toLowerCase())) return join(folder, dir.toLowerCase());
+	} catch {
+		// No folder yet: the style decides.
+	}
 	return join(folder, layoutStyle(folder) === "lower" ? dir.toLowerCase() : dir);
 }
 
@@ -71,7 +83,7 @@ export function noteName(folder: string, title: string): string {
 	if (layoutStyle(folder) === "title") return title;
 	const m = /^(\d{4}-\d{2}-\d{2})(?:[\s_-]+(.+))?$/.exec(title);
 	if (m) {
-		const rest = m[2] ? slug(m[2], 69) : "";
+		const rest = m[2] ? slug(m[2].replace(/^[\s_-]+/, ""), 69) : "";
 		return rest ? `${m[1]}_${rest}` : m[1];
 	}
 	return slug(title, 80);
@@ -150,15 +162,16 @@ export function planMoves(from: string, to: string): Move[] {
 	const add = (src: string, dest: string) => {
 		if (existsSync(src) && !existsSync(dest) && !moves.some((m) => m.to === dest)) moves.push({ from: src, to: dest });
 	};
-	for (const name of Object.values(SETTINGS_FILES)) {
-		add(join(from, LEGACY_SETTINGS_DIR, name), join(to, SETTINGS_DIR, name));
-		if (from !== to) add(join(from, SETTINGS_DIR, name), join(to, SETTINGS_DIR, name));
+	for (const key of Object.keys(SETTINGS_FILES) as SettingsFile[]) {
+		const target = settingsTarget(to, key);
+		add(join(from, LEGACY_SETTINGS_DIR, SETTINGS_FILES[key]), target);
+		if (from !== to) add(settingsTarget(from, key), target);
 	}
 	if (from !== to) {
-		const inbox = join(from, "Inbox");
+		const inbox = dirName(from, "Inbox");
 		if (existsSync(inbox)) {
 			for (const f of readdirSync(inbox).sort()) {
-				if (SUBSUB_INBOX.test(f) && statSync(join(inbox, f)).isFile()) add(join(inbox, f), join(to, "Inbox", f));
+				if (SUBSUB_INBOX.test(f) && statSync(join(inbox, f)).isFile()) add(join(inbox, f), join(dirName(to, "Inbox"), f));
 			}
 		}
 	}
@@ -168,7 +181,7 @@ export function planMoves(from: string, to: string): Move[] {
 /** Folders of the old layout that may hold Sub-Sub's notes but are left for the user. */
 export function leftBehind(from: string, to: string): string[] {
 	if (from === to) return [];
-	return ["Literature", "Syntheses", "Research"].map((d) => join(from, d)).filter((d) => existsSync(d) && readdirSync(d).length > 0);
+	return (["Literature", "Syntheses", "Research"] as const).map((d) => dirName(from, d)).filter((d) => existsSync(d) && readdirSync(d).length > 0);
 }
 
 /** Do the moves. An old Systems/ folder that is now empty is removed. */

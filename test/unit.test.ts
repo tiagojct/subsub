@@ -2286,3 +2286,38 @@ test("layout lower: the prompt adds Folder names only in the lower style", async
 	assert.match(res, /# Folder names\n\nThis Sub-Sub folder uses lowercase names\. Read Inbox\/, Literature\/, Syntheses\/, Research\/ and Zotero\/ in the prompts as inbox\/, literature\/, syntheses\/, research\/ and zotero\/\. Name each new note as a slug: lowercase, hyphens, no accents\. A dated note is YYYY-MM-DD_slug\.md\./);
 	assert.doesNotMatch(systemAddition("researcher", { ...CFG, vault: g }, "/elsewhere"), /# Folder names/);
 });
+
+test("layout lower: moves, mixed folders, an empty sub-sub folder, a date before an underscore", async () => {
+	const { dirName, layoutStyle, leftBehind, noteName, planMoves } = await import("../src/layout.ts");
+	const root = mkdtempSync(join(tmpdir(), "subsub-fix-"));
+	// 1. a lower target gets lower names from a legacy Systems/ and from the Inbox of a vault
+	const vault = join(root, "vault");
+	mkdirSync(join(vault, "Systems"), { recursive: true });
+	mkdirSync(join(vault, "Inbox"));
+	mkdirSync(join(vault, "Research"));
+	writeFileSync(join(vault, "Systems", "Zotero tags.md"), "T");
+	writeFileSync(join(vault, "Inbox", "Zotero tag review 01.md"), "r");
+	writeFileSync(join(vault, "Research", "mine.md"), "m");
+	const target = join(root, "sub-sub");
+	mkdirSync(join(target, "zotero"), { recursive: true });
+	mkdirSync(join(target, "inbox"));
+	const moves = planMoves(vault, target);
+	assert.ok(moves.some((m) => m.to === join(target, "zotero", "zotero-tags.md")));
+	assert.ok(moves.some((m) => m.to === join(target, "inbox", "Zotero tag review 01.md")));
+	assert.deepEqual(leftBehind(vault, target), [join(vault, "Research")]);
+	// 2. a mixed folder
+	const mixed = join(root, "mixed");
+	mkdirSync(join(mixed, "Inbox"), { recursive: true });
+	mkdirSync(join(mixed, "research"));
+	assert.equal(dirName(mixed, "Inbox"), join(mixed, "Inbox"));
+	assert.equal(dirName(mixed, "Research"), join(mixed, "research"));
+	// 3. a new or empty folder called sub-sub is lower
+	assert.equal(layoutStyle(join(root, "new", "sub-sub")), "lower");
+	mkdirSync(join(root, "empty", "sub-sub"), { recursive: true });
+	assert.equal(layoutStyle(join(root, "empty", "sub-sub")), "lower");
+	assert.equal(dirName(join(root, "empty", "sub-sub"), "Inbox"), join(root, "empty", "sub-sub", "inbox"));
+	assert.equal(layoutStyle(join(root, "empty")), "title");
+	// 4. a date, then text with a leading underscore
+	assert.equal(noteName(target, "2026-01-01 _x"), "2026-01-01_x");
+	assert.equal(noteName(target, "2026-01-01__x"), "2026-01-01_x");
+});
