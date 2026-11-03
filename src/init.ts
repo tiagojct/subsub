@@ -43,7 +43,7 @@ import {
 	withStarbuck,
 } from "./config.ts";
 import { defaultRunner, starbuckCheck } from "./doctor.ts";
-import { applyMoves, FOLDER_NAME, leftBehind, NOTE_DIRS, planMoves, SETTINGS_DIR, SETTINGS_FILES, subsubFolder } from "./layout.ts";
+import { applyMoves, dirName, FOLDER_NAME, leftBehind, NOTE_DIRS, type NoteDir, planMoves, SETTINGS_DIR, SETTINGS_FILES, settingsTarget, subsubFolder } from "./layout.ts";
 import { KEY_PROVIDERS, saveApiKey } from "./keys.ts";
 import { CUSTOM_DEFAULT_NAME, type CustomProvider, saveCustomProvider } from "./providers.ts";
 
@@ -198,7 +198,7 @@ export async function runInit(
 	const fmup = setup === "fmup";
 
 	// The tag list: a custom path in the server settings stays; otherwise Zotero/Zotero tags.md (moved, kept or new).
-	const vocabTarget = join(notes, SETTINGS_DIR, SETTINGS_FILES.tags);
+	const vocabTarget = settingsTarget(notes, "tags");
 	const oldDefaults = new Set([join(from, "Systems", SETTINGS_FILES.tags), join(from, SETTINGS_DIR, SETTINGS_FILES.tags)]);
 	const envVocab = envValues.ZOTERO_VOCAB ? expand(envValues.ZOTERO_VOCAB, home) : undefined;
 	const customVocab = envVocab && existsSync(envVocab) && !oldDefaults.has(envVocab) && envVocab !== vocabTarget ? envVocab : undefined;
@@ -295,7 +295,7 @@ export async function runInit(
 
 	// ---- write
 	if (move === "yes") applyMoves(moves);
-	for (const dir of [notes, ...NOTE_DIRS.map((d) => join(notes, d)), join(notes, SETTINGS_DIR)]) {
+	for (const dir of [notes, ...NOTE_DIRS.map((d) => dirName(notes, d as NoteDir)), dirName(notes, "Zotero")]) {
 		if (!existsSync(dir)) {
 			mkdirSync(dir, { recursive: true });
 			created.push(dir);
@@ -306,13 +306,13 @@ export async function runInit(
 		copyFileSync(join(TEMPLATES, "vocabularies", `${tags}.md`), vocab);
 		created.push(vocab);
 	}
-	const rulesTarget = join(notes, SETTINGS_DIR, SETTINGS_FILES.rules);
+	const rulesTarget = settingsTarget(notes, "rules");
 	const legacyRules = join(notes, "Systems", SETTINGS_FILES.rules);
 	if (!existsSync(rulesTarget) && !existsSync(legacyRules)) {
 		copyFileSync(join(TEMPLATES, "Zotero agent.md"), rulesTarget);
 		created.push(rulesTarget);
 	}
-	const alertsTarget = join(notes, SETTINGS_DIR, SETTINGS_FILES.alerts);
+	const alertsTarget = settingsTarget(notes, "alerts");
 	const legacyAlerts = join(notes, "Systems", SETTINGS_FILES.alerts);
 	const alerts = !existsSync(alertsTarget) && existsSync(legacyAlerts) ? legacyAlerts : alertsTarget;
 	mkdirSync(dirname(envFile), { recursive: true });

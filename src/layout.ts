@@ -25,6 +25,68 @@ export const NOTE_DIRS = ["Inbox", "Literature", "Syntheses", "Research"];
 export const SETTINGS_FILES = { tags: "Zotero tags.md", rules: "Zotero agent.md", alerts: "Literature alerts.md" } as const;
 type SettingsFile = keyof typeof SETTINGS_FILES;
 
+export const SETTINGS_FILES_LOWER = { tags: "zotero-tags.md", rules: "zotero-agent.md", alerts: "literature-alerts.md" } as const;
+
+export type LayoutStyle = "title" | "lower";
+export type NoteDir = "Inbox" | "Literature" | "Syntheses" | "Research" | "Zotero";
+
+/**
+ * The style of a Sub-Sub folder: "lower" when it holds a subfolder with an exact lowercase name
+ * (inbox, literature, syntheses, research, zotero). The comparison is on the names that readdirSync
+ * returns, because macOS finds Inbox/ for inbox/ with existsSync.
+ */
+export function layoutStyle(folder: string): LayoutStyle {
+	try {
+		const names = new Set(readdirSync(folder));
+		return ["inbox", "literature", "syntheses", "research", "zotero"].some((n) => names.has(n)) ? "lower" : "title";
+	} catch {
+		return "title";
+	}
+}
+
+/** The full path of a Sub-Sub subfolder, in the case of the folder's style. */
+export function dirName(folder: string, dir: NoteDir): string {
+	return join(folder, layoutStyle(folder) === "lower" ? dir.toLowerCase() : dir);
+}
+
+const GREEK: Record<string, string> = { "α": "alpha", "β": "beta", "γ": "gamma", "δ": "delta", "κ": "kappa", "μ": "mu" };
+
+function slug(text: string, max: number): string {
+	let s = text.replace(/[αβγδκμ]/g, (c) => GREEK[c]).replace(/[º\u00AA'\u2019\u2018`]/g, "");
+	s = s.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+	const lead = s.startsWith("_") ? "_" : "";
+	s = s.replace(/[^a-z0-9_]+/g, "-").replace(/^[-_]+|[-_]+$/g, "").replace(/-{2,}/g, "-");
+	if (s.length > max) {
+		const cut = s.lastIndexOf("-", max);
+		s = (cut > 0 ? s.slice(0, cut) : s.slice(0, max)).replace(/[-_]+$/g, "");
+	}
+	return lead + s;
+}
+
+/**
+ * The name (without extension) of a note that Sub-Sub writes. In the "title" style the title stays as it is.
+ * In the "lower" style it is a slug; a leading date YYYY-MM-DD becomes YYYY-MM-DD_slug.
+ */
+export function noteName(folder: string, title: string): string {
+	if (layoutStyle(folder) === "title") return title;
+	const m = /^(\d{4}-\d{2}-\d{2})(?:[\s_-]+(.+))?$/.exec(title);
+	if (m) {
+		const rest = m[2] ? slug(m[2], 69) : "";
+		return rest ? `${m[1]}_${rest}` : m[1];
+	}
+	return slug(title, 80);
+}
+
+/** The settings file names of the style of a folder. */
+function settingsNames(folder: string) {
+	return layoutStyle(folder) === "lower" ? SETTINGS_FILES_LOWER : SETTINGS_FILES;
+}
+
+/** The path where a settings file is written: the settings folder of the style, with the name of the style. */
+export function settingsTarget(folder: string, which: SettingsFile): string {
+	return join(dirName(folder, "Zotero"), settingsNames(folder)[which]);
+}
+
 /** True when the folder is the root of an Obsidian vault. */
 export function isObsidianVault(dir: string): boolean {
 	return existsSync(join(dir, ".obsidian"));
@@ -40,20 +102,30 @@ export function obsidianRoot(dir: string): string | undefined {
 
 /** The folder that a user's answer means: a vault root becomes <vault>/Sub-Sub. */
 export function subsubFolder(answer: string): string {
-	return isObsidianVault(answer) && basename(answer) !== FOLDER_NAME ? join(answer, FOLDER_NAME) : answer;
+	if (!isObsidianVault(answer) || basename(answer).toLowerCase() === FOLDER_NAME.toLowerCase()) return answer;
+	return join(answer, lowerVaultFolder(answer) ? FOLDER_NAME.toLowerCase() : FOLDER_NAME);
+}
+
+/** True when the vault holds a folder named exactly sub-sub. */
+function lowerVaultFolder(vault: string): boolean {
+	try {
+		return readdirSync(vault).includes(FOLDER_NAME.toLowerCase());
+	} catch {
+		return false;
+	}
 }
 
 /** The path of a settings file: Zotero/<file>, or Systems/<file> while only the old one exists. */
 export function settingsFile(folder: string, which: SettingsFile): string {
-	const name = SETTINGS_FILES[which];
-	const current = join(folder, SETTINGS_DIR, name);
-	const legacy = join(folder, LEGACY_SETTINGS_DIR, name);
+	const current = settingsTarget(folder, which);
+	const legacy = join(folder, LEGACY_SETTINGS_DIR, SETTINGS_FILES[which]);
 	return !existsSync(current) && existsSync(legacy) ? legacy : current;
 }
 
 /** Every place a settings file may be, for the write gate. */
 export function settingsPaths(folder: string): string[] {
-	return Object.values(SETTINGS_FILES).flatMap((n) => [join(folder, SETTINGS_DIR, n), join(folder, LEGACY_SETTINGS_DIR, n)]);
+	const lower = Object.values(SETTINGS_FILES_LOWER).map((n) => join(folder, SETTINGS_DIR.toLowerCase(), n));
+	return [...Object.values(SETTINGS_FILES).flatMap((n) => [join(folder, SETTINGS_DIR, n), join(folder, LEGACY_SETTINGS_DIR, n)]), ...lower];
 }
 
 export interface Move {

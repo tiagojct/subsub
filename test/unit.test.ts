@@ -2225,3 +2225,64 @@ test("retrievalScore names items by citekey or by title and treats duplicates an
 	const t = retrievalScore("only [@kouri2021] and [@braun2014]", ["hutchinson1846", "kouri2021"], [], lib);
 	assert.deepEqual([t.tp, t.fp, t.fn, t.precision, t.recall], [1, 1, 1, 0.5, 0.5]);
 });
+
+test("layout lower: the style is read from the folder names, not from existsSync", async () => {
+	const { layoutStyle, dirName, noteName, settingsFile, settingsPaths, subsubFolder } = await import("../src/layout.ts");
+	const root = mkdtempSync(join(tmpdir(), "subsub-lower-"));
+	const lower = join(root, "lower");
+	const title = join(root, "title");
+	mkdirSync(join(lower, "inbox"), { recursive: true });
+	mkdirSync(join(title, "Inbox"), { recursive: true });
+	assert.equal(layoutStyle(lower), "lower");
+	assert.equal(layoutStyle(title), "title");
+	assert.equal(layoutStyle(join(root, "missing")), "title");
+	assert.equal(dirName(lower, "Research"), join(lower, "research"));
+	assert.equal(dirName(title, "Research"), join(title, "Research"));
+	// title style: the title stays as it is
+	assert.equal(noteName(title, "2026-11-03 AI use statement"), "2026-11-03 AI use statement");
+	// settings
+	mkdirSync(join(lower, "zotero"));
+	assert.equal(settingsFile(lower, "tags"), join(lower, "zotero", "zotero-tags.md"));
+	assert.equal(settingsFile(title, "tags"), join(title, "Zotero", "Zotero tags.md"));
+	assert.ok(settingsPaths(lower).includes(join(lower, "zotero", "zotero-agent.md")));
+	assert.ok(settingsPaths(lower).includes(join(lower, "Zotero", "Zotero agent.md")));
+	// a vault prefers sub-sub when it exists
+	const vault = join(root, "vault");
+	mkdirSync(join(vault, ".obsidian"), { recursive: true });
+	assert.equal(subsubFolder(vault), join(vault, "Sub-Sub"));
+	mkdirSync(join(vault, "sub-sub"));
+	assert.equal(subsubFolder(vault), join(vault, "sub-sub"));
+	assert.equal(subsubFolder(join(vault, "sub-sub")), join(vault, "sub-sub"));
+});
+
+test("layout lower: noteName passes the spec vectors", async () => {
+	const { noteName } = await import("../src/layout.ts");
+	const f = mkdtempSync(join(tmpdir(), "subsub-vec-"));
+	mkdirSync(join(f, "inbox"));
+	const vectors: Array<[string, string]> = [
+		["A baleia branca simboliza o que não pode ser conhecido", "a-baleia-branca-simboliza-o-que-nao-pode-ser-conhecido"],
+		["α-Klotho", "alpha-klotho"],
+		["2026-10-19 AFLRSI | Avaliação", "2026-10-19_aflrsi-avaliacao"],
+		["1998-05-20 - O Enforcado", "1998-05-20_o-enforcado"],
+		["2026-08-20", "2026-08-20"],
+		["7ºCNFC - Interpretar a função respiratória na era da IA", "7cnfc-interpretar-a-funcao-respiratoria-na-era-da-ia"],
+		["ERS Learning Resources Director 2027–2030 — Interview Prep", "ers-learning-resources-director-2027-2030-interview-prep"],
+		["This Is a Rare Arena in Which People Think A.I. Is Helping. It’s Making Things Worse.", "this-is-a-rare-arena-in-which-people-think-a-i-is-helping-its-making-things"],
+		["qd-2026-05-06_workshop-sw-2ed", "qd-2026-05-06_workshop-sw-2ed"],
+		["_starbuck", "_starbuck"],
+		["Pasted image 20260831155638", "pasted-image-20260831155638"],
+		["Reuniões".normalize("NFD"), "reunioes"],
+	];
+	for (const [input, out] of vectors) assert.equal(noteName(f, input), out, input);
+	assert.equal(noteName(f, "2026-11-03 AI use statement-2"), "2026-11-03_ai-use-statement-2");
+});
+
+test("layout lower: the prompt adds Folder names only in the lower style", async () => {
+	const f = mkdtempSync(join(tmpdir(), "subsub-prompt-"));
+	mkdirSync(join(f, "inbox"));
+	const g = mkdtempSync(join(tmpdir(), "subsub-prompt-"));
+	mkdirSync(join(g, "Inbox"));
+	const res = systemAddition("researcher", { ...CFG, vault: f }, "/elsewhere");
+	assert.match(res, /# Folder names\n\nThis Sub-Sub folder uses lowercase names\. Read Inbox\/, Literature\/, Syntheses\/, Research\/ and Zotero\/ in the prompts as inbox\/, literature\/, syntheses\/, research\/ and zotero\/\. Name each new note as a slug: lowercase, hyphens, no accents\. A dated note is YYYY-MM-DD_slug\.md\./);
+	assert.doesNotMatch(systemAddition("researcher", { ...CFG, vault: g }, "/elsewhere"), /# Folder names/);
+});

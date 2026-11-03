@@ -5,9 +5,9 @@
 
 import { spawn, type ChildProcess } from "node:child_process";
 import { existsSync, readdirSync, statSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { basename, join, resolve } from "node:path";
 import { expand } from "./config.ts";
-import { NOTE_DIRS, obsidianRoot, SETTINGS_DIR } from "./layout.ts";
+import { dirName, NOTE_DIRS, type NoteDir, obsidianRoot, SETTINGS_DIR } from "./layout.ts";
 import { realish, within } from "./paths.ts";
 
 /** Files that the Open button may hand to the system (never programs or scripts). */
@@ -25,13 +25,13 @@ export function allowedFile(raw: string, cwd: string, vault?: string): string | 
 /** The note a [[wikilink]] names: the first <folder>/<name>.md in the Sub-Sub folder, as Obsidian would find it. */
 export function wikilinkTarget(name: string, root: string): string | undefined {
 	const file = name.endsWith(".md") ? name : `${name}.md`;
-	return ["", ...NOTE_DIRS, SETTINGS_DIR].map((d) => join(root, d, file)).find((f) => existsSync(f));
+	return ["", ...[...NOTE_DIRS, SETTINGS_DIR].map((d) => basename(dirName(root, d as NoteDir)))].map((d) => join(root, d, file)).find((f) => existsSync(f));
 }
 
 /** The notes in the Sub-Sub folders, newest first (dot folders such as Research/.plans left out). */
 export function listNotes(root: string, max = 300): Array<{ path: string; rel: string; modified: number }> {
 	const out: Array<{ path: string; rel: string; modified: number }> = [];
-	for (const d of [...NOTE_DIRS, SETTINGS_DIR]) {
+	for (const d of [...NOTE_DIRS, SETTINGS_DIR].map((x) => basename(dirName(root, x as NoteDir)))) {
 		let names: string[] = [];
 		try {
 			names = readdirSync(join(root, d), { recursive: true }) as string[];

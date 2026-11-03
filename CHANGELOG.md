@@ -2,6 +2,13 @@
 
 Sub-Sub follows the version numbers of npm: a change in the second number (0.13) adds features or changes how you use it; a change in the third (0.13.1) only fixes.
 
+## 0.26.0 (2026-11-03)
+
+- Lowercase Sub-Sub layout. Sub-Sub reads the style from the folder names: a Sub-Sub folder with `inbox/`, `literature/`, `syntheses/`, `research/` or `zotero/` uses lowercase names. The settings files are then `zotero-tags.md`, `zotero-agent.md` and `literature-alerts.md`, and the notes that Sub-Sub itself writes (feedback drafts, AI use statements) get slug names, for example `2026-11-03_ai-use-statement.md`. In a vault, `sub-sub/` is used when it exists.
+- In the lowercase style the system prompt has a section "Folder names" that tells the model to read the folder names of the prompts in lowercase and to name new notes as slugs.
+- The TitleCase layout (`Sub-Sub/`, `Inbox/`, `Zotero tags.md`) works as before.
+- Tests: style detection by folder names (not by `existsSync`, which ignores case on macOS), the slug rule against the test vectors, the lowercase settings paths and the prompt section.
+
 ## 0.25.0 (2026-11-01)
 
 - Sub-Sub runs on pi 1.4.0 (was 1.0.4). Install pi 1.4 to use the package in plain pi.

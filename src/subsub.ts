@@ -17,7 +17,7 @@
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
-import { dirname, extname, join } from "node:path";
+import { basename, dirname, extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Bridge, type ServerSpec } from "./bridge.ts";
 import {
@@ -51,6 +51,7 @@ import { allowedFile, listNotes, OPENABLE, openFile } from "./files.ts";
 import { itemRef, LibraryView, NotesView, type LibraryItem } from "./screens.ts";
 import { glyphs, paintFromTheme, workingFrames } from "./skin.ts";
 import { loadWords, toolWord, type Words } from "./words.ts";
+import { dirName, noteName } from "./layout.ts";
 import { systemAddition } from "./prompt.ts";
 import { logUsage } from "./usage.ts";
 import { activeTools, duplicateServerTool, gateKind, SERVER_PREFIXES, toolsFor, unavailableReason, outboundProblem } from "./roles.ts";
@@ -944,9 +945,10 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		handler: async (args, ctx) => {
 			const date = new Date().toISOString().slice(0, 10);
 			const text = aiStatement({ version: ownVersion(), models: cfg.models, uses: String(args ?? ""), date, starbuck: starbuckEnabled(cfg) });
-			const dir = join(cfg.vault ?? ctx.cwd, "Research");
-			let file = join(dir, `${date} AI use statement.md`);
-			for (let n = 2; existsSync(file); n++) file = join(dir, `${date} AI use statement-${n}.md`);
+			const base = cfg.vault ?? ctx.cwd;
+			const dir = dirName(base, "Research");
+			let file = join(dir, `${noteName(base, `${date} AI use statement`)}.md`);
+			for (let n = 2; existsSync(file); n++) file = join(dir, `${noteName(base, `${date} AI use statement-${n}`)}.md`);
 			try {
 				mkdirSync(dir, { recursive: true });
 				writeFileSync(file, text);
@@ -990,7 +992,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			if (purpose === "extract") {
 				let sheets: string[] = [];
 				try {
-					sheets = readdirSync(join(cfg.vault ?? ctx.cwd, "Research")).filter((f) => f.endsWith(" extraction.md")).sort();
+					sheets = readdirSync(dirName(cfg.vault ?? ctx.cwd, "Research")).filter((f) => f.endsWith(" extraction.md") || f.endsWith("-extraction.md")).sort();
 				} catch {
 					// No Research folder yet: the first sheet is a new one.
 				}
@@ -1000,7 +1002,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 				if (pick === fresh) {
 					req.question = (await ctx.ui.input(L("The question of your review", "A pergunta da sua revisão")))?.trim();
 					if (!req.question) return;
-				} else req.sheet = `Research/${pick}`;
+				} else req.sheet = `${basename(dirName(cfg.vault ?? ctx.cwd, "Research"))}/${pick}`;
 			}
 			pi.sendUserMessage(readInstruction(req), ctx.isIdle() ? undefined : { deliverAs: "followUp" });
 		},
@@ -1036,9 +1038,10 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 				home: homedir(),
 				vault: cfg.vault,
 			});
-			const dir = join(cfg.vault ?? ctx.cwd, "Inbox");
-			let file = join(dir, `${date} Sub-Sub feedback.md`);
-			for (let n = 2; existsSync(file); n++) file = join(dir, `${date} Sub-Sub feedback-${n}.md`);
+			const base = cfg.vault ?? ctx.cwd;
+			const dir = dirName(base, "Inbox");
+			let file = join(dir, `${noteName(base, `${date} Sub-Sub feedback`)}.md`);
+			for (let n = 2; existsSync(file); n++) file = join(dir, `${noteName(base, `${date} Sub-Sub feedback-${n}`)}.md`);
 			try {
 				mkdirSync(dir, { recursive: true });
 				writeFileSync(file, text);

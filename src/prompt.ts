@@ -9,6 +9,7 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
+import { layoutStyle } from "./layout.ts";
 import { fileURLToPath } from "node:url";
 import { type Mode, type SubsubConfig, who } from "./config.ts";
 
@@ -69,6 +70,12 @@ export function systemAddition(mode: Mode, cfg: SubsubConfig, cwd: string, state
 			"# The Sub-Sub folder",
 			`The Sub-Sub folder is ${cfg.vault}. Folder names in these instructions (Inbox/, Literature/, Syntheses/, Research/, Zotero/) are inside it. Write notes there with absolute paths, even when the working folder is somewhere else.`,
 		);
+		if (layoutStyle(cfg.vault) === "lower") {
+			parts.push(
+				"# Folder names",
+				"This Sub-Sub folder uses lowercase names. Read Inbox/, Literature/, Syntheses/, Research/ and Zotero/ in the prompts as inbox/, literature/, syntheses/, research/ and zotero/. Name each new note as a slug: lowercase, hyphens, no accents. A dated note is YYYY-MM-DD_slug.md.",
+			);
+		}
 	}
 	const shared = readIf(cfg.sharedRules);
 	if (shared) {
