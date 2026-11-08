@@ -176,6 +176,10 @@ Sub-Sub also starts when Zotero is not running. The library line then says "Zote
 
 Yes, for reading. The library search covers your own library and the group libraries in your Zotero, and marks each item from a group with the group's name. Sub-Sub can read, quote and write notes on items in a group, but it cannot change them (tags, fields, imports): change them in the Zotero window.
 
+## Stability
+
+From version 1.0, the commands, the settings keys, the folder layouts, the tool names and the safety rules do not change inside version 1. A change that breaks them needs version 2. The full list is on the [Stability page](https://subsub.tiagojacinto.eu/stability/).
+
 ## Model test
 
 `subsub-bench` runs several models on the same tasks against your own library and scores them. Nothing in the library changes. See [docs/model-test.md](https://github.com/tiagojct/subsub/blob/main/docs/model-test.md) and the [Models page](https://subsub.tiagojacinto.eu/models/) for the latest results.
