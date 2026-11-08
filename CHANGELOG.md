@@ -2,7 +2,7 @@
 
 Sub-Sub follows the version numbers of npm. From version 1.0: a change in the third number (1.0.1) only fixes; a change in the second (1.1.0) adds features and removes or renames nothing that the Stability page lists; a change in the first (2.0.0) can break that list. Before 1.0, a change in the second number (0.13) could change how you use Sub-Sub.
 
-## 1.0.0 (2026-11-13)
+## 1.0.0 (2026-11-08)
 
 Version 0.26.0 was not published. Its changes are part of this version.
 
