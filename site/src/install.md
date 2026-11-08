@@ -94,9 +94,9 @@ If you have Node.js 22.19 or later and uv:
 
 <pre class="cmd"><code>npm install -g @tiagojct/subsub</code></pre>
 
-npm also installs pi 1.4, which Sub-Sub needs. Then type `subsub init`, and `subsub shortcut` for the shortcut.
+npm also installs pi 1.5, which Sub-Sub needs. Then type `subsub init`, and `subsub shortcut` for the shortcut.
 
-If you already use [pi](https://pi.dev), you can also add Sub-Sub to pi: `pi install npm:@tiagojct/subsub`. Sub-Sub needs pi 1.4 or later. Sub-Sub then adds its tools and keeps pi's tools, the tools of your other extensions and your MCP servers. The `subsub` command does not connect MCP servers.
+If you already use [pi](https://pi.dev), you can also add Sub-Sub to pi: `pi install npm:@tiagojct/subsub`. Sub-Sub needs pi 1.5. Sub-Sub then adds its tools and keeps pi's tools, the tools of your other extensions and your MCP servers. The `subsub` command does not connect MCP servers.
 
 ## What `subsub init` creates
 
