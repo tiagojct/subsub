@@ -1,8 +1,21 @@
 # Changes
 
-Sub-Sub follows the version numbers of npm: a change in the second number (0.13) adds features or changes how you use it; a change in the third (0.13.1) only fixes.
+Sub-Sub follows the version numbers of npm. From version 1.0: a change in the third number (1.0.1) only fixes; a change in the second (1.1.0) adds features and removes or renames nothing that the Stability page lists; a change in the first (2.0.0) can break that list. Before 1.0, a change in the second number (0.13) could change how you use Sub-Sub.
 
-## 0.26.0 (2026-11-03)
+## 1.0.0 (2026-11-13)
+
+Version 0.26.0 was not published. Its changes are part of this version.
+
+- Version 1 is stable. The commands, the settings keys, the folder layouts, the tool names and the safety rules do not change inside version 1. The [Stability page](https://subsub.tiagojacinto.eu/stability/) has the full list, and says what is not frozen and what is experimental.
+- Sub-Sub runs on pi 1.5.0 (was 1.4.0) and accepts its patch releases. The weekly test against the newest pi stays. In plain pi, use pi 1.5.
+- Zotero server 0.8.0 (was 0.7.0): the lowercase Sub-Sub layout and the relink of notes.
+- The lowercase Sub-Sub layout (0.26.0, below).
+- When Sub-Sub starts, it takes other copies of Sub-Sub out of the `packages` list in its `settings.json`. Two copies in one session register the same flags, and pi stops.
+- The install pages name pi 1.5.
+- A Stability page (English and Portuguese) and a Stability section in the README.
+- Tests: the settings fix, and the full unit and end-to-end tests on pi 1.5.0 on Linux, macOS and Windows.
+
+## 0.26.0 (2026-11-03, not published; part of 1.0.0)
 
 - Lowercase Sub-Sub layout. Sub-Sub reads the style from the folder names: a Sub-Sub folder with `inbox/`, `literature/`, `syntheses/`, `research/` or `zotero/` uses lowercase names. The settings files are then `zotero-tags.md`, `zotero-agent.md` and `literature-alerts.md`, and the notes that Sub-Sub itself writes (feedback drafts, AI use statements) get slug names, for example `2026-11-03_ai-use-statement.md`. In a vault, `sub-sub/` is used when it exists.
 - In the lowercase style the system prompt has a section "Folder names" that tells the model to read the folder names of the prompts in lowercase and to name new notes as slugs.

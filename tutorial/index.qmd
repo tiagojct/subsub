@@ -41,7 +41,7 @@ The test items of this page are five papers with stable identifiers:
 Use a terminal for this section.
 
 - [ ] Type `subsub --version`.\
-  Result: the versions of Sub-Sub and pi, for example `subsub 0.25.0 (pi 1.4.0)`.
+  Result: the versions of Sub-Sub and pi, for example `subsub 1.0.0 (pi 1.5.0)`.
 - [ ] Type `subsub --help`.\
   Result: the list of `subsub` commands and options.
 - [ ] Type `subsub doctor`.\
