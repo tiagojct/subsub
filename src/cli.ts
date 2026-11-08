@@ -71,6 +71,15 @@ export function withoutMcp(args: string[]): string[] {
 	return ["--no-mcp", ...args];
 }
 
+/** True when the folder holds a copy of the Sub-Sub package (a global install, a clone, a dev copy). */
+function isSubsubCopy(dir: string): boolean {
+	try {
+		return JSON.parse(readFileSync(join(dir, "package.json"), "utf8")).name === "@tiagojct/subsub";
+	} catch {
+		return false;
+	}
+}
+
 export function ensureSettings(agentDir: string, packageDir: string = PACKAGE_DIR): "created" | "added" | "present" | "unreadable" {
 	mkdirSync(agentDir, { recursive: true });
 	const file = join(agentDir, "settings.json");
@@ -84,15 +93,23 @@ export function ensureSettings(agentDir: string, packageDir: string = PACKAGE_DI
 			return "unreadable";
 		}
 	}
-	const packages = Array.isArray(settings.packages) ? [...settings.packages] : [];
+	const listed = Array.isArray(settings.packages) ? [...settings.packages] : [];
 	const want = real(packageDir);
+	// Two copies of Sub-Sub in one session register the same flags, and pi stops. Keep only the running copy.
+	const packages = listed.filter((p) => {
+		const src = sourceOf(p);
+		if (src === undefined) return true;
+		const dir = real(resolve(agentDir, expand(src)));
+		return dir === want || !isSubsubCopy(dir);
+	});
+	const dropped = packages.length !== listed.length;
 	const has = packages.some((p) => {
 		const src = sourceOf(p);
 		return src !== undefined && real(resolve(agentDir, expand(src))) === want;
 	});
 	// Sub-Sub draws its own header; pi's list of loaded resources is noise here. Set once, so it can be changed.
 	const quiet = settings.quietStartup === undefined;
-	if (has && !quiet) return "present";
+	if (has && !quiet && !dropped) return "present";
 	if (!has) packages.push(want);
 	settings.packages = packages;
 	if (quiet) settings.quietStartup = true;

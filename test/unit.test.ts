@@ -376,6 +376,27 @@ test("cli: settings, shared auth, start folder, self-update guard", () => {
 	writeFileSync(join(agent, "settings.json"), "{ broken");
 	assert.equal(ensureSettings(agent, pkg), "unreadable");
 
+	// Other copies of Sub-Sub are removed from the list; other packages and missing folders stay.
+	const copy = (dir: string, name: string) => {
+		mkdirSync(dir, { recursive: true });
+		writeFileSync(join(dir, "package.json"), JSON.stringify({ name }));
+	};
+	const other = join(home, "global", "subsub");
+	const dev = join(home, "dev", "subsub");
+	const unrelated = join(home, "dev", "other");
+	copy(pkg, "@tiagojct/subsub");
+	copy(other, "@tiagojct/subsub");
+	copy(dev, "@tiagojct/subsub");
+	copy(unrelated, "something-else");
+	const missing = join(home, "gone");
+	writeFileSync(
+		join(agent, "settings.json"),
+		JSON.stringify({ quietStartup: true, packages: [other, { source: dev }, unrelated, "npm:other", missing, pkg] }),
+	);
+	assert.equal(ensureSettings(agent, pkg), "added");
+	assert.deepEqual(JSON.parse(readFileSync(join(agent, "settings.json"), "utf8")).packages, [unrelated, "npm:other", missing, pkg]);
+	assert.equal(ensureSettings(agent, pkg), "present");
+
 	const piAgent = join(home, ".pi", "agent");
 	assert.equal(shareAuth(agent, piAgent), false); // pi has no auth.json
 	mkdirSync(piAgent, { recursive: true });
