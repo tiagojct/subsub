@@ -2,6 +2,25 @@
 
 Sub-Sub follows the version numbers of npm. From version 1.0: a change in the third number (1.0.1) only fixes; a change in the second (1.1.0) adds features and removes or renames nothing that the Stability page lists; a change in the first (2.0.0) can break that list. Before 1.0, a change in the second number (0.13) could change how you use Sub-Sub.
 
+## 1.0.1 (2026-11-11)
+
+Fixes only. The commands, settings keys, folder layouts and tool names do not change.
+
+- The approval gate now also holds for a library tool that Sub-Sub does not know by name, for example a tool of a newer Zotero server or of a local server folder. Before, such a tool ran without a question. Now Sub-Sub shows its preview when the tool has a dry run, and otherwise asks before it runs.
+- The quote check of literature notes no longer stops for the rest of the session when Zotero is closed or a read of the full text fails. Sub-Sub reads the full text again for the next note. A full text that Sub-Sub could not read to the end is not used for the check, so quotes from the unread part are not reported as missing. Sub-Sub now reads up to 3 million characters (was 1.2 million).
+- The quote check sees an edit of a note as pi applies it. pi also matches text with other quote marks, dashes or spaces; before, the check then saw the old note and let an invented quote through.
+- `/undo` shows a notice when the undo cannot run (for example, the Zotero server stopped), instead of an error.
+- The web view answers bad requests (bad JSON, bad encoding in an address or a cookie) with a clear 400 error instead of a server error.
+- Settings, API keys and the web view's running file are written to a temporary file and then moved into place, so a crash never leaves half a file. A file with keys is made readable only by you, also when it existed before.
+- A wrong type in the settings file (for example a number for `vault`) stops Sub-Sub with a message that names the setting. A `startTimeout` that is not a positive number keeps the default of 45 seconds.
+- `subsub web --idle` with a value that is not a number keeps the default of 10 minutes (before, the server never stopped). `--port` accepts only a valid port number.
+- `~\` at the start of a path works on Windows.
+- The Zotero servers see Sub-Sub's real version as the client version.
+- The MCP SDK is 1.32.2 (was 1.30.1). Updates of locked dependencies remove the security notices from `npm audit`.
+- Tests: the gate for tools that are not on a list, the full-text reads, edits matched as pi matches them, the web view's request rules, file writes and modes, and wrong settings types. The end-to-end tests now run against the Zotero server release that users get (0.8.0), not the server's main branch, and check that each tool of the real servers is on one of Sub-Sub's lists. The tests on GitHub also check the types.
+- The GitHub workflows use current versions of their actions, pinned to exact commits, with read-only permissions where they need no more. The release workflow uses a fixed npm version.
+- The test tutorial names Sub-Sub 1.0.
+
 ## 1.0.0 (2026-11-08)
 
 Version 0.26.0 was not published. Its changes are part of this version.

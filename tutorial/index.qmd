@@ -1,6 +1,6 @@
 ---
 title: "Test everything in [Sub-Sub]{.nobr}"
-subtitle: "A tutorial to follow along, one command at a time. Sub-Sub 0.24."
+subtitle: "A tutorial to follow along, one command at a time. Sub-Sub 1.0."
 ---
 
 ```{=html}
