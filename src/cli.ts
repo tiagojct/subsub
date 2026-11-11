@@ -18,11 +18,12 @@
  */
 
 import { spawnSync } from "node:child_process";
-import { existsSync, lstatSync, mkdirSync, readFileSync, realpathSync, renameSync, symlinkSync, writeFileSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync, readFileSync, realpathSync, renameSync, symlinkSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { expand, loadConfig, serverCommand, type SubsubConfig } from "./config.ts";
+import { writeFileSafe } from "./write.ts";
 
 export const PACKAGE_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -113,7 +114,7 @@ export function ensureSettings(agentDir: string, packageDir: string = PACKAGE_DI
 	if (!has) packages.push(want);
 	settings.packages = packages;
 	if (quiet) settings.quietStartup = true;
-	writeFileSync(file, `${JSON.stringify(settings, null, 2)}\n`);
+	writeFileSafe(file, `${JSON.stringify(settings, null, 2)}\n`);
 	return existed ? "added" : "created";
 }
 

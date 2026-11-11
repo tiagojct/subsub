@@ -15,15 +15,16 @@
  */
 
 import { randomBytes, timingSafeEqual } from "node:crypto";
-import { createReadStream, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, statSync, writeFileSync, appendFileSync } from "node:fs";
+import { createReadStream, existsSync, mkdirSync, readFileSync, renameSync, statSync, appendFileSync } from "node:fs";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { homedir } from "node:os";
-import { basename, dirname, extname, join, normalize, relative, resolve, sep } from "node:path";
+import { basename, dirname, extname, join, normalize, relative, sep } from "node:path";
 import { agentDirFor, chooseCwd, PACKAGE_DIR, packageVersion } from "./cli.ts";
 import { configPath, loadConfig, RECOMMENDED_MODELS, readConfigFile, saveConfig, type SubsubConfig, uiLanguage, withStarbuck } from "./config.ts";
 import { modelsAfterLogin } from "./init.ts";
 import { KEY_PROVIDERS, saveApiKey } from "./keys.ts";
 import { CUSTOM_DEFAULT_NAME, saveCustomProvider } from "./providers.ts";
+import { writeFileSafe } from "./write.ts";
 
 // ---------------------------------------------------------------- options
 
@@ -42,12 +43,18 @@ export function parseWebArgs(args: string[]): WebOptions {
 	const o: WebOptions = { port: 0, open: true, librarian: false, here: false, idleMinutes: 10, piArgs: [] };
 	for (let i = 0; i < args.length; i++) {
 		const a = args[i];
-		if (a === "--port") o.port = Number(args[++i] ?? 0) || 0;
-		else if (a === "--no-open") o.open = false;
+		if (a === "--port") {
+			const p = Number(args[++i]);
+			o.port = Number.isInteger(p) && p > 0 && p < 65536 ? p : 0;
+		} else if (a === "--no-open") o.open = false;
 		else if (a === "--librarian") o.librarian = true;
 		else if (a === "--here") o.here = true;
 		else if (a === "--stay") o.idleMinutes = 0;
-		else if (a === "--idle") o.idleMinutes = Math.max(0, Number(args[++i] ?? 10));
+		else if (a === "--idle") {
+			// A number of minutes; anything else keeps the default, so the server still stops by itself.
+			const m = Number(args[++i]);
+			o.idleMinutes = Number.isFinite(m) && m >= 0 ? m : 10;
+		}
 		else o.piArgs.push(a);
 	}
 	return o;
@@ -105,13 +112,70 @@ function same(a: string, b: string): boolean {
 	return x.length === y.length && timingSafeEqual(x, y);
 }
 
-function cookies(req: IncomingMessage): Record<string, string> {
+/** A request the server refuses with a 4xx status and a short reason (bad JSON, bad encoding, too large). */
+export class BadRequest extends Error {
+	readonly status: number;
+	constructor(status: number, message: string) {
+		super(message);
+		this.status = status;
+	}
+}
+
+function decode(s: string): string | undefined {
+	try {
+		return decodeURIComponent(s);
+	} catch {
+		return undefined;
+	}
+}
+
+export function parseCookies(header: string | undefined): Record<string, string> {
 	const out: Record<string, string> = {};
-	for (const part of (req.headers.cookie ?? "").split(";")) {
+	for (const part of (header ?? "").split(";")) {
 		const i = part.indexOf("=");
-		if (i > 0) out[part.slice(0, i).trim()] = decodeURIComponent(part.slice(i + 1).trim());
+		const value = i > 0 ? decode(part.slice(i + 1).trim()) : undefined;
+		if (value !== undefined) out[part.slice(0, i).trim()] = value;
 	}
 	return out;
+}
+
+export interface RequestFacts {
+	method: string;
+	pathname: string;
+	/** The ?t= key of the first visit, if any. */
+	key: string | null;
+	headers: { host?: string; cookie?: string; origin?: string; "sec-fetch-site"?: string; "content-type"?: string };
+}
+
+/**
+ * What the server does with a request before routing it: refuse it, turn the first visit's key into a
+ * cookie, or let it through. Pure, so the rules are unit tested.
+ */
+export function checkRequest(r: RequestFacts, port: number, token: string): { status: 403 | 415; text: string } | { status: 303; cookie: string } | { status: 0 } {
+	const hosts = [`127.0.0.1:${port}`, `localhost:${port}`];
+	if (!hosts.includes(r.headers.host ?? "")) return { status: 403, text: "Wrong host." };
+	const name = `subsub_${port}`;
+	if (r.method === "GET" && r.pathname === "/" && r.key) {
+		if (!same(r.key, token)) return { status: 403, text: "This link is not valid. Open Sub-Sub again." };
+		return { status: 303, cookie: `${name}=${token}; HttpOnly; SameSite=Strict; Path=/` };
+	}
+	if (!same(parseCookies(r.headers.cookie)[name] ?? "", token)) return { status: 403, text: "Open Sub-Sub with its shortcut or with: subsub web" };
+	if (r.method === "POST") {
+		const origin = r.headers.origin;
+		if (origin && !hosts.map((h) => `http://${h}`).includes(origin)) return { status: 403, text: "Wrong origin." };
+		const site = r.headers["sec-fetch-site"];
+		if (site && site !== "same-origin") return { status: 403, text: "Wrong origin." };
+		if (!String(r.headers["content-type"] ?? "").startsWith("application/json")) return { status: 415, text: "JSON only." };
+	}
+	return { status: 0 };
+}
+
+/** The file of the web view that a GET path names, or undefined (outside the folder, missing, a folder, bad encoding). */
+export function staticFile(webDir: string, pathname: string): string | undefined {
+	const rel = pathname === "/" ? "index.html" : decode(pathname.slice(1));
+	if (rel === undefined || rel.includes("\0")) return undefined;
+	const file = normalize(join(webDir, rel));
+	return file.startsWith(webDir + sep) && existsSync(file) && statSync(file).isFile() ? file : undefined;
 }
 
 function send(res: ServerResponse, status: number, body: unknown, headers: Record<string, string> = {}): void {
@@ -125,16 +189,25 @@ function send(res: ServerResponse, status: number, body: unknown, headers: Recor
 	res.end(text);
 }
 
-async function readJson(req: IncomingMessage, limit = 1_000_000): Promise<any> {
+/** The body of a POST as a JSON object ({} when empty); anything else is a BadRequest. */
+export async function readJson(req: AsyncIterable<unknown>, limit = 1_000_000): Promise<Record<string, any>> {
 	let size = 0;
 	const chunks: Buffer[] = [];
 	for await (const c of req) {
 		size += (c as Buffer).length;
-		if (size > limit) throw new Error("request too large");
+		if (size > limit) throw new BadRequest(413, "request too large");
 		chunks.push(c as Buffer);
 	}
 	const text = Buffer.concat(chunks).toString("utf8");
-	return text ? JSON.parse(text) : {};
+	if (!text.trim()) return {};
+	let data: unknown;
+	try {
+		data = JSON.parse(text);
+	} catch {
+		throw new BadRequest(400, "not valid JSON");
+	}
+	if (!data || typeof data !== "object" || Array.isArray(data)) throw new BadRequest(400, "a JSON object only");
+	return data as Record<string, any>;
 }
 
 function alive(pid: number): boolean {
@@ -328,38 +401,37 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 
 	// ---- HTTP
 	let port = 0;
-	const hosts = () => [`127.0.0.1:${port}`, `localhost:${port}`];
-	const origins = () => hosts().map((h) => `http://${h}`);
-	const cookieName = () => `subsub_${port}`;
 
 	async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> {
-		const url = new URL(req.url ?? "/", `http://127.0.0.1:${port}`);
 		const common = { "X-Frame-Options": "DENY", "Referrer-Policy": "no-referrer" };
-		if (!hosts().includes(req.headers.host ?? "")) return send(res, 403, "Wrong host.", common);
-
+		let url: URL;
+		try {
+			url = new URL(req.url ?? "/", `http://127.0.0.1:${port}`);
+		} catch {
+			return send(res, 400, "Bad address.", common);
+		}
+		const h = req.headers;
+		const verdict = checkRequest(
+			{
+				method: req.method ?? "GET",
+				pathname: url.pathname,
+				key: url.searchParams.get("t"),
+				headers: { host: h.host, cookie: h.cookie, origin: h.origin, "sec-fetch-site": h["sec-fetch-site"] as string | undefined, "content-type": h["content-type"] },
+			},
+			port,
+			token,
+		);
 		// First visit: the key in the URL becomes a cookie, and the URL loses the key.
-		const t = url.searchParams.get("t");
-		if (req.method === "GET" && url.pathname === "/" && t) {
-			if (!same(t, token)) return send(res, 403, "This link is not valid. Open Sub-Sub again.", common);
-			res.writeHead(303, { ...common, Location: "/", "Set-Cookie": `${cookieName()}=${token}; HttpOnly; SameSite=Strict; Path=/`, "Cache-Control": "no-store" });
+		if (verdict.status === 303) {
+			res.writeHead(303, { ...common, Location: "/", "Set-Cookie": verdict.cookie, "Cache-Control": "no-store" });
 			return void res.end();
 		}
-		const authed = same(cookies(req)[cookieName()] ?? "", token);
-		if (!authed) return send(res, 403, "Open Sub-Sub with its shortcut or with: subsub web", common);
-
-		if (req.method === "POST") {
-			const origin = req.headers.origin;
-			if (origin && !origins().includes(origin)) return send(res, 403, "Wrong origin.", common);
-			const site = req.headers["sec-fetch-site"];
-			if (site && site !== "same-origin") return send(res, 403, "Wrong origin.", common);
-			if (!String(req.headers["content-type"] ?? "").startsWith("application/json")) return send(res, 415, "JSON only.", common);
-		}
+		if (verdict.status !== 0) return send(res, verdict.status, verdict.text, common);
 
 		// ---- static files
 		if (req.method === "GET" && !url.pathname.startsWith("/api/")) {
-			const rel = url.pathname === "/" ? "index.html" : decodeURIComponent(url.pathname.slice(1));
-			const file = normalize(join(webDir, rel));
-			if (!file.startsWith(webDir + sep) || !existsSync(file) || !statSync(file).isFile()) return send(res, 404, "Not found.", common);
+			const file = staticFile(webDir, url.pathname);
+			if (!file) return send(res, 404, "Not found.", common);
 			res.writeHead(200, {
 				...common,
 				"Content-Type": TYPES[extname(file)] ?? "application/octet-stream",
@@ -561,12 +633,17 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 					return send(res, 404, { error: "not found" });
 			}
 		} catch (err) {
+			if (err instanceof BadRequest) return send(res, err.status, { error: err.message });
 			return send(res, 500, { error: (err as Error).message });
 		}
 	}
 
 	const server = createServer((req, res) => {
-		handle(req, res).catch((err) => send(res, 500, { error: (err as Error).message }));
+		handle(req, res).catch((err) => {
+			// An event stream has sent its headers already: close it; the page reconnects.
+			if (res.headersSent) return void res.end();
+			send(res, 500, { error: (err as Error).message });
+		});
 	});
 	await new Promise<void>((ok, fail) => {
 		server.once("error", fail);
@@ -645,7 +722,7 @@ export async function webMain(args: string[], env: NodeJS.ProcessEnv = process.e
 		return 1;
 	}
 	const file = runningFile(env);
-	writeFileSync(file, JSON.stringify({ pid: process.pid, port: web.port, token: web.token }), { mode: 0o600 });
+	writeFileSafe(file, JSON.stringify({ pid: process.pid, port: web.port, token: web.token }), { private: true });
 	log(`Sub-Sub web view on port ${web.port}.`);
 	const minutes = `${opts.idleMinutes} minute${opts.idleMinutes === 1 ? "" : "s"}`;
 	const stopHint = `To stop Sub-Sub, press Ctrl+C${opts.idleMinutes ? `; it also stops ${minutes} after you close the page` : ""}.`;

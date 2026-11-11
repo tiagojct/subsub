@@ -23,7 +23,7 @@
  * and for custom: --provider-url, --provider-key, --provider-model.
  */
 
-import { chmodSync, copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { createInterface } from "node:readline/promises";
@@ -46,6 +46,7 @@ import { defaultRunner, starbuckCheck } from "./doctor.ts";
 import { applyMoves, dirName, FOLDER_NAME, leftBehind, NOTE_DIRS, type NoteDir, planMoves, SETTINGS_DIR, SETTINGS_FILES, settingsTarget, subsubFolder } from "./layout.ts";
 import { KEY_PROVIDERS, saveApiKey } from "./keys.ts";
 import { CUSTOM_DEFAULT_NAME, type CustomProvider, saveCustomProvider } from "./providers.ts";
+import { writeFileSafe } from "./write.ts";
 
 const TEMPLATES = resolve(dirname(fileURLToPath(import.meta.url)), "..", "templates");
 
@@ -317,11 +318,11 @@ export async function runInit(
 	const alerts = !existsSync(alertsTarget) && existsSync(legacyAlerts) ? legacyAlerts : alertsTarget;
 	mkdirSync(dirname(envFile), { recursive: true });
 	const before = existsSync(envFile) ? readFileSync(envFile, "utf8") : "# Settings for the Sub-Sub Zotero servers (zotero-local-mcp). Written by subsub init.\n";
-	writeFileSync(
+	writeFileSafe(
 		envFile,
 		upsertEnv(before, { ZOTERO_VAULT: notes, ZOTERO_VOCAB: vocab, ZOTERO_ALERTS: alerts, ZOTERO_CONTACT_EMAIL: email || undefined, BRAVE_API_KEY: brave || undefined }),
+		{ private: Boolean(brave || hadBrave) }, // the file holds a key
 	);
-	if (brave || hadBrave) chmodSync(envFile, 0o600); // the file holds a key
 
 	const patch: Record<string, unknown> = {
 		profile: undefined,

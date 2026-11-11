@@ -35,7 +35,7 @@ export function checkLiteratureNote(text: string): string | undefined {
 	return undefined;
 }
 
-/** The text of a file after pi's edit tool applies edits[] (each oldText matched against the original). */
+/** The text of a file after edits[], each oldText matched exactly against the original. The fallback of editedText. */
 export function applyEdits(current: string, edits: Array<{ oldText?: unknown; newText?: unknown }>): string {
 	let out = current;
 	for (const e of edits) {
@@ -43,6 +43,42 @@ export function applyEdits(current: string, edits: Array<{ oldText?: unknown; ne
 		if (oldText && out.includes(oldText)) out = out.replace(oldText, () => String(e.newText ?? ""));
 	}
 	return out;
+}
+
+type PiApplyEdits = (content: string, edits: Array<{ oldText: string; newText: string }>, path: string) => { newContent: string };
+let piApplyEdits: Promise<PiApplyEdits | undefined> | undefined;
+
+/** pi's own edit matching (exact, then fuzzy: quotes, dashes, spaces, trailing blanks). pi does not export it, so it is loaded from its file. */
+function loadPiApplyEdits(): Promise<PiApplyEdits | undefined> {
+	piApplyEdits ??= (async () => {
+		try {
+			const { dirname, join } = await import("node:path");
+			const { fileURLToPath, pathToFileURL } = await import("node:url");
+			const dist = dirname(fileURLToPath(import.meta.resolve("@earendil-works/pi-coding-agent")));
+			const mod = await import(pathToFileURL(join(dist, "core", "tools", "edit-diff.js")).href);
+			return typeof mod.applyEditsToNormalizedContent === "function" ? (mod.applyEditsToNormalizedContent as PiApplyEdits) : undefined;
+		} catch {
+			return undefined;
+		}
+	})();
+	return piApplyEdits;
+}
+
+/**
+ * The text of a file after pi's edit tool applies edits[], matched the way pi matches them, so the
+ * note checks see what pi will write. Undefined when pi would refuse the edit (no match, two matches,
+ * overlapping edits): then nothing is written and there is nothing to check.
+ */
+export async function editedText(current: string, edits: Array<{ oldText?: unknown; newText?: unknown }>): Promise<string | undefined> {
+	const lf = current.replace(/^﻿/, "").replace(/\r\n?/g, "\n");
+	const list = edits.map((e) => ({ oldText: String(e.oldText ?? ""), newText: String(e.newText ?? "") }));
+	const pi = await loadPiApplyEdits();
+	if (!pi) return applyEdits(lf, list);
+	try {
+		return pi(lf, list, "note").newContent;
+	} catch {
+		return undefined;
+	}
 }
 
 // ---------------------------------------------------------------- quotes against the full text

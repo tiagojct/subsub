@@ -22,10 +22,11 @@
  * `subsub init` and the web view turn it on and off.
  */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { isObsidianVault, settingsFile } from "./layout.ts";
+import { writeFileSafe } from "./write.ts";
 
 export type Mode = "librarian" | "researcher";
 
@@ -113,7 +114,8 @@ export interface SubsubConfig {
 
 export function expand(p: string, home?: string): string {
 	const base = home ?? process.env.HOME ?? homedir();
-	return resolve(p.replace(/^~(?=$|\/)/, base));
+	// "~\" too, as Windows users type it.
+	return resolve(p.replace(/^~(?=$|[\\/])/, base));
 }
 
 export function parseEnvFile(path: string): Record<string, string> {
@@ -139,11 +141,14 @@ export function configPath(env: NodeJS.ProcessEnv = process.env): string {
 
 export function readConfigFile(file: string): Record<string, unknown> {
 	if (!existsSync(file)) return {};
+	let data: unknown;
 	try {
-		return JSON.parse(readFileSync(file, "utf8"));
+		data = JSON.parse(readFileSync(file, "utf8"));
 	} catch (err) {
 		throw new Error(`Sub-Sub: cannot read ${file}: ${(err as Error).message}`);
 	}
+	if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error(`Sub-Sub: ${file} must hold one JSON object ({ ... }).`);
+	return data as Record<string, unknown>;
 }
 
 /** Merge settings into the settings file; other settings stay. */
@@ -151,21 +156,22 @@ export function saveConfig(patch: Record<string, unknown>, env: NodeJS.ProcessEn
 	const file = configPath(env);
 	const merged = { ...readConfigFile(file), ...patch };
 	for (const [k, v] of Object.entries(merged)) if (v === undefined) delete merged[k];
-	mkdirSync(dirname(file), { recursive: true });
-	writeFileSync(file, `${JSON.stringify(merged, null, 2)}\n`);
+	writeFileSafe(file, `${JSON.stringify(merged, null, 2)}\n`);
 	return file;
 }
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): SubsubConfig {
 	const home = env.HOME;
 	const file = configPath(env);
-	let user: Record<string, any> = {};
-	if (existsSync(file)) {
-		try {
-			user = JSON.parse(readFileSync(file, "utf8"));
-		} catch (err) {
-			throw new Error(`Sub-Sub: cannot read ${file}: ${(err as Error).message}`);
-		}
+	const user: Record<string, any> = readConfigFile(file);
+	// A path setting of another type stops with a message that names it (not a TypeError later).
+	for (const key of ["envFile", "vault", "serverDir", "sharedRules", "uvPath", "starbuckDir"]) {
+		const v = user[key];
+		if (v !== undefined && v !== null && typeof v !== "string") throw new Error(`Sub-Sub: in ${file}, "${key}" must be a path in quotes, not ${JSON.stringify(v)}.`);
+		if (v === null) delete user[key];
+	}
+	if (user.vaultContext !== undefined && !(Array.isArray(user.vaultContext) && user.vaultContext.every((p: unknown) => typeof p === "string"))) {
+		throw new Error(`Sub-Sub: in ${file}, "vaultContext" must be a list of paths, for example ["~/Notes/.claude/CLAUDE.md"].`);
 	}
 	const explicitEnv = user.envFile ?? env.ZOTERO_MCP_ENV;
 	const envFile = explicitEnv
@@ -185,7 +191,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): SubsubConfig {
 	// Without a settings file (no subsub init yet), the user chooses in pi: no default that may lack a key.
 	const fallback = existsSync(file) ? { ...DEFAULT_MODELS } : {};
 	const models: Partial<Record<Mode, string>> = given ?? (one !== undefined ? { librarian: one || undefined, researcher: one || undefined } : fallback);
-	for (const k of Object.keys(models) as Mode[]) if (!models[k]) delete models[k];
+	// Only "provider/id" texts count; anything else is left to pi's own choice.
+	for (const k of Object.keys(models) as Mode[]) if (!models[k] || typeof models[k] !== "string") delete models[k];
 	const themes = user.themes === false ? false : typeof user.themes === "string" ? user.themes : user.themes?.researcher;
 	const themesLibrarian = user.themes && typeof user.themes === "object" ? user.themes.librarian : undefined;
 	return {
@@ -209,7 +216,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): SubsubConfig {
 			: vault
 				? settingsFile(vault, "rules")
 				: undefined,
-		startTimeout: user.startTimeout ?? 45,
+		startTimeout: typeof user.startTimeout === "number" && user.startTimeout > 0 ? user.startTimeout : 45,
 		costLimit: typeof user.costLimit === "number" && user.costLimit > 0 ? user.costLimit : undefined,
 		uvPath: user.uvPath ? expand(user.uvPath, home) : undefined,
 		look: user.look,

@@ -259,6 +259,27 @@ test("the Librarian has the library tools and no search tools; reads work", { ti
 	}
 });
 
+test("every tool of the real servers is on Sub-Sub's lists: a known read, a previewed write or a confirmed write", { timeout: 180_000 }, async () => {
+	const { CONFIRM_WRITES, NO_GATE, PREVIEW_WRITES } = await import("../src/roles.ts");
+	const pi = startPi();
+	try {
+		script = [{ text: "Hello." }];
+		requests.length = 0;
+		await pi.prompt("Hello");
+		const tools = requests[0].tools.map((t: any) => t.function).filter((f: any) => /^(zotero|scholar)_/.test(f.name));
+		assert.ok(tools.length > 30, `the servers offered ${tools.length} tools`);
+		// A new tool of the server is gated anyway (gateKind); this test asks for it to be put on a list on purpose.
+		const unlisted = tools.map((f: any) => f.name).filter((n: string) => !NO_GATE.has(n) && !PREVIEW_WRITES.has(n) && !CONFIRM_WRITES.has(n));
+		assert.deepEqual(unlisted, [], "add these tools to NO_GATE, PREVIEW_WRITES or CONFIRM_WRITES in src/roles.ts");
+		// A previewed write must default to a dry run on the server, as isDryRun assumes for a missing dry_run.
+		for (const f of tools.filter((f: any) => PREVIEW_WRITES.has(f.name))) {
+			assert.equal(f.parameters?.properties?.dry_run?.default, true, `${f.name}: dry_run defaults to true`);
+		}
+	} finally {
+		pi.kill();
+	}
+});
+
 const STARBUCK = process.env.STARBUCK_DIR ?? join(homedir(), "Projects", "starbuck");
 
 test("starbuck add-on: the verify server starts and checks a manuscript without asking", {

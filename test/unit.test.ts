@@ -15,7 +15,7 @@ import { formatChecks, runChecks } from "../src/doctor.ts";
 import { expand, loadConfig, parseEnvFile, type SubsubConfig } from "../src/config.ts";
 import { formatPreview, isEmptyPreview } from "../src/preview.ts";
 import { systemAddition } from "../src/prompt.ts";
-import { gateKind, toolsFor } from "../src/roles.ts";
+import { gateKind, NO_GATE, toolsFor } from "../src/roles.ts";
 import { createSubsub, serverSpecs, starbuckEnv } from "../src/subsub.ts";
 import { STARBUCK_SOURCE } from "../src/config.ts";
 
@@ -271,6 +271,41 @@ test("gate kinds", () => {
 	assert.equal(gateKind("zotero_trash_items", { dry_run: "true" }), null);
 });
 
+test("gate kinds: a server tool on no list is gated, never applied unasked", () => {
+	const dryTrue = { type: "object", properties: { dry_run: { type: "boolean", default: true } } };
+	const dryFalse = { type: "object", properties: { dry_run: { type: "boolean", default: false } } };
+	const noDry = { type: "object", properties: { keys: { type: "array" } } };
+	// A new write tool with a dry run: previewed unless the call is clearly a dry run.
+	assert.equal(gateKind("zotero_merge_items", { dry_run: false }, dryTrue), "preview");
+	assert.equal(gateKind("zotero_merge_items", {}, dryTrue), null);
+	assert.equal(gateKind("zotero_merge_items", { dry_run: true }, dryTrue), null);
+	// When the server's default is a real run, a missing dry_run is a real run.
+	assert.equal(gateKind("zotero_merge_items", {}, dryFalse), "preview");
+	assert.equal(gateKind("scholar_merge_notes", {}, dryFalse), "preview");
+	// Without a dry run, or without a schema: a yes is needed.
+	assert.equal(gateKind("zotero_merge_items", { keys: ["A"] }, noDry), "confirm");
+	assert.equal(gateKind("scholar_write_something", {}), "confirm");
+	// Known reads and checks stay free, whatever their schema says.
+	for (const n of ["zotero_find_items", "zotero_list_libraries", "zotero_get_figure", "scholar_search_pubmed", "scholar_get_work", "scholar_queue_imports"]) {
+		assert.equal(gateKind(n, {}, noDry), null, n);
+	}
+	// Other tools (pi's, other extensions') are not Sub-Sub's to judge.
+	assert.equal(gateKind("bash", {}), null);
+});
+
+test("gate: an unknown server write tool asks first, and a no blocks it", async () => {
+	const fp = fakePi();
+	const bridge = new FakeBridge();
+	bridge.tools.push({ server: "zotero", name: "merge_items", fullName: "zotero_merge_items", description: "merge", inputSchema: { type: "object", properties: { keys: { type: "array" } } } });
+	await createSubsub(fp.pi as any, { config: CFG, bridge: bridge as unknown as Bridge });
+	const { ctx, asked } = fakeCtx({ confirm: false });
+	for (const h of fp.handlers.session_start) await h({ reason: "startup" }, ctx);
+	const r = await fp.handlers.tool_call[0]({ toolName: "zotero_merge_items", input: { keys: ["A", "B"] } }, ctx);
+	assert.equal(asked.length, 1, "the user was asked");
+	assert.equal(r.block, true, "a no blocks the call");
+	assert.equal(bridge.calls.filter((c) => c.name === "zotero_merge_items").length, 0, "nothing reached the server");
+});
+
 test("gate normalises dry_run before the real call", async () => {
 	const { fp, ctx, bridge } = await setup(true);
 	await fp.commands.librarian.handler("", ctx);
@@ -334,6 +369,26 @@ test("config defaults and env file", () => {
 	assert.deepEqual(loadConfig({ SUBSUB_CONFIG: join(dir, "c.json"), ZOTERO_MCP_ENV: env } as any).models, { librarian: "p/one", researcher: "p/one" });
 	writeFileSync(join(dir, "c.json"), JSON.stringify({ model: "" }));
 	assert.deepEqual(loadConfig({ SUBSUB_CONFIG: join(dir, "c.json"), ZOTERO_MCP_ENV: env } as any).models, {});
+});
+
+test("config: a hand-edited settings file with a wrong type gives a message that names the setting", () => {
+	const dir = mkdtempSync(join(tmpdir(), "subsub-"));
+	const file = join(dir, "c.json");
+	const load = (data: unknown) => {
+		writeFileSync(file, JSON.stringify(data));
+		return loadConfig({ HOME: dir, SUBSUB_CONFIG: file, ZOTERO_MCP_ENV: join(dir, "none") } as any);
+	};
+	assert.throws(() => load(["a"]), /must hold one JSON object/);
+	assert.throws(() => load(null), /must hold one JSON object/);
+	assert.throws(() => load({ vault: 42 }), /"vault" must be a path in quotes, not 42/);
+	assert.throws(() => load({ serverDir: ["/x"] }), /"serverDir" must be a path/);
+	assert.throws(() => load({ vaultContext: "/x.md" }), /"vaultContext" must be a list of paths/);
+	assert.equal(load({ vault: null }).vault, undefined, "null is the same as no setting");
+	assert.equal(load({ startTimeout: "60" }).startTimeout, 45, "a timeout that is not a number keeps the default");
+	assert.equal(load({ startTimeout: -1 }).startTimeout, 45);
+	assert.equal(load({ startTimeout: 90 }).startTimeout, 90);
+	assert.deepEqual(load({ models: { librarian: 7, researcher: "p/b" } }).models, { researcher: "p/b" });
+	rmSync(dir, { recursive: true, force: true });
 });
 
 test("system prompt addition", () => {
@@ -658,6 +713,18 @@ test("/undo previews, confirms and applies", async () => {
 	assert.match(asked.at(-1)!.message, /Undo tag_items: tag 1 items/);
 	assert.deepEqual(bridge.calls.map((c) => c.args.dry_run), [true, false]);
 	assert.ok(notes.at(-1)!.startsWith("Undone"));
+});
+
+test("/undo: a failure of the real run is a notice, not a crash", async () => {
+	const { fp, ctx, bridge, notes } = await setup(true);
+	const call = bridge.call.bind(bridge);
+	bridge.call = async (name: string, args: Record<string, unknown>) => {
+		if (name === "zotero_undo" && args.dry_run === false) throw new Error("The zotero server is not running.");
+		return call(name, args);
+	};
+	bridge.responses.zotero_undo = { isError: false, text: "", data: { dry_run: true, would_change: 1, changes: [], undoing: { op: "tag_items", summary: "tag 1 items" } } };
+	await fp.commands.undo.handler("", ctx);
+	assert.match(notes.at(-1)!, /the undo did not run: The zotero server is not running\..*\/history/);
 });
 
 test("bench: prompts, tag scoring, identifiers and citekeys", async () => {
@@ -1688,6 +1755,86 @@ test("web: options, interface language, API keys", async () => {
 	assert.ok(STRINGS.en.theme && STRINGS.pt.theme);
 	assert.ok(STRINGS.en.export && STRINGS.pt.export);
 	assert.ok(STRINGS.en.confirmShortcutHint && STRINGS.pt.confirmShortcutHint);
+	// A bad number keeps the default: the server still stops by itself, and listens on a free port.
+	assert.equal(parseWebArgs(["--idle", "abc"]).idleMinutes, 10);
+	assert.equal(parseWebArgs(["--idle", "-3"]).idleMinutes, 10);
+	assert.equal(parseWebArgs(["--idle", "0"]).idleMinutes, 0);
+	assert.equal(parseWebArgs(["--port", "99999"]).port, 0);
+	assert.equal(parseWebArgs(["--port"]).port, 0);
+});
+
+test("files with keys: written whole, readable only by the user, through a shared link", { skip: process.platform === "win32" && "Unix file modes" }, async () => {
+	const { writeFileSafe } = await import("../src/write.ts");
+	const { readdirSync } = await import("node:fs");
+	const dir = mkdtempSync(join(tmpdir(), "subsub-write-"));
+	// An auth.json that existed before, readable by others: a key written into it closes it.
+	const pi = join(dir, "pi-auth.json");
+	writeFileSync(pi, "{}", { mode: 0o644 });
+	const link = join(dir, "auth.json");
+	symlinkSync(pi, link);
+	const { saveApiKey } = await import("../src/keys.ts");
+	saveApiKey(dir, "openai", "sk-abc");
+	assert.ok(lstatSync(link).isSymbolicLink(), "the link to pi's auth.json stays");
+	assert.equal(JSON.parse(readFileSync(pi, "utf8")).openai.key, "sk-abc", "the file it points to has the key");
+	assert.equal(statSync(pi).mode & 0o777, 0o600);
+	// A settings file keeps its mode; no temporary file is left.
+	const settings = join(dir, "settings.json");
+	writeFileSync(settings, "{}", { mode: 0o640 });
+	writeFileSafe(settings, '{"a":1}\n');
+	assert.equal(statSync(settings).mode & 0o777, 0o640);
+	assert.equal(readFileSync(settings, "utf8"), '{"a":1}\n');
+	writeFileSafe(join(dir, "new", "web.json"), "{}", { private: true });
+	assert.equal(statSync(join(dir, "new", "web.json")).mode & 0o777, 0o600);
+	assert.deepEqual(readdirSync(dir).filter((f) => f.endsWith(".tmp")), []);
+	rmSync(dir, { recursive: true, force: true });
+});
+
+test("web: the request rules (host, key, cookie, origin, JSON) and the static files", async () => {
+	const { checkRequest, parseCookies, readJson, staticFile, BadRequest } = await import("../src/web.ts");
+	const port = 4321;
+	const token = "secret-token";
+	const host = `127.0.0.1:${port}`;
+	const cookie = `subsub_${port}=${token}`;
+	const req = (over: Partial<Parameters<typeof checkRequest>[0]> & { headers?: Record<string, string> } = {}) =>
+		checkRequest({ method: "GET", pathname: "/api/ping", key: null, ...over, headers: { host, cookie, ...(over.headers ?? {}) } }, port, token);
+	assert.deepEqual(req(), { status: 0 });
+	assert.equal(req({ headers: { host: "evil.example:4321" } }).status, 403, "DNS rebinding: another host name");
+	assert.equal(req({ headers: { host: "127.0.0.1:9999" } }).status, 403);
+	assert.equal(req({ headers: { cookie: "" } }).status, 403, "no cookie");
+	assert.equal(req({ headers: { cookie: `subsub_${port}=wrong` } }).status, 403, "a wrong cookie");
+	assert.equal(req({ headers: { cookie: `subsub_${port}=%E0%A4%A` } }).status, 403, "bad percent-encoding is refused, not a crash");
+	// The first visit: the right key gives the cookie; a wrong key does not.
+	const first = req({ pathname: "/", key: token, headers: { cookie: "" } });
+	assert.equal(first.status, 303);
+	assert.match((first as { cookie: string }).cookie, /HttpOnly; SameSite=Strict/);
+	assert.equal(req({ pathname: "/", key: "guess", headers: { cookie: "" } }).status, 403);
+	// POST: same origin and JSON only.
+	const post = (headers: Record<string, string>) => req({ method: "POST", pathname: "/api/prompt", headers: { "content-type": "application/json", ...headers } });
+	assert.deepEqual(post({ origin: `http://${host}`, "sec-fetch-site": "same-origin" }), { status: 0 });
+	assert.equal(post({ origin: "https://evil.example" }).status, 403);
+	assert.equal(post({ "sec-fetch-site": "cross-site" }).status, 403);
+	assert.equal(post({ "content-type": "text/plain" }).status, 415, "a form post from another page is not JSON");
+	assert.deepEqual(parseCookies("a=1; b=%E0%A4%A; c=x%20y"), { a: "1", c: "x y" });
+
+	// Bodies: an object, or a 400 / 413.
+	const body = (s: string) => readJson((async function* () { yield Buffer.from(s); })());
+	assert.deepEqual(await body('{"a":1}'), { a: 1 });
+	assert.deepEqual(await body(""), {});
+	for (const bad of ["{", "null", "[1]", "3", '"x"']) await assert.rejects(body(bad), (e: unknown) => e instanceof BadRequest && e.status === 400, bad);
+	await assert.rejects(readJson((async function* () { yield Buffer.alloc(20); })(), 10), (e: unknown) => e instanceof BadRequest && e.status === 413);
+
+	// Static files: inside web/ only.
+	const root = mkdtempSync(join(tmpdir(), "subsub-web-"));
+	const web = join(root, "web");
+	mkdirSync(join(web, "fonts"), { recursive: true });
+	writeFileSync(join(web, "index.html"), "<title>Sub-Sub</title>");
+	writeFileSync(join(root, "outside.txt"), "x");
+	assert.equal(staticFile(web, "/"), join(web, "index.html"));
+	assert.equal(staticFile(web, "/index.html"), join(web, "index.html"));
+	for (const p of ["/../outside.txt", "/%2e%2e/outside.txt", "/..%2Foutside.txt", "/%E0%A4%A", "/fonts", "/missing.js", "/index.html%00.js"]) {
+		assert.equal(staticFile(web, p), undefined, p);
+	}
+	rmSync(root, { recursive: true, force: true });
 });
 
 test("shortcut: macOS app, Linux .desktop and Windows script quote paths safely", async () => {
@@ -1767,8 +1914,10 @@ test("every tool a mode offers is either a server tool, a read-only file tool, o
 	const readOnly = new Set(["read", "grep", "find", "ls"]);
 	for (const mode of ["librarian", "researcher"] as const) {
 		for (const name of toolsFor(mode, all)) {
-			const known = ["zotero_", "scholar_", "verify_"].some((x) => name.startsWith(x)) || readOnly.has(name)
-				|| gateKind(name, {}) === "path";
+			// A server tool counts only when it is a known read or check, or gated.
+			const server = ["zotero_", "scholar_"].some((x) => name.startsWith(x));
+			const known = (server && (NO_GATE.has(name) || gateKind(name, { dry_run: false }) !== null))
+				|| name.startsWith("verify_") || readOnly.has(name) || gateKind(name, {}) === "path";
 			assert.ok(known, `${mode} offers ${name}, which the gate does not judge`);
 		}
 	}
@@ -2070,6 +2219,35 @@ test("literature notes: quotes must be in the full text", async () => {
 	const { toolCall: call2, bridge: b2 } = await setup();
 	b2.responses.zotero_get_fulltext = { isError: true, text: "No indexed full text for this item." };
 	assert.equal(await call2("write", { path: "/vault/Literature/jacinto2026.md", content: note('- "FeNO halves the rate of hospital admission in children"') }), undefined);
+	// A failed read is not kept: once Zotero answers, the next note on the item is checked again.
+	b2.responses.zotero_get_fulltext = { isError: false, text: "", data: { text: full, next_offset: null } };
+	const later = await call2("write", { path: "/vault/Literature/jacinto2026.md", content: note('- "FeNO halves the rate of hospital admission in children"') });
+	assert.equal(later?.block, true, "the check runs after Zotero comes back");
+	// A read cut short (a part fails after the first) is not checked against: the rest of the text is unknown.
+	const { toolCall: call4, bridge: b4 } = await setup();
+	let part = 0;
+	b4.call = async (name: string, args: Record<string, unknown>) => {
+		b4.calls.push({ name, args });
+		if (name !== "zotero_get_fulltext") return { isError: false, text: "{}", data: {} };
+		return part++ === 0 ? { isError: false, text: "", data: { text: full, next_offset: full.length } } : { isError: true, text: "Zotero stopped" };
+	};
+	assert.equal(await call4("write", { path: "/vault/Literature/jacinto2026.md", content: note('- "FeNO halves the rate of hospital admission in children"') }), undefined);
+
+	// An edit that pi applies by its fuzzy match (curly quotes and a dash in the file, straight ones in oldText)
+	// is checked on the text pi will write, not on the unchanged file.
+	const { editedText } = await import("../src/notes.ts");
+	const dir = mkdtempSync(join(tmpdir(), "subsub-edit-"));
+	const file = join(dir, "jacinto2026.md");
+	writeFileSync(file, note("Summary: the authors call FeNO “a marker” – of type 2 inflammation."));
+	const edits = [{ oldText: 'call FeNO "a marker" - of type 2', newText: 'say "FeNO halves the rate of hospital admission in children" (p. 2) of type 2' }];
+	assert.match((await editedText(readFileSync(file, "utf8"), edits))!, /FeNO halves the rate/, "pi's match applies the edit");
+	assert.equal(await editedText("no such text here", edits), undefined, "an edit pi would refuse writes nothing");
+	const { toolCall: call5, bridge: b5 } = await setup();
+	b5.responses.zotero_get_fulltext = { isError: false, text: "", data: { text: full, next_offset: null } };
+	const fuzzy = await call5("edit", { path: file, edits });
+	assert.equal(fuzzy?.block, true);
+	assert.match(fuzzy.reason, /not in the item's full text/);
+	rmSync(dir, { recursive: true, force: true });
 });
 
 test("outside searches: a query is search terms, not passages", async () => {

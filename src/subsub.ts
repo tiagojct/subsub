@@ -39,7 +39,7 @@ import { aiStatement } from "./statement.ts";
 import { feedbackNote, ISSUES_URL } from "./feedback.ts";
 import { formatChecks, runChecks } from "./doctor.ts";
 import { PURPOSES, type Purpose, readArgs, readInstruction, type ReadRequest } from "./read.ts";
-import { applyEdits, checkLiteratureNote, field, frontMatter, itemKeyOf, missingQuotes, quoteProblem, quotesIn, sourceOf, withPageLinks } from "./notes.ts";
+import { checkLiteratureNote, editedText, field, frontMatter, itemKeyOf, missingQuotes, quoteProblem, quotesIn, sourceOf, withPageLinks } from "./notes.ts";
 import { buildPolicy, isSecret, judgePath, normalizeToolPath, realish, within } from "./paths.ts";
 import { describeArgs, formatPreview, isEmptyPreview } from "./preview.ts";
 import { perMinuteWait, providerTrouble, TROUBLE_TEXT, TROUBLE_TEXT_PT } from "./keys.ts";
@@ -69,6 +69,16 @@ export interface SubsubDeps {
 
 const PACKAGE_DIR = join(dirname(fileURLToPath(import.meta.url)), "..");
 const BENCH_ENTRY = "subsub-bench";
+/** The quote check reads an item's full text in parts of this size, up to this many parts (3 million characters, a long book). */
+const FULLTEXT_PART_CHARS = 60_000;
+const FULLTEXT_PARTS = 50;
+
+interface FullText {
+	text: string;
+	attachment?: string;
+	/** True when the whole text was read; only then is it checked against and kept for the session. */
+	complete: boolean;
+}
 
 function ownVersion(): string {
 	try {
@@ -474,7 +484,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	pi.on("session_start", async (_event, ctx) => {
 		costNoted = undefined; // a new or another conversation: its own cost
 		if (!bridge) {
-			const b = new Bridge();
+			const b = new Bridge(ownVersion() || undefined);
 			await b.start(deps.specs ?? serverSpecs(cfg), cfg.startTimeout * 1000);
 			bridge = b;
 			registerTools(b);
@@ -670,7 +680,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			return { block: true, reason: "That file holds keys or passwords. Sub-Sub does not read it." };
 		}
 		if (name.startsWith("verify_")) return verifyGate(name, input, ctx);
-		const kind = benchOut && name === "scholar_queue_imports" ? "confirm" : gateKind(name, input);
+		const kind = benchOut && name === "scholar_queue_imports" ? "confirm" : gateKind(name, input, schema);
 		if (!kind) return undefined;
 		if (benchOut) return benchGate(name, input, kind, ctx.cwd, ctx.signal);
 		if (kind === "path") {
@@ -744,7 +754,7 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		if (name === "write") text = String(input.content ?? "");
 		else if (name === "edit" && Array.isArray(input.edits) && existsSync(target)) {
 			before = readFileSync(target, "utf8");
-			text = applyEdits(before, input.edits as Array<{ oldText?: unknown; newText?: unknown }>);
+			text = await editedText(before, input.edits as Array<{ oldText?: unknown; newText?: unknown }>);
 		}
 		if (text === undefined) return undefined;
 		const problem = checkLiteratureNote(text);
@@ -753,8 +763,9 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		const key = itemKeyOf(text);
 		if (!front || !key || field(front, "evidence")?.toLowerCase() !== "full text" || !quotesIn(text).length) return undefined;
 		const full = await fullTextOf(key, signal);
-		// Without the full text (no PDF indexed, Zotero closed) there is nothing to check against.
-		if (!full) return undefined;
+		// Without the full text (no PDF indexed, Zotero closed) there is nothing to check against. A part of it
+		// (a read cut short, a text longer than Sub-Sub reads) would report quotes from the rest as missing.
+		if (!full?.complete) return undefined;
 		const missing = quoteProblem(missingQuotes(text, full.text, quotesIn(before)));
 		// A note that passes is written with its page references linked to the PDF.
 		if (!missing && full.attachment) {
@@ -765,28 +776,36 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		return missing;
 	}
 
-	/** The whole indexed full text of an item and its attachment, read in parts, kept for the session. */
-	const fullTexts = new Map<string, { text: string; attachment?: string } | null>();
-	async function fullTextOf(key: string, signal?: AbortSignal): Promise<{ text: string; attachment?: string } | undefined> {
-		if (fullTexts.has(key)) return fullTexts.get(key) ?? undefined;
+	/**
+	 * The whole indexed full text of an item and its attachment, read in parts. Only a complete read is
+	 * kept for the session: after a failure (Zotero closed, no PDF indexed yet, a part cut short) the next
+	 * note on the item reads it again, so the quote check is not skipped for the rest of the session.
+	 */
+	const fullTexts = new Map<string, FullText>();
+	async function fullTextOf(key: string, signal?: AbortSignal): Promise<FullText | undefined> {
+		const known = fullTexts.get(key);
+		if (known) return known;
 		let text = "";
 		let attachment: string | undefined;
 		let offset: number | null = 0;
+		let complete = false;
 		try {
-			for (let part = 0; offset !== null && part < 20; part++) {
-				const res = await current().call("zotero_get_fulltext", { key, offset, max_chars: 60000 }, signal);
+			for (let part = 0; offset !== null && part < FULLTEXT_PARTS; part++) {
+				const res = await current().call("zotero_get_fulltext", { key, offset, max_chars: FULLTEXT_PART_CHARS }, signal);
 				if (res.isError) break;
 				const data = (res.data ?? {}) as { text?: string; next_offset?: number | null; attachment?: string };
 				text += data.text ?? "";
 				attachment ??= data.attachment;
 				offset = data.next_offset ?? null;
 			}
+			complete = offset === null;
 		} catch {
 			/* no full text: the check is skipped */
 		}
-		const full = text ? { text, attachment } : null;
-		fullTexts.set(key, full);
-		return full ?? undefined;
+		if (!text) return undefined;
+		const full = { text, attachment, complete };
+		if (complete) fullTexts.set(key, full);
+		return full;
 	}
 
 	/**
@@ -1098,7 +1117,13 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 			}
 			const ok = await approve(ctx, L("Sub-Sub: undo?", "Sub-Sub: anular?"), paintFor(ctx)(formatPreview("zotero_undo", preview.data, lang)));
 			if (!ok) return;
-			const res = await current().call("zotero_undo", { ...input, dry_run: false });
+			let res;
+			try {
+				res = await current().call("zotero_undo", { ...input, dry_run: false });
+			} catch (err) {
+				ctx.ui.notify(L(`Sub-Sub: the undo did not run: ${(err as Error).message}. Type /history to see what changed.`, `Sub-Sub: a anulação não foi feita: ${(err as Error).message}. Escreva /history para ver o que mudou.`), "error");
+				return;
+			}
 			const d = (res.data ?? {}) as Record<string, unknown>;
 			ctx.ui.notify(res.isError ? res.text : L(`Undone: ${d.applied} item(s).`, `Anulado: ${d.applied} item(ns).`), res.isError ? "error" : "info");
 		},

@@ -4,7 +4,8 @@
  * The FMUP model service will be one of these.
  */
 
-import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync } from "node:fs";
+import { writeFileSafe } from "./write.ts";
 import { join } from "node:path";
 import { KEY_PROVIDERS } from "./keys.ts";
 
@@ -64,8 +65,7 @@ export function saveCustomProvider(agentDir: string, p: CustomProvider): string[
 		// pi shows a provider's models only when it has a key; a local server ignores the placeholder.
 		[p.name]: { baseUrl: p.baseUrl.trim(), api: "openai-completions", apiKey: (p.apiKey ?? "").trim() || "none", models: ids.map((id) => ({ id })) },
 	};
-	writeFileSync(file, `${JSON.stringify(data, null, 2)}\n`, { mode: 0o600 });
-	chmodSync(file, 0o600); // also when the file was there before
+	writeFileSafe(file, `${JSON.stringify(data, null, 2)}\n`, { private: true });
 	return ids.map((id) => `${p.name}/${id}`);
 }
 

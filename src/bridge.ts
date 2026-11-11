@@ -48,6 +48,11 @@ function withTimeout<T>(p: Promise<T>, ms: number, what: string): Promise<T> {
 }
 
 export class Bridge {
+	/** Sub-Sub's version, sent to the servers as the client's version. */
+	private readonly clientVersion: string;
+	constructor(clientVersion = "0.0.0") {
+		this.clientVersion = clientVersion;
+	}
 	private clients = new Map<string, Client>();
 	private owner = new Map<string, { server: string; name: string }>();
 	tools: BridgeTool[] = [];
@@ -65,7 +70,7 @@ export class Bridge {
 			env: { ...(process.env as Record<string, string>), ...(spec.env ?? {}) },
 			stderr: "pipe",
 		});
-		const client = new Client({ name: "subsub", version: "0.1.0" });
+		const client = new Client({ name: "subsub", version: this.clientVersion });
 		let stderr = "";
 		transport.stderr?.on("data", (chunk: Buffer) => {
 			stderr = (stderr + chunk.toString()).slice(-2000);

@@ -1,7 +1,8 @@
 /** Model providers that take an API key, and plain words for their common errors. */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { writeFileSafe } from "./write.ts";
 
 /**
  * `where`: where the provider processes the data, as a key into the web view's strings
@@ -33,8 +34,8 @@ export function saveApiKey(agentDir: string, provider: string, key: string): voi
 		}
 	}
 	data[provider] = { type: "api_key", key: clean };
-	// Write through a symlink (a shared pi auth.json) rather than replacing it.
-	writeFileSync(file, `${JSON.stringify(data, null, 2)}\n`, { mode: 0o600 });
+	// Through a symlink (a shared pi auth.json), the file it points to is written; readable only by the user.
+	writeFileSafe(file, `${JSON.stringify(data, null, 2)}\n`, { private: true });
 }
 
 

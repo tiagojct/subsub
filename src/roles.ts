@@ -133,17 +133,57 @@ export function unavailableReason(name: string, mode: Mode, registered: string[]
 	return `${name} is not available.`;
 }
 
+/**
+ * Server tools that change nothing in the library and need no question: reads, checks, outside
+ * searches, and the import queue (a note in the Sub-Sub folder). Any zotero_ or scholar_ tool that is
+ * on no list here is gated (see gateKind), so a new write tool of the server is never applied unasked.
+ */
+export const NO_GATE = new Set([
+	...ZOTERO_READ,
+	...ZOTERO_CHECKS,
+	...["list_libraries", "get_figure", "bakeoff_items", "bakeoff_submit"].map((n) => `zotero_${n}`),
+	...[
+		"search_pubmed",
+		"search_openalex",
+		"search_europepmc",
+		"search_multi",
+		"read_oa_fulltext",
+		"get_work",
+		"find_contact",
+		"citation_graph",
+		"library_lookup",
+		"check_manuscript",
+		"queue_imports",
+	].map((n) => `scholar_${n}`),
+]);
+
 export type GateKind = "preview" | "confirm" | "path" | null;
 
 /** A dry run only when dry_run is absent (server default true) or clearly true. */
-export function isDryRun(value: unknown): boolean {
-	return value === undefined || value === true || value === "true";
+export function isDryRun(value: unknown, absentMeansDryRun = true): boolean {
+	return (value === undefined && absentMeansDryRun) || value === true || value === "true";
 }
 
-export function gateKind(toolName: string, input: Record<string, unknown>): GateKind {
+/** The dry_run property of a tool's input schema, if it has one. */
+function dryRunProperty(schema: Record<string, unknown> | undefined): { default?: unknown } | undefined {
+	const props = schema?.properties as Record<string, { default?: unknown }> | undefined;
+	return props && typeof props === "object" && props.dry_run && typeof props.dry_run === "object" ? props.dry_run : undefined;
+}
+
+/**
+ * How the gate treats a call. `schema` is the tool's input schema from the server: a zotero_ or
+ * scholar_ tool on no list is previewed when it has dry_run (absent counts as a dry run only when the
+ * schema's default is true), and otherwise needs a yes.
+ */
+export function gateKind(toolName: string, input: Record<string, unknown>, schema?: Record<string, unknown>): GateKind {
 	if (PREVIEW_WRITES.has(toolName)) return isDryRun(input.dry_run) ? null : "preview";
 	if (CONFIRM_WRITES.has(toolName)) return "confirm";
 	if (toolName === "write" || toolName === "edit") return "path";
+	if ((toolName.startsWith("zotero_") || toolName.startsWith("scholar_")) && !NO_GATE.has(toolName)) {
+		const dry = dryRunProperty(schema);
+		if (dry) return isDryRun(input.dry_run, dry.default === true) ? null : "preview";
+		return "confirm";
+	}
 	return null;
 }
 
