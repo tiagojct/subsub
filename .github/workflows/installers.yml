@@ -11,6 +11,8 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "41 5 * * 1"   # Mondays: the published package still installs
+permissions:
+  contents: read
 jobs:
   unix:
     strategy:
@@ -19,7 +21,7 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install with the website's script
         run: sh site/src/install.sh
         env:
@@ -47,7 +49,7 @@ jobs:
   windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install with the website's script
         shell: powershell
         run: powershell -NoProfile -ExecutionPolicy ByPass -File site/src/install.ps1

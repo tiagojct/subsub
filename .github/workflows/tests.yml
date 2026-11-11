@@ -2,6 +2,8 @@ name: tests
 on:
   push:
   pull_request:
+permissions:
+  contents: read
 jobs:
   test:
     strategy:
@@ -10,16 +12,22 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
-        with:
-          repository: tiagojct/zotero-local-mcp
-          path: zotero-local-mcp
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "22"
-      - uses: astral-sh/setup-uv@v6
+      # The end-to-end tests run against the Zotero server release that users get (SERVER_VERSION in src/config.ts).
+      - id: server
+        shell: bash
+        run: echo "ref=v$(node -p 'require("fs").readFileSync("src/config.ts","utf8").match(/SERVER_VERSION = "([^"]+)"/)[1]')" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: tiagojct/zotero-local-mcp
+          ref: ${{ steps.server.outputs.ref }}
+          path: zotero-local-mcp
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
       - run: npm ci
+      - run: npx tsc --noEmit -p tsconfig.json
       - run: npm run build
       - run: npm test
       - run: uv sync

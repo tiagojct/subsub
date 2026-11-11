@@ -1,26 +1,32 @@
 name: pi-latest
-# Sub-Sub accepts pi patch releases only (~1.0.x). Each week, run the tests against pi's latest
-# release too, so that a change in pi shows here before Sub-Sub widens the range.
+# Sub-Sub accepts pi patch releases only (the peer range in package.json, ~1.5.0). Each week, run the
+# tests against pi's latest release too, so that a change in pi shows here before Sub-Sub widens the range.
 on:
   schedule:
     - cron: "17 6 * * 1"
   workflow_dispatch:
+permissions:
+  contents: read
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
-        with:
-          repository: tiagojct/zotero-local-mcp
-          path: zotero-local-mcp
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "22"
-      - uses: astral-sh/setup-uv@v6
+      # The Zotero server release that users get (SERVER_VERSION in src/config.ts).
+      - id: server
+        run: echo "ref=v$(node -p 'require("fs").readFileSync("src/config.ts","utf8").match(/SERVER_VERSION = "([^"]+)"/)[1]')" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: tiagojct/zotero-local-mcp
+          ref: ${{ steps.server.outputs.ref }}
+          path: zotero-local-mcp
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
       - run: npm ci
       - run: npm install --no-save @earendil-works/pi-coding-agent@latest
-      # Latest is outside the ~1.0.x range on purpose, so npm ls exits 1; it only prints the version.
+      # Latest can be outside the peer range on purpose, so npm ls may exit 1; it only prints the version.
       - run: npm ls @earendil-works/pi-coding-agent || true
       - run: npm run build
       - run: npm test
