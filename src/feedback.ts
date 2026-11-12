@@ -20,11 +20,27 @@ export interface FeedbackFacts {
 	vault?: string;
 }
 
+/**
+ * A folder as it can appear in a text: with / or \ between its parts, or \\ in JSON from the servers. Case does not
+ * count on Windows and macOS, where the file system ignores it. The match stops at the end of a name, so /Users/ana
+ * does not match /Users/anabela.
+ */
+function folderPattern(path: string, platform: NodeJS.Platform): RegExp | undefined {
+	const parts = path.split(/[\\/]+/).filter(Boolean);
+	if (!parts.length) return undefined;
+	const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+	const sep = "[\\\\/]+";
+	const lead = /^[\\/]/.test(path) ? sep : "";
+	return new RegExp(`${lead}${parts.map(esc).join(sep)}(?![\\w-])`, platform === "win32" || platform === "darwin" ? "gi" : "g");
+}
+
 /** Text made safe to post: the Sub-Sub and home folders, email addresses and keys taken out. */
-export function redact(text: string, home: string, vault?: string): string {
+export function redact(text: string, home: string, vault?: string, platform: NodeJS.Platform = process.platform): string {
 	let out = text;
-	if (vault) out = out.split(vault).join("<Sub-Sub folder>");
-	if (home) out = out.split(home).join("~");
+	const v = vault ? folderPattern(vault, platform) : undefined;
+	if (v) out = out.replace(v, "<Sub-Sub folder>");
+	const h = home ? folderPattern(home, platform) : undefined;
+	if (h) out = out.replace(h, "~");
 	return out
 		.replace(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g, "<email>")
 		.replace(/\b(?:sk-|AIza|ghp_|gho_|github_pat_|xox[bp]-)[\w-]{8,}/g, "<key>")

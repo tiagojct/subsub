@@ -321,7 +321,7 @@ export async function runInit(
 	writeFileSafe(
 		envFile,
 		upsertEnv(before, { ZOTERO_VAULT: notes, ZOTERO_VOCAB: vocab, ZOTERO_ALERTS: alerts, ZOTERO_CONTACT_EMAIL: email || undefined, BRAVE_API_KEY: brave || undefined }),
-		{ private: Boolean(brave || hadBrave) }, // the file holds a key
+		{ private: true }, // the file can hold keys (Brave, NCBI, OpenAlex), also ones added by hand later
 	);
 
 	const patch: Record<string, unknown> = {
@@ -389,25 +389,47 @@ export async function runInit(
 	return { configFile, envFile, notes, created, moved: move === "yes" ? moves.length : 0, zotero };
 }
 
+/** The options of subsub init. Each takes a value, except --yes. */
+const VALUE_FLAGS = ["name", "about", "language", "folder", "notes", "move", "setup", "tags", "email", "brave", "starbuck", "usage", "models", "provider-url", "provider-key", "provider-model"];
+const SWITCH_FLAGS = ["yes"];
+
+/** `--key value` or `--key=value`. An unknown option, or an option without its value, is an error: it must not become a folder or a key named "true". */
 export function parseFlags(args: string[]): Record<string, string> {
 	const out: Record<string, string> = {};
 	for (let i = 0; i < args.length; i++) {
 		const a = args[i];
 		if (!a.startsWith("--")) continue;
-		const key = a.slice(2);
+		const eq = a.indexOf("=");
+		const key = eq > 2 ? a.slice(2, eq) : a.slice(2);
+		if (SWITCH_FLAGS.includes(key)) {
+			out[key] = "true";
+			continue;
+		}
+		if (!VALUE_FLAGS.includes(key)) throw new Error(`unknown option --${key}. The options are: ${[...VALUE_FLAGS, ...SWITCH_FLAGS].map((f) => `--${f}`).join(", ")}.`);
+		if (eq > 2) {
+			out[key] = a.slice(eq + 1);
+			continue;
+		}
 		const next = args[i + 1];
-		if (next !== undefined && !next.startsWith("--")) {
-			out[key] = next;
-			i++;
-		} else out[key] = "true";
+		if (next === undefined || next.startsWith("--")) throw new Error(`--${key} needs a value, for example --${key} <value> or --${key}=<value>.`);
+		out[key] = next;
+		i++;
 	}
 	return out;
+}
+
+/** A default that is not one of the choices comes from a wrong option value (for example --tags health). */
+function badChoice(question: string, options: Array<{ value: string }>, value: string): Error {
+	return new Error(`"${value}" is not a choice for "${question}". Use one of: ${options.map((o) => o.value).join(", ")}.`);
 }
 
 function defaultsIO(say: (l: string) => void): InitIO {
 	return {
 		ask: async (_q, def) => def,
-		choose: async (_q, _o, def) => def,
+		choose: async (q, options, def) => {
+			if (!options.some((o) => o.value === def)) throw badChoice(q, options, def);
+			return def;
+		},
 		say,
 	};
 }
@@ -420,6 +442,7 @@ function terminalIO(): InitIO & { close(): void } {
 			return a.trim() === "" ? def : a.trim();
 		},
 		async choose(q, options, def) {
+			if (!options.some((o) => o.value === def)) throw badChoice(q, options, def);
 			console.log(`\n${q}`);
 			options.forEach((o, i) => console.log(`  ${i + 1}. ${o.label}${o.value === def ? "  (default)" : ""}`));
 			for (;;) {
@@ -438,7 +461,13 @@ function terminalIO(): InitIO & { close(): void } {
 }
 
 export async function initMain(args: string[], env: NodeJS.ProcessEnv = process.env): Promise<number> {
-	const flags = parseFlags(args);
+	let flags: Record<string, string>;
+	try {
+		flags = parseFlags(args);
+	} catch (err) {
+		console.error(`Sub-Sub init: ${(err as Error).message}`);
+		return 1;
+	}
 	if (!process.stdin.isTTY && flags.yes === undefined) {
 		flags.yes = "true";
 		console.log("Not a terminal: Sub-Sub takes the default answers (as with --yes).");

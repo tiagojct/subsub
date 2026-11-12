@@ -2520,3 +2520,110 @@ test("layout lower: moves, mixed folders, an empty sub-sub folder, a date before
 	assert.equal(noteName(target, "2026-01-01 _x"), "2026-01-01_x");
 	assert.equal(noteName(target, "2026-01-01__x"), "2026-01-01_x");
 });
+
+test("init options: --key value or --key=value; a missing value, an unknown option or a wrong choice stops init", async () => {
+	const { parseFlags, initMain } = await import("../src/init.ts");
+	assert.deepEqual(parseFlags(["--yes", "--name=Ana", "--folder", "/x y", "--tags", "any-field"]), { yes: "true", name: "Ana", folder: "/x y", tags: "any-field" });
+	assert.deepEqual(parseFlags(["--brave="]), { brave: "" }, "an empty value is a value");
+	assert.throws(() => parseFlags(["--folder"]), /--folder needs a value/);
+	assert.throws(() => parseFlags(["--email", "--yes"]), /--email needs a value/);
+	assert.throws(() => parseFlags(["--starbuk", "on"]), /unknown option --starbuk/);
+
+	const home = mkdtempSync(join(tmpdir(), "subsub-initflags-"));
+	const env = { HOME: home, SUBSUB_CONFIG: join(home, "c.json"), ZOTERO_MCP_ENV: join(home, "env"), SUBSUB_AGENT_DIR: join(home, "agent") } as any;
+	const errors: string[] = [];
+	const [log, error] = [console.log, console.error];
+	console.log = () => {};
+	console.error = (m: string) => errors.push(m);
+	try {
+		assert.equal(await initMain(["--folder"], env), 1);
+		assert.equal(await initMain(["--yes", "--folder", join(home, "Notes"), "--tags", "health"], env), 1);
+	} finally {
+		[console.log, console.error] = [log, error];
+	}
+	assert.match(errors[0], /--folder needs a value/);
+	assert.match(errors[1], /"health" is not a choice for "Starter tag list". Use one of: health-sciences, health-informatics, any-field/);
+	assert.ok(!existsSync(env.SUBSUB_CONFIG) && !existsSync(env.ZOTERO_MCP_ENV), "nothing is written");
+});
+
+test("init: the server env file is readable only by the user, also without a Brave key", { skip: process.platform === "win32" }, async () => {
+	const home = mkdtempSync(join(tmpdir(), "subsub-initenv-"));
+	const env = { SUBSUB_CONFIG: join(home, "c.json"), ZOTERO_MCP_ENV: join(home, "env") } as any;
+	writeFileSync(env.ZOTERO_MCP_ENV, "NCBI_API_KEY=abc\n", { mode: 0o644 });
+	const io = { ask: async (_q: string, d: string) => d, choose: async (_q: string, _o: unknown, d: string) => d, say: () => {} };
+	const notFound = (async () => { throw new Error("no zotero"); }) as unknown as typeof fetch;
+	await runInit(io, {}, env, { home, fetch: notFound });
+	assert.equal(statSync(env.ZOTERO_MCP_ENV).mode & 0o777, 0o600);
+	assert.match(readFileSync(env.ZOTERO_MCP_ENV, "utf8"), /NCBI_API_KEY=abc/);
+});
+
+test("doctor: SUBSUB_AGENT_DIR with ~ is the folder in the home folder", () => {
+	const home = mkdtempSync(join(tmpdir(), "subsub-doc-agent-"));
+	mkdirSync(join(home, "agent"));
+	writeFileSync(join(home, "agent", "auth.json"), JSON.stringify({ google: { type: "api_key", key: "k" } }));
+	const cfgFile = join(home, "config.json");
+	writeFileSync(cfgFile, "{}");
+	const status = { zotero: "reachable", vocabulary: { path: "/v.md", tags: 26, facets: ["method", "type", "status"], problems: [] }, contact_email_set: true };
+	const run = (_cmd: string, args: string[]) => (args[0] === "--version" ? { status: 0, stdout: "uv 0.9.0", stderr: "" } : { status: 0, stdout: JSON.stringify(status), stderr: "" });
+	const login = (env: Record<string, string>) => runChecks({ ...CFG, configFile: cfgFile, vault: home, serverDir: "/nonexistent" }, env, { run, nodeVersion: "22.20.0" }).find((c) => c.name === "Model login");
+	assert.equal(login({ HOME: home, SUBSUB_AGENT_DIR: "~/agent" })?.ok, true);
+	assert.equal(login({ HOME: home, SUBSUB_AGENT_DIR: "~/other" })?.ok, false);
+});
+
+test("feedback: a folder is taken out in any spelling the servers use, and only as a whole name", async () => {
+	const { redact } = await import("../src/feedback.ts");
+	const win = String.raw`C:\Users\Ana`;
+	assert.equal(redact(String.raw`a C:\\Users\\Ana\\x b c:/users/ana/y c C:\Users\Ana\Sub-Sub`, win, String.raw`C:\Users\Ana\Sub-Sub`, "win32"), String.raw`a ~\\x b ~/y c <Sub-Sub folder>`);
+	assert.equal(redact("/Users/anabela/x and /Users/ana.", "/Users/ana", undefined, "linux"), "/Users/anabela/x and ~.");
+	assert.equal(redact("/home/Ana/x", "/home/ana", undefined, "linux"), "/home/Ana/x", "Linux names keep their case");
+	assert.equal(redact("/a/b", "/", undefined, "linux"), "/a/b", "a home of / is not a name");
+});
+
+test("preview: a field or row the server leaves out does not stop the preview", () => {
+	assert.doesNotThrow(() => formatPreview("zotero_tag_items", undefined));
+	const t = formatPreview("zotero_tag_items", { would_change: 2, changes: [null, { added: ["a"] }] });
+	assert.match(t, /\+ a/);
+	assert.match(formatPreview("zotero_undo", { undoing: { op: "tag_items" } }), /tag_items: $/m);
+	assert.match(formatPreview("zotero_import_identifiers", { would_import: [{ citekey: "a" }, 5] }), /^a {2}/m);
+	assert.doesNotThrow(() => formatPreview("zotero_apply_tag_review", { changed_since_note: { count: 1, items: { K: null, L: { now: "x" } } } }));
+	assert.doesNotThrow(() => formatPreview("zotero_tag_items", { would_change: 1, changes: "x" }));
+});
+
+test("usage: lines that are not events are left out", async () => {
+	const { summarizeUsage } = await import("../src/usage.ts");
+	const text = ["null", "5", "{}", '{"t":"2026-11-01T10:00:00Z","ev":"turn","tools":2}', '{"t":"2026-11-01T11:00:00Z","ev":"turn","seconds":120,"tools":1}'].join("\n");
+	const s = summarizeUsage(text);
+	assert.match(s, /2 minute\(s\), with 3 tool call\(s\)/);
+	assert.doesNotMatch(s, /NaN/);
+	assert.equal(summarizeUsage("null\n{}"), "The usage log is empty.");
+});
+
+test("bench: a refused or string-shaped tag submit, and score sheets saved by Excel with a decimal comma", async () => {
+	const { scoreRun, agreement } = await import("../src/bench.ts");
+	const dir = mkdtempSync(join(tmpdir(), "subsub-bench-tags-"));
+	const ev = (id: string, args: unknown, isError: boolean) => [
+		{ type: "tool_execution_start", toolName: "zotero_bakeoff_submit", toolCallId: id, args },
+		{ type: "tool_execution_end", toolName: "zotero_bakeoff_submit", toolCallId: id, isError, result: { content: [{ type: "text", text: isError ? "Validation failed" : "{}" }] } },
+	];
+	const events = [...ev("a", { proposals: [{ key: "A", tags: "topic/a, method/x" }] }, true)];
+	writeFileSync(join(dir, "events.jsonl"), events.map((e) => JSON.stringify(e)).join("\n") + "\n");
+	const tasks: any = { tagging: { keys: ["A"] } };
+	const refused = scoreRun("tagging", dir, tasks, [], {});
+	assert.equal(refused.submitted, false, "a refused submit proposed nothing");
+	writeFileSync(join(dir, "events.jsonl"), [...events, ...ev("b", { proposals: [{ key: "A", tags: "topic/a, method/x" }] }, false)].map((e) => JSON.stringify(e)).join("\n") + "\n");
+	const ok = scoreRun("tagging", dir, tasks, [], {});
+	assert.equal(ok.submitted, true);
+	assert.deepEqual(ok.proposals, { A: ["topic/a", "method/x"] });
+
+	const root = mkdtempSync(join(tmpdir(), "subsub-bench-agree-"));
+	const sheet = join(root, "sheet");
+	mkdirSync(join(root, "judging", "j1"), { recursive: true });
+	mkdirSync(sheet);
+	writeFileSync(join(root, "judging", "j1", "scores.json"), JSON.stringify({ scores: [{ label: "L1", task: "lit", score: 4 }, { label: "L2", task: "lit", score: 2 }] }));
+	writeFileSync(join(sheet, "sheet-key.json"), JSON.stringify({ judging: "j1", key: { H1: { label: "L1", task: "lit" }, H2: { label: "L2", task: "lit" } } }));
+	writeFileSync(join(sheet, "scores-ab.csv"), "\uFEFFlabel;task;score;invented_refs;notes\r\nH1;lit;4,5;0;\r\nH2;lit;2;0;ok, fine\r\n");
+	const rows = agreement(root, sheet);
+	assert.equal(rows.length, 1);
+	assert.equal(rows[0].n, 2);
+	assert.equal(rows[0].mean_abs_diff, 0.25);
+});

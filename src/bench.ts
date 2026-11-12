@@ -182,10 +182,16 @@ export function runOne(opts: {
 			send({ type: "abort" });
 			setTimeout(() => finish({ timedOut: true, error: "timeout" }), 3000);
 		}, opts.timeoutSec * 1000);
-		proc.stderr.on("data", (d) => (stderr += d.toString()));
+		// Decode as UTF-8 streams, so a character split between two chunks stays whole.
+		proc.stdout.setEncoding("utf8");
+		proc.stderr.setEncoding("utf8");
+		proc.stderr.on("data", (d: string) => (stderr += d));
 		proc.on("exit", (code) => finish({ error: `pi exited (${code}) before the task ended` }));
-		proc.stdout.on("data", (d) => {
-			buf += d.toString();
+		// The process could not start (a working folder that is gone), or it closed its input: end this run, not the whole test.
+		proc.on("error", (err) => finish({ error: `pi did not start: ${err.message}` }));
+		proc.stdin.on("error", () => undefined);
+		proc.stdout.on("data", (d: string) => {
+			buf += d;
 			let i: number;
 			while ((i = buf.indexOf("\n")) >= 0) {
 				const line = buf.slice(0, i).replace(/\r$/, "");
@@ -388,10 +394,18 @@ export function starbuckScorer(cfg = loadConfig(), env: NodeJS.ProcessEnv = proc
 	return (file) => {
 		const claims = env.STARBUCK_JUDGE_URL && env.STARBUCK_JUDGE_MODEL ? ["--claims"] : [];
 		const args = [...cmd.args.slice(0, -1), "starbuck", "check", file, "--to", "", "--quiet", ...claims];
+		const started = Date.now();
 		const r = spawnSync(cmd.command, args, { env, encoding: "utf8", timeout: 20 * 60_000 });
 		const report = join(dirname(file), "_starbuck", `${file.split(/[\\/]/).pop()!.replace(/\.[^.]+$/, "")}-references.json`);
-		if (!existsSync(report)) return { error: (r.stderr || r.error?.message || "no report").trim().slice(0, 300) };
-		const res = JSON.parse(readFileSync(report, "utf8"));
+		// A report from an earlier score does not count when this check failed.
+		const fresh = existsSync(report) && statSync(report).mtimeMs >= started - 2000;
+		if (!fresh) return { error: (r.stderr || r.error?.message || "no report").trim().slice(0, 300) };
+		let res: Record<string, any>;
+		try {
+			res = JSON.parse(readFileSync(report, "utf8"));
+		} catch (err) {
+			return { error: `the report cannot be read: ${(err as Error).message}`.slice(0, 300) };
+		}
 		const run = res.claims_run ?? {};
 		return {
 			references: res.summary?.references_checked,
@@ -429,9 +443,11 @@ export function scoreRun(task: string, dir: string, t: Tasks, index: IndexRow[],
 	const readFile = (name: string) => (existsSync(join(dir, name)) ? readFileSync(join(dir, name), "utf8") : undefined);
 
 	if (task === "tagging") {
-		const sub = calls.filter((c) => c.name === "zotero_bakeoff_submit").at(-1);
+		// The last submit that pi accepted: a refused one (arguments of the wrong shape) proposed nothing.
+		const sub = calls.filter((c) => c.name === "zotero_bakeoff_submit" && !c.isError).at(-1);
 		const proposals: Record<string, string[]> = {};
-		for (const p of sub?.args?.proposals ?? []) if (p?.key) proposals[p.key] = (p.tags ?? []).map((x: string) => String(x).trim());
+		const list = (v: unknown): string[] => (Array.isArray(v) ? v.map((x) => String(x).trim()) : typeof v === "string" ? v.split(",").map((x) => x.trim()).filter(Boolean) : []);
+		for (const p of Array.isArray(sub?.args?.proposals) ? sub.args.proposals : []) if (p?.key) proposals[p.key] = list(p.tags);
 		let invalid = 0;
 		try {
 			invalid = (JSON.parse(sub?.result ?? "{}").tags_not_in_vocabulary ?? []).length;
@@ -840,9 +856,13 @@ export function agreement(root: string, sheetDir: string): Array<{ a: string; b:
 	for (const f of readdirSync(sheetDir).filter((f) => /^scores-.+\.csv$/.test(f))) {
 		const name = f.replace(/^scores-|\.csv$/g, "");
 		raters[name] = {};
-		for (const line of readFileSync(join(sheetDir, f), "utf8").split("\n").slice(1)) {
-			const [label, , score] = line.split(",");
-			if (label && score && !Number.isNaN(Number(score))) raters[name][label.trim()] = Number(score);
+		// Excel in a language with a decimal comma (Portuguese) saves "label;task;4,5;...".
+		const lines = readFileSync(join(sheetDir, f), "utf8").replace(/^\uFEFF/, "").split(/\r?\n/);
+		const sep = lines[0].includes(";") ? ";" : ",";
+		for (const line of lines.slice(1)) {
+			const [label, , raw] = line.split(sep);
+			const score = sep === ";" ? raw?.replace(",", ".") : raw;
+			if (label && score?.trim() && !Number.isNaN(Number(score))) raters[name][label.trim()] = Number(score);
 		}
 	}
 	const names = Object.keys(raters);
@@ -861,9 +881,20 @@ export function agreement(root: string, sheetDir: string): Array<{ a: string; b:
 
 // ---------------------------------------------------------------- CLI
 
+/** The value after --name; none when the next word is another option. */
 function arg(argv: string[], name: string): string | undefined {
 	const i = argv.indexOf(`--${name}`);
-	return i >= 0 ? argv[i + 1] : undefined;
+	const v = i >= 0 ? argv[i + 1] : undefined;
+	return v === undefined || v.startsWith("--") ? undefined : v;
+}
+
+/** A whole number option (--parallel 3); a value that is not one stops the command instead of running nothing. */
+function count(argv: string[], name: string, def: number, min = 1): number {
+	const v = arg(argv, name);
+	if (v === undefined) return def;
+	const n = Number(v);
+	if (!v.trim() || !Number.isInteger(n) || n < min) throw new Error(`--${name} needs a whole number of ${min} or more, not "${v}".`);
+	return n;
 }
 
 export function benchDir(argv: string[]): string {
@@ -907,7 +938,9 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
 	if (cmd === "prepare") {
 		mkdirSync(dir, { recursive: true });
 		const env = { ...process.env, ...(cfg.envFile ? { ZOTERO_MCP_ENV: cfg.envFile } : {}) };
-		const r = spawnSync(findUv(cfg), ["run", "--directory", cfg.serverDir, "zotero-bench", "prepare", "--out", dir, "--seed", arg(argv, "seed") ?? "7"], { env, stdio: "inherit" });
+		if (!existsSync(cfg.serverDir)) throw new Error(`subsub-bench prepare needs a copy of the zotero-local-mcp repository: ${cfg.serverDir} does not exist. Set "serverDir" in the settings file.`);
+		const r = spawnSync(findUv(cfg), ["run", "--directory", cfg.serverDir, "zotero-bench", "prepare", "--out", dir, "--seed", String(count(argv, "seed", 7, 0))], { env, stdio: "inherit" });
+		if (r.error) console.error(`subsub-bench prepare: uv did not run: ${r.error.message}`);
 		process.exitCode = r.status ?? 1;
 		return;
 	}
@@ -915,6 +948,7 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
 		const tasksFile = join(dir, "tasks.json");
 		if (!existsSync(tasksFile)) throw new Error(`No tasks in ${dir}. Run: subsub-bench prepare`);
 		if (!cfg.vault) throw new Error("No vault configured (ZOTERO_VAULT).");
+		if (!existsSync(cfg.vault)) throw new Error(`The Sub-Sub folder ${cfg.vault} does not exist. Type subsub init.`);
 		const t: Tasks = JSON.parse(readFileSync(tasksFile, "utf8"));
 		const both = arg(argv, "models")?.split(",").filter(Boolean);
 		const lists: Record<Mode, string[]> = {
@@ -931,9 +965,9 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
 		for (const role of ["librarian", "researcher"] as Mode[])
 			for (const model of lists[role])
 				for (const task of TASKS[role]) if (!only || only.includes(task)) jobs.push({ role, task, model, code: codes[model] });
-		const timeoutSec = Number(arg(argv, "timeout") ?? 900);
+		const timeoutSec = count(argv, "timeout", 900);
 		let n = 0;
-		await pool(jobs, Number(arg(argv, "parallel") ?? 3), async (j) => {
+		await pool(jobs, count(argv, "parallel", 3), async (j) => {
 			const out = join(dir, "runs", j.code, j.task);
 			if (existsSync(join(out, "summary.json")) && !argv.includes("--again")) return;
 			const prompt = promptFor(j.task, t, j.code, out);
@@ -967,7 +1001,14 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
 					const d = join(dir, "runs", code, task);
 					if (!existsSync(join(d, "summary.json"))) continue;
 					const kept = previous.find((r) => r.model === key[code] && r.task === task)?.s.starbuck;
-					rows.push({ model: key[code], role, task, s: scoreRun(task, d, t, index, refs, scorer ?? (kept ? () => kept : undefined)) });
+					let s: Record<string, any>;
+					try {
+						s = scoreRun(task, d, t, index, refs, scorer ?? (kept ? () => kept : undefined));
+					} catch (err) {
+						// One run that cannot be read (a file cut short) is reported; the other runs are still scored.
+						s = { ok: false, error: `scoring failed: ${(err as Error).message}` };
+					}
+					rows.push({ model: key[code], role, task, s });
 				}
 		}
 		writeFileSync(join(dir, "results.json"), JSON.stringify(rows, null, 1));
@@ -985,7 +1026,7 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
 	}
 	if (cmd === "sheet") {
 		const out = expand(arg(argv, "out") ?? join(process.cwd(), "scoring-sheet"));
-		const n = makeSheet(join(PACKAGE_DIR, "bench-results"), arg(argv, "judging") ?? "2026-10-07-repeats", out, Number(arg(argv, "n") ?? 12), Number(arg(argv, "seed") ?? 1));
+		const n = makeSheet(join(PACKAGE_DIR, "bench-results"), arg(argv, "judging") ?? "2026-10-07-repeats", out, count(argv, "n", 12), count(argv, "seed", 1, 0));
 		console.log(`Wrote a sheet of ${n} outputs to ${out}. Give the scorers the .md files, README.md and scores.csv, not sheet-key.json.`);
 		return;
 	}

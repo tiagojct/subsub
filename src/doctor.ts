@@ -13,6 +13,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import {
+	expand,
 	findUv,
 	loadConfig,
 	SERVER_VERSION,
@@ -114,7 +115,7 @@ export function runChecks(
 			ok: false,
 			detail: notPublished ? `zotero-local-mcp ${SERVER_VERSION} is not on PyPI` : first || "no answer",
 			fix: local
-				? `Type: cd "${cfg.serverDir}" && uv sync`
+				? `Type: uv sync --directory "${cfg.serverDir}"`
 				: notPublished
 					? 'Set "serverDir" in the settings file to a copy of the zotero-local-mcp repository.'
 					: `uv could not run zotero-local-mcp ${SERVER_VERSION} from PyPI. Check the internet connection and try again.`,
@@ -159,7 +160,7 @@ export function runChecks(
 			: { name: "Contact email", ok: true, warn: true, detail: "not set: open-access PDFs cannot be found", fix: "Type subsub init and give an email address." },
 	);
 	if (starbuckEnabled(cfg)) out.push(starbuckCheck(cfg, env, run));
-	const agentDir = deps.agentDir ?? (env.SUBSUB_AGENT_DIR ? env.SUBSUB_AGENT_DIR : join(homedir(), ".subsub", "agent"));
+	const agentDir = deps.agentDir ?? (env.SUBSUB_AGENT_DIR ? expand(env.SUBSUB_AGENT_DIR, env.HOME) : join(homedir(), ".subsub", "agent"));
 	out.push(
 		hasLogin(agentDir)
 			? { name: "Model login", ok: true, detail: Object.keys(cfg.models).length ? Object.entries(cfg.models).map(([m, id]) => `${m} ${id}`).join(", ") : "pi's default model" }
@@ -182,7 +183,7 @@ export function starbuckCheck(cfg: SubsubConfig, env: NodeJS.ProcessEnv, run: Ru
 		ok: false,
 		detail: local ? `cannot start from ${cfg.starbuckDir}` : `cannot install ${STARBUCK_SOURCE} with uv`,
 		fix: local
-			? `Type: cd "${cfg.starbuckDir}" && uv sync`
+			? `Type: uv sync --directory "${cfg.starbuckDir}"`
 			: "Check the internet connection and run subsub doctor again. To turn reference checks off, type subsub init.",
 	};
 }

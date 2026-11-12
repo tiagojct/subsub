@@ -37,7 +37,9 @@ export function summarizeUsage(text: string): string {
 		.filter(Boolean)
 		.flatMap((l) => {
 			try {
-				return [JSON.parse(l) as UsageEvent & { t: string }];
+				const r = JSON.parse(l) as UsageEvent & { t: string };
+				// A line edited by hand that is not an event (null, a number, no time) is left out.
+				return r && typeof r === "object" && typeof r.t === "string" ? [r] : [];
 			} catch {
 				return [];
 			}
@@ -50,12 +52,13 @@ export function summarizeUsage(text: string): string {
 	const changes = count("change");
 	const kinds = new Map<string, number>();
 	for (const a of asks) kinds.set(a.kind, (kinds.get(a.kind) ?? 0) + 1);
-	const minutes = Math.round(turns.reduce((s, r) => s + r.seconds, 0) / 60);
+	const num = (n: unknown) => (typeof n === "number" && Number.isFinite(n) ? n : 0);
+	const minutes = Math.round(turns.reduce((s, r) => s + num(r.seconds), 0) / 60);
 	const errors = turns.filter((r) => r.error).length;
 	const lines = [
 		`From ${rows[0].t.slice(0, 10)} to ${rows.at(-1)!.t.slice(0, 10)}: Sub-Sub used on ${days.size} day(s), in ${count("session").length} session(s).`,
 		`Requests: ${asks.length} (${[...kinds].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join(", ")}).`,
-		`Time Sub-Sub spent working: ${minutes} minute(s), with ${turns.reduce((s, r) => s + r.tools, 0)} tool call(s) and ${errors} error(s).`,
+		`Time Sub-Sub spent working: ${minutes} minute(s), with ${turns.reduce((s, r) => s + num(r.tools), 0)} tool call(s) and ${errors} error(s).`,
 		`Library changes: ${changes.filter((c) => c.approved).length} approved, ${changes.filter((c) => !c.approved).length} declined.`,
 	];
 	return lines.join("\n");

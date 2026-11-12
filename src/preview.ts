@@ -69,14 +69,17 @@ const WORDS = {
 
 type Obj = Record<string, unknown>;
 
+/** The objects of a list from the server; anything else (a missing list, a null row) is left out, so a preview never fails on it. */
+const objs = (v: unknown): Obj[] => (Array.isArray(v) ? v.filter((x): x is Obj => Boolean(x) && typeof x === "object") : []);
+
 function s(v: unknown, n = 90): string {
-	const t = typeof v === "string" ? v : JSON.stringify(v);
+	const t = typeof v === "string" ? v : (JSON.stringify(v) ?? ""); // undefined: a field the server left out
 	return t.length > n ? `${t.slice(0, n - 3)}...` : t;
 }
 
 /** What will be written: shown whole up to a large limit, and the rest is counted, never silently cut. */
 function whole(v: unknown, w: (typeof WORDS)[Lang], n = 3000): string {
-	const t = typeof v === "string" ? v : JSON.stringify(v);
+	const t = typeof v === "string" ? v : (JSON.stringify(v) ?? ""); // undefined: a field the server left out
 	return t.length > n ? `${t.slice(0, n)} ${w.moreChars(t.length - n)}` : t;
 }
 
@@ -106,8 +109,8 @@ function tally(changes: Obj[], total: number, w: (typeof WORDS)[Lang]): string[]
 	const count = new Map<string, number>();
 	const add = (k: string) => count.set(k, (count.get(k) ?? 0) + 1);
 	for (const c of changes) {
-		for (const tag of (c.added as string[] | undefined) ?? []) add(`+ ${tag}`);
-		for (const tag of (c.removed as string[] | undefined) ?? []) add(`- ${tag}`);
+		for (const tag of Array.isArray(c.added) ? c.added : []) add(`+ ${tag}`);
+		for (const tag of Array.isArray(c.removed) ? c.removed : []) add(`- ${tag}`);
 		for (const [k, v] of Object.entries(c)) if (v && typeof v === "object" && "after" in (v as Obj)) add(`${k} ${w.changed}`);
 	}
 	if (!count.size) return [];
@@ -132,13 +135,16 @@ export function formatPreview(tool: string, preview: unknown, lang: Lang = "en")
 	if (drift && typeof drift === "object" && typeof drift.count === "number") {
 		lines.push(w.drift(drift.count));
 		const items = Object.entries((drift.items as Obj) ?? {}).map(
-			([k, v]) => `  ${k} ${w.now}: ${((v as Obj).now as string[] | undefined)?.join(", ") || w.none}`,
+			([k, v]) => {
+				const now = (v as Obj | null)?.now;
+				return `  ${k} ${w.now}: ${(Array.isArray(now) ? now.join(", ") : "") || w.none}`;
+			},
 		);
 		lines.push(...items.slice(0, 4));
 	}
 	if (typeof p.would_change === "number") {
 		lines.push(w.wouldChange(p.would_change));
-		const changes = (p.changes as Obj[]) ?? [];
+		const changes = objs(p.changes);
 		if (p.would_change > 10) lines.push(...tally(changes, p.would_change as number, w));
 		lines.push(...list(changes.map((c) => describeChange(c, w)), w, p.would_change as number));
 	}
@@ -146,7 +152,7 @@ export function formatPreview(tool: string, preview: unknown, lang: Lang = "en")
 		lines.push(w.wouldImport(p.would_import.length));
 		lines.push(
 			...list(
-				(p.would_import as Obj[]).map(
+				objs(p.would_import).map(
 					(r) => `${r.citekey}  ${s(r.item, 70)}${r.has_abstract ? "" : `  ${w.noAbstract}`}`,
 				),
 				w,
@@ -157,7 +163,7 @@ export function formatPreview(tool: string, preview: unknown, lang: Lang = "en")
 		lines.push(w.wouldAttach(p.would_attach.length));
 		lines.push(
 			...list(
-				(p.would_attach as Obj[]).map(
+				objs(p.would_attach).map(
 					(r) => `${s(r.item, 60)}  [${r.host_type ?? "?"}, ${r.version ?? "?"}${r.license ? `, ${r.license}` : ""}]`,
 				),
 				w,
@@ -167,7 +173,7 @@ export function formatPreview(tool: string, preview: unknown, lang: Lang = "en")
 	if (Array.isArray(p.would_set_parent)) {
 		lines.push(w.wouldParent(p.would_set_parent.length));
 		const rows: string[] = [];
-		for (const r of (p.would_set_parent as Obj[]).slice(0, 6)) {
+		for (const r of objs(p.would_set_parent).slice(0, 6)) {
 			rows.push(`${s(r.file, 60)}`);
 			if (r.parent === "new") {
 				const f = (r.fields as Obj | undefined) ?? {};
