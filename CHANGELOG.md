@@ -2,6 +2,23 @@
 
 Sub-Sub follows the version numbers of npm. From version 1.0: a change in the third number (1.0.1) only fixes; a change in the second (1.1.0) adds features and removes or renames nothing that the Stability page lists; a change in the first (2.0.0) can break that list. Before 1.0, a change in the second number (0.13) could change how you use Sub-Sub.
 
+## Unreleased
+
+Fixes only. The commands, settings keys, folder layouts and tool names do not change.
+
+- `subsub init`: an option without its value (`--folder` alone) or an unknown option stops init with a message. Before, `--folder` alone made a folder named `true`, and `--email` alone saved the email address `true`. `--name=Ana` works as `--name Ana`. A value that is not one of the choices (for example `--tags health`) stops init and lists the choices; before, init went on without a tag list.
+- `subsub init` makes the Zotero server settings file readable only by you, also without a Brave key: the file can hold NCBI and OpenAlex keys.
+- `subsub doctor` reads `~` in `SUBSUB_AGENT_DIR`, as Sub-Sub does. Before, it reported a missing model login. Its fix for a server folder is `uv sync --directory "<folder>"`, which also works in Windows PowerShell.
+- `/feedback` takes your home and Sub-Sub folders out of the draft also when a path uses `/` on Windows, other letter case, or the `\\` of the servers' JSON. A folder whose name only starts with yours (`/Users/anabela` for `/Users/ana`) stays.
+- A preview with a field or row that the server left out is shown without it. Before, the change was refused.
+- `subsub usage` leaves out lines of the log that are not events.
+- The web view: the chat stays in view when you hide the sidebar on a wide window; a reply that streams after a reload no longer replaces the reply before it; a link with a lone `%` no longer shows the whole reply as plain text; a page that connects while a dialog opens shows the dialog; a double click answers one dialog only, and a dialog ignores clicks for its first 0.7 seconds, as it ignores keys; a double click on an action or library button sends the request once; a message that could not be sent comes back into the box; a library search of more than 200 characters gets its results; "busy" is shown in the language of the page; the export holds the markdown of the replies, without the Copy and Download CSV buttons; a CSV cell that starts with `=`, `+`, `-` or `@` (and is not a number) is saved as text, so Excel does not run it; the page works when the browser blocks site data; a tool call that never ran stops pulsing when the turn ends; the menu button uses the same width rule as the page, so the sidebar opens also with a large text size in the browser.
+- `subsub tui`: a dialog closes when pi stops, so a key no longer ends the client; a paste works in the login, library, notes and list fields, and Backspace removes a whole emoji; `/import-queue` goes to Sub-Sub; a command that waits for your answers (`/read`) no longer reports a timeout after 30 seconds; a provider error that Sub-Sub does not word itself (for example a model that is gone) is shown when the turn ends; a link to a note that is gone no longer ends the client; a closed terminal window or a kill gives the terminal back; a second screen opened while the first loads no longer stays stuck; long or wide text (Chinese, Japanese, emoji) and text with line breaks fit their rows; notices of several lines keep their lines.
+- pi that cannot start (a working folder that is gone) is reported in the web view and the terminal client instead of ending them.
+- The write gate protects the settings files under every name in every settings folder, also in a folder that mixes the two styles of names, on a file system that tells case apart.
+- `subsub-bench`: a run whose pi cannot start, a refused tag submit, tags sent as one string, an option without a valid number, score sheets saved by Excel with semicolons and decimal commas, and a Starbuck report from an earlier score are handled.
+- Tests for these fixes, except the ones in the web page.
+
 ## 1.0.1 (2026-11-11)
 
 Fixes only. The commands, settings keys, folder layouts and tool names do not change.

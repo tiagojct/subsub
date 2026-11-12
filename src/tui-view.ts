@@ -174,8 +174,9 @@ export function entryLines(e: Entry, width: number, c: TranscriptContext): strin
 			return [head, ...e.output.split("\n").slice(0, 40).map((l) => p.muted(cut(`  ${l}`, w)))];
 		}
 		case "notice": {
-			const text = e.level === "info" ? p.muted(cut(e.text, w)) : p.text(cut(`${g.hollow} ${e.text}`, w));
-			return [text];
+			// A notice of several lines (/history, /subsub) keeps its lines; each one fits the width.
+			const lines = e.text.replace(/\s+$/, "").split(/\r?\n/);
+			return lines.map((l, i) => (e.level === "info" ? p.muted(cut(l, w)) : p.text(cut(i === 0 ? `${g.hollow} ${l}` : `  ${l}`, w))));
 		}
 		case "evidence":
 			return [evidenceLine(e.text, c.lang, w, p, g)];

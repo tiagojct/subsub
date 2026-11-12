@@ -41,6 +41,24 @@ export function printable(data: string): boolean {
 	return data.length > 0 && !/[\x00-\x1f\x7f]/.test(data);
 }
 
+/** A paste, as the terminal sends it in bracketed paste mode (pi-tui turns that mode on). */
+const PASTE = /^\x1b\[200~([\s\S]*)\x1b\[201~$/;
+
+/**
+ * The text a key or a paste adds to a one-line field: a paste without its markers, its line breaks as spaces and the ends
+ * trimmed (a key copied with its line end still works); "" for a control or escape sequence.
+ */
+export function typedText(data: string): string {
+	const paste = PASTE.exec(data);
+	if (paste) return paste[1].replace(/[\r\n\t]+/g, " ").replace(/[\x00-\x1f\x7f]/g, "").trim();
+	return printable(data) ? data : "";
+}
+
+/** The text without its last character: a whole emoji or accented letter, never half of one. */
+export function dropLast(s: string): string {
+	return Array.from(s).slice(0, -1).join("");
+}
+
 // ---------------------------------------------------------------- notes
 
 export interface NotesLayout {
@@ -218,10 +236,10 @@ export class NotesView {
 			if (scrolls) this.bodyScroll = Math.min(this.bodyMax, this.bodyScroll + page);
 			else this.move(page);
 		} else if (this.mode === "list" && matchesKey(data, "backspace")) {
-			this.filter = this.filter.slice(0, -1);
+			this.filter = dropLast(this.filter);
 			this.selected = 0;
-		} else if (this.mode === "list" && printable(data)) {
-			this.filter += data;
+		} else if (this.mode === "list" && typedText(data)) {
+			this.filter += typedText(data);
 			this.selected = 0;
 			this.bodyScroll = 0;
 		} else return;
@@ -374,10 +392,10 @@ export class LibraryView {
 		if (matchesKey(data, "up")) this.selected = Math.max(0, this.selected - 1);
 		else if (matchesKey(data, "down")) this.selected = Math.min(Math.max(0, this.items.length - 1), this.selected + 1);
 		else if (matchesKey(data, "backspace")) {
-			this.query = this.query.slice(0, -1);
+			this.query = dropLast(this.query);
 			this.schedule();
-		} else if (printable(data)) {
-			this.query += data;
+		} else if (typedText(data)) {
+			this.query += typedText(data);
 			this.schedule();
 		} else return;
 		this.o.redraw?.();
@@ -473,10 +491,10 @@ export class ChoiceView {
 		if (matchesKey(data, "up")) this.selected = Math.max(0, this.selected - 1);
 		else if (matchesKey(data, "down")) this.selected = Math.min(Math.max(0, list.length - 1), this.selected + 1);
 		else if (matchesKey(data, "backspace")) {
-			this.filter = this.filter.slice(0, -1);
+			this.filter = dropLast(this.filter);
 			this.selected = 0;
-		} else if (printable(data)) {
-			this.filter += data;
+		} else if (typedText(data)) {
+			this.filter += typedText(data);
 			this.selected = 0;
 		} else return;
 		this.o.redraw?.();
@@ -533,9 +551,9 @@ export class InputView {
 			this.answered = true;
 			return this.o.submit(this.text);
 		}
-		if (matchesKey(data, "backspace")) this.text = this.text.slice(0, -1);
+		if (matchesKey(data, "backspace")) this.text = dropLast(this.text);
 		else if (matchesKey(data, "ctrl+u")) this.text = "";
-		else if (printable(data)) this.text += data;
+		else if (typedText(data)) this.text += typedText(data);
 		else return;
 		this.o.redraw?.();
 	}

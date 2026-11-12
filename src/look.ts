@@ -5,6 +5,7 @@
  */
 
 
+import { visibleWidth } from "@earendil-works/pi-tui";
 import { type Glyphs, UNICODE } from "./skin.ts";
 
 export const BANNER = [
@@ -88,8 +89,26 @@ export const LIBRARY_WORDS = {
 	pt: { checking: "Zotero: a verificar...", down: "O Zotero está fechado: só pesquisa. Abra-o e escreva /subsub.", items: "itens", toCheck: "por verificar", prefix: "Zotero" },
 };
 
-function cut(s: string, width: number): string {
-	return [...s].length > width ? `${[...s].slice(0, Math.max(0, width - 3)).join("")}...` : s;
+const graphemes = new Intl.Segmenter();
+
+/**
+ * One line that fits the width in terminal columns, with "..." when something is left out. Line breaks and tabs become spaces
+ * (a second line would be drawn over the rows below), and a wide character (CJK, emoji) counts two columns and is never cut in half.
+ * Run it before the text is painted.
+ */
+export function cut(s: string, width: number): string {
+	const flat = s.replace(/[\r\n\t]+/g, " ");
+	if (visibleWidth(flat) <= width) return flat;
+	const room = Math.max(0, width - 3);
+	let out = "";
+	let used = 0;
+	for (const { segment } of graphemes.segment(flat)) {
+		const w = visibleWidth(segment);
+		if (used + w > room) break;
+		out += segment;
+		used += w;
+	}
+	return `${out}...`;
 }
 
 /** The library line. A closed Zotero is not drawn in a warning colour: a hollow mark and the words say it. */

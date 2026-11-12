@@ -39,13 +39,16 @@ export class Agent {
 	start(extra: string[] = []): void {
 		this.buf = "";
 		this.decoder = new StringDecoder("utf8");
+		this.stderr = "";
 		const proc = spawn(this.command, [...this.args, ...extra], { cwd: this.cwd, env: this.env, stdio: ["pipe", "pipe", "pipe"], windowsHide: true });
 		this.proc = proc;
 		proc.stdout!.on("data", (chunk: Buffer) => this.feed(this.decoder.write(chunk)));
 		proc.stderr!.on("data", (d: Buffer) => {
 			this.stderr = (this.stderr + d.toString()).slice(-20_000);
 		});
-		proc.once("exit", (code) => {
+		// A write just after pi stopped fails with EPIPE; the exit below reports the stop.
+		proc.stdin!.on("error", () => undefined);
+		const ended = (code: number | null) => {
 			if (this.proc !== proc) return;
 			this.proc = undefined;
 			for (const p of this.pending.values()) {
@@ -54,6 +57,12 @@ export class Agent {
 			}
 			this.pending.clear();
 			this.onExit?.(code);
+		};
+		proc.once("exit", ended);
+		// pi could not start (the working folder is gone, Node was moved by an upgrade): no exit follows, so end here.
+		proc.once("error", (err) => {
+			this.stderr = `${this.stderr}${err.message}\n`.slice(-20_000);
+			ended(null);
 		});
 	}
 

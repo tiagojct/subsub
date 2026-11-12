@@ -44,7 +44,8 @@ function el(tag, attrs = {}, ...children) {
 async function api(path, body) {
 	const res = await fetch(path, body === undefined ? {} : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
 	const data = await res.json().catch(() => ({}));
-	if (!res.ok) throw new Error(data.error || `${res.status}`);
+	// "busy": Sub-Sub is working; say so in the page's language.
+	if (!res.ok) throw new Error(data.error === "busy" ? t("busy") : data.error || `${res.status}`);
 	return data;
 }
 
@@ -72,6 +73,15 @@ marked.use({
 		},
 	],
 });
+/** decodeURI that keeps the text as it is when it is not a valid encoding (a lone "%", as in "50%.md"). */
+function safeDecode(s) {
+	try {
+		return decodeURI(s);
+	} catch {
+		return s;
+	}
+}
+
 marked.use({
 	gfm: true,
 	breaks: false,
@@ -81,7 +91,8 @@ marked.use({
 		},
 		link(token) {
 			const text = this.parser.parseInline(token.tokens);
-			if (NOTE_PATH.test(decodeURI(token.href ?? ""))) return noteLink(decodeURI(token.href), text);
+			const href = safeDecode(token.href ?? "");
+			if (NOTE_PATH.test(href)) return noteLink(href, text);
 			if (!SAFE_LINK.test(token.href ?? "")) return text;
 			return `<a href="${escapeHtml(token.href)}" target="_blank" rel="noopener noreferrer">${text}</a>`;
 		},
@@ -95,7 +106,7 @@ marked.use({
 		image(token) {
 			// In the notes pane, an image next to the note (a figure cut out of the PDF) is shown;
 			// anywhere else, and for any other address, only its description.
-			const href = decodeURI(token.href ?? "");
+			const href = safeDecode(token.href ?? "");
 			if (noteDir && /^(?![a-z][\w+.-]*:|[\\/])[^?#]+\.(png|jpe?g|gif|webp)$/i.test(href)) {
 				const src = `/api/note-file?path=${encodeURIComponent(`${noteDir}/${href}`)}`;
 				return `<img class="note-img" src="${escapeHtml(src)}" alt="${escapeHtml(token.text ?? "")}" loading="lazy">`;
@@ -171,8 +182,28 @@ function md(text) {
 
 // ---------------------------------------------------------------- theme, layout & language
 
-let currentTheme = localStorage.getItem("subsub-theme") || "auto";
-let currentLayout = localStorage.getItem("subsub-layout") || "standard";
+/** The page's own settings in the browser. A browser that blocks site data throws on any access: the page then works with the defaults. */
+const store = {
+	get(key) {
+		try {
+			return localStorage.getItem(key);
+		} catch {
+			return null;
+		}
+	},
+	set(key, value) {
+		try {
+			localStorage.setItem(key, value);
+		} catch {
+			/* not kept */
+		}
+	},
+};
+/** The narrow layout of app.css (max-width: 52rem): the sidebar is a drawer there, not a column. */
+const narrow = () => window.matchMedia("(max-width: 52rem)").matches;
+
+let currentTheme = store.get("subsub-theme") || "auto";
+let currentLayout = store.get("subsub-layout") || "standard";
 
 function updateLayoutUI() {
 	const isWide = currentLayout === "wide";
@@ -188,7 +219,7 @@ function updateLayoutUI() {
 
 function toggleLayout() {
 	currentLayout = currentLayout === "wide" ? "standard" : "wide";
-	localStorage.setItem("subsub-layout", currentLayout);
+	store.set("subsub-layout", currentLayout);
 	updateLayoutUI();
 }
 
@@ -219,7 +250,7 @@ function updateThemeUI() {
 
 function setTheme(theme) {
 	currentTheme = theme;
-	localStorage.setItem("subsub-theme", theme);
+	store.set("subsub-theme", theme);
 	if (theme === "auto") {
 		delete document.documentElement.dataset.theme;
 	} else {
@@ -302,13 +333,13 @@ function hasCommand(name) {
 }
 
 // Side panel sections and action groups fold at their heading; the folded ones are remembered on this computer.
-const folded = new Set((localStorage.getItem("subsub-folded") || "").split(" ").filter(Boolean));
+const folded = new Set((store.get("subsub-folded") || "").split(" ").filter(Boolean));
 function setFold(box, on) {
 	box.classList.toggle("folded", on);
 	box.querySelector(".fold").setAttribute("aria-expanded", String(!on));
 	if (on) folded.add(box.dataset.fold);
 	else folded.delete(box.dataset.fold);
-	localStorage.setItem("subsub-folded", [...folded].join(" "));
+	store.set("subsub-folded", [...folded].join(" "));
 }
 
 function renderActions() {
@@ -394,7 +425,8 @@ function renderItems(items, message) {
 }
 
 function searchLibrary() {
-	const q = $("library-search").value.replace(/\s+/g, " ").trim();
+	// Cut as the server cuts it (GET /api/library), so that the answer to a long query is recognised as this one.
+	const q = [...$("library-search").value.replace(/\s+/g, " ").trim()].slice(0, 200).join("").trim();
 	libraryQuery = q;
 	clearTimeout(libraryTimer);
 	if (!q) return renderItems([]);
@@ -606,7 +638,8 @@ function exportConversation() {
 		} else if (m.classList.contains("assistant")) {
 			const parts = [];
 			for (const c of m.children) {
-				if (c.classList.contains("md")) parts.push(c.innerText);
+				// The markdown as written: the rendered text would carry the Copy and Download CSV buttons and lose lists and links.
+				if (c.classList.contains("md")) parts.push(c.dataset.md ?? c.innerText);
 				else if (c.classList.contains("tool")) {
 					const label = c.querySelector(".label")?.textContent ?? "";
 					const args = c.querySelector(".args")?.textContent ?? "";
@@ -630,14 +663,17 @@ function download(content, name, type) {
 	document.body.append(a);
 	a.click();
 	a.remove();
-	URL.revokeObjectURL(url);
+	// Some browsers start the download after click() returns: free the file a moment later.
+	setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 /** A table as CSV for Excel, Rayyan or Covidence. Excel in Portuguese expects semicolons; the BOM keeps the accents. */
 function tableCsv(table) {
 	const sep = lang === "pt" ? ";" : ",";
 	const cell = (c) => {
-		const v = c.textContent.replace(/\s+/g, " ").trim(); // not innerText: the header is upper case only in CSS
+		let v = c.textContent.replace(/\s+/g, " ").trim(); // not innerText: the header is upper case only in CSS
+		// A cell that Excel would run as a formula (text from a paper or the model) is kept as text; plain numbers stay numbers.
+		if (/^[=+\-@]/.test(v) && !/^[+-]?\d[\d.,]*%?$/.test(v)) v = `'${v}`;
 		return /[",;\n]/.test(v) ? `"${v.replaceAll('"', '""')}"` : v;
 	};
 	return `\ufeff${[...table.rows].map((r) => [...r.cells].map(cell).join(sep)).join("\r\n")}\r\n`;
@@ -761,8 +797,24 @@ function textOf(content) {
 	return content.filter((c) => c.type === "text").map((c) => c.text).join("\n");
 }
 
-/** Prompt templates arrive as their long, expanded text; show the command that was typed instead. */
+/**
+ * Prompt templates arrive as their long, expanded text; show the command that was typed instead. The queue holds this page's
+ * messages in the order sent: { message, isTemplate }.
+ */
 const sentTemplates = [];
+
+/** The text to show for a user message from pi: the typed command for a template of this page, else the text itself. */
+function shownText(txt) {
+	const head = sentTemplates[0];
+	if (!head) return txt;
+	if (head.isTemplate) {
+		sentTemplates.shift();
+		return head.message;
+	}
+	// A plain message comes back as it was sent; another text is from elsewhere (another tab, an extension command).
+	if (head.message === txt) sentTemplates.shift();
+	return txt;
+}
 
 function userMessage(text) {
 	if (String(text).trim() === "/subsub-refresh") return;
@@ -924,6 +976,7 @@ function renderAssistantFinal(message, msg = startAssistant()) {
 			fullText += (fullText ? "\n\n" : "") + c.text;
 			const node = el("div", { class: "md" });
 			node.innerHTML = md(c.text);
+			node.dataset.md = c.text;
 			attachCopyButtons(node);
 			attachTableButtons(node, `Sub-Sub-${new Date().toISOString().slice(0, 10)}`);
 			msg.box.append(node);
@@ -968,7 +1021,6 @@ function renderAssistantFinal(message, msg = startAssistant()) {
 function renderHistory(messages) {
 	log.replaceChildren();
 	toolRows.clear();
-	currentMsg = null;
 	for (const m of messages ?? []) {
 		if (m.role === "user") {
 			const txt = textOf(m.content).trim();
@@ -981,6 +1033,8 @@ function renderHistory(messages) {
 		else if (m.role === "compactionSummary" || m.role === "branchSummary") note(t("earlier"));
 	}
 	for (const row of toolRows.values()) if (row.classList.contains("running")) row.classList.replace("running", "done");
+	// The history is finished: a reply that streams after it (a reload during a turn) gets a box of its own.
+	currentMsg = null;
 	renderEmpty();
 	scrollDown(true);
 }
@@ -1031,11 +1085,13 @@ function onEvent(ev) {
 		case "agent_settled":
 			setBusy(false);
 			currentMsg = null;
+			// A tool call that never ran (Stop while the model was still writing it) must not pulse for ever.
+			for (const row of toolRows.values()) if (row.classList.contains("running")) row.classList.replace("running", "done");
 			refreshSession();
 			break;
 		case "message_start":
 			if (ev.message?.role === "user") {
-				const txt = (sentTemplates.shift() ?? textOf(ev.message.content)).trim();
+				const txt = shownText(textOf(ev.message.content).trim());
 				if (txt !== "/subsub-refresh") userMessage(txt);
 			}
 			else if (ev.message?.role === "assistant") startAssistant();
@@ -1195,22 +1251,33 @@ function nextDialog() {
 	const buttons = $("dialog-buttons");
 	buttons.replaceChildren();
 	buttons.classList.toggle("choices", d.method === "select" && (d.options ?? []).some((o) => o.length > 24));
+	// Keys typed and clicks made just before the dialog opened (a message being written, the second click of a double click
+	// on the previous dialog) must not answer it.
+	const openedAt = performance.now();
+	const tooSoon = () => performance.now() - openedAt < 700;
+	let sent = false;
 	const answer = async (reply) => {
+		if (sent) return; // one answer per dialog
+		sent = true;
 		try {
 			await api("/api/dialog", { id: d.id, ...reply });
 		} catch (err) {
+			sent = false;
 			note(err.message, "error");
 		}
+	};
+	const click = (reply) => () => {
+		if (!tooSoon()) answer(reply);
 	};
 	$("dialog-form").onsubmit = (e) => e.preventDefault();
 	if (d.method === "confirm") {
 		buttons.append(
 			el("span", { class: "modal-shortcut-hint", text: t("confirmShortcutHint") }),
-			el("button", { type: "button", class: "secondary", text: t("no"), onclick: () => answer({ confirmed: false }) }),
-			el("button", { type: "button", class: "primary", text: t("yes"), onclick: () => answer({ confirmed: true }) }),
+			el("button", { type: "button", class: "secondary", text: t("no"), onclick: click({ confirmed: false }) }),
+			el("button", { type: "button", class: "primary", text: t("yes"), onclick: click({ confirmed: true }) }),
 		);
 	} else if (d.method === "select") {
-		for (const o of d.options ?? []) buttons.append(el("button", { type: "button", class: "secondary", text: o, onclick: () => answer({ value: o }) }));
+		for (const o of d.options ?? []) buttons.append(el("button", { type: "button", class: "secondary", text: o, onclick: click({ value: o }) }));
 		buttons.append(el("button", { type: "button", class: "ghost", text: t("cancel"), onclick: () => answer({ cancelled: true }) }));
 	} else {
 		const field = d.method === "editor" ? el("textarea", {}) : el("input", { type: "text", placeholder: d.placeholder ?? "" });
@@ -1222,15 +1289,13 @@ function nextDialog() {
 		};
 		buttons.append(
 			el("button", { type: "button", class: "ghost", text: t("cancel"), onclick: () => answer({ cancelled: true }) }),
-			el("button", { type: "button", class: "primary", text: t("ok"), onclick: () => answer({ value: field.value }) }),
+			el("button", { type: "button", class: "primary", text: t("ok"), onclick: () => !tooSoon() && answer({ value: field.value }) }),
 		);
 	}
-	// Keys typed just before the dialog opened (the user was writing a message) must not answer it.
-	const openedAt = performance.now();
 	const yesKeys = lang === "pt" ? ["s", "S", "y", "Y"] : ["y", "Y"];
 	dlg.onkeydown = (e) => {
 		if (d.method === "confirm") {
-			if (e.repeat || performance.now() - openedAt < 700) {
+			if (e.repeat || tooSoon()) {
 				// Escape still declines (through oncancel); Enter and Space would press the focused button.
 				if (e.key !== "Escape" && e.key !== "Tab") e.preventDefault();
 				return;
@@ -1397,17 +1462,28 @@ function autosize() {
 	suggest();
 }
 
+let lastSent = { message: "", at: 0 };
 async function sendMessage(text) {
 	const message = text.trim();
 	if (!message) return false;
+	// A double click on an action or library button, or a double Enter, sends the request once.
+	const now = performance.now();
+	if (message === lastSent.message && now - lastSent.at < 1000) return true;
+	lastSent = { message, at: now };
 	const name = message.startsWith("/") ? message.slice(1).split(/\s/)[0] : "";
 	const isTemplate = name && commands.some((c) => c.name === name && c.source === "prompt");
-	if (isTemplate) sentTemplates.push(message);
+	// Plain messages are kept too: a template sent while a plain message waits must not take the plain message's place.
+	const entry = isTemplate || !name ? { message, isTemplate: Boolean(isTemplate) } : null;
+	if (entry) sentTemplates.push(entry);
 	try {
-		await api("/api/prompt", { message });
+		const r = await api("/api/prompt", { message });
+		// pi took the message without a turn (Sub-Sub stopped it, for example a Researcher command in the Librarian): it never comes back.
+		const i = entry && r?.disposition === "handled" ? sentTemplates.indexOf(entry) : -1;
+		if (i >= 0) sentTemplates.splice(i, 1);
 		return true;
 	} catch (err) {
-		if (isTemplate) sentTemplates.pop();
+		const i = entry ? sentTemplates.indexOf(entry) : -1;
+		if (i >= 0) sentTemplates.splice(i, 1);
 		if (err.message === "nomodel") {
 			// Keep what the user wrote, and show where to connect a provider.
 			if (!input.value.trim()) {
@@ -1504,7 +1580,13 @@ $("composer").addEventListener("submit", (e) => {
 	if (!text.trim()) return;
 	input.value = "";
 	autosize();
-	sendMessage(text);
+	// Not sent (pi stopped, an error): the text comes back, unless the user has started a new one.
+	sendMessage(text).then((ok) => {
+		if (!ok && !input.value.trim()) {
+			input.value = text;
+			autosize();
+		}
+	});
 });
 $("stop").addEventListener("click", () => api("/api/abort", {}).catch(() => {}));
 $("new-btn").addEventListener("click", async () => {
@@ -1545,12 +1627,12 @@ $("main").addEventListener("click", () => {
 });
 $("menu-btn").addEventListener("click", (e) => {
 	e.stopPropagation();
-	if (window.innerWidth > 832) {
+	if (!narrow()) {
 		const app = document.querySelector(".app");
 		app.classList.toggle("side-collapsed");
 		const collapsed = app.classList.contains("side-collapsed");
 		$("menu-btn").setAttribute("aria-expanded", String(!collapsed));
-		localStorage.setItem("subsub-side-collapsed", String(collapsed));
+		store.set("subsub-side-collapsed", String(collapsed));
 	} else {
 		const side = $("side");
 		side.classList.toggle("open");
@@ -1577,10 +1659,10 @@ $("note-close").addEventListener("click", () => showPane(false));
 function setReading(on) {
 	$("note-pane").classList.toggle("reading", on);
 	$("note-read").setAttribute("aria-pressed", String(on));
-	localStorage.setItem("subsub-reading", String(on));
+	store.set("subsub-reading", String(on));
 }
 $("note-read").addEventListener("click", () => setReading(!$("note-pane").classList.contains("reading")));
-setReading(localStorage.getItem("subsub-reading") === "true");
+setReading(store.get("subsub-reading") === "true");
 $("note-app").addEventListener("click", () => noteShown && api("/api/open", { path: noteShown.path }).catch((err) => note(err.message, "warning")));
 $("note-filter").addEventListener("input", renderNoteList);
 $("note-pane").addEventListener("keydown", (e) => {
@@ -1628,7 +1710,7 @@ function connect() {
 
 setTheme(currentTheme);
 updateLayoutUI();
-if (localStorage.getItem("subsub-side-collapsed") === "true" && window.innerWidth > 832) {
+if (store.get("subsub-side-collapsed") === "true" && !narrow()) {
 	document.querySelector(".app")?.classList.add("side-collapsed");
 	$("menu-btn")?.setAttribute("aria-expanded", "false");
 }

@@ -136,8 +136,11 @@ export function settingsFile(folder: string, which: SettingsFile): string {
 
 /** Every place a settings file may be, for the write gate. */
 export function settingsPaths(folder: string): string[] {
-	const lower = Object.values(SETTINGS_FILES_LOWER).map((n) => join(folder, SETTINGS_DIR.toLowerCase(), n));
-	return [...Object.values(SETTINGS_FILES).flatMap((n) => [join(folder, SETTINGS_DIR, n), join(folder, LEGACY_SETTINGS_DIR, n)]), ...lower];
+	// Every folder name with every file name: a mixed folder (Zotero/ next to inbox/) writes Zotero/zotero-agent.md,
+	// and on a file system that tells case apart that is another path.
+	const dirs = [SETTINGS_DIR, SETTINGS_DIR.toLowerCase(), LEGACY_SETTINGS_DIR];
+	const names = [...Object.values(SETTINGS_FILES), ...Object.values(SETTINGS_FILES_LOWER)];
+	return dirs.flatMap((d) => names.map((n) => join(folder, d, n)));
 }
 
 export interface Move {

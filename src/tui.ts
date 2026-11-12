@@ -10,14 +10,14 @@ import { homedir } from "node:os";
 import { extname, join } from "node:path";
 import { CombinedAutocompleteProvider, Editor, HStack, Markdown, matchesKey, ProcessTerminal, ScrollView, type Component, type SlashCommand, type Terminal, TuiAltScreen, VStack } from "@earendil-works/pi-tui";
 import { agentDirFor, chooseCwd, PACKAGE_DIR, packageVersion } from "./cli.ts";
-import { fill, footerLines } from "./chrome.ts";
+import { cut, fill, footerLines } from "./chrome.ts";
 import { loadConfig, uiLanguage } from "./config.ts";
 import { modelsAfterLogin } from "./init.ts";
 import { type LibraryState, LIBRARIAN_THEME, DEFAULT_THEME, paintPreview, QUOTES } from "./look.ts";
 import { PURPOSES } from "./read.ts";
 import { allowedFile, listNotes, OPENABLE, openFile } from "./files.ts";
 import { Agent, findLibrary, isDialog, Side, withHints } from "./rpc.ts";
-import { KEY_PROVIDERS, saveApiKey } from "./keys.ts";
+import { KEY_PROVIDERS, perMinuteWait, providerTrouble, saveApiKey } from "./keys.ts";
 import { CUSTOM_DEFAULT_NAME, saveCustomProvider } from "./providers.ts";
 import { ApprovalView } from "./dialogs.ts";
 import { itemRef, type Choice, ChoiceView, InputView, LibraryView, type LibraryItem, NotesView } from "./screens.ts";
@@ -67,7 +67,7 @@ export interface TuiDeps {
 	afterLogin?: (provider: string, spec?: string) => void;
 }
 
-const SHORT = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 3)}...` : s);
+const SHORT = cut;
 
 export class TuiApp {
 	readonly tui: TuiAltScreen;
@@ -92,6 +92,8 @@ export class TuiApp {
 	private readonly d: TuiDeps;
 	private readonly editor: Editor;
 	private current: Extract<Entry, { kind: "assistant" }> | undefined;
+	/** The error of the last answer of the model in this turn, shown when the turn ends. */
+	private lastError: string | undefined;
 	private readonly tools = new Map<string, Extract<Entry, { kind: "tool" }>>();
 	private unlisten: (() => void) | undefined;
 	private stopped = false;
@@ -107,7 +109,7 @@ export class TuiApp {
 		this.frames = workingFrames(d.glyphs, d.reduceMotion);
 		this.tui = new TuiAltScreen(d.terminal, false, undefined, { mouse: true });
 		this.editor = new Editor(this.tui, this.palette.editorTheme(), { paddingX: 1 });
-		this.editor.onSubmit = (text) => void this.submit(text);
+		this.editor.onSubmit = (text) => this.safely(this.submit(text));
 		this.tui.setLayoutRoot(this.layout());
 		this.tui.setFocus(this.editor);
 		this.tui.addInputListener?.((data: string) => (this.globalKey(data) ? { consume: true } : undefined));
@@ -276,9 +278,14 @@ export class TuiApp {
 	private exited(code: number | null): void {
 		if (this.stopped) return;
 		this.busy = false;
+		// The dialogs of the stopped pi wait for nobody: close them, so that no key answers a question that is gone.
+		this.dialogs = [];
+		this.dialogHandle?.hide();
+		this.dialogHandle = undefined;
 		const pt = this.lang === "pt";
-		const parts = [`${pt ? "O pi parou" : "pi stopped"} (${code}).`, this.d.agent.stderr.slice(-300).trim(), pt ? "Escreva /restart para recomeçar." : "Type /restart to start it again."];
-		this.notice("error", parts.filter(Boolean).join(" "));
+		// What to do first; then the end of pi's error output, on the lines below.
+		const parts = [`${pt ? "O pi parou" : "pi stopped"} (${code ?? "signal"}). ${pt ? "Escreva /restart para recomeçar." : "Type /restart to start it again."}`, this.d.agent.stderr.slice(-300).trim()];
+		this.notice("error", parts.filter(Boolean).join("\n"));
 		this.tui.requestRender();
 	}
 
@@ -301,12 +308,18 @@ export class TuiApp {
 				this.busy = true;
 				this.working = this.lang === "pt" ? "A trabalhar..." : "Working...";
 				break;
-			case "agent_settled":
+			case "agent_settled": {
 				this.busy = false;
 				this.current = undefined;
+				// The turn ended on a provider error. Sub-Sub's extension words the known ones (quota, busy, blocked, key) and the
+				// per-minute wait; any other (a model that is gone, the network) is shown here as pi gave it.
+				const err = this.lastError;
+				this.lastError = undefined;
+				if (err && !providerTrouble(err) && perMinuteWait(err) === undefined) this.notice("error", err.replace(/\s+/g, " ").slice(0, 500));
 				void this.refreshStats().then(() => this.tui.requestRender());
 				void this.refreshConversations().then(() => this.tui.requestRender());
 				break;
+			}
 			case "message_start":
 				if (ev.message?.role === "assistant") {
 					this.current = { kind: "assistant", text: "" };
@@ -319,6 +332,8 @@ export class TuiApp {
 			case "message_end": {
 				const m = ev.message ?? {};
 				if (m.role === "assistant") {
+					// Kept until the turn settles: pi retries some errors, and only the last answer counts.
+					this.lastError = m.stopReason === "error" ? String(m.errorMessage || "The model provider returned an error.") : undefined;
 					const text = messageText(m.content);
 					if (this.current) {
 						if (text.trim()) this.current.text = text;
@@ -378,7 +393,12 @@ export class TuiApp {
 	}
 
 	private reply(id: string, payload: Record<string, unknown>): void {
-		this.d.agent.write({ type: "extension_ui_response", id, ...payload });
+		try {
+			this.d.agent.write({ type: "extension_ui_response", id, ...payload });
+		} catch (err) {
+			// pi stopped while the dialog was open: nothing waits for the answer, and nothing was applied.
+			this.notice("error", (err as Error).message);
+		}
 		this.dialogHandle?.hide();
 		this.dialogHandle = undefined;
 		this.tui.requestRender();
@@ -460,9 +480,21 @@ export class TuiApp {
 
 	// ---------------------------------------------------------------- screens
 
-	private open(component: Component, centered = false): void {
+	/** Run a screen or command started by a key: a failure becomes a notice, never an unhandled rejection that ends the client. */
+	private safely(work: Promise<void>): void {
+		work.catch((err) => {
+			this.notice("error", (err as Error)?.message ?? String(err));
+			this.tui.requestRender();
+		});
+	}
+
+	/** Show a screen; false when another screen is open. */
+	private open(component: Component, centered = false): boolean {
+		// Another screen opened while this one was loading (a slow list, then F2): keep the one on top, so Esc closes it.
+		if (this.overlay) return false;
 		this.overlay = this.tui.showOverlay(component, centered ? { width: "72%", minWidth: 44, maxHeight: "80%", anchor: "center" } : { width: "100%", maxHeight: "100%", anchor: "top-left", margin: 0 });
 		this.tui.requestRender();
+		return true;
 	}
 
 	private close(): void {
@@ -570,7 +602,7 @@ export class TuiApp {
 	/** Ask one line on its own screen; undefined when the user presses Esc. */
 	private ask(title: string, opts: { placeholder?: string; secret?: boolean } = {}): Promise<string | undefined> {
 		return new Promise((resolve) => {
-			this.open(
+			const shown = this.open(
 				new InputView({
 					...this.common(),
 					title,
@@ -580,6 +612,7 @@ export class TuiApp {
 				}),
 				true,
 			);
+			if (!shown) resolve(undefined);
 		});
 	}
 
@@ -594,7 +627,7 @@ export class TuiApp {
 			{ label: pt ? "Outro fornecedor (API da OpenAI)" : "Another provider (OpenAI API)", hint: pt ? "servidor da instituição, Ollama, LM Studio" : "your institution's server, Ollama, LM Studio", value: CUSTOM_DEFAULT_NAME },
 		];
 		const provider = await new Promise<string | undefined>((resolve) => {
-			this.open(
+			const shown = this.open(
 				new ChoiceView({
 					...this.common(),
 					title: pt ? "Ligar um fornecedor" : "Connect a provider",
@@ -604,6 +637,7 @@ export class TuiApp {
 				}),
 				true,
 			);
+			if (!shown) resolve(undefined);
 		});
 		if (!provider) return;
 		let spec: string | undefined;
@@ -648,14 +682,14 @@ export class TuiApp {
 	private globalKey(data: string): boolean {
 		if (this.overlay || this.dialogHandle) return false; // the open screen has its own keys
 		const shortcuts: Record<string, () => void> = {
-			"alt+n": () => void this.openNotes(),
-			"alt+l": () => void this.openLibrary(),
-			"alt+a": () => void this.openActions(),
+			"alt+n": () => this.safely(this.openNotes()),
+			"alt+l": () => this.safely(this.openLibrary()),
+			"alt+a": () => this.safely(this.openActions()),
 			"alt+m": () => this.switchMode(),
 			// The same on the function keys, for terminals where Alt (Option on a Mac) does not send Escape plus the letter.
-			f2: () => void this.openNotes(),
-			f3: () => void this.openLibrary(),
-			f4: () => void this.openActions(),
+			f2: () => this.safely(this.openNotes()),
+			f3: () => this.safely(this.openLibrary()),
+			f4: () => this.safely(this.openActions()),
 			f5: () => this.switchMode(),
 		};
 		for (const [key, run] of Object.entries(shortcuts)) {
@@ -706,7 +740,8 @@ export class TuiApp {
 		this.editor.addToHistory?.(line);
 		this.editor.setText("");
 		if (/^\/(quit|exit)\s*$/.test(line)) return void (await this.quit());
-		const unavailable = /^\/(logout|settings|tree|fork|share|export|import|hotkeys|reload)\b/.exec(line);
+		// The whole command name: /import-queue is a Sub-Sub prompt, not /import.
+		const unavailable = /^\/(logout|settings|tree|fork|share|export|import|hotkeys|reload)(?=\s|$)/.exec(line);
 		if (unavailable) {
 			this.notice("info", this.lang === "pt" ? `/${unavailable[1]} não existe em subsub tui. Use subsub no terminal ou subsub web.` : `/${unavailable[1]} is not in subsub tui. Use subsub in the terminal, or subsub web.`);
 			return void this.tui.requestRender();
@@ -714,7 +749,8 @@ export class TuiApp {
 		const own: Record<string, () => Promise<void> | void> = { "/restart": () => this.restart(), "/model": () => this.openModels(), "/notes": () => this.openNotes(), "/library": () => this.openLibrary(), "/actions": () => this.openActions(), "/sessions": () => this.openSessions(), "/resume": () => this.openSessions(), "/login": () => this.openLogin(), "/new": () => this.newConversation() };
 		if (own[line]) return void (await own[line]());
 		try {
-			await this.d.agent.request({ type: "prompt", message: line, ...(this.busy ? { streamingBehavior: "followUp" } : {}) });
+			// A command answers only after its dialogs close (/read, /undo), so wait as long as the web view does.
+			await this.d.agent.request({ type: "prompt", message: line, ...(this.busy ? { streamingBehavior: "followUp" } : {}) }, 60 * 60_000);
 		} catch (err) {
 			this.notice("error", (err as Error).message);
 			this.tui.requestRender();
@@ -774,11 +810,14 @@ export async function runTui(args: string[], env: NodeJS.ProcessEnv = process.en
 			quote: cfg.quotes === false ? undefined : QUOTES[Math.floor(Math.random() * QUOTES.length)],
 			reduceMotion: Boolean(env.SUBSUB_REDUCE_MOTION && env.SUBSUB_REDUCE_MOTION !== "0"),
 			themes: { researcher: typeof cfg.themes === "string" ? cfg.themes : undefined, librarian: cfg.themesLibrarian ?? (typeof cfg.themes === "string" ? cfg.themes : undefined) },
-			sessions: async () => (await SessionManager.list(cwd)).filter((s) => s.messageCount > 0).sort((a, b) => +new Date(b.modified) - +new Date(a.modified)).map((s) => ({ title: s.name ?? s.firstMessage.slice(0, 60), path: s.path })),
+			sessions: async () => (await SessionManager.list(cwd)).filter((s) => s.messageCount > 0).sort((a, b) => +new Date(b.modified) - +new Date(a.modified)).map((s) => ({ title: s.name ?? cut(s.firstMessage, 60), path: s.path })),
 			onQuit: resolve,
 			agentDir: env.PI_CODING_AGENT_DIR,
 			afterLogin: (provider, spec) => modelsAfterLogin(env, provider, spec),
 		});
+		// A signal (the terminal window closed, kill) ends the client like /quit, so the terminal gets its screen and mouse back.
+		const signals = { SIGINT: 2, SIGHUP: 1, SIGTERM: 15 } as const;
+		for (const [sig, n] of Object.entries(signals)) process.once(sig, () => void app.stop().finally(() => resolve(128 + n)));
 		void app.start();
 	});
 }

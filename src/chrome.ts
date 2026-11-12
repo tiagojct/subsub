@@ -4,7 +4,7 @@
  */
 
 import { visibleWidth } from "@earendil-works/pi-tui";
-import { libraryLine, LIBRARY_WORDS, type LibraryState, type Paint, plain } from "./look.ts";
+import { cut, libraryLine, LIBRARY_WORDS, type LibraryState, type Paint, plain } from "./look.ts";
 import { type Glyphs, UNICODE } from "./skin.ts";
 
 type Lang = "en" | "pt";
@@ -14,12 +14,9 @@ export const CHROME_WORDS = {
 	pt: { researcher: "Researcher", librarian: "Librarian", of: "de", tokens: "tokens", unknownUsage: "?", failed: "não foi possível", evidence: "evidência", down: "parados", more: "linhas a mais" },
 };
 
-const len = (s: string) => [...s].length;
+export { cut };
 
-/** Cut to the width, with "..." when something is left out. Run it before the text is painted. */
-export function cut(s: string, width: number): string {
-	return len(s) > width ? `${[...s].slice(0, Math.max(0, width - 3)).join("")}...` : s;
-}
+const len = (s: string) => visibleWidth(s);
 
 /**
  * Pad lines with spaces to the width, and with empty lines to the height. A screen drawn over the conversation (an overlay) must cover every cell
@@ -45,7 +42,8 @@ export function meter(percent: number | null | undefined, cells: number, g: Glyp
 }
 
 export function compactNumber(n: number): string {
-	if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+	// 999,950 and more would round to "1000k": it is 1M.
+	if (n >= 999_950) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
 	if (n >= 1000) return `${(n / 1000).toFixed(1).replace(/\.0$/, "")}k`;
 	return String(n);
 }

@@ -319,15 +319,7 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 	startAgent();
 
 	async function snapshot(): Promise<Record<string, unknown>> {
-		const out: Record<string, unknown> = {
-			type: "hello",
-			lang,
-			version: packageVersion(),
-			state: subsubState,
-			busy,
-			dialogs: [...dialogs.values()],
-			providers: KEY_PROVIDERS,
-		};
+		const out: Record<string, unknown> = { type: "hello", lang, version: packageVersion(), providers: KEY_PROVIDERS };
 		try {
 			out.session = await agent.request({ type: "get_state" });
 			lastSession = (out.session as { sessionFile?: string }).sessionFile ?? lastSession;
@@ -336,6 +328,9 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 		} catch (err) {
 			out.error = (err as Error).message;
 		}
+		// Read after the requests: a page gets the live events from the start, and the hello comes last, so it must not
+		// carry an older state (a dialog that opened meanwhile would be dropped, and a finished turn would look busy).
+		Object.assign(out, { state: subsubState, busy, dialogs: [...dialogs.values()] });
 		return out;
 	}
 
@@ -467,15 +462,17 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 					const body = await readJson(req);
 					const message = String(body.message ?? "").trim();
 					if (!message) return send(res, 400, { error: "empty message" });
+					let disposition: unknown;
 					try {
 						// A command answers only after its dialogs close (/read, /undo), so wait longer than the default.
-						await agent.request({ type: "prompt", message, ...(busy ? { streamingBehavior: "followUp" } : {}) }, 60 * 60_000);
+						disposition = ((await agent.request({ type: "prompt", message, ...(busy ? { streamingBehavior: "followUp" } : {}) }, 60 * 60_000)) as { disposition?: unknown } | undefined)?.disposition;
 					} catch (err) {
 						// No provider yet: the page opens the model dialog instead of showing pi's text.
 						if (/no api key|no model|no models available/i.test((err as Error).message)) return send(res, 409, { error: "nomodel" });
 						throw err;
 					}
-					return send(res, 200, { ok: true });
+					// "handled": a command, or a message an extension stopped; no user message follows for it.
+					return send(res, 200, { ok: true, disposition });
 				}
 				case "POST /api/abort":
 					await agent.request({ type: "abort" });
@@ -584,7 +581,8 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 					return void createReadStream(file).pipe(res);
 				}
 				case "GET /api/library": {
-					const q = (url.searchParams.get("q") ?? "").replace(/\s+/g, " ").trim().slice(0, 200);
+					// 200 characters; the page cuts its query the same way (searchLibrary in web/app.js) to know the answer is its own.
+					const q = [...(url.searchParams.get("q") ?? "").replace(/\s+/g, " ").trim()].slice(0, 200).join("").trim();
 					if (!q) return send(res, 200, { q, items: [] });
 					return send(res, 200, await findLibrary(agent, side, q));
 				}

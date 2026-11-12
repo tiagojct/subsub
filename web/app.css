@@ -205,6 +205,8 @@ select:hover { border-color: var(--rule-strong); }
 }
 .app.side-collapsed { grid-template-columns: 0 minmax(0, 1fr); }
 .app.side-collapsed .side { display: none; }
+/* Without the sidebar in the grid, the chat would fall into the empty first column. */
+.app.side-collapsed .chat { grid-column: 2; }
 .app.note-open { grid-template-columns: var(--side-w) minmax(0, 1fr) minmax(20rem, 36%); }
 .app.note-open.side-collapsed { grid-template-columns: 0 minmax(0, 1fr) minmax(20rem, 40%); }
 
@@ -1007,6 +1009,7 @@ a[data-note] { color: var(--accent); text-decoration: underline; text-decoration
 @media (max-width: 52rem) {
 	.app, .app.side-collapsed { grid-template-columns: minmax(0, 1fr); }
 	.app.side-collapsed .side { display: flex; }
+	.app.side-collapsed .chat { grid-column: auto; }
 	.side {
 		position: fixed;
 		z-index: 20;

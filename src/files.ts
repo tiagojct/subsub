@@ -41,7 +41,11 @@ export function listNotes(root: string, max = 300): Array<{ path: string; rel: s
 		for (const n of names) {
 			if (!n.endsWith(".md") || n.split(/[\\/]/).some((x) => x.startsWith("."))) continue;
 			const path = join(root, d, n);
-			out.push({ path, rel: join(d, n), modified: statSync(path).mtimeMs });
+			try {
+				out.push({ path, rel: join(d, n), modified: statSync(path).mtimeMs });
+			} catch {
+				// A link to a note that is gone, or a file removed while the list is made: not a note to show.
+			}
 		}
 	}
 	return out.sort((a, b) => b.modified - a.modified).slice(0, max);

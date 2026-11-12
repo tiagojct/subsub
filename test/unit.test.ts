@@ -2627,3 +2627,98 @@ test("bench: a refused or string-shaped tag submit, and score sheets saved by Ex
 	assert.equal(rows[0].n, 2);
 	assert.equal(rows[0].mean_abs_diff, 0.25);
 });
+
+test("terminal text: one line that fits the columns; a paste and a backspace in a field", async () => {
+	const { cut, compactNumber } = await import("../src/chrome.ts");
+	const { typedText, dropLast, InputView } = await import("../src/screens.ts");
+	const { entryLines } = await import("../src/tui-view.ts");
+	const { plain } = await import("../src/look.ts");
+	const { visibleWidth } = await import("@earendil-works/pi-tui");
+	const { UNICODE } = await import("../src/skin.ts");
+	assert.equal(cut("two\nlines", 20), "two lines");
+	for (const s of ["日本語のタイトルです", "a😀b😀c😀d", "abcdefghijkl"]) assert.ok(visibleWidth(cut(s, 7)) <= 7, s);
+	assert.equal(cut("日本語のタイトルです", 9), "日本語...");
+	assert.equal(compactNumber(999_999), "1M");
+	assert.equal(compactNumber(999_949), "999.9k");
+	assert.equal(typedText("\x1b[200~sk-abc123\n\x1b[201~"), "sk-abc123", "a pasted key without its line end");
+	assert.equal(typedText("\x1b[200~two\nlines\x1b[201~"), "two lines");
+	assert.equal(typedText("\x1b[A"), "");
+	assert.equal(typedText("é"), "é");
+	assert.equal(dropLast("ok😀"), "ok");
+	let got = "";
+	const field = new InputView({ title: "Key", lang: "en", paint: plain, glyphs: UNICODE, submit: (t: string) => (got = t), cancel: () => {} } as any);
+	field.handleInput("\x1b[200~AIza-key\x1b[201~");
+	field.handleInput("\r");
+	assert.equal(got, "AIza-key");
+	const lines = entryLines({ kind: "notice", level: "error", text: "first\nsecond line" }, 40, { paint: plain, glyphs: UNICODE, lang: "en", markdown: () => [] });
+	assert.equal(lines.length, 2);
+	assert.match(lines[1], /^ {2}second line/);
+});
+
+test("rpc: pi that cannot start ends like a stop, without an uncaught error", async () => {
+	const { Agent } = await import("../src/rpc.ts");
+	const agent = new Agent(process.execPath, ["-e", "0"], join(tmpdir(), "subsub-no-such-folder-", String(Date.now())), process.env);
+	const code = await new Promise<number | null>((resolve) => {
+		agent.onExit = resolve;
+		agent.start();
+	});
+	assert.equal(code, null);
+	assert.match(agent.stderr, /ENOENT/);
+	await assert.rejects(agent.request({ type: "get_state" }), /pi is not running/);
+});
+
+test("notes list: a link to a note that is gone is left out", { skip: process.platform === "win32" }, async () => {
+	const { listNotes } = await import("../src/files.ts");
+	const root = mkdtempSync(join(tmpdir(), "subsub-dangling-"));
+	mkdirSync(join(root, "Literature"));
+	writeFileSync(join(root, "Literature", "a.md"), "a");
+	symlinkSync(join(root, "gone.md"), join(root, "Literature", "b.md"));
+	assert.deepEqual(listNotes(root).map((n) => n.rel), [join("Literature", "a.md")]);
+});
+
+test("layout: every settings name in every settings folder is protected", async () => {
+	const { settingsPaths } = await import("../src/layout.ts");
+	const root = mkdtempSync(join(tmpdir(), "subsub-mixed-"));
+	assert.ok(settingsPaths(root).includes(join(root, "Zotero", "zotero-agent.md")), "a mixed folder writes this name");
+});
+
+test("tui: a dialog of a pi that stopped closes; /import-queue goes to pi; a provider error is shown when the turn ends", async () => {
+	const { TuiApp } = await import("../src/tui.ts");
+	const { loadPalette } = await import("../src/tui-view.ts");
+	const { UNICODE } = await import("../src/skin.ts");
+	const term = fakeTerminal(100, 30);
+	const agent = fakeAgent({ get_state: { model: { id: "m" } }, get_messages: { messages: [] }, get_commands: { commands: [] } });
+	let alive = true;
+	agent.write = (rec: unknown) => {
+		if (!alive) throw new Error("pi is not running");
+		agent.written.push(rec);
+	};
+	const app = new TuiApp({ terminal: term as any, agent: agent as any, version: "1.0.1", lang: "en", cwd: tmpdir(), palette: (b) => loadPalette(join(import.meta.dirname, "..", "themes"), b, "dark", "truecolor"), glyphs: UNICODE, reduceMotion: true, sessions: async () => [] });
+	const screen = () => strip(app.tui.getScreenLines().join("\n"));
+	const keys = async (...k: string[]) => { for (const x of k) { term.input(x); await tick(15); } await tick(150); };
+	await app.start();
+	agent.emit({ type: "extension_ui_request", method: "confirm", id: "d1", title: "Apply tag_items?", message: "+ topic/a" });
+	await tick();
+	assert.match(screen(), /Apply tag_items\?/);
+	alive = false;
+	agent.onExit!(1);
+	await tick();
+	assert.doesNotMatch(screen(), /Apply tag_items\?/, "the dialog of the stopped pi is gone");
+	assert.match(screen(), /pi stopped \(1\)\. Type \/restart/);
+	await keys("y"); // goes to the editor, not to a dialog that nobody waits for
+	assert.equal(agent.written.length, 0);
+	alive = true;
+	await keys("\x15");
+	for (const c of "/import-queue") await keys(c);
+	await keys("\r");
+	assert.ok(agent.requests.some((r) => r.type === "prompt" && r.message === "/import-queue"), "a Sub-Sub prompt, not pi's /import");
+	agent.emit({ type: "agent_start" });
+	agent.emit({ type: "message_start", message: { role: "assistant" } });
+	agent.emit({ type: "message_end", message: { role: "assistant", content: [], stopReason: "error", errorMessage: "404 model not found: old-model" } });
+	await tick();
+	assert.doesNotMatch(screen(), /404 model not found/, "pi may still retry");
+	agent.emit({ type: "agent_settled" });
+	await tick();
+	assert.match(screen(), /404 model not found: old-model/);
+	await app.stop();
+});
