@@ -1344,7 +1344,7 @@ async function openModels() {
 		$("login-url").required = other;
 		$("login-model").required = other;
 		$("login-key").required = !other;
-		const free = { google: "freeGoogle", openrouter: "freeOpenRouter" }[sel.value];
+		const free = { google: "freeGoogle", openrouter: "freeOpenRouter", "mistral-plan": "planMistral" }[sel.value];
 		$("login-free").hidden = !free;
 		$("login-free").textContent = free ? t(free) : "";
 		$("login-where").textContent = other ? t("otherNote") : p?.where ? t(`where_${p.where}`) : "";

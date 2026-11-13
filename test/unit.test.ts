@@ -1749,6 +1749,9 @@ test("web: options, interface language, API keys", async () => {
 	const auth = JSON.parse(readFileSync(join(dir, "auth.json"), "utf8"));
 	assert.deepEqual(auth["opencode-go"], { type: "api_key", key: "sk-test-123" });
 	assert.equal(auth.anthropic.type, "oauth", "other credentials stay");
+	assert.equal(saveApiKey(dir, "mistral-plan", "plan-key"), "mistral", "a Mistral plan key is saved for pi's mistral provider");
+	assert.deepEqual(JSON.parse(readFileSync(join(dir, "auth.json"), "utf8")).mistral, { type: "api_key", key: "plan-key" });
+	assert.equal(saveApiKey(dir, "mistral", "api-key"), "mistral");
 	assert.throws(() => saveApiKey(dir, "evil", "k"), /Unknown provider/);
 	assert.throws(() => saveApiKey(dir, "openai", "two words"), /API key/);
 	const { STRINGS } = await import("../web/i18n.js");

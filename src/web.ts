@@ -554,8 +554,7 @@ export async function startWeb(opts: WebOptions, env: NodeJS.ProcessEnv = proces
 							const [spec] = saveCustomProvider(agentDir, { name: CUSTOM_DEFAULT_NAME, baseUrl: String(body.baseUrl ?? ""), apiKey: String(body.key ?? ""), models: [String(body.model ?? "")] });
 							return modelsAfterLogin(env, CUSTOM_DEFAULT_NAME, spec);
 						}
-						saveApiKey(agentDir, String(body.provider ?? ""), String(body.key ?? ""));
-						modelsAfterLogin(env, String(body.provider ?? ""));
+						modelsAfterLogin(env, saveApiKey(agentDir, String(body.provider ?? ""), String(body.key ?? "")));
 					});
 				}
 				case "GET /api/notes":

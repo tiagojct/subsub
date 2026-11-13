@@ -7,20 +7,28 @@ import { writeFileSafe } from "./write.ts";
 /**
  * `where`: where the provider processes the data, as a key into the web view's strings
  * (eu, us, cn, varies). Shown next to the key form, so the choice of provider is an informed one.
+ * `as`: pi's provider id, when the entry is a second way to get a key for a provider that pi has
+ * (a Mistral plan gives its key in Vibe, the API account in the console; pi holds one key for "mistral").
  */
-export const KEY_PROVIDERS: Array<{ id: string; label: string; url: string; where: "eu" | "us" | "cn" | "varies" }> = [
+export const KEY_PROVIDERS: Array<{ id: string; label: string; url: string; where: "eu" | "us" | "cn" | "varies"; as?: string }> = [
 	{ id: "opencode-go", label: "OpenCode Go", url: "https://opencode.ai/auth", where: "varies" },
 	{ id: "openrouter", label: "OpenRouter", url: "https://openrouter.ai/keys", where: "varies" },
 	{ id: "anthropic", label: "Anthropic", url: "https://console.anthropic.com/settings/keys", where: "us" },
 	{ id: "openai", label: "OpenAI", url: "https://platform.openai.com/api-keys", where: "us" },
 	{ id: "google", label: "Google Gemini", url: "https://aistudio.google.com/apikey", where: "us" },
-	{ id: "mistral", label: "Mistral (EU)", url: "https://console.mistral.ai/api-keys", where: "eu" },
+	{ id: "mistral", label: "Mistral API (EU)", url: "https://console.mistral.ai/api-keys", where: "eu" },
+	{ id: "mistral-plan", as: "mistral", label: "Mistral subscription (EU)", url: "https://chat.mistral.ai/code/extensions", where: "eu" },
 	{ id: "deepseek", label: "DeepSeek", url: "https://platform.deepseek.com/api_keys", where: "cn" },
 ];
 
-/** Save an API key the way pi's /login does: auth.json in the agent folder, readable only by the user. */
-export function saveApiKey(agentDir: string, provider: string, key: string): void {
-	if (!KEY_PROVIDERS.some((p) => p.id === provider)) throw new Error(`Unknown provider: ${provider}`);
+/**
+ * Save an API key the way pi's /login does: auth.json in the agent folder, readable only by the user.
+ * Returns pi's provider id, which is not the entry's id for a second way to get a key (mistral-plan).
+ */
+export function saveApiKey(agentDir: string, provider: string, key: string): string {
+	const entry = KEY_PROVIDERS.find((p) => p.id === provider);
+	if (!entry) throw new Error(`Unknown provider: ${provider}`);
+	const piId = entry.as ?? entry.id;
 	const clean = key.trim();
 	if (!clean || /\s/.test(clean) || clean.length > 400) throw new Error("That does not look like an API key.");
 	mkdirSync(agentDir, { recursive: true });
@@ -33,9 +41,10 @@ export function saveApiKey(agentDir: string, provider: string, key: string): voi
 			throw new Error(`${file} is not valid JSON; fix it or type /login in the terminal.`);
 		}
 	}
-	data[provider] = { type: "api_key", key: clean };
+	data[piId] = { type: "api_key", key: clean };
 	// Through a symlink (a shared pi auth.json), the file it points to is written; readable only by the user.
 	writeFileSafe(file, `${JSON.stringify(data, null, 2)}\n`, { private: true });
+	return piId;
 }
 
 

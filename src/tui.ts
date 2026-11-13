@@ -641,6 +641,7 @@ export class TuiApp {
 		});
 		if (!provider) return;
 		let spec: string | undefined;
+		let piId = provider;
 		try {
 			if (provider === CUSTOM_DEFAULT_NAME) {
 				const baseUrl = await this.ask(pt ? "Endereço do servidor" : "Server address", { placeholder: "https://llm.example.org/v1" });
@@ -654,9 +655,9 @@ export class TuiApp {
 				const label = KEY_PROVIDERS.find((p) => p.id === provider)?.label ?? provider;
 				const key = await this.ask(pt ? `Chave de API de ${label}` : `API key for ${label}`, { secret: true });
 				if (!key) return;
-				saveApiKey(agentDir, provider, key);
+				piId = saveApiKey(agentDir, provider, key);
 			}
-			this.d.afterLogin?.(provider, spec);
+			this.d.afterLogin?.(piId, spec);
 		} catch (err) {
 			this.notice("error", (err as Error).message);
 			return void this.tui.requestRender();
