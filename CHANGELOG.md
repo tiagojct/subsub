@@ -2,6 +2,12 @@
 
 Sub-Sub follows the version numbers of npm. From version 1.0: a change in the third number (1.0.1) only fixes; a change in the second (1.1.0) adds features and removes or renames nothing that the Stability page lists; a change in the first (2.0.0) can break that list. Before 1.0, a change in the second number (0.13) could change how you use Sub-Sub.
 
+## 1.1.0 (2026-11-13)
+
+Adds one way to log in. Nothing on the Stability page changes.
+
+- The model button and `/login` list Mistral two times: "Mistral API (EU)", with a key from the API console, and "Mistral subscription (EU)", with a key from Vibe (Code > Vibe CLI) that uses the monthly usage of a Mistral plan. Sub-Sub keeps one Mistral key: the last one you save.
+
 ## 1.0.2 (2026-11-12)
 
 Fixes only. The commands, settings keys, folder layouts and tool names do not change.
