@@ -41,6 +41,8 @@ Starbuck checks the references of a manuscript against Crossref, OpenAlex, PubMe
 
 Since this test, Starbuck 0.3.0 added searches in PubMed, OpenAlex, DataCite and Open Library for references without an identifier, where most of the unconfirmed references were. This test has not been run again. Starbuck's own validation, run again for each release, is on [the Starbuck site](https://starbuck.tiagojacinto.eu/validation/).
 
+Claim support was also tested on 100 cases from two public datasets that Starbuck's author did not write. With Claude Sonnet 5.5 as the judge, it gave the expected verdict for 48 of 60 SciFact claims and 25 of 40 PubMedQA questions, and it marked 4 of 100 cases as supported where the dataset expects another verdict. In Sub-Sub, the model that you use judges, so its accuracy can be different.
+
 ## What this means when you use Sub-Sub
 
 - Read the "Quotes for the check" table under every draft. It helps you check each sentence. It does not guarantee that the draft is right.

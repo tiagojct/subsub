@@ -42,6 +42,8 @@ O Starbuck verifica as referências de um manuscrito em relação ao Crossref, a
 
 Depois deste teste, o Starbuck 0.3.0 passou a pesquisar no PubMed, no OpenAlex, no DataCite e na Open Library as referências sem identificador, onde estava a maior parte das referências não confirmadas. Este teste ainda não foi repetido. A validação do próprio Starbuck, repetida em cada versão, está no [site do Starbuck](https://starbuck.tiagojacinto.eu/validation/).
 
+O apoio de afirmações foi também testado com 100 casos de dois conjuntos de dados públicos que o autor do Starbuck não escreveu. Com o Claude Sonnet 5.5 como juiz, deu o veredicto esperado em 48 de 60 afirmações do SciFact e em 25 de 40 perguntas do PubMedQA, e marcou 4 de 100 casos como apoiados quando o conjunto de dados espera outro veredicto. No Sub-Sub, quem avalia é o modelo que usa, por isso a exatidão pode ser diferente.
+
 ## O que isto significa quando usa o Sub-Sub
 
 - Leia a tabela "Quotes for the check" sob cada rascunho. Ela ajuda a verificar cada frase. Não garante que o rascunho está certo.
