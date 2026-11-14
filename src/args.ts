@@ -76,6 +76,7 @@ export const CWD_PATH_ARGS: Record<string, string[]> = {
 	verify_check_manuscript: ["path", "report_dir"],
 	verify_prepare_claims: ["path", "report_dir"],
 	verify_record_claims: ["path", "report_dir"],
+	verify_fix_references: ["path", "report_dir"],
 };
 
 /** Make the working-folder paths of a tool call absolute. Changes input in place. */

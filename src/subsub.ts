@@ -109,7 +109,7 @@ export function starbuckEnv(cfg: Pick<SubsubConfig, "envFile">, processEnv: Node
 	const out: Record<string, string> = {};
 	const email = processEnv.STARBUCK_EMAIL || file.STARBUCK_EMAIL || processEnv.ZOTERO_CONTACT_EMAIL || file.ZOTERO_CONTACT_EMAIL;
 	if (email) out.STARBUCK_EMAIL = email;
-	for (const key of ["NCBI_API_KEY", "OPENALEX_API_KEY"]) {
+	for (const key of ["NCBI_API_KEY", "OPENALEX_API_KEY", "STARBUCK_ZOTERO_DIR"]) {
 		const v = processEnv[key] || file[key];
 		if (v) out[key] = v;
 	}
@@ -812,10 +812,21 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	 * Starbuck writes its reports into a folder: report_dir, or _starbuck next to the
 	 * manuscript. Inside the vault or the working folder that needs no approval; elsewhere
 	 * Sub-Sub asks, as for any file write. record_claims gets the current model's name.
+	 * fix_references with in_place changes the user's bibliography files: Sub-Sub always asks.
 	 */
 	async function verifyGate(name: string, input: Record<string, unknown>, ctx: ExtensionContext) {
 		if (name === "verify_record_claims") {
 			input.judged_by = ctx.model ? [ctx.model.provider, ctx.model.id].filter(Boolean).join("/") : "the agent's model";
+		}
+		if (name === "verify_fix_references" && (input.in_place === true || input.in_place === "true")) {
+			const what = String(input.path ?? "the manuscript");
+			if (benchOut) {
+				record({ kind: "path_blocked", tool: name, path: what });
+				return { block: true, reason: "Model test: Starbuck does not change bibliography files." };
+			}
+			if (!ctx.hasUI) return { block: true, reason: `Changing the bibliography of ${what} needs ${user}'s approval. Show the diff (in_place false) instead.` };
+			const ok = await approve(ctx, L(`Sub-Sub: let Starbuck change the bibliography of ${what}?`, `Sub-Sub: deixar o Starbuck alterar a bibliografia de ${what}?`), L("Starbuck writes the corrections of its diff into the files and keeps a .bak copy of each.", "O Starbuck escreve as correções do diff nos ficheiros e guarda uma cópia .bak de cada um."));
+			if (!ok) return { block: true, reason: `${user} did not allow the change. Show the diff (in_place false) and let ${user} apply it.` };
 		}
 		if (name === "verify_check_references") return undefined;
 		const dir = input.report_dir

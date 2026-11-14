@@ -20,7 +20,7 @@ Sub-Sub is made by Tiago Jacinto, assistant professor at the Faculty of Medicine
 - [PubMed](https://pubmed.ncbi.nlm.nih.gov), [OpenAlex](https://openalex.org), [Crossref](https://www.crossref.org), [Unpaywall](https://unpaywall.org) and [Open Library](https://openlibrary.org).
 - [Europe PMC](https://europepmc.org), for searches and open-access full text.
 - [Google Books](https://books.google.com), [Internet Archive](https://archive.org), [Wikidata](https://www.wikidata.org) and, with your key, [Brave Search](https://brave.com/search/api/), for the references of files without a parent item.
-- [Starbuck](https://github.com/tiagojct/starbuck), the optional add-on for reference checks.
+- [Starbuck](https://starbuck.tiagojacinto.eu), the optional add-on for reference checks. It also works on its own.
 - The `/lit`, `/compare` and `/review` commands and the integrity rules of Sub-Sub adapt text from [Feynman](https://github.com/Companion-Inc/feynman) (MIT licence). The sections of `/digest` come from [alberto-research](https://github.com/gabriel-affonso/alberto-research) (MIT licence).
 - [Literata](https://github.com/googlefonts/literata) and [Atkinson Hyperlegible Next and Mono](https://www.brailleinstitute.org/freefont/) type (SIL Open Font License), for this site and the browser view.
 - The terminal themes (`subsub-glauca` and `subsub-try-works`) use the colours of this site.

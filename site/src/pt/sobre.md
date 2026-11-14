@@ -21,7 +21,7 @@ O Sub-Sub é feito por Tiago Jacinto, professor auxiliar na Faculdade de Medicin
 - A [PubMed](https://pubmed.ncbi.nlm.nih.gov), o [OpenAlex](https://openalex.org), o [Crossref](https://www.crossref.org), o [Unpaywall](https://unpaywall.org) e a [Open Library](https://openlibrary.org).
 - A [Europe PMC](https://europepmc.org), para pesquisas e texto completo em acesso aberto.
 - O [Google Books](https://books.google.com), o [Internet Archive](https://archive.org), o [Wikidata](https://www.wikidata.org) e, com a sua chave, o [Brave Search](https://brave.com/search/api/), para as referências dos ficheiros sem item principal.
-- O [Starbuck](https://github.com/tiagojct/starbuck), o complemento opcional para a verificação de referências.
+- O [Starbuck](https://starbuck.tiagojacinto.eu/pt/), o complemento opcional para a verificação de referências. Também funciona sozinho.
 - Os comandos `/lit`, `/compare` e `/review` e as regras de integridade do Sub-Sub adaptam texto do [Feynman](https://github.com/Companion-Inc/feynman) (licença MIT). As secções do `/digest` vêm do [alberto-research](https://github.com/gabriel-affonso/alberto-research) (licença MIT).
 - Os tipos de letra [Literata](https://github.com/googlefonts/literata) e [Atkinson Hyperlegible Next e Mono](https://www.brailleinstitute.org/freefont/) (SIL Open Font License), para este site e para a vista no navegador.
 - Os temas do terminal (`subsub-glauca` e `subsub-try-works`) usam as cores deste site.

@@ -33,7 +33,7 @@ O modelo de IA corre no fornecedor que escolher. Recebe as suas mensagens e o qu
 | Open Library | ISBN; títulos e autores | Importação de livros; encontrar a referência de um ficheiro sem item principal |
 | Google Books, Internet Archive, Wikidata | Títulos, nomes de publicações e datas | Encontrar a referência de um ficheiro sem item principal |
 | Brave Search (Estados Unidos) | Títulos, nomes de publicações e datas | O mesmo, apenas se guardou uma chave do Brave Search no `subsub init` |
-| Crossref, DataCite, PubMed, OpenAlex, arXiv, Open Library, Europe PMC | Os identificadores e os títulos das obras citadas, e o seu email de contacto | Verificação de referências (Starbuck), apenas se ligar o complemento |
+| Crossref, DataCite, PubMed, OpenAlex, arXiv, Open Library, Europe PMC, Wayback Machine, Unpaywall | Os identificadores e os títulos das obras citadas, os endereços das páginas web citadas e o seu email de contacto | Verificação de referências (Starbuck), apenas se ligar o complemento. [Privacidade no site do Starbuck](https://starbuck.tiagojacinto.eu/privacy/) |
 | API web do Zotero (api.zotero.org) | Um tipo de item, sem conta e sem nada da sua biblioteca | Criar um item de um tipo para o qual a API local do Zotero não tem modelo, uma vez por tipo |
 | npm, PyPI | Transferência de pacotes | Instalação e atualização |
 

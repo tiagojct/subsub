@@ -1,6 +1,6 @@
 ---
 description: "Check the references of a manuscript or of a Sub-Sub report"
-argument-hint: "<path to .qmd or .md> [claims]"
+argument-hint: "<path to .docx, .tex, .qmd or .md> [claims]"
 ---
 Check the references of $1 with Starbuck.
 
@@ -11,8 +11,8 @@ Check the references of $1 with Starbuck.
 5. List the cited keys without a bibliography entry.
 6. Give the path of the HTML report.
 7. If the second argument is "claims", or the user asks whether the sources support the text:
-   1. Call verify_prepare_claims with path $1. Get all pages (offset, limit).
+   1. Call verify_prepare_claims with path $1 and zotero true (if that fails, call it again without zotero). Get all pages (offset, limit).
    2. Judge each claim with status ready from its passages only: supported, partly_supported, not_supported or cannot_assess. Copy the passage you rely on character for character into quote.
    3. Call verify_record_claims once, with the verdicts of all claims.
    4. Report the claims that are not supported or only partly supported as sentences to check, not as errors, with the line and the reason. Say for each whether the evidence was the full text or the abstract only.
-8. Do not change the manuscript. Offer fixes and wait for the user's answer.
+8. Do not change the manuscript. If there are Fail or Check results, offer corrections: verify_fix_references gives the diff of the corrections that the records support. Show it and wait for the user's answer. Apply it (in_place true) only when the user says so.

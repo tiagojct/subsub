@@ -29,7 +29,7 @@ const TOOL_NAMES = [
 	"zotero_status", "zotero_find_items", "zotero_get_item", "zotero_history", "zotero_tag_items",
 	"zotero_undo", "zotero_trash_items", "zotero_library_overview", "zotero_bakeoff_submit", "zotero_list_libraries",
 	"scholar_search_pubmed", "scholar_attach_note", "scholar_export_bibliography", "scholar_queue_imports",
-	"verify_check_manuscript", "verify_record_claims",
+	"verify_check_manuscript", "verify_record_claims", "verify_fix_references",
 ];
 
 class FakeBridge {
@@ -1566,10 +1566,10 @@ test("init: new user with defaults, then again without replacing files", async (
 	writeFileSync(r.envFile, `${envText}NCBI_API_KEY=abc\n`);
 	const prepared: unknown[] = [];
 	const r2 = await runInit(io, { models: "opencode-go", starbuck: "on" }, env, {
-		home, fetch: notFound, prepareStarbuck: (c) => { prepared.push(c.addons); return "Reference checks: on (starbuck 0.2.0)."; },
+		home, fetch: notFound, prepareStarbuck: (c) => { prepared.push(c.addons); return "Reference checks: on (starbuck 0.4.0)."; },
 	});
 	assert.deepEqual(prepared, [["starbuck"]]);
-	assert.ok(said.includes("Reference checks: on (starbuck 0.2.0)."));
+	assert.ok(said.includes("Reference checks: on (starbuck 0.4.0)."));
 	assert.equal(readFileSync(vocab, "utf8"), "MY TAGS");
 	assert.match(readFileSync(r2.envFile, "utf8"), /NCBI_API_KEY=abc/);
 	const cfg2 = JSON.parse(readFileSync(r2.configFile, "utf8"));
@@ -1869,7 +1869,7 @@ test("starbuck add-on: off by default; server, environment and release when on",
 	const on = serverSpecs({ ...base, addons: ["starbuck"] }, {});
 	const verify = on.find((s) => s.name === "verify")!;
 	assert.deepEqual(verify.env, { STARBUCK_EMAIL: "a@example.org", NCBI_API_KEY: "k1" });
-	assert.deepEqual(verify.args.slice(-3), ["--from", "starbuck==0.2.0", "starbuck-mcp"]);
+	assert.deepEqual(verify.args.slice(-3), ["--from", "starbuck==0.4.0", "starbuck-mcp"]);
 	mkdirSync(join(dir, "starbuck"));
 	writeFileSync(join(dir, "starbuck", "pyproject.toml"), "");
 	const local = serverSpecs({ ...base, addons: ["starbuck"] }, {}).at(-1)!;
@@ -1899,10 +1899,19 @@ test("starbuck add-on: reports in the vault pass, elsewhere need a yes; record_c
 	assert.match((await toolCall("verify_check_manuscript", { path: "/vault/p.qmd" })).reason, /part of the Researcher/);
 });
 
+test("starbuck add-on: fix_references shows a diff freely, changes a bibliography only with a yes", async () => {
+	const { toolCall, asked } = await setup(false);
+	assert.equal(await toolCall("verify_fix_references", { path: "/vault/Drafts/paper.qmd" }), undefined);
+	const out = await toolCall("verify_fix_references", { path: "/vault/Drafts/paper.qmd", in_place: true });
+	assert.equal(out.block, true);
+	assert.match(asked.at(-1)!.title, /change the bibliography/);
+	assert.match(out.reason, /did not allow/);
+});
+
 test("doctor: the Starbuck check", () => {
-	const ok = starbuckCheck({ ...CFG, addons: ["starbuck"], starbuckDir: "/no/such/dir" }, {}, () => ({ status: 0, stdout: "starbuck 0.2.0\n", stderr: "" }));
+	const ok = starbuckCheck({ ...CFG, addons: ["starbuck"], starbuckDir: "/no/such/dir" }, {}, () => ({ status: 0, stdout: "starbuck 0.4.0\n", stderr: "" }));
 	assert.equal(ok.ok, true);
-	assert.equal(ok.detail, `starbuck 0.2.0 from ${STARBUCK_SOURCE}`);
+	assert.equal(ok.detail, `starbuck 0.4.0 from ${STARBUCK_SOURCE}`);
 	const bad = starbuckCheck({ ...CFG, addons: ["starbuck"], starbuckDir: "/no/such/dir" }, {}, () => ({ status: 1, stdout: "", stderr: "x" }));
 	assert.equal(bad.ok, false);
 	assert.match(bad.fix!, /internet connection.*subsub init/);

@@ -40,6 +40,8 @@ O Starbuck verifica as referências de um manuscrito em relação ao Crossref, a
 - Não conseguiu verificar 30 % das referências que existem: 4 % em biomedicina, 29 % em ciências sociais e 67 % em humanidades. Os livros e as obras em português foram os que mais vezes ficaram por verificar. Nenhuma referência com DOI o foi.
 - O apoio de afirmações (nível 4) marcou 12 de 15 citações mal atribuídas como não apoiadas. Marcou apenas 5 de 15 afirmações distorcidas e marcou 8 de 30 pares não alterados como apoiados em parte ou não apoiados.
 
+Depois deste teste, o Starbuck 0.3.0 passou a pesquisar no PubMed, no OpenAlex, no DataCite e na Open Library as referências sem identificador, onde estava a maior parte das referências não confirmadas. Este teste ainda não foi repetido. A validação do próprio Starbuck, repetida em cada versão, está no [site do Starbuck](https://starbuck.tiagojacinto.eu/validation/).
+
 ## O que isto significa quando usa o Sub-Sub
 
 - Leia a tabela "Quotes for the check" sob cada rascunho. Ela ajuda a verificar cada frase. Não garante que o rascunho está certo.

@@ -2,6 +2,16 @@
 
 Sub-Sub follows the version numbers of npm. From version 1.0: a change in the third number (1.0.1) only fixes; a change in the second (1.1.0) adds features and removes or renames nothing that the Stability page lists; a change in the first (2.0.0) can break that list. Before 1.0, a change in the second number (0.13) could change how you use Sub-Sub.
 
+## 1.2.0 (2026-11-14)
+
+Reference checks run Starbuck 0.4.0 instead of 0.2.0. Nothing on the Stability page changes.
+
+- `/verify` reads Word (`.docx`) and LaTeX (`.tex`) manuscripts. In Word, citations inserted with Zotero, Mendeley or EndNote are read directly. Author-year citations (APA, Harvard) are read too.
+- Starbuck searches PubMed, OpenAlex, DataCite and Open Library for references without an identifier, looks up PMCIDs, gives the Wayback Machine copy of a dead link, and says whether a retraction came before the manuscript date. A retraction that only OpenAlex reports is a Check, not a Fail.
+- Corrections: the new tool `verify_fix_references` proposes the corrections that the records support (a missing DOI, a wrong year, the published version of a preprint) as a diff. Sub-Sub changes a bibliography file only after you answer Yes, also inside your folders, and Starbuck keeps a `.bak` copy.
+- Claim support takes full texts from your Zotero library (`~/Zotero`, or `STARBUCK_ZOTERO_DIR` in the settings file), from arXiv and from open-access PDFs, and checks that the numbers of a sentence are in the source.
+- Starbuck has its own site, [starbuck.tiagojacinto.eu](https://starbuck.tiagojacinto.eu). The Sub-Sub site links to it.
+
 ## 1.1.0 (2026-11-13)
 
 Adds one way to log in. Nothing on the Stability page changes.

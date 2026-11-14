@@ -84,7 +84,7 @@ If your institution manages your computer, give this section to its IT service.
 - What it installs: Node.js 22 and uv (open source), and the npm package @tiagojct/subsub, all in the user's folder (`~/.subsub`, or `.subsub` in the user folder on Windows). No administrator rights, no system service, no change to system settings. [What the installer does](#what-the-installer-does).
 - What runs: a Node.js process (Sub-Sub) and two Python processes started by uv (the Zotero servers), and a third (Starbuck) when reference checks are on, only while Sub-Sub is open. The browser view is a local web server on 127.0.0.1 only, with a random key in its address; it stops 10 minutes after the page is closed. Zotero's local connection is on 127.0.0.1 port 23119.
 - Downloads at install and update: subsub.tiagojacinto.eu, nodejs.org, astral.sh, registry.npmjs.org, pypi.org and files.pythonhosted.org.
-- Connections during use: the model provider the user chooses (for example opencode.ai, api.mistral.ai, generativelanguage.googleapis.com), and the bibliographic services eutils.ncbi.nlm.nih.gov, www.ebi.ac.uk, api.openalex.org, api.crossref.org, api.unpaywall.org, doi.org, openlibrary.org and api.zotero.org (blank item templates, no account). To identify files without a parent item: www.googleapis.com (Google Books), archive.org and www.wikidata.org, and api.search.brave.com when the user saved a Brave Search key. With reference checks on, Starbuck also contacts api.datacite.org and export.arxiv.org. Open-access PDFs come from the publishers' and repositories' own sites. The [Privacy](/privacy/) page lists what each service receives.
+- Connections during use: the model provider the user chooses (for example opencode.ai, api.mistral.ai, generativelanguage.googleapis.com), and the bibliographic services eutils.ncbi.nlm.nih.gov, www.ebi.ac.uk, api.openalex.org, api.crossref.org, api.unpaywall.org, doi.org, openlibrary.org and api.zotero.org (blank item templates, no account). To identify files without a parent item: www.googleapis.com (Google Books), archive.org and www.wikidata.org, and api.search.brave.com when the user saved a Brave Search key. With reference checks on, Starbuck also contacts api.datacite.org, export.arxiv.org, the cited web pages, and archive.org for pages that are gone. Open-access PDFs come from the publishers' and repositories' own sites. The [Privacy](/privacy/) page lists what each service receives.
 - Nothing is sent to the author of Sub-Sub. There is no telemetry.
 - Source code: [github.com/tiagojct/subsub]({{ site.repo }}), MIT licence. Each version is archived on Zenodo (doi:[{{ site.doi }}](https://doi.org/{{ site.doi }})).
 
@@ -113,7 +113,7 @@ Starbuck is an add-on that checks the references of a manuscript. It is off by d
 - In `subsub init`, answer On to the question "Reference checks (Starbuck)". Or type `subsub init --starbuck on`.
 - Or, in the browser view, turn on the switch "Reference checks (Starbuck)" in the panel on the left. Sub-Sub restarts.
 
-Sub-Sub downloads Starbuck with uv the first time. Then type `subsub doctor`: the line Starbuck must show ok. Sub-Sub then has `/verify`. See the [Guide](/guide/#check-references).
+Sub-Sub downloads Starbuck with uv the first time. Then type `subsub doctor`: the line Starbuck must show ok. Sub-Sub then has `/verify`. See the [Guide](/guide/#check-references). Starbuck also works without Sub-Sub; its site is [starbuck.tiagojacinto.eu](https://starbuck.tiagojacinto.eu).
 
 ## Update
 

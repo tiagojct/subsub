@@ -39,6 +39,8 @@ Starbuck checks the references of a manuscript against Crossref, OpenAlex, PubMe
 - It could not verify 30% of the existing references: 4% in biomedicine, 29% in social sciences and 67% in humanities. Books and works in Portuguese were the most often unverifiable. No reference with a DOI was.
 - Claim support (level 4) marked 12 of 15 misattributed citations as not supported. It marked only 5 of 15 distorted claims, and it marked 8 of 30 unaltered pairs as partly or not supported.
 
+Since this test, Starbuck 0.3.0 added searches in PubMed, OpenAlex, DataCite and Open Library for references without an identifier, where most of the unconfirmed references were. This test has not been run again. Starbuck's own validation, run again for each release, is on [the Starbuck site](https://starbuck.tiagojacinto.eu/validation/).
+
 ## What this means when you use Sub-Sub
 
 - Read the "Quotes for the check" table under every draft. It helps you check each sentence. It does not guarantee that the draft is right.

@@ -32,7 +32,7 @@ The AI model runs at the provider you choose. It receives your messages and what
 | Open Library | ISBNs; titles and authors | Book imports; finding the reference of a file without a parent item |
 | Google Books, Internet Archive, Wikidata | Titles, publication names and dates | Finding the reference of a file without a parent item |
 | Brave Search (United States) | Titles, publication names and dates | The same, only when you saved a Brave Search key in `subsub init` |
-| Crossref, DataCite, PubMed, OpenAlex, arXiv, Open Library, Europe PMC | The identifiers and titles of the cited works, and your contact email | Reference checks (Starbuck), only when you turn the add-on on |
+| Crossref, DataCite, PubMed, OpenAlex, arXiv, Open Library, Europe PMC, Wayback Machine, Unpaywall | The identifiers and titles of the cited works, the addresses of cited web pages, and your contact email | Reference checks (Starbuck), only when you turn the add-on on. [Starbuck's privacy page](https://starbuck.tiagojacinto.eu/privacy/) |
 | Zotero web API (api.zotero.org) | An item type, with no account and nothing from your library | Creating an item of a type for which Zotero's local API has no template, once per type |
 | npm, PyPI | Package downloads | Install and update |
 
