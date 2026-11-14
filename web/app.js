@@ -1200,8 +1200,10 @@ function dialogTitle(d) {
 	const raw = String(d.title ?? "").replace(/^Sub-Sub:\s*/, "");
 	let m;
 	// The program sends the title in the user's language; both forms get the same friendly title.
-	if ((m = raw.match(/^(?:apply|aplicar) (\S+)\?$/))) return t("apply", { x: toolLabel(m[1]) });
-	if ((m = raw.match(/^(?:run|executar) (\S+)\?$/))) return t("run", { x: toolLabel(m[1]) });
+	// The tool labels are actions ("tag items", "apply a tag review note"): the English title is the action itself.
+	const upper = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+	if ((m = raw.match(/^(?:apply|aplicar) (\S+)\?$/))) return upper(t("apply", { x: toolLabel(m[1]) }));
+	if ((m = raw.match(/^(?:run|executar) (\S+)\?$/))) return upper(t("run", { x: toolLabel(m[1]) }));
 	if (raw === "undo?" || raw === "anular?") return t("undoAsk");
 	if ((m = raw.match(/^(?:write the Starbuck report to|escrever o relatório do Starbuck em) (.+)\?$/))) return t("starbuckReport", { x: m[1] });
 	if ((m = raw.match(/^(write|edit) (.+)\?$/))) return t("write", { x: m[2] });
