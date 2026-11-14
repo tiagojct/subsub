@@ -2,6 +2,10 @@
 
 Sub-Sub follows the version numbers of npm. From version 1.0: a change in the third number (1.0.1) only fixes; a change in the second (1.1.0) adds features and removes or renames nothing that the Stability page lists; a change in the first (2.0.0) can break that list. Before 1.0, a change in the second number (0.13) could change how you use Sub-Sub.
 
+## Unreleased
+
+- Reference checks run Starbuck 0.4.1: `/verify` also reads the Word citations of Mendeley Cite (the current Mendeley add-in) and Citavi.
+
 ## 1.2.0 (2026-11-14)
 
 Reference checks run Starbuck 0.4.0 instead of 0.2.0. Nothing on the Stability page changes.
