@@ -15,6 +15,8 @@ lead: O Sub-Sub corre no seu computador. A sua biblioteca fica no Zotero. Escolh
 
 O Sub-Sub não envia dados de utilização, estatísticas nem relatórios de erros para lado nenhum. Também desliga o relatório de instalação do pi, o programa em que se baseia.
 
+Este site (não o programa) conta as visitas com o Umami, num servidor do próprio autor. O Umami não usa cookies e não guarda endereços IP: conta as páginas visitadas, o site de origem, o navegador, o tipo de dispositivo e o país.
+
 Para o piloto, pode ligar um registo de utilização (`subsub init`, Usage log). Fica no seu computador, em `~/.subsub/usage-log.jsonl`, e guarda horas, contagens, comandos e nomes de ferramentas, nunca o que escreveu nem o que o Sub-Sub respondeu. O `subsub usage` mostra-o. O Sub-Sub não o envia; decide se o partilha.
 
 ## O que vai para o fornecedor do modelo

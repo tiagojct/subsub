@@ -14,6 +14,8 @@ lead: Sub-Sub runs on your computer. Your library stays in Zotero. You choose th
 
 Sub-Sub sends no usage data, statistics or crash reports anywhere. It also turns off the install report of pi, the program it is built on.
 
+This website (not the program) counts visits with Umami, on the author's own server. Umami sets no cookies and keeps no IP addresses: it counts the pages visited, the referring site, the browser, the device type and the country.
+
 For the pilot, you can turn on a usage log (`subsub init`, Usage log). It stays on your computer, in `~/.subsub/usage-log.jsonl`, and holds times, counts, commands and tool names, never what you wrote or what Sub-Sub replied. `subsub usage` shows it. Sub-Sub does not send it; you decide whether to share it.
 
 ## What goes to the model provider
