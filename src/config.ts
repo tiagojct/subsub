@@ -66,7 +66,7 @@ export function uiLanguage(language: string | undefined): "pt" | "en" {
 export const SERVER_VERSION = "0.8.0";
 
 /** The Starbuck release (PyPI) that this Sub-Sub version runs when there is no local Starbuck folder. */
-export const STARBUCK_VERSION = "0.4.1";
+export const STARBUCK_VERSION = "0.4.2";
 export const STARBUCK_SOURCE = `starbuck==${STARBUCK_VERSION}`;
 
 export interface SubsubConfig {

@@ -2,6 +2,12 @@
 
 Sub-Sub follows the version numbers of npm. From version 1.0: a change in the third number (1.0.1) only fixes; a change in the second (1.1.0) adds features and removes or renames nothing that the Stability page lists; a change in the first (2.0.0) can break that list. Before 1.0, a change in the second number (0.13) could change how you use Sub-Sub.
 
+## 1.2.2 (2026-11-15)
+
+- Reference checks run Starbuck 0.4.2: a retracted article whose record lists its own notices is no longer reported as a notice.
+- Web view: the title of an approval names the action once ("Apply a tag review note?", not "Apply apply a tag review note?").
+- Web view: when the model has not answered for 2 minutes, and no tool is running, the page says so and tells you to select Stop and send again. A model request can hang at the provider, and the page used to say "Working" with no end.
+
 ## 1.2.1 (2026-11-14)
 
 - Reference checks run Starbuck 0.4.1: `/verify` also reads the Word citations of Mendeley Cite (the current Mendeley add-in) and Citavi.

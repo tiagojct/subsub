@@ -1053,9 +1053,25 @@ function setBusy(b) {
 	if (working) log.append(working); // keep it last
 }
 
+// A model request can hang at the provider: pi then waits with no limit and the page says "Working" for ever.
+// After two minutes with no event, while no tool runs and no question is open, the page says what to do.
+const QUIET_MS = 120_000;
+let lastEvent = Date.now();
+setInterval(() => {
+	if (!working) return;
+	const toolRunning = [...toolRows.values()].some((r) => r.classList.contains("running"));
+	const quiet = busy && !toolRunning && !$("dialog").open && Date.now() - lastEvent > QUIET_MS;
+	const text = quiet ? t("workingQuiet") : t("working");
+	if (working.textContent !== text) {
+		working.textContent = text;
+		working.classList.toggle("quiet", quiet);
+	}
+}, 5000);
+
 // ---------------------------------------------------------------- events from Sub-Sub
 
 function onEvent(ev) {
+	lastEvent = Date.now();
 	switch (ev.type) {
 		case "hello":
 			lang = ev.lang === "pt" ? "pt" : "en";

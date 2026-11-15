@@ -703,6 +703,9 @@ body.layout-full { --measure: 72rem; }
 	animation: lines 1.5s steps(1, end) infinite;
 }
 @keyframes lines { 0% { border-top-style: dotted; } 33% { border-top-style: dashed; } 67% { border-top-style: solid; } }
+/* No event for two minutes: the model may hang at the provider. */
+.working.quiet { color: var(--warn); }
+.working.quiet::before { border-top-color: var(--warn); animation: none; }
 @keyframes pulse { 50% { opacity: 0.3; } }
 
 /* Empty conversation. */
