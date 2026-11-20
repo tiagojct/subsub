@@ -243,7 +243,11 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 				(tui, theme, _keys, done) =>
 					new ApprovalView({ title: dialogTitle(words, lang, title), body, lang, paint: paintFromTheme(theme), glyphs: glyphs(), done, rows: () => tui.terminal?.rows ?? 24, redraw: () => tui.requestRender() }),
 				// In place of the input box, under the conversation: an overlay let the conversation show through beside and below it.
-				{ blocked: { kind: "permission", message: title } },
+				// When the notes or library screen is open, an inline dialog would be under it and still take the keys (a "y" typed in the
+				// search would apply the change unseen): then it is drawn over the screen, at the bottom, the full width.
+				screens > 0
+					? { overlay: true, overlayOptions: { width: "100%", maxHeight: "100%", anchor: "bottom-left", margin: 0 } }
+					: { blocked: { kind: "permission", message: title } },
 			);
 			return answer === true;
 		}
@@ -252,6 +256,8 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 
 	/** The notes and library screens cover the terminal: the conversation is behind them and comes back when they close. */
 	const OVERLAY = { overlay: true, overlayOptions: { width: "100%", maxHeight: "100%", anchor: "top-left", margin: 0 } } as const;
+	/** How many of these screens are open; an approval that comes while one is open must be drawn over it (see approve). */
+	let screens = 0;
 
 	/** True when the terminal look can show a screen of its own; otherwise says where the same thing is. */
 	function screenOk(ctx: ExtensionContext): boolean {
@@ -267,56 +273,66 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 		const notes = listNotes(root);
 		const { Markdown } = await import("@earendil-works/pi-tui");
 		const { getMarkdownTheme } = await import("@earendil-works/pi-coding-agent");
-		await ctx.ui.custom<void>(
-			(tui, theme, _keys, done) =>
-				new NotesView({
-					notes,
-					read: (path) => {
-						const file = allowedFile(path, root, cfg.vault);
-						return file && statSync(file).size < 2_000_000 ? readFileSync(file, "utf8") : "";
-					},
-					markdown: (text, width) => new Markdown(text, 1, 0, getMarkdownTheme()).render(width),
-					open: (path) => {
-						const file = allowedFile(path, root, cfg.vault);
-						if (file && OPENABLE.has(extname(file).toLowerCase())) openFile(file, cfg.vault);
-					},
-					done: () => done(),
-					lang,
-					paint: paintFromTheme(theme),
-					glyphs: glyphs(),
-					rows: () => tui.terminal?.rows ?? 24,
-					redraw: () => tui.requestRender(),
-				}),
-			OVERLAY,
-		);
+		screens++;
+		try {
+			await ctx.ui.custom<void>(
+				(tui, theme, _keys, done) =>
+					new NotesView({
+						notes,
+						read: (path) => {
+							const file = allowedFile(path, root, cfg.vault);
+							return file && statSync(file).size < 2_000_000 ? readFileSync(file, "utf8") : "";
+						},
+						markdown: (text, width) => new Markdown(text, 1, 0, getMarkdownTheme()).render(width),
+						open: (path) => {
+							const file = allowedFile(path, root, cfg.vault);
+							if (file && OPENABLE.has(extname(file).toLowerCase())) openFile(file, cfg.vault);
+						},
+						done: () => done(),
+						lang,
+						paint: paintFromTheme(theme),
+						glyphs: glyphs(),
+						rows: () => tui.terminal?.rows ?? 24,
+						redraw: () => tui.requestRender(),
+					}),
+				OVERLAY,
+			);
+		} finally {
+			screens--;
+		}
 	}
 
 	/** /library: search as you type; Enter puts /read <item> in the box (the Librarian gets the key), ctrl+n puts /lit-note <item>. */
 	async function openLibrary(ctx: ExtensionContext): Promise<void> {
 		if (!screenOk(ctx)) return;
 		const ref = itemRef;
-		await ctx.ui.custom<void>(
-			(tui, theme, _keys, done) =>
-				new LibraryView({
-					search: searchLibraries,
-					choose: (it) => {
-						ctx.ui.setEditorText(mode === "researcher" ? `/read ${ref(it)}` : ref(it));
-						done();
-					},
-					note: (it) => {
-						ctx.ui.setEditorText(`/lit-note ${ref(it)}`);
-						done();
-					},
-					done: () => done(),
-					lang,
-					paint: paintFromTheme(theme),
-					glyphs: glyphs(),
-					researcher: mode === "researcher",
-					rows: () => tui.terminal?.rows ?? 24,
-					redraw: () => tui.requestRender(),
-				}),
-			OVERLAY,
-		);
+		screens++;
+		try {
+			await ctx.ui.custom<void>(
+				(tui, theme, _keys, done) =>
+					new LibraryView({
+						search: searchLibraries,
+						choose: (it) => {
+							ctx.ui.setEditorText(mode === "researcher" ? `/read ${ref(it)}` : ref(it));
+							done();
+						},
+						note: (it) => {
+							ctx.ui.setEditorText(`/lit-note ${ref(it)}`);
+							done();
+						},
+						done: () => done(),
+						lang,
+						paint: paintFromTheme(theme),
+						glyphs: glyphs(),
+						researcher: mode === "researcher",
+						rows: () => tui.terminal?.rows ?? 24,
+						redraw: () => tui.requestRender(),
+					}),
+				OVERLAY,
+			);
+		} finally {
+			screens--;
+		}
 	}
 
 	/** /actions: the buttons of the web view as a list; the choice goes into the box, so the user adds what is missing and presses Enter. */

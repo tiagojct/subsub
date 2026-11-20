@@ -769,7 +769,7 @@ test("terminal look: the approval overlay: n leaves the library as it is, y appl
 		{ wait: "Zotero: 2 items", timeout: 60, anywhere: true },
 		{ sleep: 1 },
 		{ send: "Tag AAAA2222 with status/to-read\r" },
-		{ wait: "apply tag_items", timeout: 90 },
+		{ wait: "Tag items?", timeout: 90 }, // the plain title of the web view
 		{ sleep: 0.9 },
 		{ send: "\r" }, // Enter does nothing
 		{ sleep: 0.3 },
@@ -814,7 +814,7 @@ test("subsub tui: a full-screen client of pi: the approval screen applies only o
 		{ wait: "Zotero: 2 items", timeout: 60, anywhere: true },
 		{ sleep: 1 },
 		{ send: "Tag BBBB3333 with topic/spirometry\r" },
-		{ wait: "apply tag_items", timeout: 90 },
+		{ wait: "Tag items?", timeout: 90 }, // the plain title of the web view
 		{ sleep: 0.9 },
 		{ send: "\r" }, // Enter does nothing
 		{ sleep: 0.3 },

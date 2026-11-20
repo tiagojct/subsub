@@ -1041,6 +1041,35 @@ test("approval overlay: keys answer it, nothing else does, and the preview shows
 	}
 	const plainConfirm = await asks(false, true);
 	assert.deepEqual([plainConfirm.customCalls, plainConfirm.confirms], [0, 1], "no look: pi's confirm");
+
+	// With the library screen open, the approval is drawn over it: an inline dialog would be under the screen and still take the keys.
+	process.env.SUBSUB_CLI = "1";
+	try {
+		const fp = fakePi();
+		await createSubsub(fp.pi as any, { config: CFG, bridge: new FakeBridge() as unknown as Bridge });
+		const base = fakeCtx({ confirm: false });
+		const th = { name: "dark", getFgAnsi: () => "\x1b[38;2;232;238;242m", getColorMode: () => "truecolor", fg: (_r: string, t: string) => t, strikethrough: (t: string) => t };
+		const seen: any[] = [];
+		let closeScreen = () => {};
+		const ctx: any = { ...base.ctx, mode: "tui", getContextUsage: () => undefined, ui: { ...base.ctx.ui, theme: th, getTheme: (n: string) => ({ name: n }), setTheme() {}, setHeader() {}, setFooter() {}, setTitle() {}, setWorkingIndicator() {}, setEditorText() {}, custom: (_factory: Function, options: any) => {
+			seen.push(options);
+			// The screen stays open until closeScreen; the approval is answered with no.
+			return options?.overlayOptions?.anchor === "top-left" ? new Promise<void>((r) => (closeScreen = r)) : Promise.resolve(false);
+		} } };
+		for (const h of fp.handlers.session_start) await h({ reason: "startup" }, ctx);
+		const screen = fp.commands.library.handler("", ctx);
+		await new Promise((r) => setTimeout(r, 10));
+		const call = { toolName: "zotero_tag_items", input: { changes: [{ key: "K1", add: ["topic/feno"] }], dry_run: false } };
+		await fp.handlers.tool_call[0](call, ctx);
+		assert.equal(seen.at(-1).overlay, true, "over the open screen");
+		assert.equal(seen.at(-1).overlayOptions.anchor, "bottom-left");
+		closeScreen();
+		await screen;
+		await fp.handlers.tool_call[0]({ ...call, input: { ...call.input } }, ctx);
+		assert.notEqual(seen.at(-1).overlay, true, "with the screen closed, in place of the input box again");
+	} finally {
+		delete process.env.SUBSUB_CLI;
+	}
 });
 
 test("screens: notes and library at 40, 80 and 120 columns, and their keys", async () => {
@@ -1345,6 +1374,27 @@ test("tui: /login saves a key or another provider and restarts pi; /resume lists
 	assert.match(screen(), /asthma in children/);
 	await keys("\x1b");
 	await app.stop();
+});
+
+test("tui: a screen that opens late does not take the keys of a waiting approval", async () => {
+	const { TuiApp } = await import("../src/tui.ts");
+	const { loadPalette } = await import("../src/tui-view.ts");
+	const { UNICODE } = await import("../src/skin.ts");
+	const term = fakeTerminal(100, 30);
+	const agent = fakeAgent({ get_state: { model: { id: "m" }, sessionFile: "/s/1.jsonl" }, get_messages: { messages: [] }, get_commands: { commands: [] } });
+	const app = new TuiApp({ terminal: term as any, agent: agent as any, version: "0.22.0", lang: "en", cwd: "/vault", palette: (b) => loadPalette(join(import.meta.dirname, "..", "themes"), b, "dark", "truecolor"), glyphs: UNICODE, reduceMotion: true });
+	const screen = () => strip(app.tui.getScreenLines().join("\n"));
+	const keys = async (...k: string[]) => { for (const x of k) { term.input(x); await tick(15); } await tick(150); };
+	await app.start();
+	agent.emit({ type: "extension_ui_request", id: "c1", method: "confirm", title: "Sub-Sub: apply tag_items?", message: "1 item(s) would change." });
+	await tick(700);
+	// A list that finished loading after the approval came (a slow /actions): it does not open over the approval.
+	await app.openActions();
+	await tick(100);
+	await keys("\x1b"); // Esc answers the approval, not a screen
+	assert.deepEqual(agent.written.filter((w: any) => w.id === "c1").map((w: any) => w.confirmed), [false], "the approval had the keys");
+	assert.doesNotMatch(screen(), /apply tag_items/, "the approval is gone");
+	await app.stop?.();
 });
 
 test("tui: the dialogs of the extension: only y applies a change; lists and questions are answered; one at a time; restart", async () => {

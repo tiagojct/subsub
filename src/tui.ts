@@ -512,6 +512,8 @@ export class TuiApp {
 	private open(component: Component, centered = false): boolean {
 		// Another screen opened while this one was loading (a slow list, then F2): keep the one on top, so Esc closes it.
 		if (this.overlay) return false;
+		// An approval waits for an answer (a slow list finished loading after it came): it keeps the keys.
+		if (this.inline) return false;
 		this.overlay = this.tui.showOverlay(component, centered ? { width: "72%", minWidth: 44, maxHeight: "80%", anchor: "center" } : { width: "100%", maxHeight: "100%", anchor: "top-left", margin: 0 });
 		this.tui.requestRender();
 		return true;
@@ -520,7 +522,8 @@ export class TuiApp {
 	private close(): void {
 		this.overlay?.hide();
 		this.overlay = undefined;
-		this.tui.setFocus(this.editor);
+		// A waiting approval gets the keys back, never the editor hidden under it.
+		this.tui.setFocus(this.inline ?? this.editor);
 		this.tui.requestRender();
 	}
 
