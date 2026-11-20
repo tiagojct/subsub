@@ -2,6 +2,14 @@
 
 Sub-Sub follows the version numbers of npm. From version 1.0: a change in the third number (1.0.1) only fixes; a change in the second (1.1.0) adds features and removes or renames nothing that the Stability page lists; a change in the first (2.0.0) can break that list. Before 1.0, a change in the second number (0.13) could change how you use Sub-Sub.
 
+## 1.2.3 (2026-11-20)
+
+- Terminal (`subsub` and `subsub tui`): the approval dialog takes the place of the input box, under the conversation. It was a window over the conversation, and the text behind it showed at its sides and below it, which made it hard to read. It uses at most two thirds of the terminal, so the end of the conversation stays in view.
+- Terminal: the approval titles are those of the web view ("Tag items?", not "Sub-Sub: apply tag_items?").
+- Terminal: the keys line is shorter: "y apply   n or Esc: leave it as it is".
+- Import preview: each line shows the citekey and the title, without the author and year a second time. A long line goes on below with an indent, so each item starts at the left. A title that the server cut ends with "...".
+- Web view: a title with a note at the end ("the library changed; this is the new preview") is also shown in plain words.
+
 ## 1.2.2 (2026-11-15)
 
 - Reference checks run Starbuck 0.4.2: a retracted article whose record lists its own notices is no longer reported as a notice.
