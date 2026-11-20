@@ -1213,7 +1213,14 @@ async function refreshSession() {
 // ---------------------------------------------------------------- dialogs (approvals)
 
 function dialogTitle(d) {
-	const raw = String(d.title ?? "").replace(/^Sub-Sub:\s*/, "");
+	const all = String(d.title ?? "").replace(/^Sub-Sub:\s*/, "");
+	// A note in brackets at the end ("(the library changed; ...)") stays after the friendly title. The terminal does the same (src/words.ts).
+	const note = all.match(/^(.*\?)( \(.+\))$/);
+	if (note) {
+		const head = dialogTitle({ title: note[1] });
+		return head === note[1] ? all : head + note[2];
+	}
+	const raw = all;
 	let m;
 	// The program sends the title in the user's language; both forms get the same friendly title.
 	// The tool labels are actions ("tag items", "apply a tag review note"): the English title is the action itself.

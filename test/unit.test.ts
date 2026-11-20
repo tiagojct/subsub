@@ -336,7 +336,12 @@ test("preview text", () => {
 	const f = formatPreview("zotero_update_fields", { would_change: 1, changes: [{ key: "K", item: "A 2019: T", date: { before: "", after: "2019-05" } }] });
 	assert.match(f, /date: \(empty\) -> 2019-05/);
 	const imp = formatPreview("zotero_import_identifiers", { would_import: [{ citekey: "jacinto2026", item: "Jacinto 2026: FeNO", has_abstract: false }] });
-	assert.match(imp, /jacinto2026  Jacinto 2026: FeNO  \(no abstract\)/);
+	assert.match(imp, /jacinto2026  FeNO  \(no abstract\)/, "the citekey shows the author and year; the label does not repeat them");
+	const long = "A".repeat(80);
+	const cut = formatPreview("zotero_import_identifiers", { would_import: [{ citekey: "x2020", item: `X 2020: ${long}`, has_abstract: true }, { item: "Y n.d.: No key" }, { citekey: "z", item: "no year form" }] });
+	assert.match(cut, new RegExp(`^x2020  ${long}\\.\\.\\.$`, "m"), "a title the server cut says so");
+	assert.match(cut, /^Y n\.d\.: No key  \(no abstract\)$/m, "with no citekey the label stays");
+	assert.match(cut, /^z  no year form/m);
 	const note = formatPreview("scholar_attach_note", { item: "Jacinto 2026: FeNO", summary: "Cohort.", link: "obsidian://open?x" });
 	assert.match(note, /Note on: Jacinto 2026: FeNO\nCohort\.\nLink: obsidian/);
 });
@@ -963,6 +968,12 @@ test("approval overlay: keys answer it, nothing else does, and the preview shows
 			assert.ok(top.maxScroll > 0 && end.lines.every((l) => [...l].length <= width), `${lang} ${width}`);
 			assert.ok(top.lines.every((l) => [...l].length <= width));
 		}
+		// A long line goes on below with a hanging indent: each entry starts at the left of the list.
+		const { wrapBody } = await import("../src/dialogs.ts");
+		const wrapped = wrapBody("1 item(s) would be imported:\nlai2026  " + "word ".repeat(20).trim() + "\nliu2024  Short", 40);
+		assert.ok(wrapped.length > 3 && wrapped.every((l) => [...l].length <= 40));
+		assert.ok(wrapped.slice(2, -1).every((l) => l.startsWith("  word")), wrapped.join("|"));
+		assert.equal(wrapped.at(-1), "liu2024  Short");
 	}
 	snapshot("approval", blocks);
 
@@ -993,7 +1004,8 @@ test("approval overlay: keys answer it, nothing else does, and the preview shows
 	const early = new ApprovalView({ title: "t", body, lang: "en", paint: plain, done: () => assert.fail("answered"), now: () => 1000, ignoreMs: 500 });
 	early.handleInput("y");
 
-	// In the terminal look the dialog is the overlay; only a yes applies, and without the look pi's confirm is asked.
+	// In the terminal look the dialog takes the place of the input box (not an overlay, which let the conversation show through); only a yes
+	// applies, and without the look pi's confirm is asked.
 	const asks = async (look: boolean, result: unknown) => {
 		if (look) process.env.SUBSUB_CLI = "1";
 		else delete process.env.SUBSUB_CLI;
@@ -1006,9 +1018,10 @@ test("approval overlay: keys answer it, nothing else does, and the preview shows
 			const th = { name: "dark", getFgAnsi: () => "\x1b[38;2;232;238;242m", getColorMode: () => "truecolor", fg: (_r: string, t: string) => t, strikethrough: (t: string) => t };
 			const ctx: any = { ...base.ctx, mode: "tui", getContextUsage: () => undefined, ui: { ...base.ctx.ui, theme: th, getTheme: (n: string) => ({ name: n }), setTheme() {}, setHeader() {}, setFooter() {}, setTitle() {}, setWorkingIndicator() {}, custom: async (factory: Function, options: any) => {
 				customCalls++;
-				assert.equal(options.overlay, true);
+				assert.notEqual(options.overlay, true);
+				assert.equal(options.blocked?.kind, "permission");
 				const view = factory({ terminal: { rows: 30 }, requestRender() {} }, th, {}, () => {});
-				assert.match(view.render(80).join("\n"), /apply tag_items/);
+				assert.match(view.render(80).join("\n"), /^ Tag items\? /m, "the plain title of the web view");
 				return result;
 			} } };
 			for (const h of fp.handlers.session_start) await h({ reason: "startup" }, ctx);
@@ -1972,6 +1985,15 @@ test("words: the terminal reads the web view's actions, suggestions and tool nam
 	assert.equal(toolWord(w, "pt", "zotero_find_items"), w.TOOLS.pt.find_items);
 	assert.equal(toolWord(w, "en", "mystery_tool"), "mystery_tool");
 	assert.deepEqual(Object.keys(w.TOOLS.en).sort(), Object.keys(w.TOOLS.pt).sort());
+	// The approval titles of the terminal are those of the web view.
+	const { dialogTitle } = await import("../src/words.ts");
+	assert.equal(dialogTitle(w, "en", "Sub-Sub: apply zotero_import_identifiers?"), "Import?");
+	assert.equal(dialogTitle(w, "en", "Sub-Sub: apply tag_items?"), "Tag items?");
+	assert.equal(dialogTitle(w, "pt", "Sub-Sub: aplicar tag_items?"), "Confirmar: etiquetar itens?");
+	assert.equal(dialogTitle(w, "en", "Sub-Sub: apply tag_items? (the library changed; this is the new preview)"), "Tag items? (the library changed; this is the new preview)");
+	assert.equal(dialogTitle(w, "en", "Sub-Sub: undo?"), "Undo this change?");
+	assert.equal(dialogTitle(w, "en", "Sub-Sub: something else"), "something else");
+	assert.equal(dialogTitle(undefined, "en", "Sub-Sub: apply tag_items?"), "apply tag_items?", "without the words, the title keeps its words");
 });
 
 test("web: Open judges the real file, not a link inside the notes folder", async () => {

@@ -388,7 +388,7 @@ Home spirometry is feasible in school-age children.
 - [ ] Type `/read b` and press Tab.\
   Result: the box holds `/read background`. Clear the box.
 - [ ] Ask for a tag change on a test item.\
-  Result: the approval screen, with the preview between dashed rules. Added tags have a `+`; removed tags have a `-` and are struck through. Nothing is red. At the bottom: `y apply`, `n leave it as it is`, `Esc leave it`.
+  Result: the approval screen, with the preview between dashed rules. Added tags have a `+`; removed tags have a `-` and are struck through. Nothing is red. At the bottom: `y apply` and `n or Esc: leave it as it is`.
 - [ ] Press Enter, then `n`.\
   Result: Enter does nothing. `n` leaves the library as it is, and the tool line says that you did not approve the change.
 - [ ] Ask for the same change again and press `y`.\

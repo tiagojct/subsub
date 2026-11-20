@@ -4,35 +4,33 @@
 
   2 item(s) would change.
   Smith 2020: Title: + topic/asthma,
-  type/cohort; - topic/copd
-  Jones 2010: A longer title about lung
-  function in children number 0: +
-  topic/spirometry
-  Jones 2011: A longer title about lung
-  function in children number 1: +
+    type/cohort; - topic/copd
+  Jones 2010: A longer title about
+    lung function in children number 0:
+    + topic/spirometry
+  Jones 2011: A longer title about
+    lung function in children number 1:
   ... 43 more lines below (up and dow...
 
 ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
- y apply   n leave it as it is   Esc
-leave it
+ y apply   n or Esc: leave it as it is
 
 == en 40 scrolled to the end ==
 ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
  Sub-Sub: apply tag_items?
 
   ... 43 more lines above
-  function in children number 13: +
-  topic/spirometry
-  Jones 2024: A longer title about lung
-  function in children number 14: +
-  topic/spirometry
-  Jones 2025: A longer title about lung
-  function in children number 15: +
-  topic/spirometry
+    lung function in children number 13:
+    + topic/spirometry
+  Jones 2024: A longer title about
+    lung function in children number 14:
+    + topic/spirometry
+  Jones 2025: A longer title about
+    lung function in children number 15:
+    + topic/spirometry
 
 ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
- y apply   n leave it as it is   Esc
-leave it
+ y apply   n or Esc: leave it as it is
 
 == en 80 ==
 ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
@@ -41,15 +39,15 @@ leave it
   2 item(s) would change.
   Smith 2020: Title: + topic/asthma, type/cohort; - topic/copd
   Jones 2010: A longer title about lung function in children number 0: +
-  topic/spirometry
+    topic/spirometry
   Jones 2011: A longer title about lung function in children number 1: +
-  topic/spirometry
+    topic/spirometry
   Jones 2012: A longer title about lung function in children number 2: +
-  topic/spirometry
+    topic/spirometry
   ... 26 more lines below (up and down: scroll)
 
 ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
- y apply   n leave it as it is   Esc leave it
+ y apply   n or Esc: leave it as it is
 
 == en 80 scrolled to the end ==
 ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
@@ -57,16 +55,16 @@ leave it
 
   ... 26 more lines above
   Jones 2022: A longer title about lung function in children number 12: +
-  topic/spirometry
+    topic/spirometry
   Jones 2023: A longer title about lung function in children number 13: +
-  topic/spirometry
+    topic/spirometry
   Jones 2024: A longer title about lung function in children number 14: +
-  topic/spirometry
+    topic/spirometry
   Jones 2025: A longer title about lung function in children number 15: +
-  topic/spirometry
+    topic/spirometry
 
 ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
- y apply   n leave it as it is   Esc leave it
+ y apply   n or Esc: leave it as it is
 
 == en 120 ==
 ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
@@ -83,7 +81,7 @@ leave it
   ... 10 more lines below (up and down: scroll)
 
 ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
- y apply   n leave it as it is   Esc leave it
+ y apply   n or Esc: leave it as it is
 
 == en 120 scrolled to the end ==
 ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
@@ -100,7 +98,7 @@ leave it
   Jones 2025: A longer title about lung function in children number 15: + topic/spirometry
 
 ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
- y apply   n leave it as it is   Esc leave it
+ y apply   n or Esc: leave it as it is
 
 == pt 40 ==
 ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
@@ -108,35 +106,33 @@ leave it
 
   2 item(s) would change.
   Smith 2020: Title: + topic/asthma,
-  type/cohort; - topic/copd
-  Jones 2010: A longer title about lung
-  function in children number 0: +
-  topic/spirometry
-  Jones 2011: A longer title about lung
-  function in children number 1: +
+    type/cohort; - topic/copd
+  Jones 2010: A longer title about
+    lung function in children number 0:
+    + topic/spirometry
+  Jones 2011: A longer title about
+    lung function in children number 1:
   ... 43 linhas abaixo (cima e baixo:...
 
 ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
- s aplicar   n deixar como está   Esc
-deixar
+ s aplicar   n ou Esc: deixar como está
 
 == pt 40 scrolled to the end ==
 ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
  Sub-Sub: apply tag_items?
 
   ... 43 linhas acima
-  function in children number 13: +
-  topic/spirometry
-  Jones 2024: A longer title about lung
-  function in children number 14: +
-  topic/spirometry
-  Jones 2025: A longer title about lung
-  function in children number 15: +
-  topic/spirometry
+    lung function in children number 13:
+    + topic/spirometry
+  Jones 2024: A longer title about
+    lung function in children number 14:
+    + topic/spirometry
+  Jones 2025: A longer title about
+    lung function in children number 15:
+    + topic/spirometry
 
 ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
- s aplicar   n deixar como está   Esc
-deixar
+ s aplicar   n ou Esc: deixar como está
 
 == pt 80 ==
 ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
@@ -145,15 +141,15 @@ deixar
   2 item(s) would change.
   Smith 2020: Title: + topic/asthma, type/cohort; - topic/copd
   Jones 2010: A longer title about lung function in children number 0: +
-  topic/spirometry
+    topic/spirometry
   Jones 2011: A longer title about lung function in children number 1: +
-  topic/spirometry
+    topic/spirometry
   Jones 2012: A longer title about lung function in children number 2: +
-  topic/spirometry
+    topic/spirometry
   ... 26 linhas abaixo (cima e baixo: deslocar)
 
 ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
- s aplicar   n deixar como está   Esc deixar
+ s aplicar   n ou Esc: deixar como está
 
 == pt 80 scrolled to the end ==
 ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
@@ -161,16 +157,16 @@ deixar
 
   ... 26 linhas acima
   Jones 2022: A longer title about lung function in children number 12: +
-  topic/spirometry
+    topic/spirometry
   Jones 2023: A longer title about lung function in children number 13: +
-  topic/spirometry
+    topic/spirometry
   Jones 2024: A longer title about lung function in children number 14: +
-  topic/spirometry
+    topic/spirometry
   Jones 2025: A longer title about lung function in children number 15: +
-  topic/spirometry
+    topic/spirometry
 
 ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
- s aplicar   n deixar como está   Esc deixar
+ s aplicar   n ou Esc: deixar como está
 
 == pt 120 ==
 ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
@@ -187,7 +183,7 @@ deixar
   ... 10 linhas abaixo (cima e baixo: deslocar)
 
 ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
- s aplicar   n deixar como está   Esc deixar
+ s aplicar   n ou Esc: deixar como está
 
 == pt 120 scrolled to the end ==
 ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
@@ -204,4 +200,4 @@ deixar
   Jones 2025: A longer title about lung function in children number 15: + topic/spirometry
 
 ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
- s aplicar   n deixar como está   Esc deixar
+ s aplicar   n ou Esc: deixar como está

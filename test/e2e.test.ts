@@ -780,7 +780,7 @@ test("terminal look: the approval overlay: n leaves the library as it is, y appl
 	requests.length = 0;
 	const no = await inTerminal(ask("n", "Left it alone."), 100, "no");
 	assert.equal(no.failed, null, no.text.slice(-1500));
-	assert.match(no.text, /y apply\s+n leave it as it is/);
+	assert.match(no.text, /y apply\s+n or Esc: leave it as it is/);
 	assert.ok(!(await state()).AAAA2222.tags.some((t: any) => t.tag === "status/to-read"), "n changes nothing");
 	assert.match(JSON.stringify(requests[1].messages.find((m: any) => m.role === "tool")), /did not approve/);
 	noRed(no.raw);
@@ -826,7 +826,7 @@ test("subsub tui: a full-screen client of pi: the approval screen applies only o
 	requests.length = 0;
 	const no = await inTerminal(ask("n", "Left it alone."), 120, "tui-no", ["tui", "--here"]);
 	assert.equal(no.failed, null, no.text.slice(-1500));
-	assert.match(no.text, /y apply\s+n leave it as it is/);
+	assert.match(no.text, /y apply\s+n or Esc: leave it as it is/);
 	assert.match(no.text, /F2\s+notes/, "the side panel shows from 110 columns");
 	assert.ok(!(await state()).BBBB3333.tags.some((t: any) => t.tag === "topic/spirometry"), "n changes nothing");
 	noRed(no.raw);

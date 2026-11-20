@@ -77,6 +77,20 @@ function s(v: unknown, n = 90): string {
 	return t.length > n ? `${t.slice(0, n - 3)}...` : t;
 }
 
+/** The server cuts a title in its labels at this length, with no mark (label_of in zotero-local-mcp). */
+const SERVER_TITLE_CUT = 80;
+
+/**
+ * A line of the import preview: the citekey and the title. The server's label ("Lai 2026: The title") repeats the author and year that the
+ * citekey (lai2026) already shows, so it is left out; with no citekey, the label stays. The line is not cut here: the dialog wraps it.
+ */
+function importLabel(r: Obj): string {
+	const label = typeof r.item === "string" ? r.item : s(r.item, 300);
+	const m = typeof r.citekey === "string" && r.citekey ? label.match(/^.+? (?:\d{4}|n\.d\.): (.+)$/s) : null;
+	if (!m) return r.citekey ? `${r.citekey}  ${label}` : label;
+	return `${r.citekey}  ${m[1]}${m[1].length >= SERVER_TITLE_CUT ? "..." : ""}`;
+}
+
 /** What will be written: shown whole up to a large limit, and the rest is counted, never silently cut. */
 function whole(v: unknown, w: (typeof WORDS)[Lang], n = 3000): string {
 	const t = typeof v === "string" ? v : (JSON.stringify(v) ?? ""); // undefined: a field the server left out
@@ -153,7 +167,7 @@ export function formatPreview(tool: string, preview: unknown, lang: Lang = "en")
 		lines.push(
 			...list(
 				objs(p.would_import).map(
-					(r) => `${r.citekey}  ${s(r.item, 70)}${r.has_abstract ? "" : `  ${w.noAbstract}`}`,
+					(r) => `${importLabel(r)}${r.has_abstract ? "" : `  ${w.noAbstract}`}`,
 				),
 				w,
 			),

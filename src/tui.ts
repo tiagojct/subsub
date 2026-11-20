@@ -23,7 +23,7 @@ import { ApprovalView } from "./dialogs.ts";
 import { itemRef, type Choice, ChoiceView, InputView, LibraryView, type LibraryItem, NotesView } from "./screens.ts";
 import { glyphs as chooseGlyphs, type Glyphs, workingFrames } from "./skin.ts";
 import { bannerLines, type Entry, entriesFromMessages, loadPalette, messageText, type Palette, schemeFromEnv, type Scheme, SIDE_WIDTH, sideLines, transcriptLines } from "./tui-view.ts";
-import { loadWords, type Words } from "./words.ts";
+import { dialogTitle, loadWords, type Words } from "./words.ts";
 
 type Lang = "en" | "pt";
 type Mode = "researcher" | "librarian";
@@ -101,6 +101,8 @@ export class TuiApp {
 	private overlay: { hide(): void } | undefined;
 	/** A dialog of the extension that waits for an answer, and the ones behind it. */
 	private dialogHandle: { hide(): void } | undefined;
+	/** The approval dialog, shown in place of the editor while it waits for y or n. */
+	private inline: Component | undefined;
 	private dialogs: any[] = [];
 
 	constructor(d: TuiDeps) {
@@ -160,10 +162,15 @@ export class TuiApp {
 			},
 			invalidate() {},
 		};
+		const dialog: Component = {
+			render: (width) => app.inline?.render(width) ?? [],
+			invalidate: () => app.inline?.invalidate(),
+		};
 		const main = new VStack([
 			{ component: new ScrollView(transcript, { follow: "end", primary: true, overscroll: "chain" }), basis: 0, grow: 1, minSize: 1 },
 			{ component: working, basis: "auto" },
-			{ component: this.editor, basis: "auto", shrink: 1, minSize: 3 },
+			{ component: dialog, basis: "auto", shrink: 1, minSize: 3, visible: () => app.inline !== undefined },
+			{ component: this.editor, basis: "auto", shrink: 1, minSize: 3, visible: () => app.inline === undefined },
 			{ component: footer, basis: "auto" },
 		]);
 		return new HStack([
@@ -414,11 +421,24 @@ export class TuiApp {
 			this.tui.requestRender();
 		};
 		const centered = { width: "72%", minWidth: 44, maxHeight: "80%", anchor: "center" };
-		const title = String(ev.title ?? "Sub-Sub");
+		// The same plain title as in the web view ("Import?", not "Sub-Sub: apply import_identifiers?").
+		const title = dialogTitle(this.d.words, this.lang, String(ev.title ?? "Sub-Sub"));
 		if (ev.method === "confirm") {
 			const p = this.palette.paint();
 			const body = paintPreview(String(ev.message ?? ""), p.ok, p.strike, p.text);
-			show(new ApprovalView({ title, body, lang: this.lang, paint: p, glyphs: this.d.glyphs, rows: c.rows, redraw: c.redraw, done: (yes) => this.reply(ev.id, { confirmed: yes }) }), { width: "92%", minWidth: 40, maxHeight: "92%", anchor: "center", margin: 1 });
+			// Under the conversation, in place of the editor: an overlay let the conversation show through beside and below it.
+			// A screen that is open (notes, library) closes, so that the question is in view.
+			if (this.overlay) this.close();
+			const view = new ApprovalView({ title, body, lang: this.lang, paint: p, glyphs: this.d.glyphs, rows: c.rows, redraw: c.redraw, done: (yes) => this.reply(ev.id, { confirmed: yes }) });
+			this.inline = view;
+			this.tui.setFocus(view);
+			this.dialogHandle = {
+				hide: () => {
+					this.inline = undefined;
+					this.tui.setFocus(this.editor);
+				},
+			};
+			this.tui.requestRender();
 		} else if (ev.method === "select") {
 			const choices: Choice[] = (ev.options ?? []).map((o: unknown) => ({ label: String(o), value: String(o) }));
 			show(new ChoiceView({ ...c, title, choices, choose: (value) => this.reply(ev.id, { value }), cancel: () => this.reply(ev.id, { cancelled: true }) }), centered);

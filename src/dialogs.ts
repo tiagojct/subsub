@@ -1,10 +1,10 @@
 /**
  * The approval dialog of the terminal look: a preview between two dashed rules (dashed means "not done yet"), and keys that answer it.
- * It replaces pi's confirm dialog when the look is on. Nothing is applied unless the answer is the yes key: Enter does nothing, Esc, n and
+ * It replaces pi's confirm dialog when the look is on, and takes the place of the input box under the conversation. Nothing is applied unless the answer is the yes key: Enter does nothing, Esc, n and
  * Ctrl+C say no, and keys pressed in the first half second are ignored, so a letter typed just before the dialog opened cannot answer it.
  */
 
-import { matchesKey, wrapTextWithAnsi } from "@earendil-works/pi-tui";
+import { matchesKey, visibleWidth, wrapTextWithAnsi } from "@earendil-works/pi-tui";
 import { cut, fill, rule } from "./chrome.ts";
 import type { Paint } from "./look.ts";
 import { type Glyphs, UNICODE } from "./skin.ts";
@@ -12,8 +12,8 @@ import { type Glyphs, UNICODE } from "./skin.ts";
 type Lang = "en" | "pt";
 
 export const APPROVAL_WORDS = {
-	en: { yes: "y apply", no: "n leave it as it is", esc: "Esc leave it", scroll: "up and down: scroll", above: "more lines above", below: "more lines below" },
-	pt: { yes: "s aplicar", no: "n deixar como está", esc: "Esc deixar", scroll: "cima e baixo: deslocar", above: "linhas acima", below: "linhas abaixo" },
+	en: { yes: "y apply", no: "n or Esc: leave it as it is", scroll: "up and down: scroll", above: "more lines above", below: "more lines below" },
+	pt: { yes: "s aplicar", no: "n ou Esc: deixar como está", scroll: "cima e baixo: deslocar", above: "linhas acima", below: "linhas abaixo" },
 };
 
 /** The same keys as the web view: y, and s in Portuguese. */
@@ -27,12 +27,26 @@ export interface ApprovalLines {
 	maxScroll: number;
 }
 
+/**
+ * The preview wrapped to the width. A line that does not fit goes on below with a hanging indent (its own indent and two more spaces), so
+ * that each entry of a list starts where the reader expects it.
+ */
+export function wrapBody(body: string, width: number): string[] {
+	return body.split("\n").flatMap((line) => {
+		if (visibleWidth(line) <= width) return [line];
+		const lead = (line.replace(/\x1b\[[0-9;]*m/g, "").match(/^ */)?.[0].length ?? 0) + 2;
+		const ind = Math.min(lead, Math.floor(width / 3));
+		const parts = wrapTextWithAnsi(line, width - ind);
+		return parts.map((p, i) => (i ? " ".repeat(ind) + p.replace(/^ +/, "") : p));
+	});
+}
+
 /** The dialog as lines: rule, title, preview (scrolled), rule, keys. Every line fits the width. */
 export function approvalLines(o: { title: string; body: string; lang: Lang; width: number; paint: Paint; glyphs?: Glyphs; scroll?: number; bodyRows?: number }): ApprovalLines {
 	const g = o.glyphs ?? UNICODE;
 	const w = Math.max(20, o.width);
 	const words = APPROVAL_WORDS[o.lang];
-	const all = wrapTextWithAnsi(o.body, w - 2);
+	const all = wrapBody(o.body, w - 2);
 	const rows = Math.max(3, o.bodyRows ?? 14);
 	const maxScroll = Math.max(0, all.length - rows);
 	const scroll = Math.min(Math.max(0, o.scroll ?? 0), maxScroll);
@@ -43,7 +57,7 @@ export function approvalLines(o: { title: string; body: string; lang: Lang; widt
 	lines.push(...shown);
 	if (below > 0) lines.push(o.paint.dim(cut(`  ... ${below} ${words.below} (${words.scroll})`, w)));
 	lines.push("", rule(w, "dashed", o.paint.pend, g));
-	lines.push(...wrapTextWithAnsi(` ${words.yes}   ${words.no}   ${words.esc}`, w).map((l) => o.paint.muted(l)));
+	lines.push(...wrapTextWithAnsi(` ${words.yes}   ${words.no}`, w).map((l) => o.paint.muted(l)));
 	return { lines, total: all.length, maxScroll };
 }
 
@@ -74,8 +88,9 @@ export class ApprovalView {
 		this.opened = (o.now ?? Date.now)();
 	}
 
+	/** The dialog sits under the conversation, in place of the input box: two thirds of the terminal at most, so the end of the conversation stays in view. */
 	private bodyRows(): number {
-		return Math.max(3, Math.floor(((this.o.rows?.() ?? 24) * 9) / 10) - 8);
+		return Math.max(3, Math.floor(((this.o.rows?.() ?? 24) * 2) / 3) - 8);
 	}
 
 	render(width: number): string[] {

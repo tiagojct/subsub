@@ -50,7 +50,7 @@ import { ApprovalView } from "./dialogs.ts";
 import { allowedFile, listNotes, OPENABLE, openFile } from "./files.ts";
 import { itemRef, LibraryView, NotesView, type LibraryItem } from "./screens.ts";
 import { glyphs, paintFromTheme, workingFrames } from "./skin.ts";
-import { loadWords, toolWord, type Words } from "./words.ts";
+import { dialogTitle, loadWords, toolWord, type Words } from "./words.ts";
 import { dirName, noteName } from "./layout.ts";
 import { systemAddition } from "./prompt.ts";
 import { logUsage } from "./usage.ts";
@@ -234,15 +234,16 @@ export async function createSubsub(pi: ExtensionAPI, deps: SubsubDeps = {}): Pro
 	}
 
 	/**
-	 * Ask the user to approve a change. With the look on, the preview opens as an overlay with its own keys (see dialogs.ts); otherwise, and over RPC,
-	 * it is pi's confirm dialog. Only a yes counts: anything else, including an overlay that cannot open, is a no.
+	 * Ask the user to approve a change. With the look on, the preview opens in place of the input box, with its own keys (see dialogs.ts); otherwise, and over
+	 * RPC, it is pi's confirm dialog. Only a yes counts: anything else, including a dialog that cannot open, is a no.
 	 */
 	async function approve(ctx: ExtensionContext, title: string, body: string): Promise<boolean> {
 		if (lookOn(ctx) && typeof ctx.ui.custom === "function") {
 			const answer = await ctx.ui.custom<boolean>(
 				(tui, theme, _keys, done) =>
-					new ApprovalView({ title, body, lang, paint: paintFromTheme(theme), glyphs: glyphs(), done, rows: () => tui.terminal?.rows ?? 24, redraw: () => tui.requestRender() }),
-				{ overlay: true, overlayOptions: { width: "92%", minWidth: 40, maxHeight: "92%", anchor: "center", margin: 1 } },
+					new ApprovalView({ title: dialogTitle(words, lang, title), body, lang, paint: paintFromTheme(theme), glyphs: glyphs(), done, rows: () => tui.terminal?.rows ?? 24, redraw: () => tui.requestRender() }),
+				// In place of the input box, under the conversation: an overlay let the conversation show through beside and below it.
+				{ blocked: { kind: "permission", message: title } },
 			);
 			return answer === true;
 		}
